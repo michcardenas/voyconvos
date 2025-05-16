@@ -61,7 +61,7 @@
                     </div>
                     
                     <div class="savings">
-                        <h2>Ahorra hasta <span class="highlight">50 €</span> en cada viaje.</h2>
+                        <h2>Ahorra hasta <span class="highlight">$ 100</span> en cada viaje.</h2>
                     </div>
                     
                     <button class="publish-trip-btn">Publica un viaje</button>
