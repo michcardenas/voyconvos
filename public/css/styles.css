@@ -49,8 +49,8 @@ header {
 }
 
 .logo-image {
-    height: 40px;
-    margin-right: 10px;
+    height: 69px;
+    margin-right: 19px;
 }
 
 nav ul {
@@ -278,45 +278,5 @@ footer {
         display: none;
     }
 
-    .user-profile {
-        position: relative;
-        display: inline-block;
-    }
-
-    .profile-icon {
-        display: inline-block;
-        cursor: pointer;
-    }
-
-    .profile-icon img {
-        width: 35px;
-        height: 35px;
-    }
-
-    .dropdown-menu {
-        display: none;
-        position: absolute;
-        top: 45px;
-        right: 0;
-        background-color: #fff;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-        border-radius: 4px;
-        z-index: 1000;
-        min-width: 150px;
-    }
-
-    .dropdown-menu.show {
-        display: block;
-    }
-
-    .dropdown-item {
-        padding: 10px 15px;
-        display: block;
-        color: #333;
-        text-decoration: none;
-    }
-
-    .dropdown-item:hover {
-        background-color: #f0f0f0;
-    }
+    
 }

@@ -25,12 +25,9 @@
             </nav>
             <div class="user-profile">
     <div class="dropdown">
-        <!-- Solo el icono visible -->
         <a href="#" class="profile-icon" id="userDropdown">
             <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
         </a>
-
-        <!-- Menú oculto que se despliega al hacer clic -->
         <div class="dropdown-menu" id="userMenu">
             <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>
             <a href="{{ route('register') }}" class="dropdown-item">Registrarse</a>
@@ -49,12 +46,12 @@
                     <div class="route-inputs">
                         <div class="input-group">
                             <span class="icon">O</span>
-                            <input type="text" placeholder="Origen" value="Madrid">
+                            <input type="text" placeholder="Origen" value="">
                             <button class="switch-btn">⇄</button>
                         </div>
                         <div class="input-group">
                             <span class="icon">O</span>
-                            <input type="text" placeholder="Destino" value="Barcelona">
+                            <input type="text" placeholder="Destino" value="">
                         </div>
                     </div>
                     
@@ -90,16 +87,16 @@
     </footer>
 
     <script>
-     document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', function() {
         const userDropdown = document.getElementById('userDropdown');
         const userMenu = document.getElementById('userMenu');
 
-        userDropdown.addEventListener('click', function (e) {
+        userDropdown.addEventListener('click', function(e) {
             e.preventDefault();
             userMenu.classList.toggle('show');
         });
 
-        document.addEventListener('click', function (e) {
+        document.addEventListener('click', function(e) {
             if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
                 userMenu.classList.remove('show');
             }
