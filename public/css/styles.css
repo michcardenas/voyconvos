@@ -1,0 +1,322 @@
+/* Estilos generales */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Poppins', sans-serif;
+    color: #3A3A3A; /* Neutro oscuro */
+    background-color: #FCFCFD; /* Fondo base */
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+ul {
+    list-style: none;
+}
+
+/* Header */
+header {
+    padding: 15px 0;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    position: relative;
+    background-color: #fff;
+}
+
+.header-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo a {
+    display: flex;
+    align-items: center;
+    font-weight: 700;
+    font-size: 24px;
+    color: #1F4E79; /* Color Principal */
+}
+
+.logo-image {
+    height: 40px;
+    margin-right: 10px;
+}
+
+nav ul {
+    display: flex;
+}
+
+nav ul li {
+    margin-right: 25px;
+}
+
+nav ul li a {
+    color: #3A3A3A; /* Neutro oscuro */
+    font-weight: 500;
+}
+
+.user-actions {
+    display: flex;
+    align-items: center;
+}
+
+.search-btn {
+    margin-right: 15px;
+    font-weight: 500;
+}
+
+.publish-btn {
+    background-color: #1F4E79; /* Color Principal */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 50px;
+    font-weight: 500;
+    margin-right: 15px;
+}
+
+.profile-icon img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    
+}
+
+/* Hero Section */
+.hero {
+    background-color: #DDF2FE; /* Azul claro */
+    padding: 60px 0;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero h1 {
+    font-size: 32px;
+    max-width: 600px;
+    margin-bottom: 30px;
+    color: #3A3A3A; /* Neutro oscuro */
+}
+
+.search-box {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    padding: 30px;
+    width: 500px;
+    position: relative;
+    z-index: 2;
+}
+
+.route-inputs {
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    border: 1px solid #e0e0e0;
+    border-radius: 4px;
+    padding: 10px;
+}
+
+.input-group .icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #DDF2FE; /* Azul claro */
+    margin-right: 10px;
+    color: #3A3A3A; /* Neutro oscuro */
+}
+
+.input-group input {
+    flex-grow: 1;
+    border: none;
+    outline: none;
+    font-size: 16px;
+}
+
+.switch-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    color: #1F4E79; /* Color Principal */
+    cursor: pointer;
+}
+
+.passengers {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    color: #3A3A3A; /* Neutro oscuro */
+}
+
+.person-icon {
+    margin-right: 10px;
+}
+
+.savings {
+    margin-bottom: 20px;
+    color: #3A3A3A; /* Neutro oscuro */
+}
+
+.savings h2 {
+    font-size: 24px;
+}
+
+.highlight {
+    color: #4CAF50; /* Complementario */
+}
+
+.publish-trip-btn {
+    width: 100%;
+    background-color: #1F4E79; /* Color Principal */
+    color: white;
+    border: none;
+    padding: 15px;
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.publish-trip-btn:hover {
+    background-color: #163d61; /* Versión más oscura del Principal */
+}
+
+.car-illustration {
+    position: absolute;
+    right: 17%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40%;
+    max-width: 578px;
+    margin-left: 8px;
+}
+
+.car-illustration img {
+    width: 100%;
+    height: auto;
+    padding: 4px;
+}
+
+/* Slogan Section */
+.slogan {
+    text-align: center;
+    padding: 50px 0;
+}
+
+.slogan h2 {
+    font-size: 32px;
+    font-weight: 700;
+    color: #3A3A3A; /* Neutro oscuro */
+}
+
+/* Footer */
+footer {
+    background-color: #fff;
+    padding: 30px 0;
+    text-align: center;
+    border-top: 1px solid #e0e0e0;
+}
+
+.publish-trip-btn-footer {
+    background-color: #1F4E79; /* Color Principal */
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    border-radius: 50px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.publish-trip-btn-footer:hover {
+    background-color: #163d61; /* Versión más oscura del Principal */
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .header-container {
+        flex-wrap: wrap;
+    }
+    
+    nav {
+        order: 3;
+        width: 100%;
+        margin-top: 15px;
+    }
+    
+    nav ul {
+        justify-content: space-between;
+    }
+    
+    .hero h1 {
+        font-size: 28px;
+    }
+    
+    .search-box {
+        width: 100%;
+    }
+    
+    .car-illustration {
+        display: none;
+    }
+
+    .user-profile {
+        position: relative;
+        display: inline-block;
+    }
+
+    .profile-icon {
+        display: inline-block;
+        cursor: pointer;
+    }
+
+    .profile-icon img {
+        width: 35px;
+        height: 35px;
+    }
+
+    .dropdown-menu {
+        display: none;
+        position: absolute;
+        top: 45px;
+        right: 0;
+        background-color: #fff;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+        border-radius: 4px;
+        z-index: 1000;
+        min-width: 150px;
+    }
+
+    .dropdown-menu.show {
+        display: block;
+    }
+
+    .dropdown-item {
+        padding: 10px 15px;
+        display: block;
+        color: #333;
+        text-decoration: none;
+    }
+
+    .dropdown-item:hover {
+        background-color: #f0f0f0;
+    }
+}
