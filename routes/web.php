@@ -21,4 +21,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
+use App\Http\Controllers\ContactoController;
+
+Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name('contacto.formulario');
+Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
+
+
 require __DIR__.'/auth.php';

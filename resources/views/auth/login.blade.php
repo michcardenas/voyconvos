@@ -69,7 +69,6 @@
     </div>
     
     <style>
-        /* Paleta de colores según la imagen proporcionada */
         :root {
             --color-principal: #1F4E79;     /* Principal - Azul corporativo */
             --color-azul-claro: #DDF2FE;    /* Azul claro */
