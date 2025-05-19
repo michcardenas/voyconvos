@@ -32,6 +32,11 @@
                         Gestión de Usuarios
                     </a>
                 </li>
+                <li>  
+                    <a href="#" class="text-gray-700 hover:text-indigo-600">
+                        Configuracion
+                    </a>
+                </li>
                 @endrole
                 </ul>
             
