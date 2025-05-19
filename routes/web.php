@@ -4,6 +4,8 @@ use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\GoogleController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\ContactoController;
+
 
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
@@ -17,9 +19,8 @@ Route::get('/dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('admin.dashboard');
-    })->name('dashboard');
+
+    Route::get('/dashboard', function () { return view('admin.dashboard'); })->name('dashboard');
 
     Route::resource('users', UserController::class);
 });
@@ -30,10 +31,10 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-use App\Http\Controllers\ContactoController;
 
 Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name('contacto.formulario');
 Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
+Route::get('/panel', [UsuarioController::class, 'index'])->name('usuario.panel');
 
 
 require __DIR__.'/auth.php';

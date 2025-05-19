@@ -249,6 +249,13 @@ nav ul li a.active:after {
     background-color: var(--color-principal);
 }
 
+
+
+
+
+/* ADMINDASHBOARD CSS */
+
+
 /* Responsive */
 @media (max-width: 992px) {
     .contact-container {

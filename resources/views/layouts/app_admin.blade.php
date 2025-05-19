@@ -20,9 +20,12 @@
             </div>
             <ul class="flex space-x-4">
                 <li>
+                @role('admin')
                     <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
                         Gestión de Usuarios
                     </a>
+                @endrole
+
                 </li>
                 {{-- Agrega más enlaces aquí si quieres --}}
             </ul>
@@ -42,6 +45,7 @@
     <main class="container mx-auto px-4 py-6">
         @yield('content')
     </main>
+    @stack('scripts')
 
 </body>
 </html>

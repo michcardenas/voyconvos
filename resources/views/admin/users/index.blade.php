@@ -5,6 +5,11 @@
 @section('content')
 <div class="container py-5">
     <h1 class="fw-bold mb-4">Lista de Usuarios</h1>
+    @if(session('success'))
+    <div class="alert alert-success mb-4">
+        {{ session('success') }}
+    </div>
+@endif
 
     <a href="{{ route('admin.users.create') }}" class="btn btn-success mb-3">Nuevo Usuario</a>
 
@@ -33,3 +38,17 @@
     </table>
 </div>
 @endsection
+@push('scripts')
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const alert = document.getElementById('alert-success');
+        if (alert) {
+            setTimeout(() => {
+                alert.style.transition = "opacity 0.5s ease";
+                alert.style.opacity = 0;
+                setTimeout(() => alert.remove(), 500);
+            }, 2000);
+        }
+    });
+</script>
+@endpush
