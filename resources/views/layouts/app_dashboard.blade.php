@@ -33,8 +33,8 @@
                     </a>
                 </li>
                 <li>  
-                    <a href="#" class="text-gray-700 hover:text-indigo-600">
-                        Configuracion
+                    <a href="{{ route('configuracion.index') }}" class="text-gray-700 hover:text-indigo-600">
+                        Configuración
                     </a>
                 </li>
                 @endrole
@@ -129,6 +129,6 @@
     </script>
 
     {{-- Tu script de efectos --}}
-    <script src="{{ asset('js/script.js') }}"></script>
+   
 </body>
 </html>

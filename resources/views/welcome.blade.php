@@ -3,76 +3,71 @@
 @section('title', 'Inicio')
 
 @section('content')
-    <!-- Hero Section -->
-    <section class="hero">
-        <div class="hero-background"></div>
-        <div class="container hero-content">
-            <div class="hero-text">
-                <h1>Comparte tu viaje en auto</h1>
-                <p>Ahorra dinero y conecta con otras personas</p>
-                <div class="hero-buttons">
-                    <a href="#" class="btn btn-primary">Buscar viaje</a>
-                    <a href="#" class="btn btn-outline">Publicar viaje</a>
+    {{-- HERO --}}
+    <section class="hero position-relative">
+        <div class="hero-background"
+             style="background: linear-gradient(rgba(31, 78, 121, 0.7), rgba(31, 78, 121, 0.4)), 
+             url('{{ asset(\App\Models\Contenido::get('hero', 'background', 'img/fondo.jpg')) }}'); 
+             background-size: cover; background-position: center;">
+        </div>
+
+        <div class="container hero-content position-relative text-white">
+            <div class="hero-text text-center">
+                <h1>{{ \App\Models\Contenido::get('hero', 'h1') }}</h1>
+                <h2>{{ \App\Models\Contenido::get('hero', 'h2') }}</h2>
+                <div class="hero-buttons mt-3">
+                    <a href="#" class="btn btn-primary me-2">
+                        {{ \App\Models\Contenido::get('hero', 'btn_buscar') }}
+                    </a>
+                    <a href="#" class="btn btn-outline-light">
+                        {{ \App\Models\Contenido::get('hero', 'btn_publicar') }}
+                    </a>
                 </div>
             </div>
 
-            <div class="search-box">
-                <div class="route-inputs">
-                    <div class="input-group">
-                        <span class="input-icon"><i class="fas fa-map-marker-alt"></i></span>
-                        <input type="text" placeholder="Origen" value="">
-                        <button class="switch-btn">⇄</button>
-                    </div>
-                    <div class="input-group">
-                        <span class="input-icon"><i class="fas fa-map-marker-alt"></i></span>
-                        <input type="text" placeholder="Destino" value="">
-                    </div>
+            <div class="search-box mt-5 bg-white text-dark p-4 rounded shadow">
+                {{-- Puedes mantener inputs fijos o dinámicos si deseas --}}
+                <div class="savings mt-3">
+                    <h3>{{ \App\Models\Contenido::get('hero', 'ahorro_texto') }}
+                        <span class="highlight">{{ \App\Models\Contenido::get('hero', 'ahorro_valor') }}</span>
+                        {{ \App\Models\Contenido::get('hero', 'ahorro_sufijo') }}
+                    </h3>
                 </div>
 
-                <div class="passengers">
-                    <span class="person-icon"><i class="fas fa-user"></i></span>
-                    <span>2 pasajeros</span>
-                </div>
-
-                <div class="savings">
-                    <h2>Ahorra hasta <span class="highlight">$ 100</span> en cada viaje.</h2>
-                </div>
-
-                <button class="publish-trip-btn">Publica un viaje</button>
-                <a href="#" class="como-funciona">Cómo funciona <i class="fas fa-arrow-right"></i></a>
+                <button class="publish-trip-btn btn btn-success mt-3">
+                    {{ \App\Models\Contenido::get('hero', 'btn_publicar_main') }}
+                </button>
+                <a href="#" class="como-funciona d-block mt-2">
+                    {{ \App\Models\Contenido::get('hero', 'como_funciona') }} <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- Features Section -->
-    <section class="features">
+    {{-- FEATURES --}}
+    <section class="features py-5 text-center">
         <div class="container">
-            <h2>¿Por qué elegir VoyConVos?</h2>
+            <h2 class="mb-5">{{ \App\Models\Contenido::get('features', 'titulo') }}</h2>
+
             <div class="feature-cards">
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-coins"></i></div>
-                    <h3>Ahorra en cada viaje</h3>
-                    <p>Comparte los gastos de gasolina y peajes con otros viajeros</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-users"></i></div>
-                    <h3>Conoce nuevas personas</h3>
-                    <p>Conecta con gente que comparte tu ruta e intereses</p>
-                </div>
-                <div class="feature-card">
-                    <div class="feature-icon"><i class="fas fa-leaf"></i></div>
-                    <h3>Cuida el medio ambiente</h3>
-                    <p>Reduce la contaminación compartiendo vehículo</p>
-                </div>
+                @for ($i = 1; $i <= 3; $i++)
+                    <div class="feature-card">
+                        <div class="feature-icon mb-3">
+                            <i class="fas {{ \App\Models\Contenido::get('features', 'feature_' . $i . '_icon') }} fa-2x text-primary"></i>
+                        </div>
+                        <h3>{{ \App\Models\Contenido::get('features', 'feature_' . $i . '_titulo') }}</h3>
+                        <p>{{ \App\Models\Contenido::get('features', 'feature_' . $i . '_texto') }}</p>
+                    </div>
+                @endfor
             </div>
         </div>
     </section>
 
-    <!-- Slogan Section -->
-    <section class="slogan">
+    {{-- SLOGAN --}}
+    <section class="slogan py-5 text-center bg-white">
         <div class="container">
-            <h2>Conduce. Comparte. Ahorra.</h2>
-            <a href="#" class="btn btn-primary">Publica un viaje</a>
+            <h2>{{ \App\Models\Contenido::get('slogan', 'titulo') }}</h2>
+            <a href="#" class="btn btn-primary">{{ \App\Models\Contenido::get('slogan', 'boton') }}</a>
         </div>
     </section>
 @endsection

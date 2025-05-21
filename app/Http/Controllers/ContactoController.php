@@ -8,7 +8,7 @@ class ContactoController extends Controller
 {
      public function mostrarFormulario()
     {
-        return view('contacto'); // Carga resources/views/contacto.blade.php
+        return view('contacto'); 
     }
 
     public function enviarFormulario(Request $request)
