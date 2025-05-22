@@ -85,7 +85,7 @@
     @endif
 
     <div class="mt-4 d-flex gap-3">
-        <a href="#" class="btn btn-outline-primary">
+        <a href="{{ route('conductor.gestion') }}" class="btn btn-outline-primary">
             ➕ Agendar nuevo viaje
         </a>
         <a href="#" class="btn btn-link text-decoration-none">

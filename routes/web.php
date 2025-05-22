@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\PaginaController;
 use App\Http\Controllers\Admin\SeccionController;
 use App\Http\Controllers\Admin\ContenidoController;
+use App\Http\Controllers\Conductor\DestinoController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -63,7 +64,7 @@ Route::get('admin/secciones/{pagina}', [SeccionController::class, 'index'])->nam
 Route::get('/admin/secciones/{slug}/editar', [SeccionController::class, 'editarContenido'])
     ->name('admin.secciones.editarContenido');
 
-    Route::get('/admin/secciones/{slug}/editar-contenidos', [\App\Http\Controllers\Admin\SeccionController::class, 'editarContenidos'])->name('admin.secciones.editar-contenidos');
+Route::get('/admin/secciones/{slug}/editar-contenidos', [\App\Http\Controllers\Admin\SeccionController::class, 'editarContenidos'])->name('admin.secciones.editar-contenidos');
 Route::put('/admin/secciones/{slug}/actualizar-contenidos', [\App\Http\Controllers\Admin\SeccionController::class, 'actualizarContenidos'])->name('admin.secciones.actualizar-contenidos');
 
 
@@ -82,6 +83,15 @@ Route::get('/configuracion/paginas/{pagina}/editar', [PaginaController::class, '
 // Contacto público
 Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name('contacto.formulario');
 Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
+
+// Rutas conductores
+Route::get('/conductor/gestion', function () {
+    return view('conductor.gestion');
+})->name('conductor.gestion');
+Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
+Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
+
+
 
 // // Panel de usuario
 // Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
