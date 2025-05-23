@@ -282,6 +282,19 @@
             flex-direction: column;
         }
     }
+
+    .form-grid-responsive {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 30px;
+}
+
+@media (min-width: 992px) {
+    .form-grid-responsive {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
 </style>
 
 <div class="container-mapa">
@@ -322,8 +335,9 @@
         <h3 style="text-align:center; font-size: 24px; color: var(--color-primario); margin-bottom: 25px;">
             💰 Costo de Viaje
         </h3>
-        <form id="viajeForm">
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 30px;">
+        <form id="viajeForm" style="width: 100%;">
+    <div class="form-grid-responsive">
+
 
         {{-- Columna 1: Origen y Destino --}}
         <div class="form-section">
@@ -867,7 +881,7 @@ function guardarViaje() {
     mostrarMensaje("✅ Datos guardados correctamente", "success");
     
     // Redirigir o continuar con el flujo
-    // window.location.href = '/siguiente-paso';
+    window.location.href = "{{ route('detalle.viaje') }}";
 }
 
 function limpiarTodo() {

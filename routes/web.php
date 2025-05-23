@@ -10,6 +10,9 @@ use App\Http\Controllers\Admin\PaginaController;
 use App\Http\Controllers\Admin\SeccionController;
 use App\Http\Controllers\Admin\ContenidoController;
 use App\Http\Controllers\Conductor\DestinoController;
+use App\Http\Controllers\Conductor\ConductorController;
+use App\Http\Controllers\Conductor\RutaController;
+
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -90,7 +93,8 @@ Route::get('/conductor/gestion', function () {
 })->name('conductor.gestion');
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
-
+Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
+Route::post('/conductor/guardar-viaje', [RutaController::class, 'store'])->name('conductor.viaje.store');
 
 
 // // Panel de usuario
