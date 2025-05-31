@@ -127,6 +127,8 @@
                 }
             });
         });
+
+        
     </script>
 
     {{-- Tu script de efectos --}}

@@ -26,15 +26,35 @@ class ProfileController extends Controller
      */
     public function update(ProfileUpdateRequest $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
+        $user = $request->user();
 
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
+        // Actualiza datos validados
+        $user->fill($request->validated());
+
+        // Si cambia el email, lo desverifica
+        if ($user->isDirty('email')) {
+            $user->email_verified_at = null;
         }
 
-        $request->user()->save();
+        $user->save();
 
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
+        // 🔄 Actualiza el rol
+        if ($request->has('role')) {
+            $user->syncRoles([$request->input('role')]);
+        }
+
+        // Redirige si el nuevo rol es conductor
+        if ($request->input('role') === 'conductor') {
+            return redirect()->route('conductor.registro.form');
+        }
+
+        // ✅ Redirige al dashboard del pasajero si es pasajero
+        if ($request->input('role') === 'pasajero') {
+            return redirect()->route('pasajero.dashboard');
+        }
+
+        // Por defecto vuelve al perfil
+        return redirect()->route('profile.edit')->with('status', 'profile-updated');
     }
 
     /**

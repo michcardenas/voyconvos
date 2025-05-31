@@ -74,7 +74,7 @@
     function guardarInfoConductor() {
         const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
 
-        const body = {
+      const body = {
             origen_direccion: viaje.origen.direccion,
             origen_lat: parseFloat(viaje.origen.coords.split(',')[0]),
             origen_lng: parseFloat(viaje.origen.coords.split(',')[1]),
@@ -87,7 +87,6 @@
             valor_cobrado: parseFloat(document.getElementById('valorCobrado').value || 0),
             hora_salida: document.getElementById('horaSalida').value,
             puestos_disponibles: parseInt(document.getElementById('puestosDisponibles').value || 0),
-            estado: "pendiente",
             activo: true
         };
 
@@ -103,7 +102,7 @@
         .then(data => {
             if (data.success) {
                 alert("✅ Viaje guardado exitosamente (ID: " + data.viaje_id + ")");
-                localStorage.removeItem('ultimoViaje'); // opcional
+                window.location.href = "{{ route('dashboard') }}";
             } else {
                 alert("❌ Error al guardar viaje");
             }

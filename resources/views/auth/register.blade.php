@@ -74,11 +74,11 @@
     <style>
         /* Paleta de colores según la imagen proporcionada */
         :root {
-            --color-principal: #1F4E79;     /* Principal - Azul corporativo */
-            --color-azul-claro: #DDF2FE;    /* Azul claro */
-            --color-neutro-oscuro: #3A3A3A; /* Neutro oscuro */
-            --color-complementario: #4CAF50; /* Complementario */
-            --color-fondo-base: #FCFCFD;    /* Fondo base */
+            --color-principal: #1F4E79;  
+            --color-azul-claro: #DDF2FE;  
+            --color-neutro-oscuro: #3A3A3A; 
+            --color-complementario: #4CAF50; 
+            --color-fondo-base: #FCFCFD;   
         }
         
         /* Estos estilos ayudan a que el diseño funcione correctamente con los estilos por defecto de Laravel/Breeze */
@@ -287,7 +287,6 @@
             height: 20px;
         }
         
-        /* Sobreescribir estilos de Breeze para componentes */
         .block {
             display: block;
         }
@@ -306,7 +305,7 @@
             .welcome-panel {
                 width: 100%;
                 padding: 2rem;
-                order: -1; /* Panel de bienvenida primero en móvil */
+                order: -1; 
             }
             
             .login-form-panel {

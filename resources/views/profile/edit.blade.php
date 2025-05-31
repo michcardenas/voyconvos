@@ -6,7 +6,7 @@
 <div class="container_profile">
     <h1 class="title_profile">Editar Usuario</h1>
 
-    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="form_profile">
+    <form method="POST" action="{{ route('profile.update') }}" enctype="multipart/form-data" class="form_profile" id="editarUsuarioForm">
         @csrf
         @method('PATCH')
 
@@ -20,13 +20,10 @@
             <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
         </div>
 
-        <div class="form-group_profile">
-            <label for="role">Tipo de usuario</label>
-            <select name="role" id="role" required>
-                <option value="pasajero" {{ $user->hasRole('pasajero') ? 'selected' : '' }}>Pasajero</option>
-                <option value="conductor" {{ $user->hasRole('conductor') ? 'selected' : '' }}>Conductor</option>
-            </select>
-        </div>
+        <select name="role" class="form-control" required>
+            <option value="pasajero" {{ $user->hasRole('pasajero') ? 'selected' : '' }}>Pasajero</option>
+            <option value="conductor" {{ $user->hasRole('conductor') ? 'selected' : '' }}>Conductor</option>
+        </select>
 
         <div class="form-group_profile">
         <label for="pais">Nacionalidad</label>
@@ -62,36 +59,39 @@
             <label for="celular">Celular</label>
             <input type="text" id="celular" name="celular" value="{{ old('celular', $user->celular) }}" required>
         </div>
-<!-- Foto -->
-<div class="form-group_profile">
-    <label for="foto">Foto de perfil</label>
-    <input type="file" id="foto" name="foto" accept="image/*">
+        <!-- Foto -->
+        <div class="form-group_profile">
+            <label for="foto">Foto de perfil</label>
+            <input type="file" id="foto" name="foto" accept="image/*">
 
-    {{-- Imagen actual si existe --}}
-    @if($user->foto)
-        <div class="profile-preview_profile">
-            <p class="preview-label_profile">Foto actual:</p>
-            <div class="profile-img-wrapper_profile">
-                <img src="{{ asset('storage/' . $user->foto) }}" alt="Foto actual" class="profile-img_profile">
+            {{-- Imagen actual si existe --}}
+            @if($user->foto)
+                <div class="profile-preview_profile">
+                    <p class="preview-label_profile">Foto actual:</p>
+                    <div class="profile-img-wrapper_profile">
+                        <img src="{{ asset('storage/' . $user->foto) }}" alt="Foto actual" class="profile-img_profile">
+                    </div>
+                </div>
+            @endif
+
+            {{-- Vista previa dinámica al seleccionar nueva imagen --}}
+            <div id="preview-nueva-foto" class="profile-preview_profile" style="display: none;">
+                <p class="preview-label_profile">Vista previa:</p>
+                <div class="profile-img-wrapper_profile">
+                    <img id="img-preview" src="" alt="Vista previa" class="profile-img_profile">
+                </div>
             </div>
         </div>
-    @endif
 
-    {{-- Vista previa dinámica al seleccionar nueva imagen --}}
-    <div id="preview-nueva-foto" class="profile-preview_profile" style="display: none;">
-        <p class="preview-label_profile">Vista previa:</p>
-        <div class="profile-img-wrapper_profile">
-            <img id="img-preview" src="" alt="Vista previa" class="profile-img_profile">
+
+        <div class="form-actions_profile">
+            <button type="submit" class="btn_profile btn-success_profile">Guardar cambios</button>
+
+            <a href="{{ route('dashboard') }}" class="btn_profile btn-skip_profile">Quiero omitir este paso por ahora</a>
         </div>
-    </div>
-</div>
 
+        <input type="hidden" name="redirect_to_registro" ...>
 
-<div class="form-actions_profile">
-    <button type="submit" class="btn_profile btn-success_profile">Guardar cambios</button>
-
-    <a href="{{ route('dashboard') }}" class="btn_profile btn-skip_profile">Quiero omitir este paso por ahora</a>
-</div>
     </form>
 </div>
 @push('scripts')
@@ -115,6 +115,7 @@
             }
         });
     });
+
 </script>
 @endpush
 @endsection

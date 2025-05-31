@@ -65,9 +65,14 @@ class RutaController extends Controller
             'activo' => 'boolean'
         ]);
 
+        // 👉 Asignar automáticamente el ID del conductor actual
+        $data['conductor_id'] = auth()->id();
+
+        // Valores por defecto si no vienen en la solicitud
         $data['estado'] = $data['estado'] ?? 'pendiente';
         $data['activo'] = $data['activo'] ?? true;
 
+        // Crear viaje
         $viaje = Viaje::create($data);
 
         return response()->json(['success' => true, 'viaje_id' => $viaje->id]);

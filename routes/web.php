@@ -12,7 +12,12 @@ use App\Http\Controllers\Admin\ContenidoController;
 use App\Http\Controllers\Conductor\DestinoController;
 use App\Http\Controllers\Conductor\ConductorController;
 use App\Http\Controllers\Conductor\RutaController;
-
+use App\Http\Controllers\Conductor\RegistroVehiculoController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Pasajero\DashboardController as PasajeroDashboard;
+use App\Http\Controllers\pasajero\DashboardPasajeroController;
+use App\Http\Controllers\Pasajero\ReservaPasajeroController;
+use App\Http\Controllers\Pasajero\ChatPasajeroController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -24,9 +29,9 @@ Route::get('/', function () {
 });
 
 // Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
 
 // Rutas protegidas por autenticación
 Route::middleware('auth')->group(function () {
@@ -95,6 +100,42 @@ Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('co
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
 Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
 Route::post('/conductor/guardar-viaje', [RutaController::class, 'store'])->name('conductor.viaje.store');
+
+
+// editar datos del conductor
+Route::get('/conductor/completar-registro', [RegistroVehiculoController::class, 'form'])->name('conductor.registro.form');
+Route::post('/conductor/completar-registro', [RegistroVehiculoController::class, 'store'])->name('conductor.registro.store');
+Route::post('/conductor/registro', [RegistroVehiculoController::class, 'store'])->name('conductor.registro.store');
+
+// Dashboard de pasajero
+Route::get('/pasajero/dashboard', [ReservaPasajeroController::class, 'misReservas'])->name('pasajero.dashboard');
+
+// Ver detalles de una reserva
+Route::get('/pasajero/reserva/{reserva}/detalles', [ReservaPasajeroController::class, 'verDetalles'])->name('pasajero.reserva.detalles');
+
+// Mostrar viajes disponibles
+Route::get('/pasajero/viajes-disponibles', [ReservaPasajeroController::class, 'mostrarViajesDisponibles'])->name('pasajero.viajes.disponibles');
+
+// Paso 1: Mostrar formulario de confirmación
+Route::get('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 'mostrarConfirmacion'])->name('pasajero.confirmar.mostrar');
+
+// Paso 2: Mostrar resumen con GET (cantidad y total)
+Route::get('/pasajero/reserva/resumen/{viaje}', [ReservaPasajeroController::class, 'mostrarResumen'])->name('pasajero.reserva.resumen');
+
+// Paso 3: Confirmar reserva y guardar
+Route::post('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 'reservar'])->name('pasajero.reservar');
+
+// // Confirmación final
+// Route::get('/pasajero/reserva-confirmada/{viaje}', [ReservaPasajeroController::class, 'confirmacion'])->name('pasajero.reserva.confirmada');
+
+
+// Chat pasajero con conductor
+Route::get('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'verChat'])->name('chat.ver');
+Route::post('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'enviarMensaje'])->name('chat.enviar');
+
+
+
+
 
 
 // // Panel de usuario
