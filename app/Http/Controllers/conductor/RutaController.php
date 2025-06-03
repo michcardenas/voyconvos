@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Viaje;
+use Illuminate\Support\Facades\Log;
 
 class RutaController extends Controller
 {
@@ -48,6 +49,7 @@ class RutaController extends Controller
 
     public function store(Request $request)
     {
+         Log::info($request);
         $data = $request->validate([
             'origen_direccion' => 'required|string',
             'origen_lat' => 'required|numeric',
@@ -60,6 +62,7 @@ class RutaController extends Controller
             'valor_estimado' => 'required|numeric',
             'valor_cobrado' => 'nullable|numeric',
             'hora_salida' => 'nullable',
+            'fecha_salida'         => 'nullable|date',
             'puestos_disponibles' => 'nullable|integer',
             'estado' => 'nullable|string',
             'activo' => 'boolean'
@@ -71,6 +74,8 @@ class RutaController extends Controller
         // Valores por defecto si no vienen en la solicitud
         $data['estado'] = $data['estado'] ?? 'pendiente';
         $data['activo'] = $data['activo'] ?? true;
+
+       
 
         // Crear viaje
         $viaje = Viaje::create($data);

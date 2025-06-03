@@ -19,6 +19,7 @@
                 <li class="list-group-item"><strong>Destino:</strong> {{ $reserva->viaje->destino_direccion }}</li>
                 <li class="list-group-item"><strong>Fecha:</strong> {{ $reserva->viaje->fecha_salida }}</li>
                 <li class="list-group-item"><strong>Hora:</strong> {{ $reserva->viaje->hora_salida }}</li>
+                <li class="list-group-item"><strong>Hora:</strong> {{ $reserva->viaje->fecha_salida }}</li>
                 <li class="list-group-item"><strong>Puestos disponibles:</strong> {{ $reserva->viaje->puestos_disponibles }}</li>
             </ul>
 

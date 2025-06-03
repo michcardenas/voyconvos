@@ -60,6 +60,7 @@
                         <h5 class="fw-bold">{{ $viaje->origen_direccion }} ➡ {{ $viaje->destino_direccion }}</h5>
                         <p class="mb-1">📅 {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</p>
                         <p class="mb-1">🕒 {{ $viaje->hora_salida ?? 'No definida' }}</p>
+                        <p class="mb-1">🕒 {{ $viaje->fecha_salida ?? 'No definida' }}</p>
                         <p class="mb-1">🚗 Conductor: <strong>{{ $viaje->conductor?->name ?? 'No disponible' }}</strong></p>
                         <p class="mb-1">💺 Puestos disponibles: <strong>{{ $viaje->puestos_disponibles }}</strong></p>
 

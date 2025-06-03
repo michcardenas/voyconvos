@@ -10,8 +10,12 @@ class DashboardPasajeroController extends Controller
 {
     public function index()
     {
-        // Precarga la relación con el conductor
-        $viajesDisponibles = Viaje::with('conductor')->where('estado', 'pendiente')->get();
+        $viajesDisponibles = Viaje::with('conductor')
+            ->where('estado', 'pendiente')
+            ->where('fecha_salida', '>=', now())
+            ->where('puestos_disponibles', '>', 0)
+            ->orderBy('fecha_salida', 'asc')
+            ->get();
 
         return view('pasajero.dashboard', compact('viajesDisponibles'));
     }

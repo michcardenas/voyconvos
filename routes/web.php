@@ -18,6 +18,7 @@ use App\Http\Controllers\Pasajero\DashboardController as PasajeroDashboard;
 use App\Http\Controllers\pasajero\DashboardPasajeroController;
 use App\Http\Controllers\Pasajero\ReservaPasajeroController;
 use App\Http\Controllers\Pasajero\ChatPasajeroController;
+use App\Http\Controllers\Conductor\ViajeController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -93,13 +94,12 @@ Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name(
 Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
 
 // Rutas conductores
-Route::get('/conductor/gestion', function () {
-    return view('conductor.gestion');
-})->name('conductor.gestion');
+
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
 Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
 Route::post('/conductor/guardar-viaje', [RutaController::class, 'store'])->name('conductor.viaje.store');
+Route::get('/conductor/gestion', [ConductorController::class, 'gestion'])->name('conductor.gestion');
 
 
 // editar datos del conductor
@@ -133,10 +133,12 @@ Route::post('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 're
 Route::get('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'verChat'])->name('chat.ver');
 Route::post('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'enviarMensaje'])->name('chat.enviar');
 
+// Eliminacion de viaje
+Route::delete('/viajes/{viaje}/eliminar', [\App\Http\Controllers\Conductor\ViajeController::class, 'eliminar'])->name('conductor.viaje.eliminar');
 
-
-
-
+// detalles del viaje conductor
+Route::get('/viajes/{viaje}/detalle', [ViajeController::class, 'detalle'])->name('conductor.viaje.detalle');
+Route::get('/conductor/viajes/{viaje}', [ConductorController::class, 'verViaje'])->name('conductor.viaje.detalles');
 
 // // Panel de usuario
 // Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');

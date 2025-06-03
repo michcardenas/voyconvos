@@ -19,6 +19,7 @@ class Viaje extends Model
         'valor_estimado',
         'valor_cobrado',
         'hora_salida',
+        'fecha_salida',
         'puestos_disponibles',
         'estado',
         'activo',

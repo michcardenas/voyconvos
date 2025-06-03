@@ -356,17 +356,12 @@
         {{-- Columna 2: Datos del vehículo --}}
         <div class="form-section">
             <div class="form-group">
-                <label>Tipo de vehículo</label>
-                <select id="tipo_vehiculo" onchange="actualizarConsumoSugerido()">
-                    <option value="">Selecciona un vehículo</option>
-                    <option value="carro_economico">🚗 Carro Económico (35 km/galón)</option>
-                    <option value="carro_mediano">🚙 Carro Mediano (28 km/galón)</option>
-                    <option value="carro_lujo">🚘 Carro de Lujo (22 km/galón)</option>
-                    <option value="suv_pequeño">🚙 SUV Pequeño (25 km/galón)</option>
-                    <option value="suv_grande">🚐 SUV Grande (18 km/galón)</option>
-                    <option value="moto">🏍️ Motocicleta (60 km/galón)</option>
-                    <option value="camioneta">🛻 Camioneta (20 km/galón)</option>
-                </select>
+                @if($marca)
+                    <div class="alert alert-info">
+                        🚗 Tu vehículo registrado es: <strong>{{ $marca }}</strong>
+                    </div>
+                @endif
+
             </div>
             <div class="form-group">
                 <label>Consumo (km por galón/litro)</label>
@@ -873,7 +868,8 @@ function guardarViaje() {
         },
         costo: document.getElementById("costo_total").value,
         distancia: document.getElementById("distancia_km").value,
-        vehiculo: document.getElementById("tipo_vehiculo").value
+        vehiculo: marcaVehiculo
+
     };
 
     // Aquí puedes enviar los datos al servidor o almacenar localmente
@@ -933,6 +929,11 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("Sistema de planificación de viajes listo");
 });
 </script>
+
+<script>
+    const marcaVehiculo = @json($marca);
+</script>
+
 
 <script async defer 
     src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMap&libraries=places&language=es">

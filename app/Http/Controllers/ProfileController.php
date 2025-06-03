@@ -14,10 +14,22 @@ class ProfileController extends Controller
     /**
      * Display the user's profile form.
      */
-    public function edit(Request $request): View
+    public function edit(Request $request): View|RedirectResponse
     {
+        $user = $request->user();
+
+        // 🚫 Si ya tiene un rol asignado, lo redirigimos directamente
+        if ($user->hasRole('conductor')) {
+            return redirect()->route('conductor.dashboard');
+        }
+
+        if ($user->hasRole('pasajero')) {
+            return redirect()->route('pasajero.dashboard');
+        }
+
+        // ✅ Solo entra aquí si no tiene rol aún
         return view('profile.edit', [
-            'user' => $request->user(),
+            'user' => $user,
         ]);
     }
 
