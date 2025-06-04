@@ -73,9 +73,9 @@
                 <div class="footer-column">
                     <h3>Información</h3>
                     <ul>
-                        <li><a href="#">Preguntas frecuentes</a></li>
-                        <li><a href="#">Términos y condiciones</a></li>
-                        <li><a href="#">Política de privacidad</a></li>
+                        <li><a href="{{ route('faq.index') }}">Preguntas frecuentes</a></li>
+                        <li><a href="{{ route('terminos.index') }}">Términos y condiciones</a></li>
+                        <li><a href="{{ route('politicas.index') }}">Política de privacidad</a></li>
                     </ul>
                 </div>
                 <div class="footer-column">

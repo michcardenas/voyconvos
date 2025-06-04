@@ -20,6 +20,9 @@ use App\Http\Controllers\Pasajero\ReservaPasajeroController;
 use App\Http\Controllers\Pasajero\ChatPasajeroController;
 use App\Http\Controllers\Conductor\ViajeController;
 use App\Http\Controllers\CalificacionController;
+use App\Http\Controllers\FaqController;
+use App\Http\Controllers\TerminosController;
+use App\Http\Controllers\PoliticasController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -141,6 +144,16 @@ Route::get('/pasajero/reserva/{reserva}/calificar', [CalificacionController::cla
 // Guardar calificación calificación
 Route::post('/pasajero/reserva/{reserva}/calificar', [CalificacionController::class, 'guardarCalificacionPasajero'])
         ->name('pasajero.calificar.guardar');
+
+// seccion preguntas frecuentes
+Route::get('/preguntas-frecuentes', [FaqController::class, 'index'])->name('faq.index');
+
+// Terminos y condiciones
+Route::get('/terminos-y-condiciones', [TerminosController::class, 'index'])->name('terminos.index');
+
+// Políticas de privacidad
+Route::get('/politica-de-privacidad', [PoliticasController::class, 'index'])->name('politicas.index');
+
 
 
 // // Panel de usuario
