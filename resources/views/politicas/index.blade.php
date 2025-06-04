@@ -10,11 +10,11 @@
         --vcv-dark: #3A3A3A;
         --vcv-accent: #4CAF50;
         --vcv-bg: #FCFCFD;
-        --privacy-accent: #9C27B0;
+        --privacy-accent: #4CAF50;
     }
 
     .privacy-wrapper {
-        background: linear-gradient(135deg, #DDF2FE 0%, #FCFCFD 50%, rgba(156, 39, 176, 0.03) 100%);
+        background: linear-gradient(135deg, #DDF2FE 0%, #FCFCFD 50%, rgba(76, 175, 80, 0.03) 100%);
         min-height: 100vh;
         padding: 6rem 0 2rem 0;
         position: relative;
@@ -28,7 +28,7 @@
         right: 0;
         bottom: 0;
         background: 
-            radial-gradient(circle at 20% 80%, rgba(156, 39, 176, 0.05) 0%, transparent 50%),
+            radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
             radial-gradient(circle at 80% 20%, rgba(31, 78, 121, 0.05) 0%, transparent 50%);
         pointer-events: none;
     }
@@ -40,12 +40,12 @@
     }
 
     .privacy-header {
-        background: linear-gradient(135deg, var(--privacy-accent) 0%, rgba(156, 39, 176, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
+        background: linear-gradient(135deg, var(--vcv-accent) 0%, rgba(76, 175, 80, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
         color: white;
         border-radius: 20px;
         padding: 3rem 2rem;
         margin-bottom: 3rem;
-        box-shadow: 0 8px 24px rgba(156, 39, 176, 0.15);
+        box-shadow: 0 8px 24px rgba(76, 175, 80, 0.15);
         border: 1px solid rgba(255, 255, 255, 0.1);
         backdrop-filter: blur(10px);
         position: relative;
@@ -83,7 +83,7 @@
     }
 
     .last-updated {
-        background: rgba(156, 39, 176, 0.2);
+        background: rgba(76, 175, 80, 0.2);
         color: white;
         padding: 0.5rem 1rem;
         border-radius: 20px;
@@ -123,8 +123,8 @@
         border-radius: 16px;
         padding: 1.5rem;
         margin-bottom: 2rem;
-        border: 1px solid rgba(156, 39, 176, 0.12);
-        box-shadow: 0 4px 12px rgba(156, 39, 176, 0.08);
+        border: 1px solid rgba(76, 175, 80, 0.12);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08);
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
@@ -141,7 +141,7 @@
     .search-input {
         width: 100%;
         padding: 0.8rem 1rem 0.8rem 2.5rem;
-        border: 2px solid rgba(156, 39, 176, 0.2);
+        border: 2px solid rgba(76, 175, 80, 0.2);
         border-radius: 20px;
         font-size: 0.9rem;
         background: white;
@@ -152,7 +152,7 @@
     .search-input:focus {
         outline: none;
         border-color: var(--privacy-accent);
-        box-shadow: 0 2px 8px rgba(156, 39, 176, 0.1);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
     }
 
     .search-icon {
@@ -160,7 +160,7 @@
         left: 0.8rem;
         top: 50%;
         transform: translateY(-50%);
-        color: rgba(156, 39, 176, 0.6);
+        color: rgba(76, 175, 80, 0.6);
     }
 
     .tools-buttons {
@@ -170,7 +170,7 @@
     }
 
     .tool-btn {
-        background: rgba(156, 39, 176, 0.1);
+        background: rgba(76, 175, 80, 0.1);
         color: var(--privacy-accent);
         border: none;
         border-radius: 15px;
@@ -204,8 +204,8 @@
         backdrop-filter: blur(10px);
         border-radius: 16px;
         padding: 1.5rem;
-        border: 1px solid rgba(156, 39, 176, 0.12);
-        box-shadow: 0 4px 12px rgba(156, 39, 176, 0.08);
+        border: 1px solid rgba(76, 175, 80, 0.12);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08);
         max-height: calc(100vh - 8rem);
         overflow-y: auto;
     }
@@ -243,7 +243,7 @@
 
     .toc-link:hover,
     .toc-link.active {
-        background: rgba(156, 39, 176, 0.1);
+        background: rgba(76, 175, 80, 0.1);
         color: var(--privacy-accent);
         border-left-color: var(--privacy-accent);
         text-decoration: none;
@@ -251,8 +251,8 @@
     }
 
     .privacy-info-box {
-        background: rgba(156, 39, 176, 0.05);
-        border: 1px solid rgba(156, 39, 176, 0.2);
+        background: rgba(76, 175, 80, 0.05);
+        border: 1px solid rgba(76, 175, 80, 0.2);
         border-radius: 12px;
         padding: 1rem;
         margin-bottom: 1rem;
@@ -278,15 +278,15 @@
         backdrop-filter: blur(10px);
         border-radius: 16px;
         padding: 0;
-        border: 1px solid rgba(156, 39, 176, 0.12);
-        box-shadow: 0 4px 12px rgba(156, 39, 176, 0.08);
+        border: 1px solid rgba(76, 175, 80, 0.12);
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08);
         overflow: hidden;
     }
 
     .content-header {
-        background: rgba(156, 39, 176, 0.1);
+        background: rgba(76, 175, 80, 0.1);
         padding: 2rem;
-        border-bottom: 1px solid rgba(156, 39, 176, 0.1);
+        border-bottom: 1px solid rgba(76, 175, 80, 0.1);
     }
 
     .content-header h2 {
@@ -391,7 +391,7 @@
     }
 
     .contact-cta {
-        background: linear-gradient(135deg, var(--privacy-accent) 0%, rgba(156, 39, 176, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
+        background: linear-gradient(135deg, var(--privacy-accent) 0%, rgba(76, 175, 80, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
         color: white;
         border-radius: 16px;
         padding: 2rem;
@@ -457,7 +457,7 @@
         left: 0;
         width: 0%;
         height: 3px;
-        background: linear-gradient(90deg, var(--privacy-accent), var(--vcv-accent));
+        background: linear-gradient(90deg, var(--vcv-primary), var(--privacy-accent));
         z-index: 1000;
         transition: width 0.1s ease;
     }
@@ -554,37 +554,6 @@
             <div class="last-updated">
                 <i class="fas fa-calendar-alt me-1"></i>
                 Última actualización: {{ now()->format('d/m/Y') }}
-            </div>
-        </div>
-
-        <!-- Tools Section -->
-        <div class="tools-section">
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="Buscar información sobre privacidad..." 
-                    id="searchInput"
-                    onkeyup="buscarEnTexto()"
-                >
-            </div>
-            <div class="tools-buttons">
-                <button class="tool-btn" onclick="aumentarTexto()">
-                    <i class="fas fa-search-plus"></i>A+
-                </button>
-                <button class="tool-btn" onclick="disminuirTexto()">
-                    <i class="fas fa-search-minus"></i>A-
-                </button>
-                <button class="tool-btn" onclick="toggleContraste()">
-                    <i class="fas fa-adjust"></i>Contraste
-                </button>
-                <button class="tool-btn" onclick="imprimirPagina()">
-                    <i class="fas fa-print"></i>Imprimir
-                </button>
-                <button class="tool-btn" onclick="compartirEnlace()">
-                    <i class="fas fa-share"></i>Compartir
-                </button>
             </div>
         </div>
 
@@ -732,89 +701,6 @@ function generarTablaContenidos() {
             toc.appendChild(li);
         });
     }
-}
-
-// Actualizar enlace activo en TOC
-function updateActiveToc(activeLink) {
-    document.querySelectorAll('.toc-link').forEach(link => {
-        link.classList.remove('active');
-    });
-    activeLink.classList.add('active');
-}
-
-// Búsqueda en texto
-function buscarEnTexto() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const content = document.getElementById('mainContent');
-    
-    if (!content) return;
-    
-    // Limpiar highlights anteriores
-    content.innerHTML = content.innerHTML.replace(/<span class="highlight">/g, '').replace(/<\/span>/g, '');
-    
-    if (searchTerm.length > 2) {
-        // Highlight matches
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        content.innerHTML = content.innerHTML.replace(regex, '<span class="highlight">$1</span>');
-    }
-}
-
-// Funciones de accesibilidad
-function aumentarTexto() {
-    if (currentFontSize < 20) {
-        currentFontSize += 2;
-        document.getElementById('mainContent').style.fontSize = currentFontSize + 'px';
-    }
-}
-
-function disminuirTexto() {
-    if (currentFontSize > 12) {
-        currentFontSize -= 2;
-        document.getElementById('mainContent').style.fontSize = currentFontSize + 'px';
-    }
-}
-
-function toggleContraste() {
-    isHighContrast = !isHighContrast;
-    const body = document.body;
-    
-    if (isHighContrast) {
-        body.style.filter = 'contrast(150%) brightness(1.2)';
-    } else {
-        body.style.filter = 'none';
-    }
-}
-
-function imprimirPagina() {
-    window.print();
-}
-
-function compartirEnlace() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'Política de Privacidad - VoyConVos',
-            url: window.location.href
-        });
-    } else {
-        // Fallback: copiar al clipboard
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Enlace copiado al portapapeles');
-        });
-    }
-}
-
-// Progress bar de lectura
-function updateReadingProgress() {
-    const content = document.getElementById('mainContent');
-    if (!content) return;
-    
-    const scrollTop = window.pageYOffset;
-    const docHeight = content.offsetHeight;
-    const winHeight = window.innerHeight;
-    const scrollPercent = scrollTop / (docHeight - winHeight);
-    const scrollPercentRounded = Math.round(scrollPercent * 100);
-    
-    document.getElementById('readingProgress').style.width = Math.min(scrollPercentRounded, 100) + '%';
 }
 
 // Event listeners

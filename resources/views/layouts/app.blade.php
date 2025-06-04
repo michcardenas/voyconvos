@@ -65,8 +65,8 @@
                 <div class="footer-column">
                     <h3>VoyConVos</h3>
                     <ul>
-                        <li><a href="#">Sobre nosotros</a></li>
-                        <li><a href="#">Cómo funciona</a></li>
+                        <li><a href="{{ route('sobre-nosotros') }}">Sobre nosotros</a></li>
+                        <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                         <li><a href="{{ url('/contacto') }}">Contacto</a></li>
                     </ul>
                 </div>
