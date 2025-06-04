@@ -19,6 +19,7 @@ use App\Http\Controllers\pasajero\DashboardPasajeroController;
 use App\Http\Controllers\Pasajero\ReservaPasajeroController;
 use App\Http\Controllers\Pasajero\ChatPasajeroController;
 use App\Http\Controllers\Conductor\ViajeController;
+use App\Http\Controllers\CalificacionController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -72,29 +73,23 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 Route::get('admin/secciones/{pagina}', [SeccionController::class, 'index'])->name('secciones.index');
 Route::get('/admin/secciones/{slug}/editar', [SeccionController::class, 'editarContenido'])
     ->name('admin.secciones.editarContenido');
-
 Route::get('/admin/secciones/{slug}/editar-contenidos', [\App\Http\Controllers\Admin\SeccionController::class, 'editarContenidos'])->name('admin.secciones.editar-contenidos');
 Route::put('/admin/secciones/{slug}/actualizar-contenidos', [\App\Http\Controllers\Admin\SeccionController::class, 'actualizarContenidos'])->name('admin.secciones.actualizar-contenidos');
-
-
 Route::get('/configuracion/paginas', function () {
     $paginas = \App\Models\Pagina::all();
     return view('admin.configuracion.paginas.index', compact('paginas'));
 })->name('configuracion.paginas');
-
 
 // Ruta para editar una página desde la configuración
 Route::get('/configuracion/paginas/{pagina}/editar', [PaginaController::class, 'editar'])
     ->middleware(['auth'])
     ->name('configuracion.paginas.editar');
     
-
 // Contacto público
 Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name('contacto.formulario');
 Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
 
 // Rutas conductores
-
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
 Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
@@ -128,7 +123,6 @@ Route::post('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 're
 // // Confirmación final
 // Route::get('/pasajero/reserva-confirmada/{viaje}', [ReservaPasajeroController::class, 'confirmacion'])->name('pasajero.reserva.confirmada');
 
-
 // Chat pasajero con conductor
 Route::get('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'verChat'])->name('chat.ver');
 Route::post('/chat/{viaje}', [\App\Http\Controllers\ChatController::class, 'enviarMensaje'])->name('chat.enviar');
@@ -139,6 +133,15 @@ Route::delete('/viajes/{viaje}/eliminar', [\App\Http\Controllers\Conductor\Viaje
 // detalles del viaje conductor
 Route::get('/viajes/{viaje}/detalle', [ViajeController::class, 'detalle'])->name('conductor.viaje.detalle');
 Route::get('/conductor/viajes/{viaje}', [ConductorController::class, 'verViaje'])->name('conductor.viaje.detalles');
+
+// Mostrar formulario calificación
+Route::get('/pasajero/reserva/{reserva}/calificar', [CalificacionController::class, 'formularioPasajero'])
+        ->name('pasajero.calificar.formulario');
+
+// Guardar calificación calificación
+Route::post('/pasajero/reserva/{reserva}/calificar', [CalificacionController::class, 'guardarCalificacionPasajero'])
+        ->name('pasajero.calificar.guardar');
+
 
 // // Panel de usuario
 // Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');

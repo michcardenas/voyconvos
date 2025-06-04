@@ -38,7 +38,7 @@ class ReservaPasajeroController extends Controller
     }
 
     // POST: Procesar la reserva
-    public function reservar(Request $request, Viaje $viaje)
+        public function reservar(Request $request, Viaje $viaje)
     {
         $request->validate([
             'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
@@ -56,26 +56,18 @@ class ReservaPasajeroController extends Controller
         $reserva = Reserva::create([
             'viaje_id' => $viaje->id,
             'user_id' => $userId,
-            'estado' => 'pendiente',
+            'estado' => 'pendiente', // Aún no confirmado ni pagado
             'cantidad_puestos' => $cantidad,
             'notificado' => false,
         ]);
 
-        // Resta puestos
+        // Resta puestos disponibles
         $viaje->puestos_disponibles -= $cantidad;
-
-        // Cambia estado a activo
-        if ($viaje->estado === 'pendiente') {
-            $viaje->estado = 'activo';
-        }
-
-        $viaje->save();
+        $viaje->save(); // SIN cambiar el estado a 'activo'
 
         return redirect()->route('pasajero.reserva.confirmada', $viaje->id)
-            ->with('success', 'Reserva realizada correctamente');
+            ->with('success', 'Reserva realizada correctamente. Ahora debes confirmar el pago.');
     }
-
-
 
     // // GET: Confirmación final de reserva
     // public function confirmacion(Viaje $viaje)

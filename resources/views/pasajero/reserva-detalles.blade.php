@@ -5,12 +5,6 @@
 @section('content')
 <div class="container py-5">
     <h2 class="mb-4 text-vcv fw-bold">📋 Detalles de tu reserva</h2>
-
-    <div class="alert alert-info">
-        <strong>Origen:</strong> {{ $reserva->viaje->origen_lat }}, {{ $reserva->viaje->origen_lng }}<br>
-        <strong>Destino:</strong> {{ $reserva->viaje->destino_lat }}, {{ $reserva->viaje->destino_lng }}
-    </div>
-
     <div class="card shadow-sm">
         <div class="card-body">
             <h5 class="text-vcv">Información del Viaje</h5>
@@ -20,7 +14,7 @@
                 <li class="list-group-item"><strong>Fecha:</strong> {{ $reserva->viaje->fecha_salida }}</li>
                 <li class="list-group-item"><strong>Hora:</strong> {{ $reserva->viaje->hora_salida }}</li>
                 <li class="list-group-item"><strong>Hora:</strong> {{ $reserva->viaje->fecha_salida }}</li>
-                <li class="list-group-item"><strong>Puestos disponibles:</strong> {{ $reserva->viaje->puestos_disponibles }}</li>
+                <li class="list-group-item"><strong>Puestos reservados:</strong> {{ $reserva->cantidad_puestos }}</li>
             </ul>
 
             <h5 class="text-vcv">Conductor</h5>
@@ -28,6 +22,14 @@
                 <li class="list-group-item"><strong>Nombre:</strong> {{ $reserva->viaje->conductor->name ?? 'N/D' }}</li>
                 <li class="list-group-item"><strong>Email:</strong> {{ $reserva->viaje->conductor->email ?? 'N/D' }}</li>
             </ul>
+
+            @if (!$reserva->calificacionEnviadaPorPasajero())
+                <a href="{{ route('pasajero.calificar.formulario', $reserva->id) }}" class="btn btn-warning mt-3">
+                    Calificar al conductor ⭐
+                </a>
+            @else
+                <p class="mt-3 text-success">✅ Ya calificaste al conductor.</p>
+            @endif
 
             <h5 class="text-vcv">Tu Reserva</h5>
             <ul class="list-group">

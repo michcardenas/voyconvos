@@ -21,7 +21,7 @@ class DashboardController extends Controller
 
         // 🚗 Viajes como conductor
         $viajesConductor = Viaje::where('conductor_id', $user->id)
-            ->where('estado', 'pendiente')
+            // ->whereIn('estado', ['pendiente', 'en_proceso'])
             ->where('activo', 1)
             ->orderBy('created_at', 'desc')
             ->get();
