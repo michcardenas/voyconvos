@@ -43,6 +43,25 @@
             </div>
             <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary mt-2 mt-md-0">💬 Chat</a>
         </div>
+        <div class="mt-4 border-top pt-3">
+            <h5 class="text-primary">🗣️ Calificaciones</h5>
+
+            {{-- Comentario del pasajero al conductor --}}
+            @if($reserva->calificacionPasajero)
+                <p><strong>Pasajero comentó:</strong> {{ $reserva->calificacionPasajero->comentario }}</p>
+                <p>⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</p>
+            @else
+                <p><em>Este pasajero no ha calificado aún al conductor.</em></p>
+            @endif
+
+            {{-- Comentario del conductor al pasajero --}}
+            @if($reserva->calificacionConductor)
+                <p><strong>Conductor comentó:</strong> {{ $reserva->calificacionConductor->comentario }}</p>
+                <p>⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</p>
+            @else
+                <p><em>Aún no has calificado a este pasajero.</em></p>
+            @endif
+        </div>
         @endforeach
     </div>
     @else
