@@ -25,9 +25,11 @@ class ViajeController extends Controller
 
     public function detalle(Viaje $viaje)
     {
-        // Ya tienes el modelo `$viaje`, solo necesitas cargar las relaciones
-        $viaje->load('reservas.user');
-
+        $viaje->load([
+            'reservas.user',
+            'reservas.calificacionPasajero',
+            'reservas.calificacionConductor',
+        ]);
         return view('conductor.viaje-detalles', compact('viaje'));
     }
 
