@@ -23,6 +23,8 @@ use App\Http\Controllers\CalificacionController;
 use App\Http\Controllers\FaqController;
 use App\Http\Controllers\TerminosController;
 use App\Http\Controllers\PoliticasController;
+use App\Http\Controllers\SobreNosotrosPublicoController;
+use App\Http\Controllers\ComoFuncionaPublicoController;
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -153,6 +155,14 @@ Route::get('/terminos-y-condiciones', [TerminosController::class, 'index'])->nam
 
 // Políticas de privacidad
 Route::get('/politica-de-privacidad', [PoliticasController::class, 'index'])->name('politicas.index');
+
+// sobre nosotros
+Route::get('/sobre-nosotros', [SobreNosotrosPublicoController::class, 'index'])->name('sobre-nosotros');
+
+// Cómo funciona
+Route::get('/como-funciona', [ComoFuncionaPublicoController::class, 'index'])->name('como-funciona');
+
+
 
 
 
