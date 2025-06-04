@@ -304,12 +304,12 @@
         </div>
 
         {{-- Call to Action --}}
-        <div class="cta-section">
-            <h3>¿Buscas más opciones?</h3>
-            <button class="cta-btn" onclick="goToLogin()">
-                Ver Todos los Viajes
-            </button>
-        </div>
+    <div class="cta-section">
+    <h3>¿Buscas más opciones?</h3>
+    <button class="cta-btn" onclick="goToLogin()">
+        Ver Todos los Viajes
+    </button>
+</div>
     </div>
 </section>
 
