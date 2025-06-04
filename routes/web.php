@@ -50,7 +50,7 @@ Route::middleware('auth')->group(function () {
     //EDITAR USUARIOS
     Route::get('/perfil/editar', [ProfileController::class, 'editarUsuario'])->name('perfil.editar.usuario');
     Route::get('/perfil/conductor', [ProfileController::class, 'editarUsuario'])->name('conductor.perfil.edit');
-       Route::put('/conductor', [PerfilController::class, 'update'])->name('conductor.perfil.update');
+       Route::put('/conductor', [ProfileController::class, 'update'])->name('conductor.perfil.update');
 
     Route::get('/perfil/pasajero', [ProfileController::class, 'edit'])->name('pasajero.perfil.edit');
 
