@@ -65,7 +65,7 @@
             <label for="cedula_verde" class="form-label">Cédula Verde</label>
             <input type="file" name="cedula_verde" class="form-control" accept="application/pdf,image/*" required>
         </div>
-
+<!-- 
         <div class="mb-3">
             <label for="seguro" class="form-label">Seguro del Vehículo</label>
             <input type="file" name="seguro" class="form-control" accept="application/pdf,image/*" required>
@@ -79,7 +79,7 @@
         <div class="mb-3">
             <label for="antecedentes" class="form-label">Certificado de Antecedentes Penales</label>
             <input type="file" name="antecedentes" class="form-control" accept="application/pdf,image/*">
-        </div>
+        </div> -->
 
         <button type="submit" class="btn btn-success">Enviar para revisión</button>
     </form>

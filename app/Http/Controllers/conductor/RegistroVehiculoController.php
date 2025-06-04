@@ -36,9 +36,9 @@ class RegistroVehiculoController extends Controller
             'licencia' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'cedula' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
             'cedula_verde' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'seguro' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'rto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-            'antecedentes' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            // 'seguro' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            // 'rto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+            // 'antecedentes' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
         ]);
 
         $user = Auth::user();
@@ -54,9 +54,9 @@ class RegistroVehiculoController extends Controller
                 'licencia' => $request->file('licencia')->store('documentos'),
                 'cedula' => $request->file('cedula')->store('documentos'),
                 'cedula_verde' => $request->file('cedula_verde')->store('documentos'),
-                'seguro' => $request->file('seguro')->store('documentos'),
-                'rto' => $request->hasFile('rto') ? $request->file('rto')->store('documentos') : null,
-                'antecedentes' => $request->hasFile('antecedentes') ? $request->file('antecedentes')->store('documentos') : null,
+                // 'seguro' => $request->file('seguro')->store('documentos'),
+                // 'rto' => $request->hasFile('rto') ? $request->file('rto')->store('documentos') : null,
+                // 'antecedentes' => $request->hasFile('antecedentes') ? $request->file('antecedentes')->store('documentos') : null,
 
                 'estado_verificacion' => 'pendiente',
                 'estado_registro' => 'completo',

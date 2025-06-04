@@ -26,17 +26,32 @@
                     <li><a href="#">Coche compartido</a></li>
                 </ul>
             </nav>
-            <div class="user-profile">
-                <div class="dropdown">
-                    <a href="#" class="profile-icon" id="userDropdown">
-                        <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-                    </a>
-                    <div class="dropdown-menu" id="userMenu">
-                        <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>
-                        <a href="{{ route('register') }}" class="dropdown-item">Registrarse</a>
-                    </div>
-                </div>
-            </div>
+       <div class="user-profile">
+    <div class="dropdown">
+        <a href="#" class="profile-icon" id="userDropdown">
+            @auth
+                <img src="{{ auth()->user()->foto ? asset('storage/' . auth()->user()->foto) : asset('img/usuario.png') }}" alt="Usuario">
+            @else
+                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+            @endauth
+        </a>
+        
+        <div class="dropdown-menu" id="userMenu">
+            @auth
+                <a href="{{ route('perfil.editar.usuario') }}" class="dropdown-item">Editar perfil</a>
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                </form>
+            @endauth
+            
+            @guest
+                <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>
+                <a href="{{ route('register') }}" class="dropdown-item">Registrarse</a>
+            @endguest
+        </div>
+    </div>
+</div>
         </div>
     </header>
 

@@ -47,6 +47,17 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    //EDITAR USUARIOS
+    Route::get('/perfil/editar', [ProfileController::class, 'editarUsuario'])->name('perfil.editar.usuario');
+    Route::get('/perfil/conductor', [ProfileController::class, 'editarUsuario'])->name('conductor.perfil.edit');
+       Route::put('/conductor', [PerfilController::class, 'update'])->name('conductor.perfil.update');
+
+    Route::get('/perfil/pasajero', [ProfileController::class, 'edit'])->name('pasajero.perfil.edit');
+
+    Route::put('/conductor/perfil/actualizar', [ProfileController::class, 'actualizarPerfil'])->name('conductor.perfil.update');
+        Route::put('/pasajero/perfil/actualizar', [ProfileController::class, 'actualizarPerfilPasajero'])->name('pasajero.perfil.update');
+
+
 
     // Configuración general
     Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');

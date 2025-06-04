@@ -27,8 +27,9 @@ class User extends Authenticatable
         'dni',
         'celular',
         'foto',
+        'verificado',
+        'dni_foto',
     ];
-    
 
     /**
      * The attributes that should be hidden for serialization.
