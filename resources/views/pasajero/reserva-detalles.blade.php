@@ -47,52 +47,73 @@
 @endsection
 
 @section('scripts')
-<script async defer
-    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.Maps.key') }}&callback=initReservaMapa&libraries=places&language=es">
-</script>
 
+
+@section('scripts')
 <script>
-    // Se declara la función initMap en el ámbito global para que Google Maps la pueda llamar
+    // Variable global para asegurar que Google Maps esté cargado
+    let googleMapsLoaded = false;
+    
     function initReservaMapa() {
+        if (googleMapsLoaded) return;
+        googleMapsLoaded = true;
+        
         try {
-            console.log("✅ Ejecutando initMap para los detalles de la reserva");
+            console.log("✅ Ejecutando initReservaMapa");
 
             const origen = {
-                lat: parseFloat({{ $reserva->viaje->origen_lat ?? 'NaN' }}),
-                lng: parseFloat({{ $reserva->viaje->origen_lng ?? 'NaN' }})
+                lat: {{ $reserva->viaje->origen_lat ?? 'null' }},
+                lng: {{ $reserva->viaje->origen_lng ?? 'null' }}
             };
 
             const destino = {
-                lat: parseFloat({{ $reserva->viaje->destino_lat ?? 'NaN' }}),
-                lng: parseFloat({{ $reserva->viaje->destino_lng ?? 'NaN' }})
+                lat: {{ $reserva->viaje->destino_lat ?? 'null' }},
+                lng: {{ $reserva->viaje->destino_lng ?? 'null' }}
             };
-
-            // Validar que las coordenadas sean números válidos
-            if (isNaN(origen.lat) || isNaN(origen.lng) || isNaN(destino.lat) || isNaN(destino.lng)) {
-                console.error("❌ Coordenadas de origen o destino no válidas.");
-                document.getElementById("mapa").innerHTML = "<p class='text-danger text-center mt-4'>No se pudieron cargar las coordenadas del viaje. Asegúrate de que sean números válidos.</p>";
-                return;
-            }
 
             console.log("🛰️ Coordenadas:", origen, destino);
 
+            // Validar coordenadas
+            if (!origen.lat || !origen.lng || !destino.lat || !destino.lng) {
+                throw new Error("Coordenadas inválidas");
+            }
+
             const mapaDiv = document.getElementById("mapa");
             if (!mapaDiv) {
-                console.error("❌ No se encontró el div #mapa. Asegúrate de que el ID sea correcto y el div exista.");
-                return;
+                throw new Error("No se encontró el div #mapa");
             }
-            console.log("✅ Se encontró el div #mapa");
 
+            // Crear el mapa
             const map = new google.maps.Map(mapaDiv, {
                 zoom: 10,
-                center: origen
+                center: origen,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
             });
 
+            // Crear marcadores
+            const markerOrigen = new google.maps.Marker({
+                position: origen,
+                map: map,
+                title: "Origen",
+                icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            });
+
+            const markerDestino = new google.maps.Marker({
+                position: destino,
+                map: map,
+                title: "Destino",
+                icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            });
+
+            // Crear la ruta
             const directionsService = new google.maps.DirectionsService();
             const directionsRenderer = new google.maps.DirectionsRenderer({
                 map: map,
-                suppressMarkers: false,
-                draggable: false
+                suppressMarkers: true, // Usamos nuestros marcadores personalizados
+                polylineOptions: {
+                    strokeColor: '#4285F4',
+                    strokeWeight: 5
+                }
             });
 
             directionsService.route({
@@ -105,15 +126,42 @@
                     console.log("✅ Ruta mostrada correctamente");
                 } else {
                     console.error("❌ Error al cargar ruta:", status);
-                    alert("❌ Error al cargar la ruta del mapa. Estado: " + status + ". Revisa la consola para más detalles.");
-                    document.getElementById("mapa").innerHTML = "<p class='text-danger text-center mt-4'>Error al cargar la ruta: " + status + "</p>";
+                    // Mostrar al menos los marcadores si falla la ruta
+                    const bounds = new google.maps.LatLngBounds();
+                    bounds.extend(origen);
+                    bounds.extend(destino);
+                    map.fitBounds(bounds);
                 }
             });
 
         } catch (error) {
-            console.error("❌ Error inesperado en initMap:", error);
-            document.getElementById("mapa").innerHTML = "<p class='text-danger text-center mt-4'>Ocurrió un error al inicializar el mapa.</p>";
+            console.error("❌ Error en initReservaMapa:", error);
+            document.getElementById("mapa").innerHTML = 
+                `<div class='alert alert-danger text-center'>
+                    <h5>Error al cargar el mapa</h5>
+                    <p>${error.message}</p>
+                    <small>Coordenadas: Origen ({{ $reserva->viaje->origen_lat }}, {{ $reserva->viaje->origen_lng }}) - Destino ({{ $reserva->viaje->destino_lat }}, {{ $reserva->viaje->destino_lng }})</small>
+                </div>`;
         }
     }
+
+    // Fallback si Google Maps no carga
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            if (!window.google) {
+                document.getElementById("mapa").innerHTML = 
+                    `<div class='alert alert-warning text-center'>
+                        <h5>Google Maps no disponible</h5>
+                        <p>Verifique la API Key o la conexión a internet</p>
+                    </div>`;
+            }
+        }, 5000);
+    });
 </script>
+
+<script async defer
+   src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initReservaMapa&v=3.55">
+>
+</script>
+@endsection
 @endsection

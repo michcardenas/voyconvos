@@ -102,18 +102,16 @@ class ReservaPasajeroController extends Controller
 
         return view('pasajero.reserva-detalles', compact('reserva'));
     }
+public function mostrarViajesDisponibles()
+{
+    $viajesDisponibles = Viaje::whereRaw('DATE(fecha_salida) >= DATE(NOW())')
+        ->where('puestos_disponibles', '>', 0)
+        ->with('conductor')
+        ->orderBy('fecha_salida', 'asc')
+        ->get();
 
-    public function mostrarViajesDisponibles()
-    {
-        $viajesDisponibles = Viaje::where('fecha_salida', '>=', now())
-            ->where('puestos_disponibles', '>', 0)
-            ->with('conductor')
-            ->orderBy('fecha_salida', 'asc')
-            ->get();
-
-        return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
-    }
-
+    return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
+}
     public function mostrarResumen(Request $request, Viaje $viaje)
     {
         $request->validate([
