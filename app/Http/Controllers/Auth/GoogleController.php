@@ -37,7 +37,7 @@ class GoogleController extends Controller
     // Si es pasajero o conductor, verificar perfil incompleto
     if ($user->hasAnyRole(['pasajero', 'conductor'])) {
         if (empty($user->pais) || empty($user->celular) || empty($user->foto)) {
-            return redirect()->route('dashboard');
+            return redirect()->route('profile.edit');
         }
 
         // ✅ Redirigir al mini panel del pasajero
