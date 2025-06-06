@@ -55,8 +55,7 @@ public function reservar(Request $request, Viaje $viaje)
 
     // Crear reserva
    
-    $viaje->puestos_disponibles -= $cantidad;
-    $viaje->save();
+ 
 
     // Configurar credencial
     MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
@@ -82,7 +81,8 @@ public function reservar(Request $request, Viaje $viaje)
         'notificado' => false,
     ]);
 
-
+   $viaje->puestos_disponibles -= $cantidad;
+    $viaje->save();
     // Crear preferencia
     $client = new PreferenceClient();
     
