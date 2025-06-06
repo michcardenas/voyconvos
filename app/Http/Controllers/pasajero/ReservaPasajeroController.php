@@ -65,14 +65,25 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->fecha_reserva = now();
         $reserva->save();
 
-        // Obtener el token de Mercado Pago
-        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN') ?? env('MERCADOPAGO_ACCESS_TOKEN');
+        // Obtener el token
+        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
         
-        // Verificar que el token existe
         if (empty($accessToken)) {
-            \Log::error('Token de Mercado Pago no configurado');
-            throw new \Exception('Configuración de pago no disponible. Por favor, contacta al administrador.');
+            throw new \Exception('Token de Mercado Pago no configurado');
         }
+
+        // DEBUG: Ver exactamente qué valores estamos enviando
+        $precio = floatval($reserva->total);
+        
+        dd([
+            'total_original' => $reserva->total,
+            'precio_float' => $precio,
+            'tipo' => gettype($precio),
+            'valor_cobrado' => $validated['valor_cobrado'],
+            'total_validated' => $validated['total'],
+            'es_numero' => is_numeric($precio),
+            'mayor_cero' => $precio > 0
+        ]);
 
         // Configurar Mercado Pago
         MercadoPagoConfig::setAccessToken($accessToken);
@@ -82,15 +93,11 @@ public function reservar(Request $request, Viaje $viaje)
         $preference = $client->create([
             "items" => [
                 [
-                    "id" => "VIAJE_" . $viaje->id,
                     "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
                     "quantity" => 1,
-                    "unit_price" => floatval($reserva->total),
-                    "currency_id" => "COP"
+                    "unit_price" => $precio,
+                    "currency_id" => "COP" // o "ARS" para Argentina
                 ]
-            ],
-            "payer" => [
-                "email" => auth()->user()->email
             ],
             "external_reference" => "RESERVA_" . $reserva->id
         ]);
@@ -100,19 +107,21 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->mp_init_point = $preference->init_point;
         $reserva->save();
 
-        // Redirigir a Mercado Pago
         return redirect()->away($preference->init_point);
 
     } catch (\Exception $e) {
-        \Log::error('Error en reservar', [
-            'message' => $e->getMessage()
+        // Logging detallado
+        \Log::error('Error en Mercado Pago', [
+            'message' => $e->getMessage(),
+            'reserva_total' => $reserva->total ?? null,
+            'tipo_total' => gettype($reserva->total ?? null)
         ]);
         
         if (isset($reserva) && $reserva->exists) {
             $reserva->delete();
         }
         
-        return back()->withErrors(['error' => 'Error al procesar el pago: ' . $e->getMessage()]);
+        return back()->withErrors(['error' => 'Error al procesar el pago']);
     }
 }
 
