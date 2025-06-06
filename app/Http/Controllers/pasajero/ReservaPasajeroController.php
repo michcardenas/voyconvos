@@ -54,14 +54,7 @@ public function reservar(Request $request, Viaje $viaje)
     $cantidad = $request->cantidad_puestos;
 
     // Crear reserva
-    $reserva = Reserva::create([
-        'viaje_id' => $viaje->id,
-        'user_id' => $userId,
-        'estado' => 'pendiente',
-        'cantidad_puestos' => $cantidad,
-        'notificado' => false,
-    ]);
-
+   
     $viaje->puestos_disponibles -= $cantidad;
     $viaje->save();
 
@@ -81,6 +74,13 @@ public function reservar(Request $request, Viaje $viaje)
     'unit_price' => $item->unit_price,
     'currency_id' => $item->currency_id,
 ]);
+ $reserva = Reserva::create([
+        'viaje_id' => $viaje->id,
+        'user_id' => $userId,
+        'estado' => 'pendiente',
+        'cantidad_puestos' => $cantidad,
+        'notificado' => false,
+    ]);
 
 
     // Crear preferencia
