@@ -293,107 +293,6 @@
         transform: translateY(0);
     }
 
-    /* FAQ Section */
-    .faq-section {
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.8) 0%, rgba(221, 242, 254, 0.3) 100%);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(31, 78, 121, 0.08);
-        border-radius: 24px;
-        padding: 3rem 2.5rem;
-        margin-bottom: 3rem;
-        box-shadow: 0 8px 32px rgba(31, 78, 121, 0.06);
-    }
-
-    .faq-section h2 {
-        font-size: 2rem;
-        font-weight: 600;
-        color: var(--vcv-primary);
-        text-align: center;
-        margin: 0 0 2.5rem 0;
-    }
-
-    .faq-container {
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .faq-item {
-        background: rgba(255, 255, 255, 0.7);
-        border: 1px solid rgba(31, 78, 121, 0.08);
-        border-radius: 16px;
-        margin-bottom: 1rem;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .faq-item:hover {
-        box-shadow: 0 4px 16px rgba(31, 78, 121, 0.08);
-    }
-
-    .faq-question {
-        padding: 1.5rem 2rem;
-        cursor: pointer;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: rgba(221, 242, 254, 0.2);
-        transition: background-color 0.3s ease;
-    }
-
-    .faq-question:hover {
-        background: rgba(221, 242, 254, 0.4);
-    }
-
-    .faq-question.active {
-        background: rgba(31, 78, 121, 0.05);
-    }
-
-    .faq-question h3 {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: var(--vcv-primary);
-        margin: 0;
-        flex: 1;
-    }
-
-    .faq-toggle {
-        width: 32px;
-        height: 32px;
-        background: var(--vcv-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-        transition: all 0.3s ease;
-        font-weight: 300;
-    }
-
-    .faq-question.active .faq-toggle {
-        background: var(--vcv-accent);
-        transform: rotate(45deg);
-    }
-
-    .faq-answer {
-        padding: 0 2rem;
-        max-height: 0;
-        overflow: hidden;
-        transition: all 0.3s ease;
-        background: rgba(255, 255, 255, 0.5);
-    }
-
-    .faq-answer.active {
-        padding: 1.5rem 2rem;
-        max-height: 200px;
-    }
-
-    .faq-answer p {
-        color: rgba(58, 58, 58, 0.8);
-        line-height: 1.6;
-        margin: 0;
-    }
-
     /* Responsive */
     @media (max-width: 992px) {
         .contact-container {
@@ -435,18 +334,6 @@
         .contact-form-container {
             padding: 2rem;
         }
-        
-        .faq-section {
-            padding: 2rem 1.5rem;
-        }
-        
-        .faq-question {
-            padding: 1.2rem 1.5rem;
-        }
-        
-        .faq-answer.active {
-            padding: 1.2rem 1.5rem;
-        }
     }
 
     @media (max-width: 480px) {
@@ -461,10 +348,6 @@
         .contact-form-container {
             padding: 1.5rem;
         }
-        
-        .faq-section {
-            padding: 1.5rem 1rem;
-        }
     }
 </style>
 
@@ -472,8 +355,8 @@
     <!-- Hero Section para Contacto -->
     <section class="page-hero">
         <div class="container">
-            <h1>Contáctanos</h1>
-            <p>Estamos aquí para ayudarte. ¿Tienes preguntas o sugerencias? ¡Escríbenos!</p>
+            <h1>{{ \App\Models\Contenido::get('hero-contacto', 'titulo') }}</h1>
+            <p>{{ \App\Models\Contenido::get('hero-contacto', 'texto') }}</p>
         </div>
     </section>
 
@@ -483,109 +366,59 @@
             <div class="contact-container">
                 <div class="contact-info">
                     <div class="info-card">
-                        <div class="info-icon">
-                            📍
-                        </div>
+                        <div class="info-icon">📍</div>
                         <h3>Ubicación</h3>
-                        <p>Av. Circunvalar #123, Bogotá, Colombia</p>
+                        <p>{{ \App\Models\Contenido::get('info-contacto', 'ubicacion') }}</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-icon">
-                            ✉️
-                        </div>
+                        <div class="info-icon">✉️</div>
                         <h3>Email</h3>
-                        <p>contacto@voyconvos.com</p>
+                        <p>{{ \App\Models\Contenido::get('info-contacto', 'email') }}</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-icon">
-                            📞
-                        </div>
+                        <div class="info-icon">📞</div>
                         <h3>Teléfono</h3>
-                        <p>+57 300 123 4567</p>
+                        <p>{{ \App\Models\Contenido::get('info-contacto', 'telefono') }}</p>
                     </div>
                     <div class="info-card">
-                        <div class="info-icon">
-                            🕒
-                        </div>
+                        <div class="info-icon">🕒</div>
                         <h3>Horario</h3>
-                        <p>Lunes a Viernes: 8:00 - 18:00</p>
+                        <p>{{ \App\Models\Contenido::get('info-contacto', 'horario') }}</p>
                     </div>
                 </div>
 
                 <div class="contact-form-container">
-                    <h2>📝 Envíanos un mensaje</h2>
+                    <h2>{{ \App\Models\Contenido::get('form-contacto', 'titulo') }}</h2>
                     <form class="contact-form" action="#" method="POST" onsubmit="enviarFormulario(event)">
                         @csrf
                         <div class="form-group">
-                            <label for="nombre">Nombre completo</label>
+                            <label for="nombre">{{ \App\Models\Contenido::get('form-contacto', 'label_nombre') }}</label>
                             <input type="text" id="nombre" name="nombre" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">Correo electrónico</label>
+                            <label for="email">{{ \App\Models\Contenido::get('form-contacto', 'label_email') }}</label>
                             <input type="email" id="email" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label for="asunto">Asunto</label>
+                            <label for="asunto">{{ \App\Models\Contenido::get('form-contacto', 'label_asunto') }}</label>
                             <input type="text" id="asunto" name="asunto" required>
                         </div>
                         <div class="form-group">
-                            <label for="mensaje">Mensaje</label>
-                            <textarea id="mensaje" name="mensaje" rows="5" required placeholder="Cuéntanos en qué podemos ayudarte..."></textarea>
+                            <label for="mensaje">{{ \App\Models\Contenido::get('form-contacto', 'label_mensaje') }}</label>
+                            <textarea id="mensaje" name="mensaje" rows="5" required placeholder="{{ \App\Models\Contenido::get('form-contacto', 'placeholder') }}"></textarea>
                         </div>
                         <button type="submit" class="submit-btn">
-                            📤 Enviar mensaje
+                            {{ \App\Models\Contenido::get('form-contacto', 'boton') }}
                         </button>
                     </form>
                 </div>
             </div>
         </div>
     </section>
-
-    <!-- FAQs -->
-    <section class="faq-section">
-        <div class="container">
-            <h2>❓ Preguntas frecuentes</h2>
-            <div class="faq-container">
-                @foreach([
-                    ['¿Cómo funciona VoyConVos?', 'Conecta a conductores con pasajeros que viajan en la misma dirección, creando una red de viajes compartidos seguros y económicos.'],
-                    ['¿Cómo me registro?', 'Haz clic en "Registrarse" y completa el formulario con tus datos. El proceso es rápido y solo toma unos minutos.'],
-                    ['¿Cómo se realizan los pagos?', 'Se procesan a través de nuestra plataforma de forma segura usando encriptación de grado bancario y métodos de pago confiables.'],
-                    ['¿Es seguro viajar con desconocidos?', 'Sí, usamos verificación de identidad, calificaciones de usuarios y un sistema de reportes para garantizar viajes seguros.']
-                ] as $index => [$question, $answer])
-                    <div class="faq-item">
-                        <div class="faq-question" onclick="toggleFAQ({{ $index }})">
-                            <h3>{{ $question }}</h3>
-                            <span class="faq-toggle">+</span>
-                        </div>
-                        <div class="faq-answer" id="faq-answer-{{ $index }}">
-                            <p>{{ $answer }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </div>
-    </section>
 </div>
 
-<script>
-function toggleFAQ(index) {
-    const question = document.querySelector(`[onclick="toggleFAQ(${index})"]`);
-    const answer = document.getElementById(`faq-answer-${index}`);
-    
-    // Cerrar todos los otros FAQs
-    document.querySelectorAll('.faq-question.active').forEach(q => {
-        if (q !== question) {
-            q.classList.remove('active');
-            const answerId = q.getAttribute('onclick').match(/\d+/)[0];
-            document.getElementById(`faq-answer-${answerId}`).classList.remove('active');
-        }
-    });
-    
-    // Toggle el FAQ actual
-    question.classList.toggle('active');
-    answer.classList.toggle('active');
-}
 
+<script>
 function enviarFormulario(event) {
     event.preventDefault();
     

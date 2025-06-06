@@ -94,79 +94,6 @@
         z-index: 2;
     }
 
-    .tools-section {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 1px solid rgba(31, 78, 121, 0.12);
-        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.08);
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .search-container {
-        position: relative;
-        flex: 1;
-        min-width: 250px;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.8rem 1rem 0.8rem 2.5rem;
-        border: 2px solid rgba(31, 78, 121, 0.2);
-        border-radius: 20px;
-        font-size: 0.9rem;
-        background: white;
-        color: var(--vcv-dark);
-        transition: all 0.3s ease;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: var(--vcv-primary);
-        box-shadow: 0 2px 8px rgba(31, 78, 121, 0.1);
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 0.8rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(31, 78, 121, 0.6);
-    }
-
-    .tools-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .tool-btn {
-        background: rgba(31, 78, 121, 0.1);
-        color: var(--vcv-primary);
-        border: none;
-        border-radius: 15px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .tool-btn:hover {
-        background: var(--vcv-primary);
-        color: white;
-        transform: translateY(-1px);
-    }
-
     .content-layout {
         display: grid;
         grid-template-columns: 300px 1fr;
@@ -308,13 +235,6 @@
         font-weight: 600;
     }
 
-    .highlight {
-        background: linear-gradient(120deg, rgba(255, 235, 59, 0.3) 0%, rgba(255, 235, 59, 0.1) 100%);
-        padding: 0.1rem 0.3rem;
-        border-radius: 3px;
-        font-weight: 600;
-    }
-
     .section-divider {
         border: none;
         height: 2px;
@@ -344,67 +264,6 @@
         margin: 0;
     }
 
-    .contact-cta {
-        background: linear-gradient(135deg, var(--vcv-accent) 0%, rgba(76, 175, 80, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-top: 3rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .contact-cta::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
-    }
-
-    .contact-cta h3 {
-        margin: 0 0 1rem 0;
-        font-weight: 600;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-cta p {
-        margin: 0 0 1.5rem 0;
-        opacity: 0.95;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-btn {
-        background: white;
-        color: var(--vcv-primary);
-        border: none;
-        border-radius: 25px;
-        padding: 0.8rem 2rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-btn:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        color: var(--vcv-primary);
-        text-decoration: none;
-    }
-
     .reading-progress {
         position: fixed;
         top: 0;
@@ -430,19 +289,6 @@
             position: static;
             order: 2;
         }
-        
-        .tools-section {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .search-container {
-            min-width: auto;
-        }
-        
-        .tools-buttons {
-            justify-content: center;
-        }
     }
 
     @media (max-width: 768px) {
@@ -457,10 +303,6 @@
         .content-body {
             padding: 1.5rem;
         }
-        
-        .tools-section {
-            padding: 1rem;
-        }
     }
 </style>
 
@@ -468,49 +310,23 @@
 
 <div class="terms-wrapper">
     <div class="container">
+
         <!-- Terms Header -->
         <div class="terms-header">
-            <h1>📋 Términos y Condiciones</h1>
-            <p class="terms-subtitle">Conoce nuestras políticas y condiciones de uso del servicio</p>
+            <h1>{{ \App\Models\Contenido::get('header-terminos', 'titulo') }}</h1>
+            <p class="terms-subtitle">{{ \App\Models\Contenido::get('header-terminos', 'subtitulo') }}</p>
             <div class="last-updated">
                 <i class="fas fa-calendar-alt me-1"></i>
                 Última actualización: {{ now()->format('d/m/Y') }}
             </div>
         </div>
 
-        <!-- Tools Section -->
-        <div class="tools-section">
-            <div class="search-container">
-                <i class="fas fa-search search-icon"></i>
-                <input 
-                    type="text" 
-                    class="search-input" 
-                    placeholder="Buscar en los términos..." 
-                    id="searchInput"
-                    onkeyup="buscarEnTexto()"
-                >
-            </div>
-            <div class="tools-buttons">
-                <button class="tool-btn" onclick="aumentarTexto()">
-                    <i class="fas fa-search-plus"></i>A+
-                </button>
-                <button class="tool-btn" onclick="disminuirTexto()">
-                    <i class="fas fa-search-minus"></i>A-
-                </button>
-                <button class="tool-btn" onclick="toggleContraste()">
-                    <i class="fas fa-adjust"></i>Contraste
-                </button>
-                <button class="tool-btn" onclick="imprimirPagina()">
-                    <i class="fas fa-print"></i>Imprimir
-                </button>
-                <button class="tool-btn" onclick="compartirEnlace()">
-                    <i class="fas fa-share"></i>Compartir
-                </button>
-            </div>
-        </div>
-
         <!-- Content Layout -->
-        @if($termino && $termino->contenido)
+        @php
+            $contenido = \App\Models\Contenido::get('contenido-terminos', 'contenido');
+        @endphp
+
+        @if($contenido)
             <div class="content-layout">
                 <!-- Sidebar with Table of Contents -->
                 <div class="sidebar">
@@ -533,9 +349,9 @@
                             <span><i class="fas fa-shield-alt me-1"></i>Versión vigente</span>
                         </div>
                     </div>
-                    
+
                     <div class="content-body" id="mainContent">
-                        {!! nl2br(e($termino->contenido)) !!}
+                        {!! nl2br(e($contenido)) !!}
                     </div>
                 </div>
             </div>
@@ -549,23 +365,10 @@
                 </div>
             </div>
         @endif
-
-        <!-- Contact CTA -->
-        <div class="contact-cta">
-            <h3>¿Tienes dudas sobre nuestros términos?</h3>
-            <p>Nuestro equipo legal está disponible para aclarar cualquier punto</p>
-            <a href="#" class="contact-btn">
-                <i class="fas fa-envelope"></i>
-                Contactar
-            </a>
-        </div>
     </div>
 </div>
 
 <script>
-let currentFontSize = 16;
-let isHighContrast = false;
-
 // Generar tabla de contenidos
 function generarTablaContenidos() {
     const content = document.getElementById('mainContent');
@@ -640,67 +443,6 @@ function updateActiveToc(activeLink) {
     activeLink.classList.add('active');
 }
 
-// Búsqueda en texto
-function buscarEnTexto() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    const content = document.getElementById('mainContent');
-    
-    if (!content) return;
-    
-    // Limpiar highlights anteriores
-    content.innerHTML = content.innerHTML.replace(/<span class="highlight">/g, '').replace(/<\/span>/g, '');
-    
-    if (searchTerm.length > 2) {
-        // Highlight matches
-        const regex = new RegExp(`(${searchTerm})`, 'gi');
-        content.innerHTML = content.innerHTML.replace(regex, '<span class="highlight">$1</span>');
-    }
-}
-
-// Funciones de accesibilidad
-function aumentarTexto() {
-    if (currentFontSize < 20) {
-        currentFontSize += 2;
-        document.getElementById('mainContent').style.fontSize = currentFontSize + 'px';
-    }
-}
-
-function disminuirTexto() {
-    if (currentFontSize > 12) {
-        currentFontSize -= 2;
-        document.getElementById('mainContent').style.fontSize = currentFontSize + 'px';
-    }
-}
-
-function toggleContraste() {
-    isHighContrast = !isHighContrast;
-    const body = document.body;
-    
-    if (isHighContrast) {
-        body.style.filter = 'contrast(150%) brightness(1.2)';
-    } else {
-        body.style.filter = 'none';
-    }
-}
-
-function imprimirPagina() {
-    window.print();
-}
-
-function compartirEnlace() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'Términos y Condiciones - VoyConVos',
-            url: window.location.href
-        });
-    } else {
-        // Fallback: copiar al clipboard
-        navigator.clipboard.writeText(window.location.href).then(() => {
-            alert('Enlace copiado al portapapeles');
-        });
-    }
-}
-
 // Progress bar de lectura
 function updateReadingProgress() {
     const content = document.getElementById('mainContent');
@@ -741,23 +483,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
-
-// Limpiar highlights al hacer scroll
-let scrollTimer = null;
-window.addEventListener('scroll', function() {
-    if (scrollTimer !== null) {
-        clearTimeout(scrollTimer);
-    }
-    scrollTimer = setTimeout(function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value === '') {
-            const content = document.getElementById('mainContent');
-            if (content) {
-                content.innerHTML = content.innerHTML.replace(/<span class="highlight">/g, '').replace(/<\/span>/g, '');
-            }
-        }
-    }, 500);
 });
 </script>
 @endsection

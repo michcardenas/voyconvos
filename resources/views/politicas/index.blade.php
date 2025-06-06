@@ -117,79 +117,6 @@
         gap: 0.3rem;
     }
 
-    .tools-section {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 1.5rem;
-        margin-bottom: 2rem;
-        border: 1px solid rgba(76, 175, 80, 0.12);
-        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.08);
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .search-container {
-        position: relative;
-        flex: 1;
-        min-width: 250px;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.8rem 1rem 0.8rem 2.5rem;
-        border: 2px solid rgba(76, 175, 80, 0.2);
-        border-radius: 20px;
-        font-size: 0.9rem;
-        background: white;
-        color: var(--vcv-dark);
-        transition: all 0.3s ease;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: var(--privacy-accent);
-        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 0.8rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(76, 175, 80, 0.6);
-    }
-
-    .tools-buttons {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .tool-btn {
-        background: rgba(76, 175, 80, 0.1);
-        color: var(--privacy-accent);
-        border: none;
-        border-radius: 15px;
-        padding: 0.5rem 1rem;
-        font-size: 0.85rem;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .tool-btn:hover {
-        background: var(--privacy-accent);
-        color: white;
-        transform: translateY(-1px);
-    }
-
     .content-layout {
         display: grid;
         grid-template-columns: 300px 1fr;
@@ -322,7 +249,7 @@
 
     .content-body h2 {
         font-size: 1.5rem;
-        border-bottom: 2px solid rgba(156, 39, 176, 0.1);
+        border-bottom: 2px solid rgba(76, 175, 80, 0.1);
         padding-bottom: 0.5rem;
     }
 
@@ -354,17 +281,10 @@
         font-weight: 600;
     }
 
-    .highlight {
-        background: linear-gradient(120deg, rgba(156, 39, 176, 0.2) 0%, rgba(156, 39, 176, 0.1) 100%);
-        padding: 0.1rem 0.3rem;
-        border-radius: 3px;
-        font-weight: 600;
-    }
-
     .section-divider {
         border: none;
         height: 2px;
-        background: linear-gradient(90deg, transparent, rgba(156, 39, 176, 0.2), transparent);
+        background: linear-gradient(90deg, transparent, rgba(76, 175, 80, 0.2), transparent);
         margin: 3rem 0;
     }
 
@@ -376,7 +296,7 @@
 
     .empty-state i {
         font-size: 4rem;
-        color: rgba(156, 39, 176, 0.3);
+        color: rgba(76, 175, 80, 0.3);
         margin-bottom: 1.5rem;
     }
 
@@ -388,67 +308,6 @@
 
     .empty-state p {
         margin: 0;
-    }
-
-    .contact-cta {
-        background: linear-gradient(135deg, var(--privacy-accent) 0%, rgba(76, 175, 80, 0.9) 50%, rgba(31, 78, 121, 0.8) 100%);
-        color: white;
-        border-radius: 16px;
-        padding: 2rem;
-        margin-top: 3rem;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .contact-cta::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        right: 0;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
-    }
-
-    .contact-cta h3 {
-        margin: 0 0 1rem 0;
-        font-weight: 600;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-cta p {
-        margin: 0 0 1.5rem 0;
-        opacity: 0.95;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-btn {
-        background: white;
-        color: var(--privacy-accent);
-        border: none;
-        border-radius: 25px;
-        padding: 0.8rem 2rem;
-        font-weight: 600;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-btn:hover {
-        background: rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-        color: var(--privacy-accent);
-        text-decoration: none;
     }
 
     .reading-progress {
@@ -477,19 +336,6 @@
             order: 2;
         }
         
-        .tools-section {
-            flex-direction: column;
-            align-items: stretch;
-        }
-        
-        .search-container {
-            min-width: auto;
-        }
-        
-        .tools-buttons {
-            justify-content: center;
-        }
-        
         .protection-badges {
             justify-content: center;
         }
@@ -508,10 +354,6 @@
             padding: 1.5rem;
         }
         
-        .tools-section {
-            padding: 1rem;
-        }
-        
         .protection-badges {
             gap: 0.5rem;
         }
@@ -527,30 +369,31 @@
 
 <div class="privacy-wrapper">
     <div class="container">
+
         <!-- Privacy Header -->
         <div class="privacy-header">
-            <h1>🔒 Política de Privacidad</h1>
-            <p class="privacy-subtitle">Tu privacidad es nuestra prioridad. Conoce cómo protegemos tus datos personales</p>
-            
+            <h1>{{ \App\Models\Contenido::get('header-privacidad', 'titulo') }}</h1>
+            <p class="privacy-subtitle">{{ \App\Models\Contenido::get('header-privacidad', 'subtitulo') }}</p>
+
             <div class="protection-badges">
                 <div class="protection-badge">
                     <i class="fas fa-shield-alt"></i>
-                    Datos Encriptados
+                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_1') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-lock"></i>
-                    Conexión Segura
+                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_2') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-user-shield"></i>
-                    GDPR Compliant
+                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_3') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-eye-slash"></i>
-                    Sin Tracking
+                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_4') }}
                 </div>
             </div>
-            
+
             <div class="last-updated">
                 <i class="fas fa-calendar-alt me-1"></i>
                 Última actualización: {{ now()->format('d/m/Y') }}
@@ -558,7 +401,11 @@
         </div>
 
         <!-- Content Layout -->
-        @if($politica && $politica->contenido)
+        @php
+            $contenido = \App\Models\Contenido::get('contenido-privacidad', 'contenido');
+        @endphp
+
+        @if($contenido)
             <div class="content-layout">
                 <!-- Sidebar with Table of Contents -->
                 <div class="sidebar">
@@ -566,19 +413,18 @@
                         <i class="fas fa-list-ul"></i>
                         Índice de privacidad
                     </h4>
-                    
+
                     <!-- Privacy Info Box -->
                     <div class="privacy-info-box">
                         <div class="privacy-info-title">
                             <i class="fas fa-info-circle"></i>
-                            Resumen Rápido
+                            {{ \App\Models\Contenido::get('sidebar-privacidad', 'info_titulo') }}
                         </div>
                         <p class="privacy-info-text">
-                            Recopilamos solo los datos necesarios para brindarte el mejor servicio. 
-                            Nunca vendemos tu información personal.
+                            {{ \App\Models\Contenido::get('sidebar-privacidad', 'info_texto') }}
                         </p>
                     </div>
-                    
+
                     <ul class="toc-list" id="tableOfContents">
                         <!-- Se genera dinámicamente con JavaScript -->
                     </ul>
@@ -595,9 +441,9 @@
                             <span><i class="fas fa-globe me-1"></i>Aplicable globalmente</span>
                         </div>
                     </div>
-                    
+
                     <div class="content-body" id="mainContent">
-                        {!! nl2br(e($politica->contenido)) !!}
+                        {!! nl2br(e($contenido)) !!}
                     </div>
                 </div>
             </div>
@@ -611,23 +457,11 @@
                 </div>
             </div>
         @endif
-
-        <!-- Contact CTA -->
-        <div class="contact-cta">
-            <h3>🛡️ ¿Preguntas sobre tu privacidad?</h3>
-            <p>Nuestro oficial de protección de datos está disponible para resolver tus dudas</p>
-            <a href="#" class="contact-btn">
-                <i class="fas fa-user-shield"></i>
-                Contactar DPO
-            </a>
-        </div>
     </div>
 </div>
 
-<script>
-let currentFontSize = 16;
-let isHighContrast = false;
 
+<script>
 // Generar tabla de contenidos
 function generarTablaContenidos() {
     const content = document.getElementById('mainContent');
@@ -703,6 +537,33 @@ function generarTablaContenidos() {
     }
 }
 
+// Actualizar elemento activo en TOC
+function updateActiveToc(activeLink) {
+    document.querySelectorAll('.toc-link').forEach(link => {
+        link.classList.remove('active');
+    });
+    activeLink.classList.add('active');
+}
+
+// Actualizar progreso de lectura
+function updateReadingProgress() {
+    const content = document.getElementById('mainContent');
+    const progressBar = document.getElementById('readingProgress');
+    
+    if (!content || !progressBar) return;
+    
+    const contentHeight = content.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const contentTop = content.offsetTop;
+    const scrollTop = window.pageYOffset;
+    
+    const totalScrollable = contentHeight + contentTop - windowHeight;
+    const scrolled = Math.max(0, scrollTop - contentTop + (windowHeight * 0.3));
+    const progress = Math.min(100, (scrolled / (contentHeight - windowHeight * 0.7)) * 100);
+    
+    progressBar.style.width = Math.max(0, progress) + '%';
+}
+
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
     generarTablaContenidos();
@@ -729,23 +590,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-});
-
-// Limpiar highlights al hacer scroll
-let scrollTimer = null;
-window.addEventListener('scroll', function() {
-    if (scrollTimer !== null) {
-        clearTimeout(scrollTimer);
-    }
-    scrollTimer = setTimeout(function() {
-        const searchInput = document.getElementById('searchInput');
-        if (searchInput && searchInput.value === '') {
-            const content = document.getElementById('mainContent');
-            if (content) {
-                content.innerHTML = content.innerHTML.replace(/<span class="highlight">/g, '').replace(/<\/span>/g, '');
-            }
-        }
-    }, 500);
 });
 </script>
 @endsection

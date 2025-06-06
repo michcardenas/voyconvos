@@ -23,4 +23,11 @@ class Seccion extends Model
     {
         return $this->hasMany(Contenido::class, 'seccion_id');
     }
+
+    public function contenidoPorClave($clave)
+    {
+        return optional($this->contenidos->firstWhere('clave', $clave))->valor;
+    }
+
+    
 }
