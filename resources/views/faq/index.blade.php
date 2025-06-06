@@ -267,23 +267,23 @@
     <div class="container">
         <!-- FAQ Header -->
         <div class="faq-header">
-            <h1>{{ \App\Models\Contenido::get('faq-header', 'titulo') }}</h1>
+            <h1>{{ \App\Models\Contenido::getValor('faq-header', 'titulo') }}</h1>
             <p class="faq-subtitle">
-                {{ \App\Models\Contenido::get('faq-header', 'subtitulo') }}
+                {{ \App\Models\Contenido::getValor('faq-header', 'subtitulo') }}
             </p>
 
             <div class="faq-stats">
                 <div class="faq-stat">
                     <i class="fas fa-question-circle"></i>
-                    {{ \App\Models\Contenido::get('faq-header', 'cantidad') ?? 0 }} Preguntas
+                    {{ \App\Models\Contenido::getValor('faq-header', 'cantidad') ?? 0 }} Preguntas
                 </div>
                 <div class="faq-stat">
                     <i class="fas fa-clock"></i>
-                    {{ \App\Models\Contenido::get('faq-header', 'respuesta_inmediata') }}
+                    {{ \App\Models\Contenido::getValor('faq-header', 'respuesta_inmediata') }}
                 </div>
                 <div class="faq-stat">
                     <i class="fas fa-users"></i>
-                    {{ \App\Models\Contenido::get('faq-header', 'soporte') }}
+                    {{ \App\Models\Contenido::getValor('faq-header', 'soporte') }}
                 </div>
             </div>
         </div>

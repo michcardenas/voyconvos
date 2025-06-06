@@ -28,6 +28,7 @@ use App\Http\Controllers\ComoFuncionaPublicoController;
 use MercadoPago\SDK;
 
 
+
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
@@ -189,6 +190,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/pago/failure/{reserva}', [ReservaPasajeroController::class, 'pagoFailure'])->name('pasajero.pago.failure');
     Route::get('/pago/pending/{reserva}', [ReservaPasajeroController::class, 'pagoPending'])->name('pasajero.pago.pending');
 });
+
+
 
 
 

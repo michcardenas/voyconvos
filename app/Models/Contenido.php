@@ -17,11 +17,19 @@ class Contenido extends Model
         return $this->belongsTo(Seccion::class);
     }
 
-    public static function get($slug, $clave, $default = '')
+    public static function getValor(string $slug, string $clave, string $default = '')
     {
-        return static::whereHas('seccion', function ($query) use ($slug) {
-            $query->where('slug', $slug);
-        })->where('clave', $clave)->value('valor') ?? $default;
+        $seccion = Seccion::where('slug', $slug)->first();
+
+        if (!$seccion) return $default;
+
+        $contenido = $seccion->contenidos->firstWhere('clave', $clave);
+
+        return $contenido?->valor ?? $default;
     }
 
+    public static function getTitulo(string $slug, string $default = '')
+    {
+        return Seccion::where('slug', $slug)->value('titulo') ?? $default;
+    }
 }
