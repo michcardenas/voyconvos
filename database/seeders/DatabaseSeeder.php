@@ -20,6 +20,5 @@ class DatabaseSeeder extends Seeder
         $this->call(PreguntasFrecuentesSeeder::class);
         $this->call(TerminosCondicionesSeeder::class);
         $this->call(PoliticasDePrivacidadSeeder::class);
-
     }
 }
