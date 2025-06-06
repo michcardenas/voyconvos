@@ -7,6 +7,12 @@ use Illuminate\Http\Request;
 use App\Models\Viaje;
 use App\Models\Reserva;
 use Illuminate\Support\Facades\Auth;
+use MercadoPago\Resources\Preference\Item;
+
+use MercadoPago\MercadoPagoConfig;
+use MercadoPago\Client\Preference\PreferenceClient;
+use MercadoPago\Exceptions\MPApiException;
+
 
 class ReservaPasajeroController extends Controller
 {
@@ -38,36 +44,65 @@ class ReservaPasajeroController extends Controller
     }
 
     // POST: Procesar la reserva
-        public function reservar(Request $request, Viaje $viaje)
-    {
-        $request->validate([
-            'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
+public function reservar(Request $request, Viaje $viaje)
+{
+    $request->validate([
+        'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
+    ]);
+
+    $userId = auth()->id();
+    $cantidad = $request->cantidad_puestos;
+
+    // Crear reserva
+    $reserva = Reserva::create([
+        'viaje_id' => $viaje->id,
+        'user_id' => $userId,
+        'estado' => 'pendiente',
+        'cantidad_puestos' => $cantidad,
+        'notificado' => false,
+    ]);
+
+    $viaje->puestos_disponibles -= $cantidad;
+    $viaje->save();
+
+    // Configurar credencial
+    MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
+
+    // Crear ítem
+   $item = new Item();
+
+    $item->title = 'Reserva de viaje #' . $viaje->id;
+    $item->quantity = 1;
+    $item->unit_price = floatval($viaje->precio_por_persona * $cantidad);
+    $item->currency_id = 'ARS'; // 👈 Pesos Argentinos
+
+    // Crear preferencia
+    $client = new PreferenceClient();
+    
+
+    try {
+        $preference = $client->create([
+            'items' => [$item],
+            'back_urls' => [
+                'success' => route('pasajero.reserva.confirmada', $viaje->id),
+                'failure' => route('pasajero.reserva.fallida', $viaje->id),
+                'pending' => route('pasajero.reserva.pendiente', $viaje->id),
+            ],
+            'auto_return' => 'approved',
+            'external_reference' => (string) $reserva->id,
         ]);
 
-        $userId = auth()->id();
-        $cantidad = $request->cantidad_puestos;
+        return redirect()->away($preference->init_point);
 
-        // Verifica si ya tiene reserva
-        if (Reserva::where('viaje_id', $viaje->id)->where('user_id', $userId)->exists()) {
-            return back()->with('error', 'Ya tienes una reserva en este viaje.');
-        }
+    } catch (\MercadoPago\Exceptions\MPApiException $e) {
+        dd([
+            'message' => $e->getMessage(),
+            'response' => $e->getApiResponse(), // más seguro que getHttpStatusCode()
 
-        // Crear reserva
-        $reserva = Reserva::create([
-            'viaje_id' => $viaje->id,
-            'user_id' => $userId,
-            'estado' => 'pendiente', // Aún no confirmado ni pagado
-            'cantidad_puestos' => $cantidad,
-            'notificado' => false,
         ]);
-
-        // Resta puestos disponibles
-        $viaje->puestos_disponibles -= $cantidad;
-        $viaje->save(); // SIN cambiar el estado a 'activo'
-
-        return redirect()->route('pasajero.reserva.confirmada', $viaje->id)
-            ->with('success', 'Reserva realizada correctamente. Ahora debes confirmar el pago.');
     }
+}
+    
 
     // // GET: Confirmación final de reserva
     // public function confirmacion(Viaje $viaje)

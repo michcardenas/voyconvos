@@ -41,7 +41,7 @@ class GoogleController extends Controller
         }
 
         // ✅ Redirigir al mini panel del pasajero
-        return redirect()->route('usuario.panel');
+        return redirect()->route('pasajero.dashboard');
     }
 
     // Si es admin o soporte, redirigir al dashboard normal

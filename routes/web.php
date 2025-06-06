@@ -25,6 +25,8 @@ use App\Http\Controllers\TerminosController;
 use App\Http\Controllers\PoliticasController;
 use App\Http\Controllers\SobreNosotrosPublicoController;
 use App\Http\Controllers\ComoFuncionaPublicoController;
+use MercadoPago\SDK;
+
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
@@ -135,6 +137,10 @@ Route::get('/pasajero/reserva/resumen/{viaje}', [ReservaPasajeroController::clas
 
 // Paso 3: Confirmar reserva y guardar
 Route::post('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 'reservar'])->name('pasajero.reservar');
+Route::get('/reserva/{viaje}/confirmada', [ReservaPasajeroController::class, 'confirmada'])->name('pasajero.reserva.confirmada');
+Route::get('/reserva/{viaje}/fallida', [ReservaPasajeroController::class, 'fallida'])->name('pasajero.reserva.fallida');
+Route::get('/reserva/{viaje}/pendiente', [ReservaPasajeroController::class, 'pendiente'])->name('pasajero.reserva.pendiente');
+
 
 // // Confirmación final
 // Route::get('/pasajero/reserva-confirmada/{viaje}', [ReservaPasajeroController::class, 'confirmacion'])->name('pasajero.reserva.confirmada');
@@ -178,7 +184,7 @@ Route::get('/como-funciona', [ComoFuncionaPublicoController::class, 'index'])->n
 
 
 // // Panel de usuario
-// Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
+Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
 
 // Autenticación por defecto
 require __DIR__.'/auth.php';
