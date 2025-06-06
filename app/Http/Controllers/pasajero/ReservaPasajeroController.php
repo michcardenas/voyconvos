@@ -46,6 +46,8 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
+
+    
     // Validar campos
     $request->validate([
         'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
@@ -57,6 +59,13 @@ public function reservar(Request $request, Viaje $viaje)
     // Calcular precio total por la cantidad de puestos
     $precioUnitario = floatval(str_replace(',', '.', $viaje->precio_por_persona));
     $precioTotal = round($precioUnitario * $cantidad, 2);
+    dd([
+    'precio_por_persona_original' => $viaje->precio_por_persona,
+    'floatval' => floatval($viaje->precio_por_persona),
+    'cantidad' => $cantidad,
+    'total_calculado' => floatval($viaje->precio_por_persona) * $cantidad,
+]);
+
 
     // Validar precio antes de continuar
     if ($precioTotal <= 0) {
