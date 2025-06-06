@@ -11,14 +11,14 @@
 
     <div class="container hero-content position-relative">
         <div class="hero-text">
-            <h1>{{ \App\Models\Contenido::get('hero', 'h1') }}</h1>
-            <h2>{{ \App\Models\Contenido::get('hero', 'h2') }}</h2>
+            <h1>{{ \App\Models\Contenido::getValor('hero', 'h1') }}</h1>
+            <h2>{{ \App\Models\Contenido::getValor('hero', 'h2') }}</h2>
             <div class="hero-buttons">
                 <a href="#" class="btn btn-primary" id="buscarBtn">
-                    {{ \App\Models\Contenido::get('hero', 'btn_buscar') }}
+                    {{ \App\Models\Contenido::getValor('hero', 'btn_buscar') }}
                 </a>
                 <a href="#" class="btn btn-primary" id="publicarBtn">
-                    {{ \App\Models\Contenido::get('hero', 'btn_publicar') }}
+                    {{ \App\Models\Contenido::getValor('hero', 'btn_publicar') }}
                 </a>
             </div>
         </div>
@@ -92,20 +92,20 @@
 
             {{-- Información de ahorro --}}
             <div class="savings">
-                <h3>{{ \App\Models\Contenido::get('hero', 'ahorro_texto') }}
-                    <span class="highlight">{{ \App\Models\Contenido::get('hero', 'ahorro_valor') }}</span>
-                    {{ \App\Models\Contenido::get('hero', 'ahorro_sufijo') }}
+                <h3>{{ \App\Models\Contenido::getValor('hero', 'ahorro_texto') }}
+                    <span class="highlight">{{ \App\Models\Contenido::getValor('hero', 'ahorro_valor') }}</span>
+                    {{ \App\Models\Contenido::getValor('hero', 'ahorro_sufijo') }}
                 </h3>
             </div>
 
             {{-- Botón Publicar Viaje --}}
             <button type="button" class="publish-trip-btn" id="publishBtn">
-                {{ \App\Models\Contenido::get('hero', 'btn_publicar_main') }}
+                {{ \App\Models\Contenido::getValor('hero', 'btn_publicar_main') }}
             </button>
 
             {{-- Enlace Cómo Funciona --}}
             <a href="#como-funciona" class="como-funciona">
-                {{ \App\Models\Contenido::get('hero', 'como_funciona') }} <i class="fas fa-arrow-right"></i>
+                {{ \App\Models\Contenido::getValor('hero', 'como_funciona') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>
     </div>
@@ -317,16 +317,16 @@
 {{-- FEATURES --}}
 <section class="features">
     <div class="container">
-        <h2>{{ \App\Models\Contenido::get('features', 'titulo') }}</h2>
+        <h2>{{ \App\Models\Contenido::getValor('features', 'titulo') }}</h2>
 
         <div class="feature-cards">
             @for ($i = 1; $i <= 3; $i++)
                 <div class="feature-card">
                     <div class="feature-icon">
-                        <i class="fas {{ \App\Models\Contenido::get('features', 'feature_' . $i . '_icon') }}"></i>
+                        <i class="fas {{ \App\Models\Contenido::getValor('features', 'feature_' . $i . '_icon') }}"></i>
                     </div>
-                    <h3>{{ \App\Models\Contenido::get('features', 'feature_' . $i . '_titulo') }}</h3>
-                    <p>{{ \App\Models\Contenido::get('features', 'feature_' . $i . '_texto') }}</p>
+                    <h3>{{ \App\Models\Contenido::getValor('features', 'feature_' . $i . '_titulo') }}</h3>
+                    <p>{{ \App\Models\Contenido::getValor('features', 'feature_' . $i . '_texto') }}</p>
                 </div>
             @endfor
         </div>
@@ -336,8 +336,8 @@
 {{-- SLOGAN --}}
 <section class="slogan">
     <div class="container">
-        <h2>{{ \App\Models\Contenido::get('slogan', 'titulo') }}</h2>
-        <a href="#" class="btn btn-primary"">{{ \App\Models\Contenido::get('slogan', 'boton') }}</a>
+        <h2>{{ \App\Models\Contenido::getValor('slogan', 'titulo') }}</h2>
+        <a href="#" class="btn btn-primary">{{ \App\Models\Contenido::getValor('slogan', 'boton') }}</a>
     </div>
 </section>
 
