@@ -43,60 +43,86 @@ class ReservaPasajeroController extends Controller
     }
 
     // POST: Procesar la reserva
-  public function reservar(Request $request, Viaje $viaje)
-    {
-        // Validar datos básicos
-        $validated = $request->validate([
-            'cantidad_puestos' => 'required|integer|min:1',
-            'valor_cobrado' => 'required|numeric',
-            'total' => 'required|numeric',
-            'viaje_id' => 'required|integer'
+public function reservar(Request $request, Viaje $viaje)
+{
+    \Log::info('Inicio de reservar', [
+        'viaje_id' => $viaje->id,
+        'request_data' => $request->all()
+    ]);
+
+    // Validar datos básicos
+    $validated = $request->validate([
+        'cantidad_puestos' => 'required|integer|min:1',
+        'valor_cobrado' => 'required|numeric',
+        'total' => 'required|numeric',
+        'viaje_id' => 'required|integer'
+    ]);
+
+    try {
+        // Crear la reserva
+        $reserva = new Reserva();
+        $reserva->viaje_id = $viaje->id;
+        $reserva->user_id = auth()->id();
+        $reserva->cantidad_puestos = $validated['cantidad_puestos'];
+        $reserva->precio_por_persona = $validated['valor_cobrado'];
+        $reserva->total = $validated['total'];
+        $reserva->estado = 'pendiente_pago';
+        $reserva->fecha_reserva = now();
+        $reserva->save();
+
+        \Log::info('Reserva creada', ['reserva_id' => $reserva->id]);
+
+        // Configurar Mercado Pago
+        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
+        \Log::info('Token MP', ['exists' => !empty($accessToken)]);
+        
+        MercadoPagoConfig::setAccessToken($accessToken);
+        $client = new PreferenceClient();
+
+        // Crear preferencia
+        $preferenceData = [
+            "items" => [
+                [
+                    "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
+                    "quantity" => 1,
+                    "unit_price" => floatval($reserva->total),
+                    "currency_id" => "COP"
+                ]
+            ],
+            "payer" => [
+                "email" => auth()->user()->email
+            ],
+            "external_reference" => "RESERVA_" . $reserva->id
+        ];
+
+        \Log::info('Creando preferencia MP', $preferenceData);
+
+        $preference = $client->create($preferenceData);
+
+        \Log::info('Preferencia creada', [
+            'preference_id' => $preference->id,
+            'init_point' => $preference->init_point
         ]);
 
-        try {
-            // Crear la reserva
-            $reserva = new Reserva();
-            $reserva->viaje_id = $viaje->id;
-            $reserva->user_id = auth()->id();
-            $reserva->cantidad_puestos = $validated['cantidad_puestos'];
-            $reserva->precio_por_persona = $validated['valor_cobrado'];
-            $reserva->total = $validated['total'];
-            $reserva->estado = 'pendiente_pago';
-            $reserva->fecha_reserva = now();
-            $reserva->save();
+        // Guardar datos de MP
+        $reserva->mp_preference_id = $preference->id;
+        $reserva->mp_init_point = $preference->init_point;
+        $reserva->save();
 
-            // Configurar Mercado Pago
-            MercadoPagoConfig::setAccessToken(env('MERCADO_PAGO_ACCESS_TOKEN'));
-            $client = new PreferenceClient();
+        \Log::info('Redirigiendo a MP', ['url' => $preference->init_point]);
 
-            // Crear preferencia
-            $preference = $client->create([
-                "items" => [
-                    [
-                        "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
-                        "quantity" => 1,
-                        "unit_price" => floatval($reserva->total),
-                        "currency_id" => "COP"
-                    ]
-                ],
-                "payer" => [
-                    "email" => auth()->user()->email
-                ],
-                "external_reference" => "RESERVA_" . $reserva->id
-            ]);
+        // Redirigir a Mercado Pago
+        return redirect()->away($preference->init_point);
 
-            // Guardar datos de MP
-            $reserva->mp_preference_id = $preference->id;
-            $reserva->mp_init_point = $preference->init_point;
-            $reserva->save();
-
-            // Redirigir a Mercado Pago
-            return redirect()->away($preference->init_point);
-
-        } catch (\Exception $e) {
-            return back()->withErrors(['error' => 'Error al procesar la reserva: ' . $e->getMessage()]);
-        }
+    } catch (\Exception $e) {
+        \Log::error('Error en reservar', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+        
+        return back()->withErrors(['error' => 'Error al procesar la reserva: ' . $e->getMessage()]);
     }
+}
 
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)
