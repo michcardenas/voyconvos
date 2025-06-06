@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $info->titulo)
+@section('title', \App\Models\Contenido::getTitulo('sobre-nosotros', 'Sobre Nosotros'))
 
 @section('content')
 <style>
@@ -36,6 +36,10 @@
         position: relative;
         z-index: 1;
         max-width: 1000px;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .info-header {
@@ -350,30 +354,22 @@
 <section class="info-wrapper">
     <div class="container">
         <div class="info-header">
-            <h1 class="section-title">{{ \App\Models\Contenido::get('como-funciona', 'titulo') }}</h1>
-            <p class="info-subtitle">{{ \App\Models\Contenido::get('como-funciona', 'subtitulo') }}</p>
+            <h1 class="section-title">{{ \App\Models\Contenido::getTitulo('sobre-nosotros') }}</h1>
+            <p class="info-subtitle">{{ \App\Models\Contenido::getValor('sobre-nosotros', 'subtitulo') }}</p>
         </div>
-
-        <div class="main-content">
-            <div class="content-inner contenido" id="mainContent">
-                <ul class="list-disc space-y-4 pl-5 text-lg">
-                    <li>
-                        <strong>{{ \App\Models\Contenido::get('como-funciona', 'paso_1_titulo') }}</strong><br>
-                        {{ \App\Models\Contenido::get('como-funciona', 'paso_1_texto') }}
-                    </li>
-                    <li>
-                        <strong>{{ \App\Models\Contenido::get('como-funciona', 'paso_2_titulo') }}</strong><br>
-                        {{ \App\Models\Contenido::get('como-funciona', 'paso_2_texto') }}
-                    </li>
-                    <li>
-                        <strong>{{ \App\Models\Contenido::get('como-funciona', 'paso_3_titulo') }}</strong><br>
-                        {{ \App\Models\Contenido::get('como-funciona', 'paso_3_texto') }}
-                    </li>
-                </ul>
+            <div class="main-content contenido" id="mainContent">
+                <div style="margin: 15px;">
+                    <p class="mb-4 text-lg">
+                        {{ \App\Models\Contenido::getValor('sobre-nosotros', 'parrafo_1') }}
+                    </p>
+                    <p class="text-lg">
+                        {{ \App\Models\Contenido::getValor('sobre-nosotros', 'parrafo_2') }}
+                    </p>
+                </div>
             </div>
-        </div>
     </div>
 </section>
+
 
 <script>
 // Reading progress bar

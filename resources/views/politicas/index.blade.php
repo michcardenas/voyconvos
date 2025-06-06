@@ -372,25 +372,25 @@
 
         <!-- Privacy Header -->
         <div class="privacy-header">
-            <h1>{{ \App\Models\Contenido::get('header-privacidad', 'titulo') }}</h1>
-            <p class="privacy-subtitle">{{ \App\Models\Contenido::get('header-privacidad', 'subtitulo') }}</p>
+            <h1>{{ \App\Models\Contenido::getValor('header-privacidad', 'titulo') }}</h1>
+            <p class="privacy-subtitle">{{ \App\Models\Contenido::getValor('header-privacidad', 'subtitulo') }}</p>
 
             <div class="protection-badges">
                 <div class="protection-badge">
                     <i class="fas fa-shield-alt"></i>
-                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_1') }}
+                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_1') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-lock"></i>
-                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_2') }}
+                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_2') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-user-shield"></i>
-                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_3') }}
+                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_3') }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-eye-slash"></i>
-                    {{ \App\Models\Contenido::get('header-privacidad', 'badge_4') }}
+                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_4') }}
                 </div>
             </div>
 
@@ -402,7 +402,7 @@
 
         <!-- Content Layout -->
         @php
-            $contenido = \App\Models\Contenido::get('contenido-privacidad', 'contenido');
+            $contenido = \App\Models\Contenido::getValor('contenido-privacidad', 'contenido');
         @endphp
 
         @if($contenido)
@@ -418,10 +418,10 @@
                     <div class="privacy-info-box">
                         <div class="privacy-info-title">
                             <i class="fas fa-info-circle"></i>
-                            {{ \App\Models\Contenido::get('sidebar-privacidad', 'info_titulo') }}
+                            {{ \App\Models\Contenido::getValor('sidebar-privacidad', 'info_titulo') }}
                         </div>
                         <p class="privacy-info-text">
-                            {{ \App\Models\Contenido::get('sidebar-privacidad', 'info_texto') }}
+                            {{ \App\Models\Contenido::getValor('sidebar-privacidad', 'info_texto') }}
                         </p>
                     </div>
 

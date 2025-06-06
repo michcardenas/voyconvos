@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $info->titulo)
+@section('title', \App\Models\Contenido::getValor('como-funciona', 'titulo', '¿Cómo funciona?'))     
 
 @section('content')
 <style>
@@ -349,26 +349,31 @@
 
 <div class="reading-progress" id="readingProgress"></div>
 
-    <div class="info-wrapper">
-        <div class="container">
-            <!-- Info Header -->
-            <div class="info-header">
-                <h1 class="section-title">{{ \App\Models\Contenido::get('presentacion', 'titulo') }}</h1>
-                <p class="info-subtitle">{{ \App\Models\Contenido::get('presentacion', 'subtitulo') }}</p>
-            </div>
+<div class="info-wrapper">
+    <div class="container">
+        <!-- Info Header -->
+        <div class="info-header">
+            <h1 class="section-title">{{ \App\Models\Contenido::getValor('pasos', 'titulo') }}</h1>
+            <p class="info-subtitle">{{ \App\Models\Contenido::getValor('pasos', 'texto') }}</p>
+        </div>
 
-            <!-- Main Content -->
-            <div class="main-content">
-                <div class="content-inner contenido" id="mainContent">
-                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_1') }}</p>
-                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_2') }}</p>
-                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_3') }}</p>
-                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_4') }}</p>
-                    <p><strong>{{ \App\Models\Contenido::get('presentacion', 'parrafo_5') }}</strong></p>
-                </div>
+        <div class="main-content">
+            <div class="content-inner contenido" id="mainContent">
+                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_1_titulo') }}</strong></p>
+                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_1_texto') }}</p>
+
+                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_2_titulo') }}</strong></p>
+                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_2_texto') }}</p>
+
+                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_3_titulo') }}</strong></p>
+                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_3_texto') }}</p>
+
+                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_4_titulo') }}</strong></p>
+                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_4_texto') }}</p>
             </div>
         </div>
     </div>
+</div>
 
 <div class="back-to-top" id="backToTop"></div>
 

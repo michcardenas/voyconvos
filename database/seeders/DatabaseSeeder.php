@@ -15,5 +15,11 @@ class DatabaseSeeder extends Seeder
         $this->call([
             RolesAndAdminSeeder::class,
         ]);
+        $this->call(SobreNosotrosSeeder::class);
+        $this->call(ContactoContenidoSeeder::class);
+        $this->call(PreguntasFrecuentesSeeder::class);
+        $this->call(TerminosCondicionesSeeder::class);
+        $this->call(PoliticasDePrivacidadSeeder::class);
+
     }
 }

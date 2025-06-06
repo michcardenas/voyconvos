@@ -355,8 +355,8 @@
     <!-- Hero Section para Contacto -->
     <section class="page-hero">
         <div class="container">
-            <h1>{{ \App\Models\Contenido::get('hero-contacto', 'titulo') }}</h1>
-            <p>{{ \App\Models\Contenido::get('hero-contacto', 'texto') }}</p>
+            <h1>{{ \App\Models\Contenido::getValor('hero-contacto', 'titulo') }}</h1>
+            <p>{{ \App\Models\Contenido::getValor('hero-contacto', 'texto') }}</p>
         </div>
     </section>
 
@@ -368,47 +368,47 @@
                     <div class="info-card">
                         <div class="info-icon">📍</div>
                         <h3>Ubicación</h3>
-                        <p>{{ \App\Models\Contenido::get('info-contacto', 'ubicacion') }}</p>
+                        <p>{{ \App\Models\Contenido::getValor('info-contacto', 'ubicacion') }}</p>
                     </div>
                     <div class="info-card">
                         <div class="info-icon">✉️</div>
                         <h3>Email</h3>
-                        <p>{{ \App\Models\Contenido::get('info-contacto', 'email') }}</p>
+                        <p>{{ \App\Models\Contenido::getValor('info-contacto', 'email') }}</p>
                     </div>
                     <div class="info-card">
                         <div class="info-icon">📞</div>
                         <h3>Teléfono</h3>
-                        <p>{{ \App\Models\Contenido::get('info-contacto', 'telefono') }}</p>
+                        <p>{{ \App\Models\Contenido::getValor('info-contacto', 'telefono') }}</p>
                     </div>
                     <div class="info-card">
                         <div class="info-icon">🕒</div>
                         <h3>Horario</h3>
-                        <p>{{ \App\Models\Contenido::get('info-contacto', 'horario') }}</p>
+                        <p>{{ \App\Models\Contenido::getValor('info-contacto', 'horario') }}</p>
                     </div>
                 </div>
 
                 <div class="contact-form-container">
-                    <h2>{{ \App\Models\Contenido::get('form-contacto', 'titulo') }}</h2>
+                    <h2>{{ \App\Models\Contenido::getValor('form-contacto', 'titulo') }}</h2>
                     <form class="contact-form" action="#" method="POST" onsubmit="enviarFormulario(event)">
                         @csrf
                         <div class="form-group">
-                            <label for="nombre">{{ \App\Models\Contenido::get('form-contacto', 'label_nombre') }}</label>
+                            <label for="nombre">{{ \App\Models\Contenido::getValor('form-contacto', 'label_nombre') }}</label>
                             <input type="text" id="nombre" name="nombre" required>
                         </div>
                         <div class="form-group">
-                            <label for="email">{{ \App\Models\Contenido::get('form-contacto', 'label_email') }}</label>
+                            <label for="email">{{ \App\Models\Contenido::getValor('form-contacto', 'label_email') }}</label>
                             <input type="email" id="email" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label for="asunto">{{ \App\Models\Contenido::get('form-contacto', 'label_asunto') }}</label>
+                            <label for="asunto">{{ \App\Models\Contenido::getValor('form-contacto', 'label_asunto') }}</label>
                             <input type="text" id="asunto" name="asunto" required>
                         </div>
                         <div class="form-group">
-                            <label for="mensaje">{{ \App\Models\Contenido::get('form-contacto', 'label_mensaje') }}</label>
-                            <textarea id="mensaje" name="mensaje" rows="5" required placeholder="{{ \App\Models\Contenido::get('form-contacto', 'placeholder') }}"></textarea>
+                            <label for="mensaje">{{ \App\Models\Contenido::getValor('form-contacto', 'label_mensaje') }}</label>
+                            <textarea id="mensaje" name="mensaje" rows="5" required placeholder="{{ \App\Models\Contenido::getValor('form-contacto', 'placeholder') }}"></textarea>
                         </div>
                         <button type="submit" class="submit-btn">
-                            {{ \App\Models\Contenido::get('form-contacto', 'boton') }}
+                            {{ \App\Models\Contenido::getValor('form-contacto', 'boton') }}
                         </button>
                     </form>
                 </div>
@@ -423,7 +423,7 @@ function enviarFormulario(event) {
     event.preventDefault();
     
     // Simular envío del formulario
-    const submitBtn = event.target.querySelector('.submit-btn');
+    const submitBtn = event.targetValor.querySelector('.submit-btn');
     const originalText = submitBtn.innerHTML;
     
     // Cambiar el botón durante el "envío"
@@ -436,7 +436,7 @@ function enviarFormulario(event) {
         submitBtn.style.background = 'linear-gradient(135deg, var(--vcv-accent) 0%, rgba(76, 175, 80, 0.9) 100%)';
         
         // Limpiar el formulario
-        event.target.reset();
+        event.targetValor.reset();
         
         setTimeout(() => {
             // Restaurar el botón
@@ -525,9 +525,9 @@ document.addEventListener('DOMContentLoaded', function() {
     links.forEach(link => {
         link.addEventListener('click', function(e) {
             e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
+            const targetValor = document.querySelector(this.getValorAttribute('href'));
+            if (targetValor) {
+                targetValor.scrollIntoView({
                     behavior: 'smooth',
                     block: 'start'
                 });

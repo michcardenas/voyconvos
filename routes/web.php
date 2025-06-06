@@ -26,6 +26,7 @@ use App\Http\Controllers\PoliticasController;
 use App\Http\Controllers\SobreNosotrosPublicoController;
 use App\Http\Controllers\ComoFuncionaPublicoController;
 
+
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
@@ -161,6 +162,8 @@ Route::get('/sobre-nosotros', [SobreNosotrosPublicoController::class, 'index'])-
 
 // Cómo funciona
 Route::get('/como-funciona', [ComoFuncionaPublicoController::class, 'index'])->name('como-funciona');
+
+
 
 
 

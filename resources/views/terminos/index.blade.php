@@ -313,8 +313,8 @@
 
         <!-- Terms Header -->
         <div class="terms-header">
-            <h1>{{ \App\Models\Contenido::get('header-terminos', 'titulo') }}</h1>
-            <p class="terms-subtitle">{{ \App\Models\Contenido::get('header-terminos', 'subtitulo') }}</p>
+            <h1>{{ \App\Models\Contenido::getValor('header-terminos', 'titulo') }}</h1>
+            <p class="terms-subtitle">{{ \App\Models\Contenido::getValor('header-terminos', 'subtitulo') }}</p>
             <div class="last-updated">
                 <i class="fas fa-calendar-alt me-1"></i>
                 Última actualización: {{ now()->format('d/m/Y') }}
@@ -323,7 +323,7 @@
 
         <!-- Content Layout -->
         @php
-            $contenido = \App\Models\Contenido::get('contenido-terminos', 'contenido');
+            $contenido = \App\Models\Contenido::getValor('contenido-terminos', 'contenido');
         @endphp
 
         @if($contenido)
