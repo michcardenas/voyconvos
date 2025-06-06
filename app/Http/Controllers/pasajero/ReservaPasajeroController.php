@@ -45,16 +45,11 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
-    \Log::info('Inicio de reservar', [
-        'viaje_id' => $viaje->id,
-        'request_data' => $request->all()
-    ]);
-
     // Validar datos básicos
     $validated = $request->validate([
         'cantidad_puestos' => 'required|integer|min:1',
-        'valor_cobrado' => 'required|numeric',
-        'total' => 'required|numeric',
+        'valor_cobrado' => 'required|numeric|min:0.01',
+        'total' => 'required|numeric|min:0.01',
         'viaje_id' => 'required|integer'
     ]);
 
@@ -70,38 +65,46 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->fecha_reserva = now();
         $reserva->save();
 
-        \Log::info('Reserva creada', ['reserva_id' => $reserva->id]);
-
         // Configurar Mercado Pago
-        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
-        \Log::info('Token MP', ['exists' => !empty($accessToken)]);
-        
-        MercadoPagoConfig::setAccessToken($accessToken);
+        MercadoPagoConfig::setAccessToken(env('MERCADO_PAGO_ACCESS_TOKEN'));
         $client = new PreferenceClient();
 
+        // Asegurar que el precio sea un float válido
+        $precio = floatval($reserva->total);
+        
+        // Verificar que el precio sea mayor a 0
+        if ($precio <= 0) {
+            throw new \Exception('El precio debe ser mayor a 0');
+        }
+
+        // Log para debug
+        \Log::info('Datos de precio MP', [
+            'total_reserva' => $reserva->total,
+            'precio_float' => $precio,
+            'tipo' => gettype($precio)
+        ]);
+
         // Crear preferencia
-        $preferenceData = [
+        $preference = $client->create([
             "items" => [
                 [
+                    "id" => "VIAJE_" . $viaje->id,
                     "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
+                    "description" => "Reserva de " . $reserva->cantidad_puestos . " puesto(s)",
                     "quantity" => 1,
-                    "unit_price" => floatval($reserva->total),
-                    "currency_id" => "COP"
+                    "unit_price" => $precio,
+                    "currency_id" => "ARS" // Cambiar a ARS para Argentina (o COP para Colombia)
                 ]
             ],
             "payer" => [
+                "name" => auth()->user()->name ?? "",
                 "email" => auth()->user()->email
             ],
-            "external_reference" => "RESERVA_" . $reserva->id
-        ];
-
-        \Log::info('Creando preferencia MP', $preferenceData);
-
-        $preference = $client->create($preferenceData);
-
-        \Log::info('Preferencia creada', [
-            'preference_id' => $preference->id,
-            'init_point' => $preference->init_point
+            "external_reference" => "RESERVA_" . $reserva->id,
+            "payment_methods" => [
+                "excluded_payment_types" => [],
+                "installments" => 1
+            ]
         ]);
 
         // Guardar datos de MP
@@ -109,18 +112,21 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->mp_init_point = $preference->init_point;
         $reserva->save();
 
-        \Log::info('Redirigiendo a MP', ['url' => $preference->init_point]);
-
         // Redirigir a Mercado Pago
         return redirect()->away($preference->init_point);
 
     } catch (\Exception $e) {
         \Log::error('Error en reservar', [
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : null
         ]);
         
-        return back()->withErrors(['error' => 'Error al procesar la reserva: ' . $e->getMessage()]);
+        // Si hay una reserva creada, la eliminamos
+        if (isset($reserva) && $reserva->exists) {
+            $reserva->delete();
+        }
+        
+        return back()->withErrors(['error' => 'Error al procesar el pago: ' . $e->getMessage()]);
     }
 }
 
