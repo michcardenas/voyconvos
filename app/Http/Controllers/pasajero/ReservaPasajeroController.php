@@ -73,7 +73,7 @@ public function reservar(Request $request, Viaje $viaje)
 
     $item->title = 'Reserva de viaje #' . $viaje->id;
     $item->quantity = 1;
-    $item->unit_price = floatval($viaje->precio_por_persona * $cantidad);
+    $item->unit_price = floatval($viaje->precio_por_persona);
     $item->currency_id = 'ARS'; // 👈 Pesos Argentinos
 
     // Crear preferencia
