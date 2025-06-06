@@ -43,116 +43,85 @@ class ReservaPasajeroController extends Controller
     }
 
     // POST: Procesar la reserva
-public function reservar(Request $request, Viaje $viaje)
-{
-    // ✅ Validar todos los campos que llegan
-    $validated = $request->validate([
-        'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
-        'valor_cobrado' => 'required|numeric|min:0',
-        'total' => 'required|numeric|min:0',
-        'viaje_id' => 'required|integer'
-    ]);
-
-    $userId = auth()->id();
-    $cantidad = $validated['cantidad_puestos'];
-    $precioUnitario = floatval($validated['valor_cobrado']);
-    $total = floatval($validated['total']);
-
-    // 🔍 Verificaciones de seguridad
-    if (abs($precioUnitario - floatval($viaje->valor_cobrado)) > 0.01) {
-        return back()->withErrors(['error' => 'El precio del viaje ha cambiado. Por favor, actualiza la página.']);
-    }
-
-    $totalCalculado = $precioUnitario * $cantidad;
-    if (abs($total - $totalCalculado) > 0.01) {
-        return back()->withErrors(['error' => 'Error en el cálculo del total. Por favor, intenta nuevamente.']);
-    }
-
-    // Verificar disponibilidad de puestos
-    $puestosReservados = $viaje->reservas()->where('estado', '!=', 'cancelada')->sum('cantidad_puestos');
-    if (($puestosReservados + $cantidad) > $viaje->puestos_disponibles) {
-        return back()->withErrors(['error' => 'No hay suficientes puestos disponibles.']);
-    }
-
-    try {
-        // 💾 Crear la reserva - ✅ CORREGIDO: usar user_id en lugar de pasajero_id
-        $reserva = new Reserva();
-        $reserva->viaje_id = $viaje->id;
-        $reserva->user_id = $userId;                    // ✅ CAMBIO: user_id en lugar de pasajero_id
-        $reserva->cantidad_puestos = $cantidad;
-        $reserva->precio_por_persona = $precioUnitario;
-        $reserva->total = $total;
-        $reserva->estado = 'pendiente_pago';
-        $reserva->fecha_reserva = now();
-        $reserva->save();
-
-        \Log::info('Reserva creada exitosamente', [
-            'reserva_id' => $reserva->id,
-            'viaje_id' => $viaje->id,
-            'usuario_id' => $userId,
-            'cantidad' => $cantidad,
-            'total' => $total
+  public function reservar(Request $request, Viaje $viaje)
+    {
+        // Validar datos básicos
+        $validated = $request->validate([
+            'cantidad_puestos' => 'required|integer|min:1',
+            'valor_cobrado' => 'required|numeric',
+            'total' => 'required|numeric',
+            'viaje_id' => 'required|integer'
         ]);
 
-        // 💳 TODO: Integración con Mercado Pago (opcional por ahora)
-        // Por ahora, simplemente redirigir a una página de confirmación
-        return redirect()->route('pasajero.reserva.confirmacion', $reserva->id)
-            ->with('success', '¡Reserva creada exitosamente!');
+        try {
+            // Crear la reserva
+            $reserva = new Reserva();
+            $reserva->viaje_id = $viaje->id;
+            $reserva->user_id = auth()->id();
+            $reserva->cantidad_puestos = $validated['cantidad_puestos'];
+            $reserva->precio_por_persona = $validated['valor_cobrado'];
+            $reserva->total = $validated['total'];
+            $reserva->estado = 'pendiente_pago';
+            $reserva->fecha_reserva = now();
+            $reserva->save();
 
-        /* CODIGO MERCADO PAGO - Comentado por ahora
-        $mp = new \MercadoPago\SDK(env('MERCADO_PAGO_ACCESS_TOKEN'));
+            // Configurar Mercado Pago
+            MercadoPagoConfig::setAccessToken(env('MERCADO_PAGO_ACCESS_TOKEN'));
+            $client = new PreferenceClient();
 
-        $preference = new \MercadoPago\Preference();
+            // Crear preferencia
+            $preference = $client->create([
+                "items" => [
+                    [
+                        "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
+                        "quantity" => 1,
+                        "unit_price" => floatval($reserva->total),
+                        "currency_id" => "COP"
+                    ]
+                ],
+                "payer" => [
+                    "email" => auth()->user()->email
+                ],
+                "external_reference" => "RESERVA_" . $reserva->id
+            ]);
 
-        $item = new \MercadoPago\Item();
-        $item->title = "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion;
-        $item->description = "Reserva de {$cantidad} " . ($cantidad == 1 ? 'puesto' : 'puestos') . " para el " . \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
-        $item->quantity = 1;
-        $item->unit_price = $total;
-        $item->currency_id = "COP";
+            // Guardar datos de MP
+            $reserva->mp_preference_id = $preference->id;
+            $reserva->mp_init_point = $preference->init_point;
+            $reserva->save();
 
-        $preference->items = array($item);
+            // Redirigir a Mercado Pago
+            return redirect()->away($preference->init_point);
 
-        $preference->back_urls = array(
-            "success" => route('pasajero.pago.success', $reserva->id),
-            "failure" => route('pasajero.pago.failure', $reserva->id),
-            "pending" => route('pasajero.pago.pending', $reserva->id)
-        );
-
-        $preference->auto_return = "approved";
-
-        $payer = new \MercadoPago\Payer();
-        $payer->name = auth()->user()->name;
-        $payer->email = auth()->user()->email;
-        $preference->payer = $payer;
-
-        $preference->external_reference = "RESERVA_" . $reserva->id;
-        $preference->statement_descriptor = "VIAJE_APP";
-        $preference->expires = true;
-        $preference->expiration_date_from = date('c');
-        $preference->expiration_date_to = date('c', strtotime('+1 hour'));
-
-        $preference->save();
-
-        $reserva->mp_preference_id = $preference->id;
-        $reserva->mp_init_point = $preference->init_point;
-        $reserva->save();
-
-        return redirect($preference->init_point);
-        */
-
-    } catch (\Exception $e) {
-        \Log::error('Error al crear reserva', [
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString(),
-            'usuario_id' => $userId,
-            'viaje_id' => $viaje->id
-        ]);
-
-        return back()->withErrors(['error' => 'Error al procesar la reserva. Por favor, intenta nuevamente.']);
+        } catch (\Exception $e) {
+            return back()->withErrors(['error' => 'Error al procesar la reserva: ' . $e->getMessage()]);
+        }
     }
-}
 
+    // Callbacks de Mercado Pago
+    public function pagoSuccess(Reserva $reserva)
+    {
+        $reserva->estado = 'pagada';
+        $reserva->save();
+        
+        return view('pasajero.pago-exitoso', compact('reserva'));
+    }
+
+    public function pagoFailure(Reserva $reserva)
+    {
+        $reserva->estado = 'fallida';
+        $reserva->save();
+        
+        return view('pasajero.pago-fallido', compact('reserva'));
+    }
+
+    public function pagoPending(Reserva $reserva)
+    {
+        $reserva->estado = 'pendiente';
+        $reserva->save();
+        
+        return view('pasajero.pago-pendiente', compact('reserva'));
+    }
 public function confirmacionReserva(Reserva $reserva)
 {
     // Verificar que la reserva pertenece al usuario autenticado
