@@ -68,9 +68,9 @@ public function reservar(Request $request, Viaje $viaje)
         // Obtener el token
         $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
         
-        if (empty($accessToken)) {
-            throw new \Exception('Token de Mercado Pago no configurado');
-        }
+        // if (empty($accessToken)) {
+        //     throw new \Exception('Token de Mercado Pago no configurado');
+        // }
 
         // DEBUG: Ver exactamente qué valores estamos enviando
         $precio = floatval($reserva->total);
