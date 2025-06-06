@@ -140,6 +140,7 @@ Route::post('/pasajero/reservar/{viaje}', [ReservaPasajeroController::class, 're
 Route::get('/reserva/{viaje}/confirmada', [ReservaPasajeroController::class, 'confirmada'])->name('pasajero.reserva.confirmada');
 Route::get('/reserva/{viaje}/fallida', [ReservaPasajeroController::class, 'fallida'])->name('pasajero.reserva.fallida');
 Route::get('/reserva/{viaje}/pendiente', [ReservaPasajeroController::class, 'pendiente'])->name('pasajero.reserva.pendiente');
+Route::get('/reserva/confirmacion/{reserva}', [ReservaPasajeroController::class, 'confirmacionReserva'])->name('pasajero.reserva.confirmacion');
 
 
 // // Confirmación final
@@ -179,6 +180,15 @@ Route::get('/sobre-nosotros', [SobreNosotrosPublicoController::class, 'index'])-
 // Cómo funciona
 Route::get('/como-funciona', [ComoFuncionaPublicoController::class, 'index'])->name('como-funciona');
 
+Route::middleware(['auth'])->group(function () {
+    // Ruta para procesar pago
+    Route::get('/reserva/{reserva}/pagar', [ReservaPasajeroController::class, 'procesarPago'])->name('pasajero.procesar.pago');
+    
+    // Callbacks de Mercado Pago
+    Route::get('/pago/success/{reserva}', [ReservaPasajeroController::class, 'pagoSuccess'])->name('pasajero.pago.success');
+    Route::get('/pago/failure/{reserva}', [ReservaPasajeroController::class, 'pagoFailure'])->name('pasajero.pago.failure');
+    Route::get('/pago/pending/{reserva}', [ReservaPasajeroController::class, 'pagoPending'])->name('pasajero.pago.pending');
+});
 
 
 

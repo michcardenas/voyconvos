@@ -708,21 +708,28 @@
                 <p>Confirma tu reserva y prepárate para una experiencia increíble</p>
             </div>
 
-            <form id="form-confirmar-reserva" action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST">
-                @csrf
-                <input type="hidden" name="cantidad_puestos" value="{{ $cantidad }}">
+          <!-- ✅ SOLO REEMPLAZA ESTA PARTE DEL FORMULARIO - MANTÉN TODO LO DEMÁS IGUAL -->
+<form id="form-confirmar-reserva" action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST">
+    @csrf
+    <!-- ✅ Campo original que ya tenías -->
+    <input type="hidden" name="cantidad_puestos" value="{{ $cantidad }}">
+    
+    <!-- ✅ NUEVOS CAMPOS - Solo agregar estas 3 líneas -->
+    <input type="hidden" name="valor_cobrado" value="{{ $viaje->valor_cobrado }}">
+    <input type="hidden" name="total" value="{{ $total }}">
+    <input type="hidden" name="viaje_id" value="{{ $viaje->id }}">
 
-                <div class="form-actions">
-                    <a href="{{ route('pasajero.confirmar.mostrar', $viaje->id) }}" class="btn-custom secondary">
-                        <i class="fas fa-arrow-left"></i>
-                        Volver
-                    </a>
-                    <button type="button" class="btn-custom success" onclick="mostrarAlertaYEnviar()">
-                        <i class="fas fa-check-circle"></i>
-                        Confirmar Reserva
-                    </button>
-                </div>
-            </form>
+    <div class="form-actions">
+        <a href="{{ route('pasajero.confirmar.mostrar', $viaje->id) }}" class="btn-custom secondary">
+            <i class="fas fa-arrow-left"></i>
+            Volver
+        </a>
+        <button type="button" class="btn-custom success" onclick="mostrarAlertaYEnviar()">
+            <i class="fas fa-check-circle"></i>
+            Confirmar Reserva
+        </button>
+    </div>
+</form>
         </div>
     </div>
 </div>
