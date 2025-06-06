@@ -98,90 +98,6 @@
         font-weight: 400;
     }
 
-    .tools-bar {
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(15px);
-        border: 1px solid rgba(31, 78, 121, 0.06);
-        border-radius: 18px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 16px rgba(31, 78, 121, 0.04);
-        display: flex;
-        gap: 1rem;
-        flex-wrap: wrap;
-        align-items: center;
-        justify-content: space-between;
-    }
-
-    .search-section {
-        position: relative;
-        flex: 1;
-        min-width: 220px;
-        max-width: 400px;
-    }
-
-    .search-input {
-        width: 100%;
-        padding: 0.75rem 1rem 0.75rem 2.2rem;
-        border: 1.5px solid rgba(31, 78, 121, 0.15);
-        border-radius: 16px;
-        font-size: 0.9rem;
-        background: rgba(255, 255, 255, 0.9);
-        color: var(--vcv-dark);
-        transition: all 0.3s ease;
-        font-weight: 400;
-    }
-
-    .search-input:focus {
-        outline: none;
-        border-color: rgba(31, 78, 121, 0.4);
-        box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.08);
-        background: white;
-    }
-
-    .search-input::placeholder {
-        color: rgba(58, 58, 58, 0.5);
-        font-weight: 400;
-    }
-
-    .search-icon {
-        position: absolute;
-        left: 0.75rem;
-        top: 50%;
-        transform: translateY(-50%);
-        color: rgba(31, 78, 121, 0.5);
-        font-size: 0.9rem;
-    }
-
-    .tools-actions {
-        display: flex;
-        gap: 0.5rem;
-        flex-wrap: wrap;
-    }
-
-    .tool-button {
-        background: rgba(31, 78, 121, 0.06);
-        color: var(--vcv-primary);
-        border: none;
-        border-radius: 12px;
-        padding: 0.5rem 0.9rem;
-        font-size: 0.8rem;
-        font-weight: 500;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        display: flex;
-        align-items: center;
-        gap: 0.3rem;
-        letter-spacing: 0.02em;
-    }
-
-    .tool-button:hover {
-        background: rgba(31, 78, 121, 0.12);
-        color: var(--vcv-primary);
-        transform: translateY(-1px);
-        box-shadow: 0 2px 8px rgba(31, 78, 121, 0.15);
-    }
-
     .main-content {
         background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(221, 242, 254, 0.4) 100%);
         backdrop-filter: blur(20px);
@@ -334,13 +250,6 @@
         background: rgba(221, 242, 254, 0.2);
     }
 
-    .highlight {
-        background: linear-gradient(120deg, rgba(255, 235, 59, 0.3) 0%, rgba(255, 235, 59, 0.1) 100%);
-        padding: 0.1rem 0.2rem;
-        border-radius: 3px;
-        font-weight: 500;
-    }
-
     .reading-progress {
         position: fixed;
         top: 0;
@@ -399,21 +308,6 @@
             font-size: 1.8rem;
         }
         
-        .tools-bar {
-            flex-direction: column;
-            align-items: stretch;
-            gap: 0.75rem;
-        }
-        
-        .search-section {
-            min-width: auto;
-            max-width: none;
-        }
-        
-        .tools-actions {
-            justify-content: center;
-        }
-        
         .content-inner {
             padding: 1.5rem;
         }
@@ -447,15 +341,6 @@
             font-size: 1.6rem;
         }
         
-        .tools-bar {
-            padding: 0.75rem 1rem;
-        }
-        
-        .tool-button {
-            padding: 0.4rem 0.7rem;
-            font-size: 0.75rem;
-        }
-        
         .content-inner {
             padding: 1rem;
         }
@@ -464,23 +349,102 @@
 
 <div class="reading-progress" id="readingProgress"></div>
 
-<div class="info-wrapper">
-    <div class="container">
-        <!-- Info Header -->
-        <div class="info-header">
-            <h1 class="section-title">{{ $info->titulo }}</h1>
-            <p class="info-subtitle">Información detallada y actualizada</p>
-        </div>
+    <div class="info-wrapper">
+        <div class="container">
+            <!-- Info Header -->
+            <div class="info-header">
+                <h1 class="section-title">{{ \App\Models\Contenido::get('presentacion', 'titulo') }}</h1>
+                <p class="info-subtitle">{{ \App\Models\Contenido::get('presentacion', 'subtitulo') }}</p>
+            </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="content-inner">
-                <div class="contenido" id="mainContent">
-                    {!! $info->contenido !!}
+            <!-- Main Content -->
+            <div class="main-content">
+                <div class="content-inner contenido" id="mainContent">
+                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_1') }}</p>
+                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_2') }}</p>
+                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_3') }}</p>
+                    <p>{{ \App\Models\Contenido::get('presentacion', 'parrafo_4') }}</p>
+                    <p><strong>{{ \App\Models\Contenido::get('presentacion', 'parrafo_5') }}</strong></p>
                 </div>
             </div>
         </div>
     </div>
-</div>
+
+<div class="back-to-top" id="backToTop"></div>
+
+<script>
+// Reading progress bar
+function updateReadingProgress() {
+    const content = document.getElementById('mainContent');
+    const progressBar = document.getElementById('readingProgress');
+    
+    if (!content || !progressBar) return;
+    
+    const contentHeight = content.offsetHeight;
+    const windowHeight = window.innerHeight;
+    const contentTop = content.offsetTop;
+    const scrollTop = window.pageYOffset;
+    
+    const totalScrollable = contentHeight + contentTop - windowHeight;
+    const scrolled = Math.max(0, scrollTop - contentTop + (windowHeight * 0.3));
+    const progress = Math.min(100, (scrolled / (contentHeight - windowHeight * 0.7)) * 100);
+    
+    progressBar.style.width = Math.max(0, progress) + '%';
+}
+
+// Back to top button
+function updateBackToTop() {
+    const backToTop = document.getElementById('backToTop');
+    if (!backToTop) return;
+    
+    if (window.pageYOffset > 400) {
+        backToTop.classList.add('visible');
+    } else {
+        backToTop.classList.remove('visible');
+    }
+}
+
+// Scroll to top function
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        backToTop.addEventListener('click', scrollToTop);
+    }
+    
+    // Initial calls
+    updateReadingProgress();
+    updateBackToTop();
+});
+
+window.addEventListener('scroll', function() {
+    updateReadingProgress();
+    updateBackToTop();
+});
+
+// Smooth scroll for internal links
+document.addEventListener('DOMContentLoaded', function() {
+    const links = document.querySelectorAll('a[href^="#"]');
+    links.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+});
+</script>
 
 @endsection
