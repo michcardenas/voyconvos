@@ -46,6 +46,7 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
+    // Validar campos
     $request->validate([
         'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
     ]);
@@ -53,27 +54,35 @@ public function reservar(Request $request, Viaje $viaje)
     $userId = auth()->id();
     $cantidad = $request->cantidad_puestos;
 
-    // Crear reserva
-   
- 
+    // Calcular precio total por la cantidad de puestos
+    $precioUnitario = floatval(str_replace(',', '.', $viaje->precio_por_persona));
+    $precioTotal = round($precioUnitario * $cantidad, 2);
 
-    // Configurar credencial
+    // Validar precio antes de continuar
+    if ($precioTotal <= 0) {
+        return back()->with('error', 'El precio calculado no es válido para realizar el pago.');
+    }
+
+    // Configurar credencial Mercado Pago
     MercadoPagoConfig::setAccessToken(config('services.mercadopago.access_token'));
 
     // Crear ítem
-   $item = new Item();
-
+    $item = new Item();
     $item->title = 'Reserva de viaje #' . $viaje->id;
     $item->quantity = 1;
-    $item->unit_price = floatval($viaje->precio_por_persona);
-    $item->currency_id = 'ARS'; // 👈 Pesos Argentinos
-    dd([
-    'title' => $item->title,
-    'quantity' => $item->quantity,
-    'unit_price' => $item->unit_price,
-    'currency_id' => $item->currency_id,
-]);
- $reserva = Reserva::create([
+    $item->unit_price = $precioTotal;
+    $item->currency_id = 'ARS'; // Pesos Argentinos
+
+    // ✅ Opcional: Debug
+    // dd([
+    //     'title' => $item->title,
+    //     'quantity' => $item->quantity,
+    //     'unit_price' => $item->unit_price,
+    //     'currency_id' => $item->currency_id,
+    // ]);
+
+    // Crear reserva en BD
+    $reserva = Reserva::create([
         'viaje_id' => $viaje->id,
         'user_id' => $userId,
         'estado' => 'pendiente',
@@ -81,11 +90,11 @@ public function reservar(Request $request, Viaje $viaje)
         'notificado' => false,
     ]);
 
-   $viaje->puestos_disponibles -= $cantidad;
+    $viaje->puestos_disponibles -= $cantidad;
     $viaje->save();
+
     // Crear preferencia
     $client = new PreferenceClient();
-    
 
     try {
         $preference = $client->create([
@@ -100,16 +109,11 @@ public function reservar(Request $request, Viaje $viaje)
         ]);
 
         return redirect()->away($preference->init_point);
-
     } catch (\MercadoPago\Exceptions\MPApiException $e) {
-        dd([
-            'message' => $e->getMessage(),
-            'response' => $e->getApiResponse(), // más seguro que getHttpStatusCode()
-
-        ]);
+        return back()->with('error', 'Error al generar el enlace de pago: ' . $e->getMessage());
     }
 }
-    
+ 
 
     // // GET: Confirmación final de reserva
     // public function confirmacion(Viaje $viaje)
