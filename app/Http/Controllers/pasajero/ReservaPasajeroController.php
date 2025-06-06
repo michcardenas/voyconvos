@@ -45,12 +45,29 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
+    // DEBUG AL INICIO
+    \Log::info('=== INICIO RESERVAR ===', [
+        'request_all' => $request->all(),
+        'viaje_id' => $viaje->id,
+        'viaje_total' => $viaje->valor_cobrado
+    ]);
+
     // Validar datos básicos
     $validated = $request->validate([
         'cantidad_puestos' => 'required|integer|min:1',
         'valor_cobrado' => 'required|numeric|min:0.01',
         'total' => 'required|numeric|min:0.01',
         'viaje_id' => 'required|integer'
+    ]);
+
+    // DEBUG DESPUÉS DE VALIDAR
+    dd([
+        '1_validated' => $validated,
+        '2_total_string' => $validated['total'],
+        '3_total_float' => floatval($validated['total']),
+        '4_valor_cobrado' => $validated['valor_cobrado'],
+        '5_request_total' => $request->input('total'),
+        '6_request_all' => $request->all()
     ]);
 
     try {
@@ -67,40 +84,19 @@ public function reservar(Request $request, Viaje $viaje)
 
         // Obtener el token
         $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
-        
-        // if (empty($accessToken)) {
-        //     throw new \Exception('Token de Mercado Pago no configurado');
-        // }
-
-        // DEBUG: Ver exactamente qué valores estamos enviando
-        $precio = floatval($reserva->total);
-        
-        dd([
-            'total_original' => $reserva->total,
-            'precio_float' => $precio,
-            'tipo' => gettype($precio),
-            'valor_cobrado' => $validated['valor_cobrado'],
-            'total_validated' => $validated['total'],
-            'es_numero' => is_numeric($precio),
-            'mayor_cero' => $precio > 0
-        ]);
 
         // Configurar Mercado Pago
         MercadoPagoConfig::setAccessToken($accessToken);
         $client = new PreferenceClient();
-Log::info('Configuración de Mercado Pago', [
-            'access_token' => $accessToken,
-            'precio' => $precio,
-            'tipo_precio' => gettype($precio)
-        ]);
-        // Crear preferencia
+
+        // PROBAR CON VALOR FIJO
         $preference = $client->create([
             "items" => [
                 [
-                    "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
+                    "title" => "Test viaje",
                     "quantity" => 1,
-                    "unit_price" => $precio,
-                    "currency_id" => "ARS" // o "ARS" para Argentina
+                    "unit_price" => 1000.0, // Valor fijo en pesos argentinos
+                    "currency_id" => "ARS"
                 ]
             ],
             "external_reference" => "RESERVA_" . $reserva->id
@@ -114,21 +110,23 @@ Log::info('Configuración de Mercado Pago', [
         return redirect()->away($preference->init_point);
 
     } catch (\Exception $e) {
-        // Logging detallado
-        \Log::error('Error en Mercado Pago', [
+        \Log::error('=== ERROR MERCADO PAGO ===', [
             'message' => $e->getMessage(),
-            'reserva_total' => $reserva->total ?? null,
-            'tipo_total' => gettype($reserva->total ?? null)
+            'class' => get_class($e),
+            'trace' => $e->getTraceAsString()
         ]);
         
         if (isset($reserva) && $reserva->exists) {
             $reserva->delete();
         }
         
-        return back()->withErrors(['error' => 'Error al procesar el pago']);
+        // Mostrar el error completo para debug
+        dd([
+            'error' => $e->getMessage(),
+            'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : null
+        ]);
     }
 }
-
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)
     {
