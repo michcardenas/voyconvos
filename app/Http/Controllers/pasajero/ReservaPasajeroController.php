@@ -65,24 +65,18 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->fecha_reserva = now();
         $reserva->save();
 
-        // Configurar Mercado Pago
-        MercadoPagoConfig::setAccessToken(env('MERCADO_PAGO_ACCESS_TOKEN'));
-        $client = new PreferenceClient();
-
-        // Asegurar que el precio sea un float válido
-        $precio = floatval($reserva->total);
+        // Obtener el token de Mercado Pago
+        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN') ?? env('MERCADOPAGO_ACCESS_TOKEN');
         
-        // Verificar que el precio sea mayor a 0
-        if ($precio <= 0) {
-            throw new \Exception('El precio debe ser mayor a 0');
+        // Verificar que el token existe
+        if (empty($accessToken)) {
+            \Log::error('Token de Mercado Pago no configurado');
+            throw new \Exception('Configuración de pago no disponible. Por favor, contacta al administrador.');
         }
 
-        // Log para debug
-        \Log::info('Datos de precio MP', [
-            'total_reserva' => $reserva->total,
-            'precio_float' => $precio,
-            'tipo' => gettype($precio)
-        ]);
+        // Configurar Mercado Pago
+        MercadoPagoConfig::setAccessToken($accessToken);
+        $client = new PreferenceClient();
 
         // Crear preferencia
         $preference = $client->create([
@@ -90,21 +84,15 @@ public function reservar(Request $request, Viaje $viaje)
                 [
                     "id" => "VIAJE_" . $viaje->id,
                     "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
-                    "description" => "Reserva de " . $reserva->cantidad_puestos . " puesto(s)",
                     "quantity" => 1,
-                    "unit_price" => $precio,
-                    "currency_id" => "ARS" // Cambiar a ARS para Argentina (o COP para Colombia)
+                    "unit_price" => floatval($reserva->total),
+                    "currency_id" => "COP"
                 ]
             ],
             "payer" => [
-                "name" => auth()->user()->name ?? "",
                 "email" => auth()->user()->email
             ],
-            "external_reference" => "RESERVA_" . $reserva->id,
-            "payment_methods" => [
-                "excluded_payment_types" => [],
-                "installments" => 1
-            ]
+            "external_reference" => "RESERVA_" . $reserva->id
         ]);
 
         // Guardar datos de MP
@@ -117,11 +105,9 @@ public function reservar(Request $request, Viaje $viaje)
 
     } catch (\Exception $e) {
         \Log::error('Error en reservar', [
-            'message' => $e->getMessage(),
-            'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : null
+            'message' => $e->getMessage()
         ]);
         
-        // Si hay una reserva creada, la eliminamos
         if (isset($reserva) && $reserva->exists) {
             $reserva->delete();
         }
