@@ -88,7 +88,11 @@ public function reservar(Request $request, Viaje $viaje)
         // Configurar Mercado Pago
         MercadoPagoConfig::setAccessToken($accessToken);
         $client = new PreferenceClient();
-
+Log::info('Configuración de Mercado Pago', [
+            'access_token' => $accessToken,
+            'precio' => $precio,
+            'tipo_precio' => gettype($precio)
+        ]);
         // Crear preferencia
         $preference = $client->create([
             "items" => [
@@ -96,7 +100,7 @@ public function reservar(Request $request, Viaje $viaje)
                     "title" => "Viaje: " . $viaje->origen_direccion . " → " . $viaje->destino_direccion,
                     "quantity" => 1,
                     "unit_price" => $precio,
-                    "currency_id" => "COP" // o "ARS" para Argentina
+                    "currency_id" => "ARS" // o "ARS" para Argentina
                 ]
             ],
             "external_reference" => "RESERVA_" . $reserva->id
