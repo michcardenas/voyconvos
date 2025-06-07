@@ -197,7 +197,7 @@ Route::middleware(['auth'])->group(function () {
 
 
 // // Panel de usuario
-Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
+// Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
 
 // Autenticación por defecto
 require __DIR__.'/auth.php';
