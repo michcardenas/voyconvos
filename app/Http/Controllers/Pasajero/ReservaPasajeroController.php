@@ -252,14 +252,25 @@ public function confirmacionReserva(Reserva $reserva)
     }
 public function mostrarViajesDisponibles()
 {
-    $viajesDisponibles = Viaje::whereRaw('DATE(fecha_salida) >= DATE(NOW())')
+    $usuarioId = auth()->id(); // ID del usuario logueado
+
+    // Traer IDs de viajes que ya reservó el usuario
+    $viajesReservados = \DB::table('reservas')
+        ->where('user_id', $usuarioId)
+        ->pluck('viaje_id')
+        ->toArray();
+
+    // Consultar solo los viajes que aún puede reservar
+    $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
+        ->whereNotIn('id', $viajesReservados)
         ->with('conductor')
         ->orderBy('fecha_salida', 'asc')
         ->get();
 
     return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
 }
+
    public function mostrarResumen(Request $request, Viaje $viaje)
 {
     // Validación de entrada
