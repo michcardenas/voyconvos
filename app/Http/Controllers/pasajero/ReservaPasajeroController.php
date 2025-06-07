@@ -36,65 +36,14 @@ class ReservaPasajeroController extends Controller
         return view('pasajero.dashboard', compact('reservas', 'totalViajes', 'viajesProximos', 'viajesRealizados'));
     }
 
-    // GET: Mostrar página de confirmación
-    public function mostrarConfirmacion(Viaje $viaje)
-    {
-        return view('pasajero.confirmar-reserva', compact('viaje'));
-    }
-
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
        die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO');
 
 }
-    // Callbacks de Mercado Pago
-    public function pagoSuccess(Reserva $reserva)
-    {
-        $reserva->estado = 'pagada';
-        $reserva->save();
-        
-        return view('pasajero.pago-exitoso', compact('reserva'));
-    }
 
-    public function pagoFailure(Reserva $reserva)
-    {
-        $reserva->estado = 'fallida';
-        $reserva->save();
-        
-        return view('pasajero.pago-fallido', compact('reserva'));
-    }
 
-    public function pagoPending(Reserva $reserva)
-    {
-        $reserva->estado = 'pendiente';
-        $reserva->save();
-        
-        return view('pasajero.pago-pendiente', compact('reserva'));
-    }
-public function confirmacionReserva(Reserva $reserva)
-{
-    // Verificar que la reserva pertenece al usuario autenticado
-    if ($reserva->user_id !== auth()->id()) {
-        abort(403, 'No tienes permisos para ver esta reserva.');
-    }
-
-    return view('pasajero.confirmacion-reserva', compact('reserva'));
-}
-
-    // // GET: Confirmación final de reserva
-    // public function confirmacion(Viaje $viaje)
-    // {
-    //     $reserva = Reserva::where('viaje_id', $viaje->id)
-    //                      ->where('user_id', Auth::id())
-    //                      ->first();
-
-    //     if (!$reserva) {
-    //         return redirect()->route('pasajero.dashboard')->with('error', 'No se encontró la reserva.');
-    //     }
-
-    //     return view('pasajero.reserva-confirmada', compact('viaje', 'reserva'));
-    // }
  public function procesarPago(Reserva $reserva)
 {
      die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
