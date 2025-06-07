@@ -15,6 +15,7 @@ use MercadoPago\Exceptions\MPApiException;
 
 class ReservaPasajeroController extends Controller
 {
+
     // GET: Mostrar todas las reservas del pasajero
     public function misReservas()
     {
@@ -45,8 +46,18 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
+    // VERIFICAR AUTENTICACIÓN
+    if (!auth()->check()) {
+        return redirect()->route('login')
+            ->with('error', 'Debes iniciar sesión para realizar una reserva');
+    }
+    
+    $userId = auth()->id();
+    
     // DEBUG AL INICIO
     \Log::info('=== INICIO RESERVAR ===', [
+        'user_id' => $userId,
+        'user_authenticated' => auth()->check(),
         'request_all' => $request->all(),
         'viaje_id' => $viaje->id,
         'viaje_total' => $viaje->valor_cobrado
@@ -60,73 +71,122 @@ public function reservar(Request $request, Viaje $viaje)
         'viaje_id' => 'required|integer'
     ]);
 
-    // DEBUG DESPUÉS DE VALIDAR
-    dd([
-        '1_validated' => $validated,
-        '2_total_string' => $validated['total'],
-        '3_total_float' => floatval($validated['total']),
-        '4_valor_cobrado' => $validated['valor_cobrado'],
-        '5_request_total' => $request->input('total'),
-        '6_request_all' => $request->all()
-    ]);
+    // Verificar disponibilidad de puestos
+    if ($viaje->puestos_disponibles < $validated['cantidad_puestos']) {
+        return back()->withErrors([
+            'error' => 'No hay suficientes puestos disponibles'
+        ]);
+    }
 
     try {
+        // Usar transacción para asegurar consistencia
+        \DB::beginTransaction();
+        
+        // Verificar nuevamente la autenticación
+        if (!$userId) {
+            throw new \Exception('Usuario no autenticado');
+        }
+        
         // Crear la reserva
         $reserva = new Reserva();
         $reserva->viaje_id = $viaje->id;
-        $reserva->user_id = auth()->id();
+        $reserva->user_id = $userId;
         $reserva->cantidad_puestos = $validated['cantidad_puestos'];
         $reserva->precio_por_persona = $validated['valor_cobrado'];
         $reserva->total = $validated['total'];
         $reserva->estado = 'pendiente_pago';
         $reserva->fecha_reserva = now();
         $reserva->save();
-
-        // Obtener el token
-        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
+        
+        // Actualizar puestos disponibles
+        $viaje->puestos_disponibles -= $validated['cantidad_puestos'];
+        $viaje->save();
 
         // Configurar Mercado Pago
+        $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
+        
+        if (!$accessToken) {
+            throw new \Exception('Token de Mercado Pago no configurado');
+        }
+        
         MercadoPagoConfig::setAccessToken($accessToken);
         $client = new PreferenceClient();
 
-        // PROBAR CON VALOR FIJO
-        $preference = $client->create([
+        // Crear preferencia de pago
+        $preferenceData = [
             "items" => [
                 [
-                    "title" => "Test viaje",
-                    "quantity" => 1,
-                    "unit_price" => 1000.0, // Valor fijo en pesos argentinos
+                    "id" => "VIAJE_" . $viaje->id,
+                    "title" => "Viaje de " . $viaje->origen . " a " . $viaje->destino,
+                    "description" => "Reserva de " . $validated['cantidad_puestos'] . " puesto(s)",
+                    "quantity" => intval($validated['cantidad_puestos']),
+                    "unit_price" => floatval($validated['valor_cobrado']),
                     "currency_id" => "ARS"
                 ]
             ],
-            "external_reference" => "RESERVA_" . $reserva->id
+            "back_urls" => [
+                "success" => route('pasajero.pago.success', $reserva->id),
+                "failure" => route('pasajero.pago.failure', $reserva->id),
+                "pending" => route('pasajero.pago.pending', $reserva->id)
+            ],
+            "auto_return" => "approved",
+            "external_reference" => "RESERVA_" . $reserva->id,
+            "payer" => [
+                "email" => auth()->user()->email,
+                "name" => auth()->user()->name
+            ]
+        ];
+        
+        \Log::info('=== MERCADO PAGO REQUEST ===', [
+            'preference_data' => $preferenceData
         ]);
+
+        $preference = $client->create($preferenceData);
 
         // Guardar datos de MP
         $reserva->mp_preference_id = $preference->id;
         $reserva->mp_init_point = $preference->init_point;
         $reserva->save();
+        
+        // Confirmar transacción
+        \DB::commit();
+        
+        \Log::info('=== RESERVA CREADA EXITOSAMENTE ===', [
+            'reserva_id' => $reserva->id,
+            'mp_preference_id' => $preference->id
+        ]);
 
+        // Redirigir a Mercado Pago
         return redirect()->away($preference->init_point);
 
-    } catch (\Exception $e) {
-        \Log::error('=== ERROR MERCADO PAGO ===', [
+    } catch (MPApiException $e) {
+        \DB::rollBack();
+        
+        \Log::error('=== ERROR MERCADO PAGO API ===', [
             'message' => $e->getMessage(),
-            'class' => get_class($e),
+            'status_code' => $e->getCode(),
+            'api_response' => $e->getApiResponse()
+        ]);
+        
+        return back()->withErrors([
+            'error' => 'Error al procesar el pago: ' . $e->getMessage()
+        ]);
+        
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        
+        \Log::error('=== ERROR GENERAL ===', [
+            'message' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
         
-        if (isset($reserva) && $reserva->exists) {
-            $reserva->delete();
-        }
-        
-        // Mostrar el error completo para debug
-        dd([
-            'error' => $e->getMessage(),
-            'response' => method_exists($e, 'getApiResponse') ? $e->getApiResponse() : null
+        return back()->withErrors([
+            'error' => 'Error al procesar la reserva: ' . $e->getMessage()
         ]);
     }
 }
+
+
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)
     {
