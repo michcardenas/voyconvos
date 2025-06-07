@@ -39,14 +39,14 @@ class ReservaPasajeroController extends Controller
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {
-       die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO');
+       die('ESTOY AQUdÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO');
 
 }
 
 
  public function procesarPago(Reserva $reserva)
 {
-     die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
+     die('ESTOY AQUdÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
 
 }
     public function verDetalles(Reserva $reserva)
