@@ -61,14 +61,14 @@ public function reservar(Request $request, Viaje $viaje)
     ]);
 
     // DEBUG DESPUÉS DE VALIDAR
-    dd([
-        '1_validated' => $validated,
-        '2_total_string' => $validated['total'],
-        '3_total_float' => floatval($validated['total']),
-        '4_valor_cobrado' => $validated['valor_cobrado'],
-        '5_request_total' => $request->input('total'),
-        '6_request_all' => $request->all()
-    ]);
+    // dd([
+    //     '1_validated' => $validated,
+    //     '2_total_string' => $validated['total'],
+    //     '3_total_float' => floatval($validated['total']),
+    //     '4_valor_cobrado' => $validated['valor_cobrado'],
+    //     '5_request_total' => $request->input('total'),
+    //     '6_request_all' => $request->all()
+    // ]);
 
     try {
         // Crear la reserva
