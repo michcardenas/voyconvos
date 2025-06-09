@@ -359,17 +359,10 @@
 
         <div class="main-content">
             <div class="content-inner contenido" id="mainContent">
-                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_1_titulo') }}</strong></p>
-                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_1_texto') }}</p>
-
-                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_2_titulo') }}</strong></p>
-                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_2_texto') }}</p>
-
-                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_3_titulo') }}</strong></p>
-                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_3_texto') }}</p>
-
-                <p><strong>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_4_titulo') }}</strong></p>
-                <p>{{ \App\Models\Contenido::getValor('como-funciona', 'paso_4_texto') }}</p>
+                @for ($i = 1; $i <= 4; $i++)
+                    <p><strong>{{ \App\Models\Contenido::getValor('pasos', "paso_{$i}_titulo") }}</strong></p>
+                    <p>{{ \App\Models\Contenido::getValor('pasos', "paso_{$i}_texto") }}</p>
+                @endfor
             </div>
         </div>
     </div>

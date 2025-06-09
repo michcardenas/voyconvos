@@ -4,29 +4,46 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'VoyConVos - Viajes Compartidos')</title>
-    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/contacto.css') }}">
-
+    
+    <!-- CSS en orden correcto -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+    
+    <!-- Tus CSS existentes -->
+    <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/contacto.css') }}">
+    
+    <!-- CSS adicional por página -->
+    @stack('styles')
+    
+    <!-- CSS del header y footer (DEBE IR AL FINAL) -->
+    <link href="{{ asset('css/header-footer.css') }}" rel="stylesheet">
 </head>
 <body>
 
     {{-- HEADER --}}
     <header id="navbar" class="navbar">
         <div class="container header-container">
+            <!-- Logo -->
             <div class="logo">
                 <a href="{{ url('/') }}">
                     <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image">
                     <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text">
                 </a>
             </div>
-            <nav>
+
+            <!-- Navegación Desktop -->
+            <nav class="desktop-nav">
                 <ul>
-                    <li><a href="#">Coche compartido</a></li>
+                    <li><a href="{{ url('/') }}">Inicio</a></li>
+                    <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
+                    <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
+                    <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                 </ul>
             </nav>
-            <div class="user-profile">
+
+            <!-- Usuario Desktop -->
+            <div class="desktop-user">
                 <div class="dropdown">
                     <a href="#" class="profile-icon" id="userDropdown">
                         <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
@@ -37,8 +54,85 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Botón Hamburguesa (Solo Móvil) -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
     </header>
+
+    {{-- OVERLAY MÓVIL --}}
+    <div class="mobile-overlay" id="mobileOverlay"></div>
+
+    {{-- MENÚ MÓVIL --}}
+    <nav class="mobile-menu" id="mobileMenu" aria-hidden="true">
+        <!-- Header del menú móvil -->
+        <div class="mobile-menu-header">
+            <div class="logo-mobile">
+                <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image-mobile">
+                <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text-mobile">
+            </div>
+            <button class="close-btn" id="closeBtn" aria-label="Cerrar menú">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <!-- Navegación móvil -->
+        <div class="mobile-nav">
+            <ul class="mobile-nav-list">
+                <li class="mobile-nav-item">
+                    <a href="{{ url('/') }}" class="mobile-nav-link">
+                        <i class="fas fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{{ route('sobre-nosotros') }}" class="mobile-nav-link">
+                        <i class="fas fa-users"></i>
+                        <span>Nosotros</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{{ url('/contacto') }}" class="mobile-nav-link">
+                        <i class="fas fa-envelope"></i>
+                        <span>Contáctanos</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{{ route('como-funciona') }}" class="mobile-nav-link">
+                        <i class="fas fa-question-circle"></i>
+                        <span>Cómo funciona</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{{ route('faq.index') }}" class="mobile-nav-link">
+                        <i class="fas fa-question"></i>
+                        <span>FAQ</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- Sección de usuario móvil -->
+        <div class="mobile-user-section">
+            <div class="mobile-user-avatar">
+                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+            </div>
+            <div class="mobile-user-actions">
+                <a href="{{ route('login') }}" class="mobile-auth-btn login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    <span>Iniciar sesión</span>
+                </a>
+                <a href="{{ route('register') }}" class="mobile-auth-btn register-btn">
+                    <i class="fas fa-user-plus"></i>
+                    <span>Registrarse</span>
+                </a>
+            </div>
+        </div>
+    </nav>
 
     {{-- CONTENIDO PRINCIPAL --}}
     <main>
@@ -94,25 +188,8 @@
         </div>
     </footer>
 
-    {{-- JS: Menú de usuario --}}
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const userDropdown = document.getElementById('userDropdown');
-            const userMenu = document.getElementById('userMenu');
+    {{-- JS: Archivo externo --}}
+    <script src="{{ asset('js/header-footer.js') }}"></script>
 
-            userDropdown.addEventListener('click', function(e) {
-                e.preventDefault();
-                userMenu.classList.toggle('show');
-            });
-
-            document.addEventListener('click', function(e) {
-                if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
-                    userMenu.classList.remove('show');
-                }
-            });
-        });
-    </script>
-
-  
 </body>
 </html>

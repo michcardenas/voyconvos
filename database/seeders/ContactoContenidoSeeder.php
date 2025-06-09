@@ -13,7 +13,7 @@ class ContactoContenidoSeeder extends Seeder
     {
         $pagina = Pagina::firstOrCreate([
             'nombre' => 'Contacto',
-            'slug' => 'contacto',
+
         ]);
 
         // HERO CONTACTO

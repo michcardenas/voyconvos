@@ -13,7 +13,6 @@ class SobreNosotrosSeeder extends Seeder
     {
         $pagina = Pagina::firstOrCreate([
             'nombre' => 'Sobre Nosotros',
-            'slug' => 'sobre-nosotros',
         ]);
 
         $seccion = Seccion::firstOrCreate([

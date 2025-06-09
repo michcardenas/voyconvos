@@ -9,23 +9,23 @@ class ComoFuncionaSeeder extends Seeder
 {
     public function run(): void
     {
-        // Paso 1: Página
-        $pagina = DB::table('paginas')->updateOrInsert(
-            ['slug' => 'como-funciona'],
-            ['nombre' => '¿Cómo funciona?', 'updated_at' => now(), 'created_at' => now()]
+        // Paso 1: Página (solo usa 'nombre')
+        DB::table('paginas')->updateOrInsert(
+            ['nombre' => '¿Cómo funciona?'],
+            ['updated_at' => now(), 'created_at' => now()]
         );
 
-        $paginaId = DB::table('paginas')->where('slug', 'como-funciona')->value('id');
+        $paginaId = DB::table('paginas')->where('nombre', '¿Cómo funciona?')->value('id');
 
         // Paso 2: Secciones
-        $seccion = DB::table('secciones')->updateOrInsert(
+        DB::table('secciones')->updateOrInsert(
             ['pagina_id' => $paginaId, 'slug' => 'pasos'],
             ['titulo' => 'Cómo usar la plataforma', 'updated_at' => now(), 'created_at' => now()]
         );
 
         $seccionId = DB::table('secciones')->where('pagina_id', $paginaId)->where('slug', 'pasos')->value('id');
 
-        // Paso 3: Contenidos (pasos)
+        // Paso 3: Contenidos
         $contenidos = [
             'titulo' => '¿Cómo funciona VoyConVos?',
             'texto' => 'Te explicamos en cuatro pasos simples cómo usar la plataforma.',
