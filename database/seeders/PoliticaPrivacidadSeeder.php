@@ -12,29 +12,20 @@ class PoliticaPrivacidadSeeder extends Seeder
     public function run(): void
     {
         // Página principal
-        $pagina = Pagina::where('slug', 'politica-privacidad')
-            ->orWhere('nombre', 'Política de Privacidad')
-            ->first();
-
-        if (!$pagina) {
-            $pagina = Pagina::create([
-                'slug' => 'politica-privacidad',
-                'nombre' => 'Política de Privacidad',
-            ]);
-        }
+        
+$pagina = Pagina::firstOrCreate([
+    'nombre' => 'Política de Privacidad',
+]);
 
         // Sección HEADER
-        $header = Seccion::where('pagina_id', $pagina->id)
-            ->where('slug', 'header-privacidad')
-            ->first();
 
-        if (!$header) {
-            $header = Seccion::create([
-                'pagina_id' => $pagina->id,
-                'slug' => 'header-privacidad',
-                'titulo' => 'Política de Privacidad',
-            ]);
-        }
+            $seccion = Seccion::firstOrCreate([
+            'pagina_id' => $pagina->id,
+            'slug' => 'politica-privacidad',
+        ], [
+            'titulo' => 'Política de Privacidad',
+        ]);
+  
 
         // Contenidos del HEADER
         $headerContenidos = [
@@ -46,14 +37,15 @@ class PoliticaPrivacidadSeeder extends Seeder
             'badge_4' => 'Sin rastreo no autorizado',
         ];
 
-        foreach ($headerContenidos as $clave => $valor) {
-            Contenido::updateOrInsert([
-                'seccion_id' => $header->id,
-                'clave' => $clave,
-            ], [
-                'valor' => $valor,
-            ]);
-        }
+foreach ($headerContenidos as $clave => $valor) {
+    Contenido::updateOrInsert([
+        'seccion_id' => $seccion->id,
+        'clave' => $clave,
+    ], [
+        'valor' => $valor,
+    ]);
+}
+
 
         // Sección SIDEBAR
         $sidebar = Seccion::firstOrCreate([

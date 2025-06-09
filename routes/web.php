@@ -27,6 +27,7 @@ use App\Http\Controllers\SobreNosotrosPublicoController;
 use App\Http\Controllers\ComoFuncionaPublicoController;
 use MercadoPago\SDK;
 
+use App\Http\Controllers\InicioController;
 
 
 // Login con Google
@@ -37,6 +38,7 @@ Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCall
 Route::get('/', function () {
     return view('welcome');
 });
+Route::get('/', [InicioController::class, 'index'])->name('inicio');
 
 // Dashboard
 Route::get('/dashboard', [DashboardController::class, 'index'])

@@ -11,17 +11,9 @@ class TerminosCondicionesSeeder extends Seeder
 {
     public function run(): void
     {
-        // Página
-        $pagina = Pagina::where('slug', 'terminos-condiciones')
-            ->orWhere('nombre', 'Términos y Condiciones')
-            ->first();
-
-        if (!$pagina) {
-            $pagina = Pagina::create([
-                'slug' => 'terminos-condiciones',
-                'nombre' => 'Términos y Condiciones',
-            ]);
-        }
+       $pagina = Pagina::firstOrCreate([
+            'nombre' => 'Términos y Condiciones',
+        ]);
 
         // Sección: header-terminos
         $seccionHeader = Seccion::firstOrCreate([

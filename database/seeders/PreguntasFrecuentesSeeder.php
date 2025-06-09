@@ -13,7 +13,6 @@ class PreguntasFrecuentesSeeder extends Seeder
     {
         // Página
         $pagina = Pagina::firstOrCreate(
-            ['slug' => 'faq'],
             ['nombre' => 'Preguntas Frecuentes']
         );
 

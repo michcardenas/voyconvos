@@ -1,0 +1,786 @@
+/* ===== RESPONSIVE DESIGN PARA MÓVILES ===== */
+
+/* Responsive para tablets y móviles */
+@media (max-width: 992px) {
+  .container {
+    padding: 0 20px;
+  }
+
+  /* HERO SECTION */
+  .hero {
+    min-height: 100vh;
+    padding: 20px 0;
+  }
+
+  .hero-content {
+    flex-direction: column;
+    text-align: center;
+    gap: 30px;
+  }
+
+  .hero-text h1 {
+    font-size: 2.5rem;
+    line-height: 1.2;
+    margin-bottom: 15px;
+  }
+
+  .hero-text h2 {
+    font-size: 1.2rem;
+    margin-bottom: 25px;
+  }
+
+  .hero-buttons {
+    flex-direction: column;
+    gap: 15px;
+    margin-bottom: 30px;
+  }
+
+  .hero-buttons .btn {
+    width: 100%;
+    padding: 15px 25px;
+    font-size: 1.1rem;
+  }
+
+  /* FORMULARIO DE BÚSQUEDA */
+  .search-box {
+    width: 100%;
+    max-width: none;
+    padding: 25px 20px;
+    margin: 0;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .route-inputs {
+    flex-direction: column;
+    gap: 15px;
+  }
+
+  .input-group {
+    width: 100%;
+  }
+
+  .input-group select,
+  .input-group input {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border-radius: 12px;
+    border: 2px solid #e0e6ed;
+    background: white;
+  }
+
+  .switch-btn {
+    padding: 12px;
+    border-radius: 50%;
+    background: #3498db;
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+    transition: all 0.3s ease;
+  }
+
+  .switch-btn:hover {
+    transform: rotate(180deg);
+    background: #2980b9;
+  }
+
+  .passengers {
+    margin: 20px 0;
+  }
+
+  .search-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1.1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: white;
+    border: none;
+    margin: 15px 0;
+    transition: all 0.3s ease;
+  }
+
+  .search-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+  }
+
+  .savings h3 {
+    font-size: 1.1rem;
+    text-align: center;
+    margin: 20px 0;
+  }
+
+  .publish-trip-btn {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border-radius: 12px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    margin: 15px 0;
+  }
+
+  .como-funciona {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    font-size: 1rem;
+    color: #3498db;
+    text-decoration: none;
+  }
+}
+
+/* Mobile específico */
+@media (max-width: 768px) {
+  
+  /* HERO MOBILE */
+  .hero-text h1 {
+    font-size: 2rem;
+  }
+
+  .hero-text h2 {
+    font-size: 1.1rem;
+  }
+
+  .search-box {
+    padding: 20px 15px;
+    border-radius: 15px;
+  }
+
+  /* VIAJES DISPONIBLES */
+  .viajes-disponibles {
+    padding: 40px 0;
+  }
+
+  .section-header h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .section-header p {
+    font-size: 1rem;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  /* CARRUSEL MOBILE */
+  .carousel-container {
+    overflow: hidden;
+    padding: 0 10px;
+  }
+
+  .viajes-carousel {
+    display: flex;
+    gap: 15px;
+    transition: transform 0.3s ease;
+    padding: 10px 0;
+  }
+
+  .viaje-card {
+    min-width: 280px;
+    max-width: 280px;
+    flex-shrink: 0;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: all 0.3s ease;
+  }
+
+  .viaje-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  }
+
+  .route {
+    padding: 15px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  }
+
+  .cities {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .cities .from,
+  .cities .to {
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: #2c3e50;
+  }
+
+  .cities i {
+    color: #3498db;
+    font-size: 0.9rem;
+  }
+
+  .time {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+    text-align: center;
+  }
+
+  .driver {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    gap: 12px;
+  }
+
+  .driver img {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    object-fit: cover;
+  }
+
+  .driver .info h4 {
+    font-size: 0.95rem;
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .rating i {
+    color: #f39c12;
+    font-size: 0.8rem;
+  }
+
+  .rating span {
+    font-size: 0.85rem;
+    color: #7f8c8d;
+  }
+
+  .details {
+    padding: 0 15px 15px;
+  }
+
+  .details .item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    font-size: 0.85rem;
+    color: #7f8c8d;
+  }
+
+  .details .item i {
+    font-size: 0.8rem;
+    color: #3498db;
+    width: 15px;
+  }
+
+  .price {
+    text-align: center;
+    margin: 15px 0 10px;
+  }
+
+  .price .amount {
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: #27ae60;
+    display: block;
+  }
+
+  .price small {
+    font-size: 0.8rem;
+    color: #7f8c8d;
+  }
+
+  .reserve-btn {
+    width: 100%;
+    padding: 12px;
+    background: #3498db;
+    color: white;
+    border: none;
+    border-radius: 0 0 15px 15px;
+    font-weight: bold;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+  }
+
+  .reserve-btn:hover {
+    background: #2980b9;
+  }
+
+  /* CONTROLES DEL CARRUSEL */
+  .carousel-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-top: 25px;
+  }
+
+  .carousel-btn {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: #3498db;
+    color: white;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+  }
+
+  .carousel-btn:hover {
+    background: #2980b9;
+    transform: scale(1.1);
+  }
+
+  .carousel-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .carousel-dots {
+    display: flex;
+    gap: 8px;
+  }
+
+  .carousel-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: #bdc3c7;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .carousel-dot.active {
+    background: #3498db;
+    transform: scale(1.2);
+  }
+
+  /* CTA SECTION */
+  .cta-section {
+    text-align: center;
+    margin-top: 40px;
+    padding: 30px 20px;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 15px;
+  }
+
+  .cta-section h3 {
+    font-size: 1.3rem;
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+
+  .cta-btn {
+    padding: 15px 30px;
+    background: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: bold;
+    transition: all 0.3s ease;
+  }
+
+  .cta-btn:hover {
+    background: #229954;
+    transform: translateY(-2px);
+  }
+
+  /* FEATURES SECTION */
+  .features {
+    padding: 50px 0;
+  }
+
+  .features h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 40px;
+    color: #2c3e50;
+  }
+
+  .feature-cards {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+  }
+
+  .feature-card {
+    text-align: center;
+    padding: 30px 20px;
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+  }
+
+  .feature-icon {
+    width: 70px;
+    height: 70px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .feature-icon i {
+    font-size: 1.8rem;
+    color: white;
+  }
+
+  .feature-card h3 {
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    color: #2c3e50;
+  }
+
+  .feature-card p {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    color: #7f8c8d;
+  }
+
+  /* SLOGAN SECTION */
+  .slogan {
+    padding: 50px 0;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    text-align: center;
+  }
+
+  .slogan h2 {
+    font-size: 1.6rem;
+    color: white;
+    margin-bottom: 25px;
+  }
+
+  .slogan .btn {
+    padding: 15px 30px;
+    background: white;
+    color: #3498db;
+    border: none;
+    border-radius: 25px;
+    font-weight: bold;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .slogan .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
+  }
+
+  /* CONTACTO SECTION */
+  .contact-section {
+    padding: 50px 0;
+  }
+
+  .contact-content {
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .contact-info h2 {
+    font-size: 1.8rem;
+    text-align: center;
+    margin-bottom: 20px;
+    color: #2c3e50;
+  }
+
+  .contact-info p {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 1rem;
+    color: #7f8c8d;
+  }
+
+  .contact-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 30px;
+  }
+
+  .contact-method {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .contact-method i {
+    font-size: 1.2rem;
+    color: #3498db;
+    width: 25px;
+    text-align: center;
+  }
+
+  .contact-method p {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #2c3e50;
+  }
+
+  .social-icons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+  }
+
+  .social-icons a {
+    width: 45px;
+    height: 45px;
+    background: #3498db;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+  }
+
+  .social-icons a:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+  }
+
+  /* FORMULARIO DE CONTACTO */
+  .contact-form-container {
+    background: white;
+    border-radius: 15px;
+    padding: 30px 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .form-header {
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .form-header h3 {
+    font-size: 1.4rem;
+    color: #2c3e50;
+    margin-bottom: 10px;
+  }
+
+  .form-header p {
+    color: #7f8c8d;
+    font-size: 0.95rem;
+  }
+
+  .form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .form-group {
+    width: 100%;
+  }
+
+  .input-wrapper {
+    position: relative;
+  }
+
+  .input-wrapper input,
+  .input-wrapper textarea,
+  .input-wrapper select {
+    width: 100%;
+    padding: 15px;
+    border: 2px solid #e0e6ed;
+    border-radius: 10px;
+    font-size: 1rem;
+    background: white;
+    transition: all 0.3s ease;
+  }
+
+  .input-wrapper input:focus,
+  .input-wrapper textarea:focus,
+  .input-wrapper select:focus {
+    border-color: #3498db;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+  }
+
+  .floating-label {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+    font-size: 1rem;
+    color: #7f8c8d;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    background: white;
+    padding: 0 5px;
+  }
+
+  .input-wrapper input:focus + .floating-label,
+  .input-wrapper textarea:focus + .floating-label,
+  .input-wrapper select:focus + .floating-label,
+  .input-wrapper input.has-value + .floating-label,
+  .input-wrapper textarea.has-value + .floating-label,
+  .input-wrapper select.has-value + .floating-label {
+    top: -8px;
+    left: 12px;
+    font-size: 0.8rem;
+    color: #3498db;
+  }
+
+  .checkbox-group {
+    margin: 25px 0;
+  }
+
+  .checkbox-wrapper {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    line-height: 1.5;
+  }
+
+  .checkbox-wrapper input[type="checkbox"] {
+    width: auto;
+    margin: 0;
+  }
+
+  .submit-btn {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #3498db, #2c3e50);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+  }
+
+  .submit-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(52, 152, 219, 0.4);
+  }
+
+  .success-message {
+    text-align: center;
+    padding: 30px;
+    background: #d4edda;
+    border-radius: 10px;
+    display: none;
+  }
+
+  .success-message.show {
+    display: block;
+    animation: fadeIn 0.5s ease;
+  }
+
+  .success-message i {
+    font-size: 3rem;
+    color: #27ae60;
+    margin-bottom: 15px;
+  }
+
+  .success-message h4 {
+    color: #155724;
+    margin-bottom: 10px;
+  }
+
+  .success-message p {
+    color: #155724;
+    margin: 0;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+/* Mobile muy pequeño */
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .hero-text h1 {
+    font-size: 1.8rem;
+  }
+
+  .hero-text h2 {
+    font-size: 1rem;
+  }
+
+  .search-box {
+    padding: 15px 10px;
+  }
+
+  .viaje-card {
+    min-width: 260px;
+    max-width: 260px;
+  }
+
+  .carousel-controls {
+    gap: 15px;
+  }
+
+  .carousel-btn {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .contact-form-container {
+    padding: 20px 15px;
+  }
+
+  .form-header h3 {
+    font-size: 1.2rem;
+  }
+}
+
+/* Utilidades generales */
+.text-center { text-align: center; }
+.mb-0 { margin-bottom: 0; }
+.mt-3 { margin-top: 1rem; }
+.p-0 { padding: 0; }
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Mejoras de accesibilidad */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

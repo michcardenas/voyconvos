@@ -2,13 +2,15 @@
 
 @section('title', 'Inicio')
 
-@section('content')
+@push('styles')
+<link href="{{ asset('css/welcome.css') }}" rel="stylesheet">
+@endpush
 
+@section('content')
 
 {{-- HERO --}}
 <section class="hero position-relative">
     <div class="hero-background"></div>
-
     <div class="container hero-content position-relative">
         <div class="hero-text">
             <h1>{{ \App\Models\Contenido::getValor('hero', 'h1') }}</h1>
@@ -23,20 +25,19 @@
             </div>
         </div>
 
+        {{-- Formulario de búsqueda --}}
+
         <div class="search-box">
             <form id="searchForm" class="search-form">
                 <div class="route-inputs">
+
                     {{-- Campo Origen --}}
                     <div class="input-group">
-                     
                         <select id="origen" name="origen" required>
                             <option value="">Selecciona origen</option>
-                            <option value="buenos-aires">Buenos Aires</option>
-                            <option value="cordoba">Córdoba</option>
-                            <option value="rosario">Rosario</option>
-                            <option value="mendoza">Mendoza</option>
-                            <option value="la-plata">La Plata</option>
-                            <option value="mar-del-plata">Mar del Plata</option>
+                            @foreach($origenes as $ciudad)
+                                <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
+                            @endforeach
                         </select>
                     </div>
 
@@ -49,21 +50,16 @@
 
                     {{-- Campo Destino --}}
                     <div class="input-group">
-                     
                         <select id="destino" name="destino" required>
                             <option value="">Selecciona destino</option>
-                            <option value="buenos-aires">Buenos Aires</option>
-                            <option value="cordoba">Córdoba</option>
-                            <option value="rosario">Rosario</option>
-                            <option value="mendoza">Mendoza</option>
-                            <option value="la-plata">La Plata</option>
-                            <option value="mar-del-plata">Mar del Plata</option>
+                            @foreach($destinos as $ciudad)
+                                <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
+                            @endforeach
                         </select>
                     </div>
 
                     {{-- Campo Fecha --}}
                     <div class="input-group">
-                        
                         <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}">
                     </div>
                 </div>
@@ -71,7 +67,6 @@
                 {{-- Selector de Pasajeros --}}
                 <div class="passengers">
                     <div class="input-group passengers-group">
-                       
                         <select id="pasajeros" name="pasajeros" required>
                             <option value="1">1 pasajero</option>
                             <option value="2">2 pasajeros</option>
@@ -92,7 +87,8 @@
 
             {{-- Información de ahorro --}}
             <div class="savings">
-                <h3>{{ \App\Models\Contenido::getValor('hero', 'ahorro_texto') }}
+                <h3>
+                    {{ \App\Models\Contenido::getValor('hero', 'ahorro_texto') }}
                     <span class="highlight">{{ \App\Models\Contenido::getValor('hero', 'ahorro_valor') }}</span>
                     {{ \App\Models\Contenido::getValor('hero', 'ahorro_sufijo') }}
                 </h3>
@@ -111,214 +107,75 @@
     </div>
 </section>
 
-
 {{-- VIAJES DISPONIBLES SECTION --}}
 <section class="viajes-disponibles">
     <div class="container">
         <div class="section-header">
-            <h2>Viajes Disponibles</h2>
-            <p>Encuentra tu viaje ideal entre las principales ciudades</p>
+            <h2>{{ \App\Models\Contenido::getValor('viajes', 'titulo') }}</h2>
+            <p>{{ \App\Models\Contenido::getValor('viajes', 'descripcion') }}</p>
         </div>
 
         <div class="carousel-container">
             <div class="viajes-carousel" id="viajesCarousel">
-                {{-- Viaje 1 --}}
+                @for ($i = 1; $i <= 4; $i++)
                 <div class="viaje-card">
                     <div class="route">
                         <div class="cities">
-                            <span class="from">Buenos Aires</span>
+                            <span class="from">{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}</span>
                             <i class="fas fa-arrow-right"></i>
-                            <span class="to">Córdoba</span>
+                            <span class="to">{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}</span>
                         </div>
-                        <div class="time">7h 30min</div>
+                        <div class="time">{{ \App\Models\Contenido::getValor('viajes', 'tiempo_' . $i) }}</div>
                     </div>
-                    
                     <div class="driver">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=80&h=80&fit=crop&crop=face" alt="Carlos">
+                        <img src="{{ \App\Models\Contenido::getValor('viajes', 'img_' . $i) }}" alt="Viaje">
                         <div class="info">
-                            <h4>Carlos M.</h4>
+                            <h4>{{ \App\Models\Contenido::getValor('viajes', 'conductor_' . $i) }}</h4>
                             <div class="rating">
                                 <i class="fas fa-star"></i>
-                                <span>4.8</span>
+                                <span>{{ \App\Models\Contenido::getValor('viajes', 'rating_' . $i) }}</span>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="details">
                         <div class="item">
                             <i class="fas fa-calendar"></i>
-                            <span>Hoy 15:30</span>
+                            <span>{{ \App\Models\Contenido::getValor('viajes', 'fecha_' . $i) }}</span>
                         </div>
                         <div class="item">
                             <i class="fas fa-users"></i>
-                            <span>2 lugares</span>
+                            <span>{{ \App\Models\Contenido::getValor('viajes', 'lugares_' . $i) }}</span>
                         </div>
                         <div class="price">
-                            <span class="amount">$4,500</span>
+                            <span class="amount">{{ \App\Models\Contenido::getValor('viajes', 'precio_' . $i) }}</span>
                             <small>por persona</small>
                         </div>
                     </div>
-                    
-                    <button class="reserve-btn" onclick="goToLogin('Buenos Aires', 'Córdoba')">
-                        Reservar
+                    <button class="reserve-btn" onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}')">
+                        {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
                     </button>
                 </div>
-
-                {{-- Viaje 2 --}}
-                <div class="viaje-card">
-                    <div class="route">
-                        <div class="cities">
-                            <span class="from">Rosario</span>
-                            <i class="fas fa-arrow-right"></i>
-                            <span class="to">Mendoza</span>
-                        </div>
-                        <div class="time">5h 45min</div>
-                    </div>
-                    
-                    <div class="driver">
-                        <img src="https://images.unsplash.com/photo-1494790108755-2616b612b8fb?w=80&h=80&fit=crop&crop=face" alt="María">
-                        <div class="info">
-                            <h4>María G.</h4>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <span>4.9</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="details">
-                        <div class="item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Hoy 18:00</span>
-                        </div>
-                        <div class="item">
-                            <i class="fas fa-users"></i>
-                            <span>3 lugares</span>
-                        </div>
-                        <div class="price">
-                            <span class="amount">$3,800</span>
-                            <small>por persona</small>
-                        </div>
-                    </div>
-                    
-                    <button class="reserve-btn" onclick="goToLogin('Rosario', 'Mendoza')">
-                        Reservar
-                    </button>
-                </div>
-
-                {{-- Viaje 3 --}}
-                <div class="viaje-card">
-                    <div class="route">
-                        <div class="cities">
-                            <span class="from">Córdoba</span>
-                            <i class="fas fa-arrow-right"></i>
-                            <span class="to">Mar del Plata</span>
-                        </div>
-                        <div class="time">6h 15min</div>
-                    </div>
-                    
-                    <div class="driver">
-                        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=80&h=80&fit=crop&crop=face" alt="Diego">
-                        <div class="info">
-                            <h4>Diego F.</h4>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <span>4.7</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="details">
-                        <div class="item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Mañana 08:00</span>
-                        </div>
-                        <div class="item">
-                            <i class="fas fa-users"></i>
-                            <span>1 lugar</span>
-                        </div>
-                        <div class="price">
-                            <span class="amount">$5,200</span>
-                            <small>por persona</small>
-                        </div>
-                    </div>
-                    
-                    <button class="reserve-btn" onclick="goToLogin('Córdoba', 'Mar del Plata')">
-                        Reservar
-                    </button>
-                </div>
-
-                {{-- Viaje 4 --}}
-                <div class="viaje-card">
-                    <div class="route">
-                        <div class="cities">
-                            <span class="from">La Plata</span>
-                            <i class="fas fa-arrow-right"></i>
-                            <span class="to">Buenos Aires</span>
-                        </div>
-                        <div class="time">1h 20min</div>
-                    </div>
-                    
-                    <div class="driver">
-                        <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=80&h=80&fit=crop&crop=face" alt="Alejandro">
-                        <div class="info">
-                            <h4>Alejandro R.</h4>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <span>5.0</span>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div class="details">
-                        <div class="item">
-                            <i class="fas fa-calendar"></i>
-                            <span>Hoy 20:30</span>
-                        </div>
-                        <div class="item">
-                            <i class="fas fa-users"></i>
-                            <span>4 lugares</span>
-                        </div>
-                        <div class="price">
-                            <span class="amount">$1,200</span>
-                            <small>por persona</small>
-                        </div>
-                    </div>
-                    
-                    <button class="reserve-btn" onclick="goToLogin('La Plata', 'Buenos Aires')">
-                        Reservar
-                    </button>
-                </div>
+                @endfor
             </div>
-
-            {{-- Controles --}}
             <div class="carousel-controls">
-                <button class="carousel-btn" id="prevBtn">
-                    <i class="fas fa-chevron-left"></i>
-                </button>
+                <button class="carousel-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>
                 <div class="carousel-dots" id="carouselDots"></div>
-                <button class="carousel-btn" id="nextBtn">
-                    <i class="fas fa-chevron-right"></i>
-                </button>
+                <button class="carousel-btn" id="nextBtn"><i class="fas fa-chevron-right"></i></button>
             </div>
         </div>
-
-        {{-- Call to Action --}}
-    <div class="cta-section">
-    <h3>¿Buscas más opciones?</h3>
-    <button class="cta-btn" onclick="goToLogin()">
-        Ver Todos los Viajes
-    </button>
-</div>
+        <div class="cta-section">
+            <h3>{{ \App\Models\Contenido::getValor('cta', 'titulo') }}</h3>
+            <button class="cta-btn" onclick="goToLogin()">
+                {{ \App\Models\Contenido::getValor('cta', 'boton') }}
+            </button>
+        </div>
     </div>
 </section>
-
 
 {{-- FEATURES --}}
 <section class="features">
     <div class="container">
         <h2>{{ \App\Models\Contenido::getValor('features', 'titulo') }}</h2>
-
         <div class="feature-cards">
             @for ($i = 1; $i <= 3; $i++)
                 <div class="feature-card">
@@ -341,72 +198,42 @@
     </div>
 </section>
 
-
-{{-- CONTACT SECTION --}}
+{{-- CONTACTO --}}
 <section class="contact-section">
     <div class="container">
         <div class="contact-content">
-            {{-- Información de contacto --}}
             <div class="contact-info">
-                <h2>¿Tienes alguna pregunta?</h2>
-                <p>Estamos aquí para ayudarte. Contáctanos y te responderemos lo antes posible.</p>
-                
+                <h2>{{ \App\Models\Contenido::getValor('contacto', 'titulo') }}</h2>
+                <p>{{ \App\Models\Contenido::getValor('contacto', 'descripcion') }}</p>
                 <div class="contact-methods">
                     <div class="contact-method">
-                        <div class="method-icon">
-                            <i class="fas fa-envelope"></i>
-                        </div>
-                        <div class="method-info">
-                            <h4>Email</h4>
-                            <p>contacto@voyconvos.com</p>
-                        </div>
+                        <i class="fas fa-envelope"></i>
+                        <p>{{ \App\Models\Contenido::getValor('contacto', 'email') }}</p>
                     </div>
-                    
                     <div class="contact-method">
-                        <div class="method-icon">
-                            <i class="fas fa-phone"></i>
-                        </div>
-                        <div class="method-info">
-                            <h4>Teléfono</h4>
-                            <p>+57 1 234 5678</p>
-                        </div>
+                        <i class="fas fa-phone"></i>
+                        <p>{{ \App\Models\Contenido::getValor('contacto', 'telefono') }}</p>
                     </div>
-                    
                     <div class="contact-method">
-                        <div class="method-icon">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <div class="method-info">
-                            <h4>Horario</h4>
-                            <p>Lun - Vie: 8:00 AM - 6:00 PM</p>
-                        </div>
+                        <i class="fas fa-clock"></i>
+                        <p>{{ \App\Models\Contenido::getValor('contacto', 'horario') }}</p>
                     </div>
                 </div>
-                
-                <div class="social-links">
-                    <h4>Síguenos</h4>
-                    <div class="social-icons">
-                        <a href="#" class="social-icon">
-                            <i class="fab fa-facebook-f"></i>
+                <div class="social-icons">
+                    @foreach(['facebook', 'twitter', 'instagram', 'whatsapp'] as $social)
+                        <a href="{{ \App\Models\Contenido::getValor('contacto', 'social_' . $social) }}" target="_blank">
+                            <i class="fab fa-{{ $social }}"></i>
                         </a>
-                        <a href="#" class="social-icon">
-                            <i class="fab fa-twitter"></i>
-                        </a>
-                        <a href="#" class="social-icon">
-                            <i class="fab fa-instagram"></i>
-                        </a>
-                        <a href="#" class="social-icon">
-                            <i class="fab fa-whatsapp"></i>
-                        </a>
-                    </div>
+                    @endforeach
                 </div>
             </div>
-            
+
             {{-- Formulario de contacto --}}
-            <div class="contact-form-container">
+
+            <div class="contact-form-container"> 
                 <div class="form-header">
-                    <h3>Envíanos un mensaje</h3>
-                    <p>Completa el formulario y nos pondremos en contacto contigo</p>
+                    <h3>{{ $titulo }}</h3>
+                    <p>{{ $subtitulo }}</p>
                 </div>
                 
                 <form class="contact-form" id="contactForm">
@@ -436,10 +263,9 @@
                             <div class="input-wrapper select-wrapper">
                                 <select id="asunto" name="asunto" required>
                                     <option value="">Selecciona un tema</option>
-                                    <option value="soporte">Soporte técnico</option>
-                                    <option value="sugerencia">Sugerencias</option>
-                                    <option value="colaboracion">Colaboraciones</option>
-                                    <option value="otro">Otro</option>
+                                    @foreach($asuntos as $a)
+                                        <option value="{{ Str::slug($a) }}">{{ trim($a) }}</option>
+                                    @endforeach
                                 </select>
                                 <label for="asunto" class="floating-label">Asunto</label>
                             </div>
@@ -457,12 +283,12 @@
                         <label class="checkbox-wrapper">
                             <input type="checkbox" id="acepto" name="acepto" required>
                             <span class="checkmark"></span>
-                            Acepto los <a href="#" class="link">términos y condiciones</a> y la <a href="#" class="link">política de privacidad</a>
+                            {!! $acepto !!}
                         </label>
                     </div>
                     
                     <button type="submit" class="submit-btn">
-                        <span class="btn-text">Enviar mensaje</span>
+                        <span class="btn-text">{{ $boton }}</span>
                         <i class="fas fa-paper-plane btn-icon"></i>
                     </button>
                 </form>
@@ -470,12 +296,15 @@
                 <div class="success-message" id="successMessage">
                     <i class="fas fa-check-circle"></i>
                     <h4>¡Mensaje enviado!</h4>
-                    <p>Gracias por contactarnos. Te responderemos pronto.</p>
+                    <p>{{ $msg_ok }}</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
+
+@endsection
+
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -783,4 +612,4 @@ function goToLogin(origen = '', destino = '') {
     window.location.href = '/login?message=login_required';
 }
 </script>
-@endsection
+
