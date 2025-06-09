@@ -41,7 +41,9 @@
                     <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                 </ul>
             </nav>
-            <div class="user-profile">
+
+            <!-- Usuario Desktop -->
+            <div class="desktop-user">
                 <div class="dropdown">
                     <a href="#" class="profile-icon" id="userDropdown">
                         <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
@@ -52,6 +54,13 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Botón Hamburguesa (Solo Móvil) -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
         </div>
     </header>
 
@@ -150,8 +159,8 @@
                 <div class="footer-column">
                     <h3>VoyConVos</h3>
                     <ul>
-                        <li><a href="{{ url('/sobre-nosotros') }}">Sobre nosotros</a></li>
-                        <li><a href="{{ url('/como-funciona') }}">Cómo funciona</a></li>
+                        <li><a href="{{ route('sobre-nosotros') }}">Sobre nosotros</a></li>
+                        <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                         <li><a href="{{ url('/contacto') }}">Contacto</a></li>
                     </ul>
                 </div>
@@ -183,4 +192,4 @@
     <script src="{{ asset('js/header-footer.js') }}"></script>
 
 </body>
-</html>
+</html>   
