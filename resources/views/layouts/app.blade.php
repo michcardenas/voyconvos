@@ -142,16 +142,16 @@
     {{-- FOOTER --}}
     <footer>
         <div class="container">
-            <div class="footer-contact">
-                <div class="footer-contact-text">
-                    <h2>¿Necesitas ayuda con algo?</h2>
-                    <p>Estamos aquí para responder tus dudas y ayudarte en todo lo que necesites</p>
-                </div>
-                <a href="{{ url('/contacto') }}" class="footer-contact-btn">
-                    <span>Contactar ahora</span>
-                    <i class="fas fa-arrow-right"></i>
-                </a>
+            <div class="footer-contact" style="display: flex; justify-content: space-between; align-items: center; background-color: #245c7d; padding: 58px; border-radius: 32px; color: white; flex-wrap: wrap; gap: 20px;">
+            <div class="footer-contact-text" style="flex: 1; min-width: 200px;">
+                <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">¿Necesitas ayuda con algo?</h2>
+                <p style="margin: 0; font-size: 16px;">Estamos aquí para responder tus dudas y ayudarte en todo lo que necesites</p>
             </div>
+            <a href="{{ url('/contacto') }}" class="footer-contact-btn" style="text-decoration: none; background-color: #3399ff; color: white; padding: 12px 20px; border-radius: 30px; font-weight: bold; display: flex; align-items: center; gap: 10px; white-space: nowrap;">
+                <span>Contactar ahora</span>
+                <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
 
             <div class="footer-divider"></div>
 

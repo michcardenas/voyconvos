@@ -28,18 +28,18 @@
             <nav>
                 <ul>
                     <li><a href="#">Coche compartido</a></li>
-                @role('admin')
+                    @role('admin')
+                        <li>  
+                        <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
+                            Gestión de Usuarios
+                        </a>
+                    </li>
                     <li>  
-                    <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
-                        Gestión de Usuarios
-                    </a>
-                </li>
-                <li>  
-                    <a href="{{ route('configuracion.index') }}" class="text-gray-700 hover:text-indigo-600">
-                        Configuración
-                    </a>
-                </li>
-                @endrole
+                        <a href="{{ route('configuracion.index') }}" class="text-gray-700 hover:text-indigo-600">
+                            Configuración
+                        </a>
+                    </li>
+                    @endrole
                 </ul>
             
             </nav>
@@ -55,12 +55,41 @@
         
         <div class="dropdown-menu" id="userMenu">
             @auth
-                <a href="{{ route('perfil.editar.usuario') }}" class="dropdown-item">Editar perfil</a>
+
+                @role('conductor')
+                    <a href="{{ route('conductor.perfil.edit') }}" class="dropdown-item">Mi perfil</a>
+                @endrole
+                @role('pasajero')
+                    <a href="{{ route('pasajero.perfil.edit') }}" class="dropdown-item">Mi perfil</a>
+                @endrole
+
+
+                {{-- Dashboard --}}
+                @role('admin')
+                    <a href="{{ route('dashboard') }}" class="dropdown-item">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard Admin
+                    </a>
+                @endrole
+                <!-- @role('conductor')
+                    <a href="{{ route('dashboard') }}" class="dropdown-item">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard Conductor
+                    </a>
+                @endrole -->
+                @role('pasajero')
+                    <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">
+                        <i class="fas fa-tachometer-alt"></i> Dashboard Pasajero
+                    </a>
+                @endrole
+
+                {{-- Cerrar sesión --}}
                 <form method="POST" action="{{ route('logout') }}">
                     @csrf
-                    <button type="submit" class="dropdown-item">Cerrar sesión</button>
+                    <button type="submit" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                    </button>
                 </form>
             @endauth
+
             
             @guest
                 <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>

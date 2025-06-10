@@ -38,6 +38,7 @@ Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCall
 Route::get('/', function () {
     return view('welcome');
 });
+
 Route::get('/', [InicioController::class, 'index'])->name('inicio');
 
 // Dashboard
@@ -55,12 +56,12 @@ Route::middleware('auth')->group(function () {
     //EDITAR USUARIOS
     Route::get('/perfil/editar', [ProfileController::class, 'editarUsuario'])->name('perfil.editar.usuario');
     Route::get('/perfil/conductor', [ProfileController::class, 'editarUsuario'])->name('conductor.perfil.edit');
-       Route::put('/conductor', [ProfileController::class, 'update'])->name('conductor.perfil.update');
+    Route::put('/conductor', [ProfileController::class, 'update'])->name('conductor.perfil.update');
 
     Route::get('/perfil/pasajero', [ProfileController::class, 'edit'])->name('pasajero.perfil.edit');
 
     Route::put('/conductor/perfil/actualizar', [ProfileController::class, 'actualizarPerfil'])->name('conductor.perfil.update');
-        Route::put('/pasajero/perfil/actualizar', [ProfileController::class, 'actualizarPerfilPasajero'])->name('pasajero.perfil.update');
+    Route::put('/pasajero/perfil/actualizar', [ProfileController::class, 'actualizarPerfilPasajero'])->name('pasajero.perfil.update');
 
 
 
@@ -116,7 +117,6 @@ Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaContr
 Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
 Route::post('/conductor/guardar-viaje', [RutaController::class, 'store'])->name('conductor.viaje.store');
 Route::get('/conductor/gestion', [ConductorController::class, 'gestion'])->name('conductor.gestion');
-
 
 // editar datos del conductor
 Route::get('/conductor/completar-registro', [RegistroVehiculoController::class, 'form'])->name('conductor.registro.form');

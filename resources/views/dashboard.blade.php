@@ -352,13 +352,13 @@
         <h2>👋 Bienvenido, {{ auth()->user()->name ?? 'Invitado' }}</h2>
         <p>Gestiona tus viajes y conecta con otros viajeros de forma segura</p>
     </div>
-
+<!-- 
     @if($notificaciones > 0)
     <div class="alert alert-info alert-dismissible fade show alert-modern" role="alert">
         🚨 <strong>{{ $notificaciones }}</strong> nueva(s) reserva(s) en tus viajes.
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
     </div>
-    @endif
+    @endif -->
 
     @if($reservasDetalles->count())
     <div class="section-container">
