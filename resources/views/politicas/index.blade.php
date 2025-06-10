@@ -436,9 +436,19 @@
                         </div>
                     </div>
 
-                    <div class="content-body" id="mainContent">
-                        {!! nl2br(e($contenido)) !!}
-                    </div>
+                    @for ($i = 1; $i <= 9; $i++)
+                        @php
+                            $titulo = $contenido["titulo_$i"] ?? null;
+                            $bloque = $contenido["contenido_$i"] ?? null;
+                        @endphp
+
+                        @if($titulo || $bloque)
+                            <div class="mb-5">
+                                <h3 class="text-dark">{{ $titulo }}</h3>
+                                <p>{!! nl2br(e($bloque)) !!}</p>
+                            </div>
+                        @endif
+                    @endfor
                 </div>
             </div>
         @else

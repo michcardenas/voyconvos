@@ -18,7 +18,7 @@ public function index()
 
     $header = $politicas[14]->pluck('valor', 'clave');
     $sidebar = $politicas[15]->pluck('valor', 'clave');
-    $contenido = $politicas[16]->where('clave', 'contenido')->first()?->valor;
+    $contenido = $politicas[16]->pluck('valor', 'clave');
 
     return view('politicas.index', compact('header', 'sidebar', 'contenido'));
 }
