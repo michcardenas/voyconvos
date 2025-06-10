@@ -372,25 +372,25 @@
 
         <!-- Privacy Header -->
         <div class="privacy-header">
-            <h1>{{ \App\Models\Contenido::getValor('header-privacidad', 'titulo') }}</h1>
-            <p class="privacy-subtitle">{{ \App\Models\Contenido::getValor('header-privacidad', 'subtitulo') }}</p>
+            <h1>{{ $header['titulo'] ?? 'Título no disponible' }}</h1>
+            <p class="privacy-subtitle">{{ $header['subtitulo'] ?? '' }}</p>
 
             <div class="protection-badges">
                 <div class="protection-badge">
                     <i class="fas fa-shield-alt"></i>
-                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_1') }}
+                    {{ $header['badge_1'] ?? '' }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-lock"></i>
-                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_2') }}
+                    {{ $header['badge_2'] ?? '' }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-user-shield"></i>
-                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_3') }}
+                    {{ $header['badge_3'] ?? '' }}
                 </div>
                 <div class="protection-badge">
                     <i class="fas fa-eye-slash"></i>
-                    {{ \App\Models\Contenido::getValor('header-privacidad', 'badge_4') }}
+                    {{ $header['badge_4'] ?? '' }}
                 </div>
             </div>
 
@@ -400,28 +400,22 @@
             </div>
         </div>
 
-        <!-- Content Layout -->
-        @php
-            $contenido = \App\Models\Contenido::getValor('contenido-privacidad', 'contenido');
-        @endphp
-
         @if($contenido)
             <div class="content-layout">
-                <!-- Sidebar with Table of Contents -->
+                <!-- Sidebar -->
                 <div class="sidebar">
                     <h4>
                         <i class="fas fa-list-ul"></i>
                         Índice de privacidad
                     </h4>
 
-                    <!-- Privacy Info Box -->
                     <div class="privacy-info-box">
                         <div class="privacy-info-title">
                             <i class="fas fa-info-circle"></i>
-                            {{ \App\Models\Contenido::getValor('sidebar-privacidad', 'info_titulo') }}
+                            {{ $sidebar['info_titulo'] ?? '' }}
                         </div>
                         <p class="privacy-info-text">
-                            {{ \App\Models\Contenido::getValor('sidebar-privacidad', 'info_texto') }}
+                            {{ $sidebar['info_texto'] ?? '' }}
                         </p>
                     </div>
 
@@ -459,6 +453,7 @@
         @endif
     </div>
 </div>
+
 
 
 <script>
