@@ -436,16 +436,25 @@
                         </div>
                     </div>
 
-                    @for ($i = 1; $i <= 9; $i++)
+                   @for ($i = 1; $i <= 9; $i++)
                         @php
                             $titulo = $contenido["titulo_$i"] ?? null;
                             $bloque = $contenido["contenido_$i"] ?? null;
                         @endphp
-
+                        
                         @if($titulo || $bloque)
-                            <div class="mb-5">
-                                <h3 class="text-dark">{{ $titulo }}</h3>
-                                <p>{!! nl2br(e($bloque)) !!}</p>
+                            <div style="margin-bottom: 2rem; padding: 1.5rem; background-color: #f8f9fa; border-radius: 8px; border-left: 4px solid #007bff;">
+                                @if($titulo)
+                                    <h3 style="color: #2c3e50; margin-bottom: 1rem; font-weight: 600; font-size: 1.3rem; line-height: 1.4;">
+                                        {{ $titulo }}
+                                    </h3>
+                                @endif
+                                
+                                @if($bloque)
+                                    <div style="color: #495057; line-height: 1.6; font-size: 1rem; text-align: justify;">
+                                        {!! nl2br(e($bloque)) !!}
+                                    </div>
+                                @endif
                             </div>
                         @endif
                     @endfor
