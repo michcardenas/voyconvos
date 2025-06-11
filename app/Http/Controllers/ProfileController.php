@@ -57,7 +57,7 @@ public function editarUsuario(Request $request): View
         return view('conductor.perfil.edit', compact('user', 'registro'));
     }
 
-    // Si es pasajero, podrías hacer lo mismo con otra vista (ejemplo)
+    // Si es pasajero, podrías hacer lo mismo con otra vista
     if ($user->hasRole('pasajero')) {
         return view('pasajero.perfil.edit', compact('user'));
     }
@@ -182,6 +182,7 @@ public function actualizarPerfilPasajero(Request $request)
         'ciudad' => 'nullable|string|max:100',
         'foto' => 'nullable|image|max:2048',
         'dni_foto' => 'nullable|image|max:2048',
+        'dni_foto_atras' => 'nullable|image|max:2048',
         'new_password' => 'nullable|string|min:8|confirmed',
         'new_password_confirmation' => 'nullable|string',
     ];
@@ -242,6 +243,15 @@ public function actualizarPerfilPasajero(Request $request)
             $userData['dni_foto'] = $request->file('dni_foto')->store('pasajeros/documentos', 'public');
         }
 
+        // Manejar foto del reverso del DNI si se subió
+        if ($request->hasFile('dni_foto_atras')) {
+            // Eliminar reverso anterior
+            if ($user->dni_foto_atras && Storage::disk('public')->exists($user->dni_foto_atras)) {
+                Storage::disk('public')->delete($user->dni_foto_atras);
+            }
+            $userData['dni_foto_atras'] = $request->file('dni_foto_atras')->store('pasajeros/documentos', 'public');
+        }
+
         // Establecer o cambiar contraseña
         if ($request->filled('new_password')) {
             $userData['password'] = Hash::make($request->new_password);
@@ -274,6 +284,7 @@ public function actualizarPerfilPasajero(Request $request)
             ->with('error', 'Error al actualizar el perfil. Por favor, inténtalo nuevamente.');
     }
 }
+
 public function editConductor()
 {
     $user = auth()->user();
