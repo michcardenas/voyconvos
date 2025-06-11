@@ -683,6 +683,12 @@
 
 <!-- Script para el mapa y funciones existentes -->
 <script>
+      function initConfirmarReservaMapa() {
+        const map = new google.maps.Map(document.getElementById("map"), {
+            center: { lat: 4.6482837, lng: -74.2478936 }, // Coordenadas de ejemplo
+            zoom: 12,
+        });
+    }
 function updatePrice() {
     const cantidad = document.getElementById('cantidad_puestos').value;
     const precioUnitario = {{ $viaje->valor_persona }};
