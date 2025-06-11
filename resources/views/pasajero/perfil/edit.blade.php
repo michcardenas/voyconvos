@@ -105,7 +105,7 @@
                             <div class="input-group-custom">
                                 <label class="custom-label">
                                     <i class="fas fa-id-card-alt me-1"></i>
-                                    Documento DNI (foto)
+                                    Documento DNI (foto frente)
                                 </label>
                                 <div class="file-upload-area">
                                     <input type="file" name="dni_foto" class="custom-file-input" accept="image/*" id="dni-foto-upload">
@@ -127,7 +127,39 @@
                                 @else
                                     <div class="upload-hint">
                                         <i class="fas fa-info-circle me-1"></i>
-                                        <small class="text-muted">Sube una foto clara de tu documento</small>
+                                        <small class="text-muted">Sube una foto clara de tu documento (frente)</small>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+
+                        <div class="col-sm-6">
+                            <div class="input-group-custom">
+                                <label class="custom-label">
+                                    <i class="fas fa-id-card me-1"></i>
+                                    Documento DNI (foto reverso)
+                                </label>
+                                <div class="file-upload-area">
+                                    <input type="file" name="dni_foto_atras" class="custom-file-input" accept="image/*" id="dni-foto-reverso-upload">
+                                    <label for="dni-foto-reverso-upload" class="file-upload-label">
+                                        <i class="fas fa-upload"></i>
+                                        <span>Subir reverso del DNI</span>
+                                    </label>
+                                </div>
+                                @if ($user->dni_foto_atras)
+                                    <div class="current-media">
+                                        <img src="{{ asset('storage/' . $user->dni_foto_atras) }}" 
+                                            class="current-photo" 
+                                            alt="DNI reverso actual">
+                                        <div class="media-info">
+                                            <small class="text-muted">DNI reverso actual</small>
+                                            <i class="fas fa-check-circle text-success"></i>
+                                        </div>
+                                    </div>
+                                @else
+                                    <div class="upload-hint">
+                                        <i class="fas fa-info-circle me-1"></i>
+                                        <small class="text-muted">Sube una foto clara del reverso de tu documento</small>
                                     </div>
                                 @endif
                             </div>

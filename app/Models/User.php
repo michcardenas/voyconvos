@@ -29,6 +29,7 @@ class User extends Authenticatable
         'foto',
         'verificado',
         'dni_foto',
+        'dni_foto_atras',
     ];
 
     /**
