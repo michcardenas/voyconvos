@@ -521,17 +521,21 @@
             </div>
         </div> -->
     </div>
-@can('crear-viajes')
-    <div class="action-buttons">
-        <div class="d-flex gap-3 flex-wrap">
-            <a href="{{ route('conductor.gestion') }}" class="btn btn-outline-primary btn-modern">
-                ➕ Agendar nuevo viaje
-            </a>
-            <a href="#" class="btn btn-link text-decoration-none">
-                ¿Necesitas ayuda?
-            </a>
+@auth
+    @role('conductor')
+        <div class="action-buttons">
+            <div class="d-flex gap-3 flex-wrap">
+                <a href="{{ route('conductor.gestion') }}" class="btn btn-outline-primary btn-modern">
+                    ➕ Agendar nuevo viaje
+                </a>
+                <a href="#" class="btn btn-link text-decoration-none">
+                    ¿Necesitas ayuda?
+                </a>
+            </div>
         </div>
-    </div>
-@endcan
+    @endrole
+@endauth
+
+
 </div>
 @endsection
