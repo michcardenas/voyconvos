@@ -521,8 +521,7 @@
             </div>
         </div> -->
     </div>
-
-    @if(auth()->user()->hasRole('conductor'))
+@can('crear-viajes')
     <div class="action-buttons">
         <div class="d-flex gap-3 flex-wrap">
             <a href="{{ route('conductor.gestion') }}" class="btn btn-outline-primary btn-modern">
@@ -533,6 +532,6 @@
             </a>
         </div>
     </div>
-    @endif
+@endcan
 </div>
 @endsection
