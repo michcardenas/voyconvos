@@ -65,16 +65,11 @@
 
 
                 {{-- Dashboard --}}
-                @role('admin')
-                    <a href="{{ route('dashboard') }}" class="dropdown-item">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard Admin
-                    </a>
-                @endrole
-                <!-- @role('conductor')
+                @role('conductor')
                     <a href="{{ route('dashboard') }}" class="dropdown-item">
                         <i class="fas fa-tachometer-alt"></i> Dashboard Conductor
                     </a>
-                @endrole -->
+                @endrole
                 @role('pasajero')
                     <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">
                         <i class="fas fa-tachometer-alt"></i> Dashboard Pasajero

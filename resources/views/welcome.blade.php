@@ -16,10 +16,12 @@
             <h1>{{ \App\Models\Contenido::getValor('hero', 'h1') }}</h1>
             <h2>{{ \App\Models\Contenido::getValor('hero', 'h2') }}</h2>
             <div class="hero-buttons">
-                <a href="#" class="btn btn-primary" id="buscarBtn">
+                <a href="#" class="btn btn-primary" id="buscarBtn"
+                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
                     {{ \App\Models\Contenido::getValor('hero', 'btn_buscar') }}
                 </a>
-                <a href="#" class="btn btn-primary" id="publicarBtn">
+                <a href="#" class="btn btn-primary" id="publicarBtn"
+                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_2') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_2') }}')">
                     {{ \App\Models\Contenido::getValor('hero', 'btn_publicar') }}
                 </a>
             </div>
@@ -32,8 +34,9 @@
                 <div class="route-inputs">
 
                     {{-- Campo Origen --}}
-                    <div class="input-group">
-                        <select id="origen" name="origen" required>
+                    <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-map-marker-alt" style="color: #0c4a6e; font-size: 1rem;"></i>
+                        <select id="origen" name="origen" required style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
                             <option value="">Selecciona origen</option>
                             @foreach($origenes as $ciudad)
                                 <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
@@ -49,8 +52,9 @@
                     </div>
 
                     {{-- Campo Destino --}}
-                    <div class="input-group">
-                        <select id="destino" name="destino" required>
+                    <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-map-pin" style="color:rgb(21, 45, 78); font-size: 1rem;"></i>
+                        <select id="destino" name="destino" required style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
                             <option value="">Selecciona destino</option>
                             @foreach($destinos as $ciudad)
                                 <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
@@ -79,7 +83,8 @@
                 </div>
 
                 {{-- Botón de Búsqueda --}}
-                <button type="submit" class="search-btn">
+                <button type="button" class="search-btn"
+                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
                     <i class="fas fa-search"></i>
                     Buscar viajes
                 </button>
@@ -95,7 +100,8 @@
             </div>
 
             {{-- Botón Publicar Viaje --}}
-            <button type="button" class="publish-trip-btn" id="publishBtn">
+            <button type="button" class="publish-trip-btn" id="publishBtn"
+                onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
                 {{ \App\Models\Contenido::getValor('hero', 'btn_publicar_main') }}
             </button>
 
@@ -194,7 +200,11 @@
 <section class="slogan">
     <div class="container">
         <h2>{{ \App\Models\Contenido::getValor('slogan', 'titulo') }}</h2>
-        <a href="#" class="btn btn-primary">{{ \App\Models\Contenido::getValor('slogan', 'boton') }}</a>
+        <a href="#" class="btn btn-primary"
+        onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
+            {{ \App\Models\Contenido::getValor('slogan', 'boton') }}
+        </a>
+        <p>{{ \App\Models\Contenido::getValor('slogan', 'descripcion') }}</p>
     </div>
 </section>
 
