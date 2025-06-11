@@ -40,6 +40,7 @@ class ReservaPasajeroController extends Controller
     // GET: Mostrar página de confirmación
     public function mostrarConfirmacion(Viaje $viaje)
     {
+        dd($viaje);
         return view('pasajero.confirmar-reserva', compact('viaje'));
     }
 
