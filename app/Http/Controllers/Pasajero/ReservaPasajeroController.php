@@ -271,35 +271,43 @@ public function mostrarViajesDisponibles()
     return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
 }
 
-   public function mostrarResumen(Request $request, Viaje $viaje)
+public function mostrarResumen(Request $request, Viaje $viaje)
 {
     // Validación de entrada
     $request->validate([
         'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
     ]);
 
-    // ✅ Obtener cantidad del request (funciona tanto para GET como POST)
+    // ✅ Obtener cantidad del request
     $cantidad = $request->input('cantidad_puestos');
     
-    // 🔍 Verificar que el viaje tenga precio configurado
-    if (!$viaje->valor_persona || $viaje->valor_persona <= 0) {
+    // 🔍 Determinar el precio a usar (en orden de prioridad)
+    $precio = $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0;
+    
+    // Verificar que el viaje tenga precio configurado
+    if (!$precio || $precio <= 0) {
         return back()->withErrors([
             'error' => 'Este viaje no tiene un precio configurado correctamente.'
-        ]);
+        ])->withInput();
     }
     
     // ✅ Calcular el total
-    $total = $viaje->valor_persona * $cantidad;
+    $total = $precio * $cantidad;
 
-    // 📊 Log para seguimiento (opcional - puedes quitarlo si no lo necesitas)
+    // 📊 Log para seguimiento
     \Log::info('Resumen de Reserva', [
         'viaje_id' => $viaje->id,
         'cantidad' => $cantidad,
-        'precio_unitario' => $viaje->valor_persona,
+        'precio_unitario' => $precio,
+        'precio_campo_usado' => $viaje->valor_persona ? 'valor_persona' : 
+                               ($viaje->valor_cobrado ? 'valor_cobrado' : 'valor_estimado'),
         'total' => $total,
         'usuario_id' => auth()->id()
     ]);
 
-    return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total'));
+    // ✅ Pasar el precio usado además de las otras variables
+    return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio'));
 }
+
+
 }
