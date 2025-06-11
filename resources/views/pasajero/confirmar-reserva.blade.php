@@ -679,16 +679,11 @@
 </div>
 
 <!-- Cargar Google Maps -->
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&v=3.55"></script>
 
 <!-- Script para el mapa y funciones existentes -->
+<!-- Script para el mapa y funciones existentes -->
 <script>
-      function initConfirmarReservaMapa() {
-        const map = new google.maps.Map(document.getElementById("map"), {
-            center: { lat: 4.6482837, lng: -74.2478936 }, // Coordenadas de ejemplo
-            zoom: 12,
-        });
-    }
+// DEFINIR LA FUNCIÓN PRIMERO, ANTES DE CARGAR GOOGLE MAPS
 function updatePrice() {
     const cantidad = document.getElementById('cantidad_puestos').value;
     const precioUnitario = {{ $viaje->valor_persona }};
@@ -699,18 +694,23 @@ function updatePrice() {
 }
 
 // Validar input
-document.getElementById('cantidad_puestos').addEventListener('input', function() {
-    const max = {{ $viaje->puestos_disponibles }};
-    if (this.value > max) {
-        this.value = max;
+document.addEventListener('DOMContentLoaded', function() {
+    const cantidadInput = document.getElementById('cantidad_puestos');
+    if (cantidadInput) {
+        cantidadInput.addEventListener('input', function() {
+            const max = {{ $viaje->puestos_disponibles }};
+            if (this.value > max) {
+                this.value = max;
+            }
+            if (this.value < 1) {
+                this.value = 1;
+            }
+            updatePrice();
+        });
     }
-    if (this.value < 1) {
-        this.value = 1;
-    }
-    updatePrice();
 });
 
-// Función para inicializar el mapa
+// FUNCIÓN PARA INICIALIZAR EL MAPA - DEBE ESTAR DISPONIBLE GLOBALMENTE
 function initConfirmarReservaMapa() {
     try {
         // Coordenadas del origen y destino desde Laravel
@@ -816,19 +816,11 @@ function initConfirmarReservaMapa() {
     }
 }
 
-// Función de respaldo para cargar el mapa si ya está disponible Google Maps
-document.addEventListener('DOMContentLoaded', function() {
-    function loadMap() {
-        if (typeof google !== 'undefined' && google.maps) {
-            initConfirmarReservaMapa();
-        } else {
-            setTimeout(loadMap, 100);
-        }
-    }
-    loadMap();
-});
-
-// Exponer la función globalmente
+// EXPONER LA FUNCIÓN GLOBALMENTE INMEDIATAMENTE
 window.initConfirmarReservaMapa = initConfirmarReservaMapa;
 </script>
+
+<!-- Cargar Google Maps DESPUÉS de definir la función -->
+<!-- REMOVEMOS v=3.55 para usar la versión más reciente -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&loading=async"></script>
 @endsection
