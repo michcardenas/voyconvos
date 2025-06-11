@@ -87,6 +87,8 @@ public function actualizarPerfil(Request $request)
         'marca_vehiculo' => 'nullable|string|max:100',
         'modelo_vehiculo' => 'nullable|string|max:100',
         'anio_vehiculo' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
+        'numero_puestos' => 'nullable|integer' ,
+
         'patente' => 'nullable|string|max:20',
         
         'licencia' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -127,7 +129,8 @@ public function actualizarPerfil(Request $request)
             'marca_vehiculo' => $validated['marca_vehiculo'],
             'modelo_vehiculo' => $validated['modelo_vehiculo'],
             'anio_vehiculo' => $validated['anio_vehiculo'],
-            'patente' => $validated['patente'],
+            'anio_vehiculo' => $validated['anio_vehiculo'],
+            'numero_puestos' => $validated['numero_puestos'],
         ]);
 
         // Manejar documentos

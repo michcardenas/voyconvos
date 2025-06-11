@@ -87,6 +87,7 @@
                                         <span>Seleccionar imagen</span>
                                     </label>
                                 </div>
+          
                                 @if ($user->foto)
                                     <div class="current-media">
                                         <img src="{{ asset('storage/' . $user->foto) }}" 
@@ -123,7 +124,9 @@
                             @foreach([
                                 ['marca_vehiculo', 'Marca del vehículo', 'fas fa-tag'],
                                 ['modelo_vehiculo', 'Modelo', 'fas fa-car'],
+                                ['numero_puestos', 'Numero de puestos (incluidos el conductor)', 'fas fa-chair'],
                                 ['anio_vehiculo', 'Año', 'fas fa-calendar'],
+
                                 ['patente', 'Patente', 'fas fa-hashtag'],
                             ] as [$campo, $etiqueta, $icono])
                                 <div class="col-sm-6">
