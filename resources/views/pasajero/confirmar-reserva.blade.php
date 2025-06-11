@@ -684,29 +684,37 @@
     // Variable global para asegurar que Google Maps esté cargado
     let googleMapsLoaded = false;
     
-    function initConfirmarReservaMapa() {
+    // DEFINIR LA FUNCIÓN GLOBALMENTE
+    window.initConfirmarReservaMapa = function() {
         if (googleMapsLoaded) return;
         googleMapsLoaded = true;
         
         try {
             console.log('✅ Inicializando mapa...');
             
-            // Coordenadas del origen y destino desde Laravel
+            // Coordenadas del origen y destino desde Laravel - con validación
+            const origenLat = {{ $viaje->origen_lat ?? 'null' }};
+            const origenLng = {{ $viaje->origen_lng ?? 'null' }};
+            const destinoLat = {{ $viaje->destino_lat ?? 'null' }};
+            const destinoLng = {{ $viaje->destino_lng ?? 'null' }};
+            
             const origen = {
-                lat: {{ $viaje->origen_lat ?? 'null' }},
-                lng: {{ $viaje->origen_lng ?? 'null' }}
+                lat: parseFloat(origenLat),
+                lng: parseFloat(origenLng)
             };
             
             const destino = {
-                lat: {{ $viaje->destino_lat ?? 'null' }},
-                lng: {{ $viaje->destino_lng ?? 'null' }}
+                lat: parseFloat(destinoLat), 
+                lng: parseFloat(destinoLng)
             };
 
-            console.log('🛰️ Coordenadas:', { origen, destino });
+            console.log('🛰️ Coordenadas origen:', origenLat, origenLng);
+            console.log('🛰️ Coordenadas destino:', destinoLat, destinoLng);
+            console.log('🛰️ Objetos finales:', { origen, destino });
 
             // Validar coordenadas
-            if (!origen.lat || !origen.lng || !destino.lat || !destino.lng) {
-                throw new Error("Coordenadas inválidas");
+            if (isNaN(origen.lat) || isNaN(origen.lng) || isNaN(destino.lat) || isNaN(destino.lng)) {
+                throw new Error("Coordenadas inválidas o faltantes");
             }
 
             const mapElement = document.getElementById('map');
@@ -749,13 +757,16 @@
                 }
             });
 
-            // Info windows para los marcadores
+            // Info windows para los marcadores - con escape de comillas seguro
+            const origenDireccion = `{{ str_replace(['\'', '"', '`'], ['', '', ''], substr($viaje->origen_direccion ?? 'Origen', 0, 50)) }}`;
+            const destinoDireccion = `{{ str_replace(['\'', '"', '`'], ['', '', ''], substr($viaje->destino_direccion ?? 'Destino', 0, 50)) }}`;
+            
             const infoOrigen = new google.maps.InfoWindow({
-                content: '<div style="padding: 8px;"><strong>📍 Punto de recogida</strong><br><small>{{ addslashes(substr($viaje->origen_direccion ?? '', 0, 50)) }}...</small></div>'
+                content: `<div style="padding: 8px;"><strong>📍 Punto de recogida</strong><br><small>${origenDireccion}...</small></div>`
             });
             
             const infoDestino = new google.maps.InfoWindow({
-                content: '<div style="padding: 8px;"><strong>🎯 Destino</strong><br><small>{{ addslashes(substr($viaje->destino_direccion ?? '', 0, 50)) }}...</small></div>'
+                content: `<div style="padding: 8px;"><strong>🎯 Destino</strong><br><small>${destinoDireccion}...</small></div>`
             });
 
             // Abrir info windows al hacer clic
@@ -815,6 +826,11 @@
                     </div>`;
             }
         }
+    };
+
+    // FUNCIÓN CALCULAR COSTO (que estaba faltando)
+    function calcularCosto() {
+        updatePrice(); // Redirigir a la función que ya existe
     }
 
     // OTRAS FUNCIONES
@@ -844,8 +860,8 @@
             });
         }
         
-        // Verificar que la función está disponible
-        console.log('Función initConfirmarReservaMapa disponible:', typeof initConfirmarReservaMapa);
+        // Verificar que la función está disponible globalmente
+        console.log('Función initConfirmarReservaMapa disponible:', typeof window.initConfirmarReservaMapa);
     });
 
     // Fallback si Google Maps no carga
@@ -866,5 +882,5 @@
     });
 </script>
 
-<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&v=3.55"></script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&loading=async&v=3.55"></script>
 @endsection
