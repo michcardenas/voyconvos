@@ -190,7 +190,7 @@ public function reservar(Request $request, Viaje $viaje)
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)
     {
-        $reserva->estado = 'pagada';
+        $reserva->estado = 'confirmada';
         $reserva->save();
         
         return view('pasajero.pago-exitoso', compact('reserva'));
