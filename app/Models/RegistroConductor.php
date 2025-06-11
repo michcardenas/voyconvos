@@ -22,5 +22,6 @@ class RegistroConductor extends Model
         'antecedentes',
         'estado_verificacion',
         'estado_registro',
+        'numero_puestos',
     ];
 }

@@ -501,7 +501,6 @@
         }
     }
 </style>
-
 <div class="confirm-wrapper">
     <div class="container">
         <!-- Page Header -->
@@ -604,10 +603,26 @@
                         </div>
                         <div class="detail-content">
                             <h6>Precio por persona</h6>
-                            <p>${{ number_format($viaje->valor_cobrado, 0, ',', '.') }}</p>
+                            <p>${{ number_format($viaje->valor_persona, 2, ',', '.') }}</p>
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- NUEVA SECCIÓN: Mapa de la ruta -->
+        <div class="trip-summary-card" style="margin-top: 1.5rem;">
+            <div class="trip-header">
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-map" style="color: #4285f4;"></i>
+                    <h5 style="margin: 0; font-weight: 600;">Ruta del Viaje</h5>
+                </div>
+                <p style="margin: 0.5rem 0 0 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
+                    Visualiza el recorrido de {{ $viaje->distancia_km ?? '—' }} km
+                </p>
+            </div>
+            <div style="padding: 1rem;">
+                <div id="map" style="height: 350px; width: 100%; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);"></div>
             </div>
         </div>
 
@@ -644,8 +659,8 @@
 
                 <div class="price-summary">
                     <div class="price-label">Total a pagar</div>
-                    <p class="price-amount" id="totalPrice">${{ number_format($viaje->valor_cobrado, 0, ',', '.') }}</p>
-                    <div class="price-per-person" id="priceBreakdown">1 persona × ${{ number_format($viaje->valor_cobrado, 0, ',', '.') }}</div>
+                    <p class="price-amount" id="totalPrice">${{ number_format($viaje->valor_persona, 2, ',', '.') }}</p>
+                    <div class="price-per-person" id="priceBreakdown">1 persona × ${{ number_format($viaje->valor_persona, 2, ',', '.') }}</div>
                 </div>
 
                 <div class="form-actions">
@@ -663,10 +678,14 @@
     </div>
 </div>
 
+<!-- Cargar Google Maps -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&v=3.55"></script>
+
+<!-- Script para el mapa y funciones existentes -->
 <script>
 function updatePrice() {
     const cantidad = document.getElementById('cantidad_puestos').value;
-    const precioUnitario = {{ $viaje->valor_cobrado }};
+    const precioUnitario = {{ $viaje->valor_persona }};
     const total = cantidad * precioUnitario;
     
     document.getElementById('totalPrice').textContent = '$' + total.toLocaleString('es-CO');
@@ -684,5 +703,126 @@ document.getElementById('cantidad_puestos').addEventListener('input', function()
     }
     updatePrice();
 });
+
+// Función para inicializar el mapa
+function initConfirmarReservaMapa() {
+    try {
+        // Coordenadas del origen y destino desde Laravel
+        const origen = {
+            lat: parseFloat({{ $viaje->origen_lat }}),
+            lng: parseFloat({{ $viaje->origen_lng }})
+        };
+        
+        const destino = {
+            lat: parseFloat({{ $viaje->destino_lat }}),
+            lng: parseFloat({{ $viaje->destino_lng }})
+        };
+
+        // Inicializar el mapa
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: origen,
+            mapTypeId: 'roadmap',
+            styles: [
+                {
+                    "featureType": "poi",
+                    "elementType": "labels",
+                    "stylers": [{"visibility": "off"}]
+                }
+            ]
+        });
+
+        // Crear marcadores personalizados
+        const markerOrigen = new google.maps.Marker({
+            position: origen,
+            map: map,
+            title: 'Punto de recogida',
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                scaledSize: new google.maps.Size(32, 32)
+            }
+        });
+        
+        const markerDestino = new google.maps.Marker({
+            position: destino,
+            map: map,
+            title: 'Destino',
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new google.maps.Size(32, 32)
+            }
+        });
+
+        // Info windows para los marcadores
+        const infoOrigen = new google.maps.InfoWindow({
+            content: '<div style="padding: 8px;"><strong>📍 Punto de recogida</strong><br><small>{{ addslashes(substr($viaje->origen_direccion, 0, 50)) }}...</small></div>'
+        });
+        
+        const infoDestino = new google.maps.InfoWindow({
+            content: '<div style="padding: 8px;"><strong>🎯 Destino</strong><br><small>{{ addslashes(substr($viaje->destino_direccion, 0, 50)) }}...</small></div>'
+        });
+
+        // Abrir info windows al hacer clic
+        markerOrigen.addListener('click', function() {
+            infoDestino.close();
+            infoOrigen.open(map, markerOrigen);
+        });
+        
+        markerDestino.addListener('click', function() {
+            infoOrigen.close();
+            infoDestino.open(map, markerDestino);
+        });
+
+        // Servicio de direcciones para mostrar la ruta
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            suppressMarkers: true, // Usamos nuestros marcadores personalizados
+            polylineOptions: {
+                strokeColor: '#4285f4',
+                strokeWeight: 4,
+                strokeOpacity: 0.8
+            }
+        });
+        
+        directionsRenderer.setMap(map);
+
+        // Calcular y mostrar la ruta
+        directionsService.route({
+            origin: origen,
+            destination: destino,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status) {
+            if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+            } else {
+                console.log('No se pudo cargar la ruta:', status);
+                // Si falla la ruta, ajustar vista para mostrar ambos puntos
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend(origen);
+                bounds.extend(destino);
+                map.fitBounds(bounds);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al inicializar el mapa:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;"><div><i class="fas fa-map" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><br>No se pudo cargar el mapa</div></div>';
+    }
+}
+
+// Función de respaldo para cargar el mapa si ya está disponible Google Maps
+document.addEventListener('DOMContentLoaded', function() {
+    function loadMap() {
+        if (typeof google !== 'undefined' && google.maps) {
+            initConfirmarReservaMapa();
+        } else {
+            setTimeout(loadMap, 100);
+        }
+    }
+    loadMap();
+});
+
+// Exponer la función globalmente
+window.initConfirmarReservaMapa = initConfirmarReservaMapa;
 </script>
 @endsection

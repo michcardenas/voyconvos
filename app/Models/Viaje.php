@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Viaje extends Model
 {
-        protected $fillable = [
+    protected $fillable = [
         'conductor_id',
         'origen_direccion',
         'origen_lat',
@@ -18,6 +18,8 @@ class Viaje extends Model
         'vehiculo',
         'valor_estimado',
         'valor_cobrado',
+        'valor_persona',         // ✅ nuevo campo
+        'puestos_totales',       // ✅ nuevo campo
         'hora_salida',
         'fecha_salida',
         'puestos_disponibles',
@@ -35,5 +37,3 @@ class Viaje extends Model
         return $this->belongsTo(User::class, 'conductor_id');
     }
 }
-
-

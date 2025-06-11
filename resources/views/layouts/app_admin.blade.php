@@ -26,9 +26,16 @@
                     <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
                         Gestión de Usuarios
                     </a>
+                       <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" >
+                        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                    </button>
+                </form>
                 @endrole
 
                 </li>
+                
                 {{-- Agrega más enlaces aquí si quieres --}}
             </ul>
         </div>

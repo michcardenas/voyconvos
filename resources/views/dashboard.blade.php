@@ -495,7 +495,7 @@
     <div class="ratings-section">
         <h4 class="section-title">⭐ Calificaciones como Conductor</h4>
         
-        <div class="rating-summary">
+        <!-- <div class="rating-summary">
             <div class="rating-score">4.5</div>
             <div class="rating-stars">★★★★★</div>
             <div class="rating-text">Basado en 42 calificaciones</div>
@@ -519,7 +519,7 @@
                 <div class="review-stars">★★★★☆</div>
                 <div class="review-text">"Muy buena experiencia, recomendado para futuros viajes."</div>
             </div>
-        </div>
+        </div> -->
     </div>
 
     @if(auth()->user()->hasRole('conductor'))

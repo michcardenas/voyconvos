@@ -323,7 +323,7 @@
                 <ul id="infoRuta" class="route-info">
                     <li><strong>Origen:</strong> <span id="origenDireccion"></span></li>
                     <li><strong>Destino:</strong> <span id="destinoDireccion"></span></li>
-                    <li><strong>Distancia:</strong> <span id="distanciaKm"></span> km</li>
+                    <li><strong>Distancia:</strong> <span id="distanciaKm"></span> </li>
                     <li><strong>Vehículo:</strong> <span id="vehiculoTipo"></span></li>
                 </ul>
             </div>
@@ -339,13 +339,18 @@
             </div>
 
             <div class="value-card">
+           
+            <div class="form-group">
+                <label for="puestosTotales" class="form-label">👥 Puestos totales (incluyendo conductor)</label>
+                <input type="number" 
+                    id="puestosTotales" 
+                    class="form-control" 
+                    value="{{ $registroConductor ? $registroConductor->numero_puestos : '' }}" 
+                    readonly>
+            </div>
+                            
                 <div class="form-group">
-                    <label for="puestosTotales" class="form-label">👥 Puestos totales (incluyendo conductor)</label>
-                    <input type="number" id="puestosTotales" class="form-control" min="1" placeholder="Ej: 4" onchange="calcularCosto()">
-                </div>
-                
-                <div class="form-group">
-                    <label for="valor_persona" class="form-label">💸 Valor por persona</label>
+                    <label for="valor_persona" class="form-label">💸 Valor por persona estimado</label>
                     <input type="text" id="valor_persona" class="form-control" readonly placeholder="Se calculará automáticamente">
                 </div>
             </div>
@@ -369,15 +374,23 @@
                     <input type="number" id="puestosDisponibles" class="form-control" min="1" placeholder="Ej: 3">
                 </div>
             </div>
+    <input type="hidden" id="totalPorPasajero" name="total_por_pasajero" value="">
 
-            <div class="form-group">
-                <label for="valorCobrado" class="form-label">💵 Valor total a cobrar (manual)</label>
-                <input type="number" id="valorCobrado" class="form-control" placeholder="Ej: 35000">
-            </div>
+          <div class="form-group">
+    <label for="valorCobrado" class="form-label">💵 Valor total a cobrar (manual)</label>
+    <input type="number"
+           id="valorCobrado"
+           class="form-control"
+           placeholder="El valor que recibira despues de concluir su viaje, este valor sera divido por todos los pasajeros"
+           onchange="calcularValorPorPersona()">
+</div>
+
+<!-- Aquí se mostrará el resultado o error -->
+<div id="textoValorPersona"></div>
         </div>
 
         <!-- Botón de acción -->
-        <div class="button-area">
+        <div class="button-area" id="botonAgendarContainer">
             <button class="btn-primary-custom" onclick="guardarInfoConductor()">
                 🚗 Agendar viaje
             </button>
@@ -401,11 +414,152 @@ const viaje = JSON.parse(localStorage.getItem('ultimoViaje'));
 if (viaje) {
     document.getElementById('origenDireccion').textContent = viaje.origen.direccion;
     document.getElementById('destinoDireccion').textContent = viaje.destino.direccion;
-    document.getElementById('distanciaKm').textContent = viaje.distancia;
+    document.getElementById('distanciaKm').textContent = viaje.distancia+'km';
     document.getElementById('vehiculoTipo').textContent = viaje.vehiculo;
     document.getElementById('valorCalculado').textContent = parseFloat(viaje.costo).toFixed(2);
     document.getElementById('fechaViaje').value = viaje.fecha;
 }
+function calcularValorPorPersona() {
+    const valorTotal = parseFloat(document.getElementById("valorCobrado").value);
+    const puestos = parseInt(document.getElementById("puestosTotales").value);
+    const costoServicio = {{ $costo_servicio }};
+    const maxPorcentaje = {{ $nomasde }};
+    
+    const valorEstimado = document.getElementById('valorCalculado').textContent = parseFloat(viaje.costo).toFixed(2); // Puedes pasarlo desde el controlador
+    const maxValorPermitido = valorEstimado * (1 + (maxPorcentaje / 100));
+    
+    const inputValor = document.getElementById("valorCobrado");
+    const textoElemento = document.getElementById("textoValorPersona");
+    const botonAgendar = document.getElementById("botonAgendarContainer");
+    const inputHiddenTotal = document.getElementById("totalPorPasajero"); // 👈 NUEVO
+    
+    // Validar que el valor ingresado no exceda el límite
+    if (!isNaN(valorTotal) && valorTotal > maxValorPermitido) {
+        // Marcar en rojo y bloquear
+        inputValor.style.borderColor = "#dc3545";
+        inputValor.style.backgroundColor = "#ffe6e6";
+        
+        // OCULTAR EL BOTÓN
+        botonAgendar.style.display = "none";
+        
+        // LIMPIAR EL INPUT HIDDEN 👈 NUEVO
+        inputHiddenTotal.value = "";
+        
+        textoElemento.innerHTML = `
+            <div style="color: #dc3545; font-weight: bold; padding: 10px; background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px;">
+                ⚠️ Error: El valor ingresado ($${valorTotal.toLocaleString('es-CO')}) excede el máximo permitido<br>
+                • Estimado: $${valorEstimado.toLocaleString('es-CO')}<br>
+                • Máximo permitido (+${maxPorcentaje}%): $${maxValorPermitido.toLocaleString('es-CO')}<br>
+                <small>🚫 No puede agendar el viaje con este valor</small>
+            </div>`;
+        
+        return;
+    }
+    
+    if (!isNaN(valorTotal) && puestos > 0) {
+        // Restablecer estilos normales del input
+        inputValor.style.borderColor = "#28a745";
+        inputValor.style.backgroundColor = "#e6ffe6";
+        
+        // MOSTRAR EL BOTÓN
+        botonAgendar.style.display = "block";
+        
+        const valorPersona = valorTotal / puestos;
+        const costoServicioPesos = (valorPersona * costoServicio) / 100;
+        const valorFinal = valorPersona + costoServicioPesos; // 👈 ESTE ES EL VALOR QUE QUEREMOS
+        
+        // GUARDAR EN INPUT HIDDEN 👈 NUEVO
+        inputHiddenTotal.value = valorFinal.toFixed(2);
+        
+        const valorPersonaFormateado = valorPersona.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        const costoServicioFormateado = costoServicioPesos.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        const valorFinalFormateado = valorFinal.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        textoElemento.innerHTML = `
+            <div style="color: #155724; background-color: #d4edda; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px;">
+                💡 <strong>Cálculo por pasajero:</strong><br>
+                • Valor base: <strong>${valorPersonaFormateado}</strong><br>
+                • Costo servicio (${costoServicio}%): <strong>${costoServicioFormateado}</strong><br>
+                • <strong>Total por pasajero: ${valorFinalFormateado}</strong>
+                <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
+            </div>`;
+    } else {
+        // Si no hay valores válidos, ocultar el botón y limpiar hidden
+        botonAgendar.style.display = "none";
+        inputHiddenTotal.value = ""; // 👈 NUEVO
+        
+        // Restablecer estilos
+        inputValor.style.borderColor = "";
+        inputValor.style.backgroundColor = "";
+        
+        textoElemento.innerHTML = '';
+    }
+}
+    
+    if (!isNaN(valorTotal) && puestos > 0) {
+        // Restablecer estilos normales del input
+        inputValor.style.borderColor = "#28a745";
+        inputValor.style.backgroundColor = "#e6ffe6";
+        
+        // MOSTRAR EL BOTÓN
+        botonAgendar.style.display = "block";
+        botonAgendar.style.opacity = "0";
+        setTimeout(() => {
+            botonAgendar.style.opacity = "1";
+        }, 10);
+        
+        const valorPersona = valorTotal / puestos;
+        const costoServicioPesos = (valorPersona * costoServicio) / 100;
+        const valorFinal = valorPersona + costoServicioPesos;
+        
+        const valorPersonaFormateado = valorPersona.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        const costoServicioFormateado = costoServicioPesos.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        const valorFinalFormateado = valorFinal.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        
+        textoElemento.innerHTML = `
+            <div style="color: #155724; background-color: #d4edda; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px;">
+                💡 <strong>Cálculo por pasajero:</strong><br>
+                • Valor base: <strong>${valorPersonaFormateado}</strong><br>
+                • Costo servicio (${costoServicio}%): <strong>${costoServicioFormateado}</strong><br>
+                • <strong>Total por pasajero: ${valorFinalFormateado}</strong>
+                <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
+            </div>`;
+    } else {
+        // Si no hay valores válidos, ocultar el botón
+        botonAgendar.style.transition = "opacity 0.3s ease";
+        botonAgendar.style.opacity = "0";
+        setTimeout(() => {
+            botonAgendar.style.display = "none";
+        }, 300);
+        
+        // Restablecer estilos
+        inputValor.style.borderColor = "";
+        inputValor.style.backgroundColor = "";
+        
+        textoElemento.innerHTML = '';
+    }
 
 function calcularCosto() {
     const costoTotal = parseFloat(viaje.costo);
@@ -435,6 +589,9 @@ function guardarInfoConductor() {
     }
 
     const valorPorPersona = valorCobrado / puestosTotales;
+
+    // ✅ Actualizar el input oculto con el valor calculado
+    document.getElementById("totalPorPasajero").value = valorPorPersona.toFixed(2);
 
     const body = {
         origen_direccion: viaje.origen.direccion,
@@ -477,5 +634,6 @@ function guardarInfoConductor() {
         document.getElementById("mensaje-error").style.display = 'block';
     });
 }
+
 </script>
 @endsection

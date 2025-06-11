@@ -282,20 +282,20 @@ public function mostrarViajesDisponibles()
     $cantidad = $request->input('cantidad_puestos');
     
     // 🔍 Verificar que el viaje tenga precio configurado
-    if (!$viaje->valor_cobrado || $viaje->valor_cobrado <= 0) {
+    if (!$viaje->valor_persona || $viaje->valor_persona <= 0) {
         return back()->withErrors([
             'error' => 'Este viaje no tiene un precio configurado correctamente.'
         ]);
     }
     
     // ✅ Calcular el total
-    $total = $viaje->valor_cobrado * $cantidad;
+    $total = $viaje->valor_persona * $cantidad;
 
     // 📊 Log para seguimiento (opcional - puedes quitarlo si no lo necesitas)
     \Log::info('Resumen de Reserva', [
         'viaje_id' => $viaje->id,
         'cantidad' => $cantidad,
-        'precio_unitario' => $viaje->valor_cobrado,
+        'precio_unitario' => $viaje->valor_persona,
         'total' => $total,
         'usuario_id' => auth()->id()
     ]);

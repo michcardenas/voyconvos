@@ -649,7 +649,7 @@
 
                                 <!-- Price Section -->
                                 <div class="price-section">
-                                    <p class="price-amount">${{ number_format($viaje->precio ?? 5200, 0, ',', '.') }}</p>
+                                    <p class="price-amount">${{ number_format($viaje->valor_persona ?? 5200, 2, ',', '.') }}</p>
                                     <p class="price-label">por persona</p>
                                 </div>
                             </div>

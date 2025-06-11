@@ -419,7 +419,7 @@
                     <div class="icon">💰</div>
                     <div class="content">
                         <div class="label">Valor por persona</div>
-                        <div class="value">${{ number_format($viaje->valor_cobrado, 0) }}</div>
+                        <div class="value">${{ number_format($viaje->valor_persona, 2) }}</div>
                     </div>
                 </div>
                 
@@ -446,6 +446,16 @@
                 </form>
                 @endif
             </div>
+        </div>
+    </div>
+
+    <!-- NUEVA SECCIÓN: Mapa de la ruta -->
+    <div class="modern-card" style="margin-top: 1.5rem;">
+        <div class="card-header-custom">
+            <h5 class="card-title-custom">🗺️ Ruta del Viaje</h5>
+        </div>
+        <div class="card-body-custom">
+            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
         </div>
     </div>
 
@@ -508,4 +518,106 @@
         <a href="{{ route('dashboard') }}" class="btn btn-link btn-modern">⬅️ Volver al dashboard</a>
     </div>
 </div>
+
+<!-- Cargar Google Maps para esta vista -->
+<script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initViajeDetalleMapa&v=3.55"></script>
+
+<!-- Script para el mapa -->
+<script>
+function initViajeDetalleMapa() {
+    try {
+        // Coordenadas del origen y destino desde Laravel
+        const origen = {
+            lat: parseFloat({{ $viaje->origen_lat }}),
+            lng: parseFloat({{ $viaje->origen_lng }})
+        };
+        
+        const destino = {
+            lat: parseFloat({{ $viaje->destino_lat }}),
+            lng: parseFloat({{ $viaje->destino_lng }})
+        };
+
+        console.log('Coordenadas origen:', origen);
+        console.log('Coordenadas destino:', destino);
+
+        // Inicializar el mapa
+        const map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 12,
+            center: origen,
+            mapTypeId: 'roadmap'
+        });
+
+        // Crear marcadores primero
+        const markerOrigen = new google.maps.Marker({
+            position: origen,
+            map: map,
+            title: 'Origen: {{ addslashes($viaje->origen_direccion) }}',
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            }
+        });
+        
+        const markerDestino = new google.maps.Marker({
+            position: destino,
+            map: map,
+            title: 'Destino: {{ addslashes($viaje->destino_direccion) }}',
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            }
+        });
+
+        // Ajustar vista para mostrar ambos puntos
+        const bounds = new google.maps.LatLngBounds();
+        bounds.extend(origen);
+        bounds.extend(destino);
+        map.fitBounds(bounds);
+
+        // Intentar mostrar la ruta (si falla, al menos tenemos los marcadores)
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            suppressMarkers: true, // Usamos nuestros marcadores personalizados
+            polylineOptions: {
+                strokeColor: '#4285f4',
+                strokeWeight: 4
+            }
+        });
+        
+        directionsRenderer.setMap(map);
+
+        directionsService.route({
+            origin: origen,
+            destination: destino,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status) {
+            if (status === 'OK') {
+                directionsRenderer.setDirections(response);
+                console.log('Ruta cargada exitosamente');
+            } else {
+                console.log('No se pudo cargar la ruta, pero los marcadores están visibles. Error:', status);
+            }
+        });
+
+    } catch (error) {
+        console.error('Error al inicializar el mapa:', error);
+        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error al cargar el mapa. Verifica la configuración de Google Maps.</div>';
+    }
+}
+
+// Función para cargar el mapa cuando esté listo
+function loadMap() {
+    if (typeof google !== 'undefined' && google.maps) {
+        initViajeDetalleMapa();
+    } else {
+        setTimeout(loadMap, 100); // Intentar cada 100ms
+    }
+}
+
+// Inicializar cuando carga la página
+document.addEventListener('DOMContentLoaded', function() {
+    loadMap();
+});
+
+// También exponer la función globalmente por si acaso
+window.initViajeDetalleMapa = initViajeDetalleMapa;
+</script>
 @endsection

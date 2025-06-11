@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use App\Models\Viaje;
 use Illuminate\Support\Facades\Log;
+use App\Models\RegistroConductor;
+use Illuminate\Support\Facades\Auth;
 
 class RutaController extends Controller
 {
@@ -42,44 +44,56 @@ class RutaController extends Controller
         ]);
     }
 
-    public function detalle()
-    {
-        return view('conductor.detalle-viaje');
+
+public function detalle() {
+    $costo_servicio = 5;
+    $nomasde = 9; // Máximo porcentaje permitido
+    
+    $user = Auth::user();
+    if (!$user) {
+        return redirect()->route('login')->with('error', 'Debes iniciar sesión');
     }
+    
+    $registroConductor = RegistroConductor::where('user_id', $user->id)->first();
+    
+    return view('conductor.detalle-viaje', compact('registroConductor', 'costo_servicio', 'nomasde'));
+}
 
-    public function store(Request $request)
-    {
-         Log::info($request);
-        $data = $request->validate([
-            'origen_direccion' => 'required|string',
-            'origen_lat' => 'required|numeric',
-            'origen_lng' => 'required|numeric',
-            'destino_direccion' => 'required|string',
-            'destino_lat' => 'required|numeric',
-            'destino_lng' => 'required|numeric',
-            'distancia_km' => 'required|numeric',
-            'vehiculo' => 'required|string',
-            'valor_estimado' => 'required|numeric',
-            'valor_cobrado' => 'nullable|numeric',
-            'hora_salida' => 'nullable',
-            'fecha_salida'         => 'nullable|date',
-            'puestos_disponibles' => 'nullable|integer',
-            'estado' => 'nullable|string',
-            'activo' => 'boolean'
-        ]);
+   public function store(Request $request)
+{
+    Log::info($request);
 
-        // 👉 Asignar automáticamente el ID del conductor actual
-        $data['conductor_id'] = auth()->id();
+    $data = $request->validate([
+        'origen_direccion' => 'required|string',
+        'origen_lat' => 'required|numeric',
+        'origen_lng' => 'required|numeric',
+        'destino_direccion' => 'required|string',
+        'destino_lat' => 'required|numeric',
+        'destino_lng' => 'required|numeric',
+        'distancia_km' => 'required|numeric',
+        'vehiculo' => 'required|string',
+        'valor_estimado' => 'required|numeric',
+        'valor_cobrado' => 'nullable|numeric',
+        'valor_persona' => 'nullable|numeric', // ✅ nuevo campo
+        'puestos_totales' => 'nullable|integer', // ✅ nuevo campo
+        'hora_salida' => 'nullable',
+        'fecha_salida' => 'nullable|date',
+        'puestos_disponibles' => 'nullable|integer',
+        'estado' => 'nullable|string',
+        'activo' => 'boolean'
+    ]);
 
-        // Valores por defecto si no vienen en la solicitud
-        $data['estado'] = $data['estado'] ?? 'pendiente';
-        $data['activo'] = $data['activo'] ?? true;
+    // 👉 Asignar automáticamente el ID del conductor actual
+    $data['conductor_id'] = auth()->id();
 
-       
+    // Valores por defecto si no vienen en la solicitud
+    $data['estado'] = $data['estado'] ?? 'pendiente';
+    $data['activo'] = $data['activo'] ?? true;
 
-        // Crear viaje
-        $viaje = Viaje::create($data);
+    // Crear viaje
+    $viaje = Viaje::create($data);
 
-        return response()->json(['success' => true, 'viaje_id' => $viaje->id]);
-    }
+    return response()->json(['success' => true, 'viaje_id' => $viaje->id]);
+}
+
 }

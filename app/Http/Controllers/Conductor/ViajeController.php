@@ -30,6 +30,7 @@ class ViajeController extends Controller
             'reservas.calificacionPasajero',
             'reservas.calificacionConductor',
         ]);
+        
         return view('conductor.viaje-detalles', compact('viaje'));
     }
 
