@@ -13,7 +13,128 @@
 
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
+
+    <style>
+        /* Estilos del navbar */
+        .navbar {
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            padding: 1rem 0;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            gap: 2rem;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Estilos del dropdown - ESTOS SON LOS IMPORTANTES */
+        .user-profile {
+            position: relative;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.25s ease;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 8px 12px rgba(0,0,0,0.1);
+            z-index: 1000;
+            min-width: 200px;
+            border-radius: 8px;
+            padding: 0.5rem 0;
+            pointer-events: none;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .dropdown-item {
+            padding: 0.5rem 1rem;
+            color: #333;
+            text-decoration: none;
+            display: block;
+            transition: background-color 0.2s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+        }
+
+        .dropdown-item:hover {
+            background-color: #f3f4f6;
+            color: #333;
+            text-decoration: none;
+        }
+
+        .profile-icon img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid #ccc;
+            transition: box-shadow 0.3s ease;
+        }
+
+        .profile-icon img:hover {
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Estilos adicionales para el demo */
+        main {
+            padding-top: 120px;
+            min-height: 500px;
+            text-align: center;
+        }
+    </style>
 </head>
+
+
 <body>
 
     {{-- HEADER --}}
@@ -57,22 +178,22 @@
             @auth
 
                 @role('conductor')
-                    <a href="{{ route('conductor.perfil.edit') }}" class="dropdown-item">Mi perfil</a>
+                    <a href="{{ route('conductor.perfil.edit') }}" class="dropdown-item">Editar perfil</a>
                 @endrole
                 @role('pasajero')
-                    <a href="{{ route('pasajero.perfil.edit') }}" class="dropdown-item">Mi perfil</a>
+                    <a href="{{ route('pasajero.perfil.edit') }}" class="dropdown-item">Editar perfil</a>
                 @endrole
 
 
                 {{-- Dashboard --}}
                 @role('conductor')
                     <a href="{{ route('dashboard') }}" class="dropdown-item">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard Conductor
+                         Dashboard Conductor
                     </a>
                 @endrole
                 @role('pasajero')
                     <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">
-                        <i class="fas fa-tachometer-alt"></i> Dashboard Pasajero
+                         Dashboard Pasajero
                     </a>
                 @endrole
 
@@ -152,31 +273,35 @@
     </footer>
 
     {{-- JS: Menú de usuario --}}
-    <script>
+<script>
         document.addEventListener('DOMContentLoaded', function() {
-
-            calcularCosto();
+            // COMENTÉ LA LÍNEA QUE CAUSABA EL ERROR
+            // calcularCosto(); // Esta función no existe, por eso rompía el dropdown
+            
             const userDropdown = document.getElementById('userDropdown');
             const userMenu = document.getElementById('userMenu');
 
-            userDropdown.addEventListener('click', function(e) {
-                e.preventDefault();
-                userMenu.classList.toggle('show');
-            });
+            // Verificar que los elementos existen antes de agregar eventos
+            if (userDropdown && userMenu) {
+                userDropdown.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    userMenu.classList.toggle('show');
+                    console.log('Dropdown clicked!'); // Para debug
+                });
 
-            document.addEventListener('click', function(e) {
-                if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
-                    userMenu.classList.remove('show');
-                }
-            });
+                // Cerrar dropdown al hacer clic fuera
+                document.addEventListener('click', function(e) {
+                    if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
+                        userMenu.classList.remove('show');
+                    }
+                });
+            } else {
+                console.error('Elementos del dropdown no encontrados');
+            }
         });
 
-        
-    </script>
 
-    {{-- Tu script de efectos --}}
-   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-   @yield('scripts') {{-- Esta línea es crucial --}}
+    </script>
 
 
 </body>

@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.app_dashboard')
 
 @section('title', 'Editar Perfil de Conductor')
 
@@ -234,7 +234,7 @@
 .main-wrapper {
     background: linear-gradient(135deg, var(--color-fondo-base) 0%, #f8fafc 100%);
     min-height: 100vh;
-    padding-top: 80px; /* Espacio para el navbar */
+    padding-top: 25px; /* Espacio para el navbar */
 }
 
 /* Header de la página */
