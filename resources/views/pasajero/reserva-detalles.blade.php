@@ -483,182 +483,161 @@
             </div>
         </div>
 
-        <!-- Mapa -->
-        <div class="map-container">
-            <div class="map-header">
-                <div class="map-icon">
-                    <i class="fas fa-map-marked-alt"></i>
-                </div>
-                <h5 class="map-title">Ruta del viaje</h5>
-            </div>
-            <div id="mapa"></div>
+      <!-- Mapa -->
+<div class="map-container">
+    <div class="map-header">
+        <div class="map-icon">
+            <i class="fas fa-map-marked-alt"></i>
         </div>
-
-        <!-- Acciones -->
-        <div class="action-section">
-            <h5 class="mb-3" style="color: var(--vcv-primary); font-weight: 600;">¿Qué quieres hacer?</h5>
-            <a href="{{ route('pasajero.dashboard') }}" class="btn-custom secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver al listado
-            </a>
-            <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" class="btn-custom primary">
-                <i class="fas fa-comments me-2"></i>Abrir Chat
-            </a>
+        <h5 class="map-title">Ruta del viaje</h5>
+    </div>
+    <div id="mapa" style="height: 400px; width: 100%; border-radius: 8px; overflow: hidden; background: #f8f9fa; border: 2px solid #ddd;">
+        <div style="display: flex; justify-content: center; align-items: center; height: 100%; color: #666;">
+            <div style="text-align: center;">
+                <i class="fas fa-map" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                <p>Preparando mapa...</p>
+            </div>
         </div>
     </div>
 </div>
-@endsection
 
-@section('scripts')
+<!-- Acciones -->
+<div class="action-section">
+    <h5 class="mb-3" style="color: var(--vcv-primary); font-weight: 600;">¿Qué quieres hacer?</h5>
+    <a href="{{ route('pasajero.dashboard') }}" class="btn-custom secondary">
+        <i class="fas fa-arrow-left me-2"></i>Volver al listado
+    </a>
+    <a href="{{ route('chat.ver', $reserva->viaje_id) }}" class="btn-custom primary">
+        <i class="fas fa-comments me-2"></i>Abrir Chat
+    </a>
+</div>
+
+<!-- 🔧 SCRIPT INLINE PARA DEBUGGING -->
 <script>
-    // Variable global para asegurar que Google Maps esté cargado
-    let googleMapsLoaded = false;
+// ⚠️ TEST BÁSICO - Esto debería aparecer en consola
+console.log("🚨 SCRIPT EJECUTÁNDOSE - Si ves esto, JavaScript funciona");
+console.log("📍 Coordenadas:", {
+    origen: "{{ $reserva->viaje->origen_lat }}, {{ $reserva->viaje->origen_lng }}",
+    destino: "{{ $reserva->viaje->destino_lat }}, {{ $reserva->viaje->destino_lng }}"
+});
+
+// 🏃‍♂️ Ejecutar inmediatamente
+document.getElementById("mapa").innerHTML = `
+    <div style="padding: 20px; text-align: center; background: #e3f2fd; border-radius: 8px; margin: 10px;">
+        <h5 style="color: #1976d2; margin-bottom: 15px;">🔧 Modo Debug</h5>
+        <p><strong>Script funcionando:</strong> ✅</p>
+        <p><strong>Origen:</strong> {{ $reserva->viaje->origen_lat }}, {{ $reserva->viaje->origen_lng }}</p>
+        <p><strong>Destino:</strong> {{ $reserva->viaje->destino_lat }}, {{ $reserva->viaje->destino_lng }}</p>
+        <p><strong>API Key configurada:</strong> ${typeof window.google !== 'undefined' ? '✅' : '❌'}</p>
+        <button onclick="initMapaReal()" style="
+            background: #1976d2; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 5px; 
+            cursor: pointer;
+            margin-top: 10px;
+        ">
+            🗺️ Intentar cargar mapa
+        </button>
+    </div>
+`;
+
+// 🗺️ Función para cargar el mapa real
+function initMapaReal() {
+    console.log("🗺️ Intentando cargar mapa real...");
     
-    function initReservaMapa() {
-        if (googleMapsLoaded) return;
-        googleMapsLoaded = true;
-        
-        try {
-            console.log("✅ Ejecutando initReservaMapa");
-
-            const origen = {
-                lat: {{ $reserva->viaje->origen_lat ?? 'null' }},
-                lng: {{ $reserva->viaje->origen_lng ?? 'null' }}
-            };
-
-            const destino = {
-                lat: {{ $reserva->viaje->destino_lat ?? 'null' }},
-                lng: {{ $reserva->viaje->destino_lng ?? 'null' }}
-            };
-
-            console.log("🛰️ Coordenadas:", origen, destino);
-
-            // Validar coordenadas
-            if (!origen.lat || !origen.lng || !destino.lat || !destino.lng) {
-                throw new Error("Coordenadas inválidas");
-            }
-
-            const mapaDiv = document.getElementById("mapa");
-            if (!mapaDiv) {
-                throw new Error("No se encontró el div #mapa");
-            }
-
-            // Crear el mapa con estilo personalizado
-            const map = new google.maps.Map(mapaDiv, {
-                zoom: 10,
-                center: origen,
-                mapTypeId: google.maps.MapTypeId.ROADMAP,
-                styles: [
-                    {
-                        featureType: "water",
-                        elementType: "geometry",
-                        stylers: [{ color: "#DDF2FE" }]
-                    },
-                    {
-                        featureType: "road",
-                        elementType: "geometry.stroke",
-                        stylers: [{ color: "#1F4E79" }, { weight: 0.5 }]
-                    }
-                ]
-            });
-
-            // Crear marcadores personalizados
-            const markerOrigen = new google.maps.Marker({
-                position: origen,
-                map: map,
-                title: "Origen: " + "{{ $reserva->viaje->origen_direccion }}",
-                icon: {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
-                    scaledSize: new google.maps.Size(32, 32)
-                }
-            });
-
-            const markerDestino = new google.maps.Marker({
-                position: destino,
-                map: map,
-                title: "Destino: " + "{{ $reserva->viaje->destino_direccion }}",
-                icon: {
-                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
-                    scaledSize: new google.maps.Size(32, 32)
-                }
-            });
-
-            // Crear ventanas de información
-            const infoOrigen = new google.maps.InfoWindow({
-                content: '<div style="padding:5px;"><strong>🟢 Origen</strong><br>{{ $reserva->viaje->origen_direccion }}</div>'
-            });
-
-            const infoDestino = new google.maps.InfoWindow({
-                content: '<div style="padding:5px;"><strong>🔴 Destino</strong><br>{{ $reserva->viaje->destino_direccion }}</div>'
-            });
-
-            markerOrigen.addListener('click', () => {
-                infoOrigen.open(map, markerOrigen);
-                infoDestino.close();
-            });
-
-            markerDestino.addListener('click', () => {
-                infoDestino.open(map, markerDestino);
-                infoOrigen.close();
-            });
-
-            // Crear la ruta
-            const directionsService = new google.maps.DirectionsService();
-            const directionsRenderer = new google.maps.DirectionsRenderer({
-                map: map,
-                suppressMarkers: true, // Usamos nuestros marcadores personalizados
-                polylineOptions: {
-                    strokeColor: '#1F4E79',
-                    strokeWeight: 4,
-                    strokeOpacity: 0.8
-                }
-            });
-
-            directionsService.route({
-                origin: origen,
-                destination: destino,
-                travelMode: google.maps.TravelMode.DRIVING
-            }, function(response, status) {
-                if (status === "OK") {
-                    directionsRenderer.setDirections(response);
-                    console.log("✅ Ruta mostrada correctamente");
-                } else {
-                    console.error("❌ Error al cargar ruta:", status);
-                    // Mostrar al menos los marcadores si falla la ruta
-                    const bounds = new google.maps.LatLngBounds();
-                    bounds.extend(origen);
-                    bounds.extend(destino);
-                    map.fitBounds(bounds);
-                }
-            });
-
-        } catch (error) {
-            console.error("❌ Error en initReservaMapa:", error);
-            document.getElementById("mapa").innerHTML = 
-                `<div style='background: rgba(220, 53, 69, 0.1); border: 1px solid rgba(220, 53, 69, 0.3); border-radius: 8px; padding: 2rem; text-align: center; color: #dc3545;'>
-                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                    <h5>Error al cargar el mapa</h5>
-                    <p>${error.message}</p>
-                    <small>Coordenadas: Origen ({{ $reserva->viaje->origen_lat }}, {{ $reserva->viaje->origen_lng }}) - Destino ({{ $reserva->viaje->destino_lat }}, {{ $reserva->viaje->destino_lng }})</small>
-                </div>`;
-        }
+    if (typeof google === 'undefined') {
+        console.error("❌ Google Maps no disponible");
+        document.getElementById("mapa").innerHTML = `
+            <div style="padding: 20px; text-align: center; background: #ffebee; border-radius: 8px;">
+                <h5 style="color: #d32f2f;">❌ Google Maps no disponible</h5>
+                <p>Verifica tu API Key en el archivo .env</p>
+                <code style="background: #f5f5f5; padding: 5px; border-radius: 3px;">
+                    GOOGLE_MAPS_API_KEY=tu_api_key_aqui
+                </code>
+            </div>
+        `;
+        return;
     }
-
-    // Fallback si Google Maps no carga
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            if (!window.google) {
-                document.getElementById("mapa").innerHTML = 
-                    `<div style='background: rgba(255, 193, 7, 0.1); border: 1px solid rgba(255, 193, 7, 0.3); border-radius: 8px; padding: 2rem; text-align: center; color: #f57c00;'>
-                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                        <h5>Google Maps no disponible</h5>
-                        <p>Verifique la API Key o la conexión a internet</p>
-                    </div>`;
+    
+    try {
+        const origen = {
+            lat: {{ $reserva->viaje->origen_lat }},
+            lng: {{ $reserva->viaje->origen_lng }}
+        };
+        
+        const destino = {
+            lat: {{ $reserva->viaje->destino_lat }},
+            lng: {{ $reserva->viaje->destino_lng }}
+        };
+        
+        console.log("📍 Creando mapa con:", { origen, destino });
+        
+        const map = new google.maps.Map(document.getElementById("mapa"), {
+            zoom: 13,
+            center: origen,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        });
+        
+        // Marcador origen
+        new google.maps.Marker({
+            position: origen,
+            map: map,
+            title: "Origen",
+            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+        });
+        
+        // Marcador destino
+        new google.maps.Marker({
+            position: destino,
+            map: map,
+            title: "Destino",
+            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+        });
+        
+        // Ruta
+        const directionsService = new google.maps.DirectionsService();
+        const directionsRenderer = new google.maps.DirectionsRenderer({
+            map: map,
+            suppressMarkers: true
+        });
+        
+        directionsService.route({
+            origin: origen,
+            destination: destino,
+            travelMode: google.maps.TravelMode.DRIVING
+        }, function(response, status) {
+            if (status === "OK") {
+                directionsRenderer.setDirections(response);
+                console.log("✅ Ruta cargada");
+            } else {
+                console.warn("⚠️ Error en ruta:", status);
+                const bounds = new google.maps.LatLngBounds();
+                bounds.extend(origen);
+                bounds.extend(destino);
+                map.fitBounds(bounds);
             }
-        }, 5000);
-    });
+        });
+        
+    } catch (error) {
+        console.error("❌ Error:", error);
+        document.getElementById("mapa").innerHTML = `
+            <div style="padding: 20px; text-align: center; background: #ffebee; border-radius: 8px;">
+                <h5 style="color: #d32f2f;">❌ Error: ${error.message}</h5>
+            </div>
+        `;
+    }
+}
+
+// 🔄 Función global para Google Maps callback
+window.initReservaMapa = function() {
+    console.log("🔔 Callback de Google Maps ejecutado");
+    setTimeout(initMapaReal, 1000);
+};
 </script>
 
+<!-- Google Maps API -->
 <script async defer
-   src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initReservaMapa&v=3.55">
+    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initReservaMapa&v=3.55">
 </script>
-@endsection

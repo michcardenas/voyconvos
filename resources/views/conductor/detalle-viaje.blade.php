@@ -560,9 +560,10 @@ function calcularValorPorPersona() {
         
         textoElemento.innerHTML = '';
     }
+    
 
 function calcularCosto() {
-    const costoTotal = parseFloat(viaje.costo);
+    const costoTotal = parseFloat(document.getElementById("valor_total").value); // 👈 asegúrate que exista
     const puestos = parseInt(document.getElementById("puestosTotales").value);
 
     if (!isNaN(costoTotal) && puestos > 0) {
@@ -573,6 +574,7 @@ function calcularCosto() {
         });
     }
 }
+
 
 function guardarInfoConductor() {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');

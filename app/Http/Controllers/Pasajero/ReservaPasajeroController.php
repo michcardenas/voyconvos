@@ -245,7 +245,7 @@ public function confirmacionReserva(Reserva $reserva)
         if ($reserva->user_id !== Auth::id()) {
             abort(403, 'No autorizado.');
         }
-
+        
         $reserva->load('viaje', 'viaje.conductor'); // Asegúrate de tener la relación `conductor` en Viaje
 
         return view('pasajero.reserva-detalles', compact('reserva'));
