@@ -52,12 +52,7 @@
                 <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
             @endauth
         </a>
-           <form method="POST" action="{{ route('logout') }}">
-                    @csrf
-                    <button type="submit" >
-                        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
-                    </button>
-                </form>
+        
         <div class="dropdown-menu" id="userMenu">
             @auth
 
