@@ -190,6 +190,7 @@
     border-radius: 12px;
     box-shadow: 0 4px 20px rgba(31, 78, 121, 0.08);
     transition: transform 0.3s ease;
+    padding: 50px;
 }
 
 .main-card:hover {
