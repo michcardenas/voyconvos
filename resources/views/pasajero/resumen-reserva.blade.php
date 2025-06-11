@@ -715,7 +715,7 @@
     <input type="hidden" name="cantidad_puestos" value="{{ $cantidad }}">
     
     <!-- ✅ NUEVOS CAMPOS - Solo agregar estas 3 líneas -->
-    <input type="hidden" name="valor_cobrado" value="{{ $viaje->valor_cobrado }}">
+    <input type="hidden" name="valor_cobrado" value="{{ $viaje->valor_persona }}">
     <input type="hidden" name="total" value="{{ $total }}">
     <input type="hidden" name="viaje_id" value="{{ $viaje->id }}">
 
