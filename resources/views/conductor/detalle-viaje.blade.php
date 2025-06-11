@@ -562,17 +562,88 @@ function calcularValorPorPersona() {
     }
 
 function calcularCosto() {
-    const costoTotal = parseFloat(viaje.costo);
-    const puestos = parseInt(document.getElementById("puestosTotales").value);
-
-    if (!isNaN(costoTotal) && puestos > 0) {
+    console.log("🔢 Calculando costo...");
+    
+    // 🔍 Obtener valores de los inputs
+    const costoTotalInput = document.getElementById("costo") || document.getElementById("costoTotal") || document.getElementById("costo_total");
+    const puestosInput = document.getElementById("puestosTotales") || document.getElementById("puestos_totales") || document.getElementById("capacidad");
+    
+    if (!costoTotalInput) {
+        console.error("❌ No se encontró el input del costo total");
+        return;
+    }
+    
+    if (!puestosInput) {
+        console.error("❌ No se encontró el input de puestos totales");
+        return;
+    }
+    
+    // 📊 Obtener valores
+    const costoTotal = parseFloat(costoTotalInput.value) || 0;
+    const puestos = parseInt(puestosInput.value) || 0;
+    
+    console.log("📊 Valores:", { costoTotal, puestos });
+    
+    // ✅ Calcular valor por persona
+    if (costoTotal > 0 && puestos > 0) {
         const valorPersona = costoTotal / puestos;
-        document.getElementById("valor_persona").value = valorPersona.toLocaleString('es-CO', {
+        
+        // 💰 Formatear como moneda colombiana
+        const valorFormateado = valorPersona.toLocaleString('es-CO', {
             style: 'currency',
-            currency: 'COP'
+            currency: 'COP',
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
         });
+        
+        // 📝 Mostrar resultado
+        document.getElementById("valor_persona").value = valorFormateado;
+        
+        console.log("✅ Calculado:", {
+            valorPersona: valorPersona,
+            valorFormateado: valorFormateado
+        });
+    } else {
+        // ❌ Limpiar si no hay valores válidos
+        document.getElementById("valor_persona").value = "";
+        console.log("⚠️ Valores inválidos para calcular");
     }
 }
+
+// 🚀 Auto-calcular cuando cambien los valores
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🔄 Configurando event listeners...");
+    
+    // 📍 Buscar inputs posibles
+    const costoInputs = [
+        document.getElementById("costo"),
+        document.getElementById("costoTotal"), 
+        document.getElementById("costo_total")
+    ].filter(input => input !== null);
+    
+    const puestosInputs = [
+        document.getElementById("puestosTotales"),
+        document.getElementById("puestos_totales"),
+        document.getElementById("capacidad")
+    ].filter(input => input !== null);
+    
+    // ⚡ Agregar event listeners
+    costoInputs.forEach(input => {
+        input.addEventListener('input', calcularCosto);
+        input.addEventListener('change', calcularCosto);
+        console.log("✅ Event listener agregado a:", input.id);
+    });
+    
+    puestosInputs.forEach(input => {
+        input.addEventListener('input', calcularCosto);
+        input.addEventListener('change', calcularCosto);
+        console.log("✅ Event listener agregado a:", input.id);
+    });
+    
+    // 🔄 Calcular inicial
+    setTimeout(calcularCosto, 500);
+});
+
 
 function guardarInfoConductor() {
     const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
