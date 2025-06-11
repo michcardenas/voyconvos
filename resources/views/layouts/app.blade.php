@@ -18,6 +18,102 @@
     
     <!-- CSS del header y footer (DEBE IR AL FINAL) -->
     <link href="{{ asset('css/header-footer.css') }}" rel="stylesheet">
+     <style>
+        /* Reset básico */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* User Dropdown Styles */
+        .desktop-user {
+            display: flex;
+            align-items: center;
+        }
+
+        .dropdown {
+            position: relative;
+        }
+
+        .profile-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #1f4e79 0%, #4CAF50 100%);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .profile-icon img {
+            width: 24px;
+            height: 24px;
+            filter: brightness(0) invert(1);
+        }
+
+        .profile-icon:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 8px 0;
+            min-width: 200px;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.3s ease;
+            margin-top: 8px;
+            border: 1px solid #e2e8f0;
+            z-index: 1000;
+        }
+
+        .dropdown-menu.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
+
+        .dropdown-item {
+            display: block;
+            padding: 12px 20px;
+            color: #334155;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 14px;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .dropdown-item:hover {
+            background: linear-gradient(135deg, #667eea10, #764ba210);
+            color: #667eea;
+            border-left-color: #667eea;
+        }
+
+        /* Demo styles */
+        .demo-container {
+            max-width: 400px;
+            margin: 50px auto;
+            text-align: center;
+        }
+
+        .demo-title {
+            margin-bottom: 30px;
+            color: #334155;
+        }
+    </style>
 </head>
 <body>
 
@@ -190,6 +286,51 @@
 
     {{-- JS: Archivo externo --}}
     <script src="{{ asset('js/header-footer.js') }}"></script>
+ <script>
+        // Elementos del DOM
+        const userDropdown = document.getElementById('userDropdown');
+        const userMenu = document.getElementById('userMenu');
 
+        // Toggle dropdown de usuario
+        userDropdown.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const isVisible = userMenu.classList.contains('show');
+            
+            // Cerrar dropdown si está abierto, abrirlo si está cerrado
+            if (isVisible) {
+                userMenu.classList.remove('show');
+                userDropdown.setAttribute('aria-expanded', 'false');
+            } else {
+                userMenu.classList.add('show');
+                userDropdown.setAttribute('aria-expanded', 'true');
+            }
+        });
+
+        // Cerrar dropdown cuando se hace clic fuera
+        document.addEventListener('click', function(e) {
+            if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
+                userMenu.classList.remove('show');
+                userDropdown.setAttribute('aria-expanded', 'false');
+            }
+        });
+
+        // Soporte para teclado (accesibilidad)
+        userDropdown.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                this.click();
+            }
+        });
+
+        // Cerrar con tecla Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                userMenu.classList.remove('show');
+                userDropdown.setAttribute('aria-expanded', 'false');
+            }
+        });
+    </script>
 </body>
 </html>   
