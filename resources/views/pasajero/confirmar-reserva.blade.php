@@ -679,40 +679,13 @@
 </div>
 
 <!-- Cargar Google Maps -->
-
-<!-- Script para el mapa y funciones existentes -->
-<!-- Script para el mapa y funciones existentes -->
+<!-- DEFINIR LA FUNCIÓN GLOBALMENTE PRIMERO -->
 <script>
-// DEFINIR LA FUNCIÓN PRIMERO, ANTES DE CARGAR GOOGLE MAPS
-function updatePrice() {
-    const cantidad = document.getElementById('cantidad_puestos').value;
-    const precioUnitario = {{ $viaje->valor_persona }};
-    const total = cantidad * precioUnitario;
-    
-    document.getElementById('totalPrice').textContent = '$' + total.toLocaleString('es-CO');
-    document.getElementById('priceBreakdown').textContent = cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + precioUnitario.toLocaleString('es-CO');
-}
-
-// Validar input
-document.addEventListener('DOMContentLoaded', function() {
-    const cantidadInput = document.getElementById('cantidad_puestos');
-    if (cantidadInput) {
-        cantidadInput.addEventListener('input', function() {
-            const max = {{ $viaje->puestos_disponibles }};
-            if (this.value > max) {
-                this.value = max;
-            }
-            if (this.value < 1) {
-                this.value = 1;
-            }
-            updatePrice();
-        });
-    }
-});
-
-// FUNCIÓN PARA INICIALIZAR EL MAPA - DEBE ESTAR DISPONIBLE GLOBALMENTE
-function initConfirmarReservaMapa() {
+// FUNCIÓN GLOBAL - DEBE ESTAR DISPONIBLE INMEDIATAMENTE
+window.initConfirmarReservaMapa = function() {
     try {
+        console.log('Inicializando mapa...');
+        
         // Coordenadas del origen y destino desde Laravel
         const origen = {
             lat: parseFloat({{ $viaje->origen_lat }}),
@@ -723,6 +696,8 @@ function initConfirmarReservaMapa() {
             lat: parseFloat({{ $viaje->destino_lat }}),
             lng: parseFloat({{ $viaje->destino_lng }})
         };
+
+        console.log('Coordenadas:', { origen, destino });
 
         // Inicializar el mapa
         const map = new google.maps.Map(document.getElementById('map'), {
@@ -782,7 +757,7 @@ function initConfirmarReservaMapa() {
         // Servicio de direcciones para mostrar la ruta
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer({
-            suppressMarkers: true, // Usamos nuestros marcadores personalizados
+            suppressMarkers: true,
             polylineOptions: {
                 strokeColor: '#4285f4',
                 strokeWeight: 4,
@@ -800,9 +775,9 @@ function initConfirmarReservaMapa() {
         }, function(response, status) {
             if (status === 'OK') {
                 directionsRenderer.setDirections(response);
+                console.log('Ruta cargada correctamente');
             } else {
                 console.log('No se pudo cargar la ruta:', status);
-                // Si falla la ruta, ajustar vista para mostrar ambos puntos
                 const bounds = new google.maps.LatLngBounds();
                 bounds.extend(origen);
                 bounds.extend(destino);
@@ -810,17 +785,49 @@ function initConfirmarReservaMapa() {
             }
         });
 
+        console.log('Mapa inicializado correctamente');
+
     } catch (error) {
         console.error('Error al inicializar el mapa:', error);
-        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;"><div><i class="fas fa-map" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><br>No se pudo cargar el mapa</div></div>';
+        const mapElement = document.getElementById('map');
+        if (mapElement) {
+            mapElement.innerHTML = '<div style="padding: 20px; text-align: center; color: #666; display: flex; align-items: center; justify-content: center; height: 100%;"><div><i class="fas fa-map" style="font-size: 2rem; margin-bottom: 1rem; opacity: 0.5;"></i><br>No se pudo cargar el mapa</div></div>';
+        }
     }
+};
+
+// OTRAS FUNCIONES
+function updatePrice() {
+    const cantidad = document.getElementById('cantidad_puestos').value;
+    const precioUnitario = {{ $viaje->valor_persona }};
+    const total = cantidad * precioUnitario;
+    
+    document.getElementById('totalPrice').textContent = '$' + total.toLocaleString('es-CO');
+    document.getElementById('priceBreakdown').textContent = cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + precioUnitario.toLocaleString('es-CO');
 }
 
-// EXPONER LA FUNCIÓN GLOBALMENTE INMEDIATAMENTE
-window.initConfirmarReservaMapa = initConfirmarReservaMapa;
+// DOM READY
+document.addEventListener('DOMContentLoaded', function() {
+    // Validar input de cantidad
+    const cantidadInput = document.getElementById('cantidad_puestos');
+    if (cantidadInput) {
+        cantidadInput.addEventListener('input', function() {
+            const max = {{ $viaje->puestos_disponibles }};
+            if (this.value > max) {
+                this.value = max;
+            }
+            if (this.value < 1) {
+                this.value = 1;
+            }
+            updatePrice();
+        });
+    }
+    
+    // Verificar que la función está disponible
+    console.log('Función initConfirmarReservaMapa disponible:', typeof window.initConfirmarReservaMapa);
+});
 </script>
 
-<!-- Cargar Google Maps DESPUÉS de definir la función -->
-<!-- REMOVEMOS v=3.55 para usar la versión más reciente -->
+<!-- CARGAR GOOGLE MAPS DESPUÉS -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&loading=async"></script>
 @endsection
