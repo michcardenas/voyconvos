@@ -247,7 +247,7 @@ public function confirmacionReserva(Reserva $reserva)
         }
         
         $reserva->load('viaje', 'viaje.conductor'); // Asegúrate de tener la relación `conductor` en Viaje
-dd($reserva);
+
         return view('pasajero.reserva-detalles', compact('reserva'));
     }
 public function mostrarViajesDisponibles()
