@@ -346,7 +346,7 @@
                     id="puestosTotales" 
                     class="form-control" 
                     value="{{ $registroConductor ? $registroConductor->numero_puestos : 4 }}" 
-                    readonly>
+                    >
             </div>
                             
                 <div class="form-group">
