@@ -198,7 +198,7 @@ public function reservar(Request $request, Viaje $viaje)
 
     public function pagoFailure(Reserva $reserva)
     {
-        $reserva->estado = 'fallida';
+        $reserva->estado = 'cancelada';
         $reserva->save();
         
         return view('pasajero.pago-fallido', compact('reserva'));
