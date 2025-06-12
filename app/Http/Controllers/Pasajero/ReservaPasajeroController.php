@@ -234,11 +234,11 @@ public function confirmacionReserva(Reserva $reserva)
 
     //     return view('pasajero.reserva-confirmada', compact('viaje', 'reserva'));
     // }
- public function procesarPago(Reserva $reserva)
-{
-     die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
+    public function procesarPago(Reserva $reserva)
+    {
+        die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
 
-}
+    }
     public function verDetalles(Reserva $reserva)
     {
         // Asegúrate de que la reserva pertenece al usuario logueado
@@ -250,64 +250,64 @@ public function confirmacionReserva(Reserva $reserva)
 
         return view('pasajero.reserva-detalles', compact('reserva'));
     }
-public function mostrarViajesDisponibles()
-{
-    $usuarioId = auth()->id(); // ID del usuario logueado
+    public function mostrarViajesDisponibles()
+    {
+        $usuarioId = auth()->id(); // ID del usuario logueado
 
-    // Traer IDs de viajes que ya reservó el usuario
-    $viajesReservados = \DB::table('reservas')
-        ->where('user_id', $usuarioId)
-        ->pluck('viaje_id')
-        ->toArray();
+        // Traer IDs de viajes que ya reservó el usuario
+        $viajesReservados = \DB::table('reservas')
+            ->where('user_id', $usuarioId)
+            ->pluck('viaje_id')
+            ->toArray();
 
-    // Consultar solo los viajes que aún puede reservar
-    $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
-        ->where('puestos_disponibles', '>', 0)
-        ->whereNotIn('id', $viajesReservados)
-        ->with('conductor')
-        ->orderBy('fecha_salida', 'asc')
-        ->get();
+        // Consultar solo los viajes que aún puede reservar
+        $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
+            ->where('puestos_disponibles', '>', 0)
+            ->whereNotIn('id', $viajesReservados)
+            ->with('conductor')
+            ->orderBy('fecha_salida', 'asc')
+            ->get();
 
-    return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
-}
-
-public function mostrarResumen(Request $request, Viaje $viaje)
-{
-    // Validación de entrada
-    $request->validate([
-        'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
-    ]);
-
-    // ✅ Obtener cantidad del request
-    $cantidad = $request->input('cantidad_puestos');
-    
-    // 🔍 Determinar el precio a usar (en orden de prioridad)
-    $precio = $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0;
-    
-    // Verificar que el viaje tenga precio configurado
-    if (!$precio || $precio <= 0) {
-        return back()->withErrors([
-            'error' => 'Este viaje no tiene un precio configurado correctamente.'
-        ])->withInput();
+        return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
     }
-    
-    // ✅ Calcular el total
-    $total = $precio * $cantidad;
 
-    // 📊 Log para seguimiento
-    \Log::info('Resumen de Reserva', [
-        'viaje_id' => $viaje->id,
-        'cantidad' => $cantidad,
-        'precio_unitario' => $precio,
-        'precio_campo_usado' => $viaje->valor_persona ? 'valor_persona' : 
-                               ($viaje->valor_cobrado ? 'valor_cobrado' : 'valor_estimado'),
-        'total' => $total,
-        'usuario_id' => auth()->id()
-    ]);
+    public function mostrarResumen(Request $request, Viaje $viaje)
+    {
+        // Validación de entrada
+        $request->validate([
+            'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
+        ]);
 
-    // ✅ Pasar el precio usado además de las otras variables
-    return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio'));
-}
+        // ✅ Obtener cantidad del request
+        $cantidad = $request->input('cantidad_puestos');
+        
+        // 🔍 Determinar el precio a usar (en orden de prioridad)
+        $precio = $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0;
+        
+        // Verificar que el viaje tenga precio configurado
+        if (!$precio || $precio <= 0) {
+            return back()->withErrors([
+                'error' => 'Este viaje no tiene un precio configurado correctamente.'
+            ])->withInput();
+        }
+        
+        // ✅ Calcular el total
+        $total = $precio * $cantidad;
+
+        // 📊 Log para seguimiento
+        \Log::info('Resumen de Reserva', [
+            'viaje_id' => $viaje->id,
+            'cantidad' => $cantidad,
+            'precio_unitario' => $precio,
+            'precio_campo_usado' => $viaje->valor_persona ? 'valor_persona' : 
+                                ($viaje->valor_cobrado ? 'valor_cobrado' : 'valor_estimado'),
+            'total' => $total,
+            'usuario_id' => auth()->id()
+        ]);
+
+        // ✅ Pasar el precio usado además de las otras variables
+        return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio'));
+    }
 
 
 }
