@@ -660,10 +660,10 @@
                 <div class="price-summary">
                     <div class="price-label">Total a pagar</div>
                     <p class="price-amount" id="totalPrice">
-                        ${{ number_format($viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
+                        ${{ number_format($viaje->valor_persona ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
                     </p>
                     <div class="price-per-person" id="priceBreakdown">
-                        1 persona × ${{ number_format($viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
+                        1 persona × ${{ number_format($viaje->valor_persona ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
                     </div>
                 </div>
 
@@ -684,94 +684,154 @@
 @endsection
 
 @section('scripts')
+<!-- Cargar Google Maps para esta vista -->
+<script async defer 
+    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa&v=3.55">
+</script>
+
+<!-- Script para el mapa -->
 <script>
-    // Variables del viaje (valores seguros)
+    // Variables del viaje para precios
     const VIAJE_DATA = {
-        origen_lat: {{ is_numeric($viaje->origen_lat) ? $viaje->origen_lat : 'null' }},
-        origen_lng: {{ is_numeric($viaje->origen_lng) ? $viaje->origen_lng : 'null' }},
-        destino_lat: {{ is_numeric($viaje->destino_lat) ? $viaje->destino_lat : 'null' }},
-        destino_lng: {{ is_numeric($viaje->destino_lng) ? $viaje->destino_lng : 'null' }},
         precio: {{ $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0 }},
         puestos_max: {{ $viaje->puestos_disponibles ?? 1 }}
     };
 
-    let mapaInicializado = false;
+    // ✅ FUNCIÓN PRINCIPAL DEL MAPA (BASADA EN TU CÓDIGO QUE FUNCIONA)
+    function initConfirmarReservaMapa() {
+        try {
+            console.log('🗺️ Iniciando mapa de confirmación de reserva...');
+            
+            // Coordenadas del origen y destino desde Laravel
+            const origen = {
+                lat: parseFloat({{ $viaje->origen_lat ?? 'null' }}),
+                lng: parseFloat({{ $viaje->origen_lng ?? 'null' }})
+            };
+                 
+            const destino = {
+                lat: parseFloat({{ $viaje->destino_lat ?? 'null' }}),
+                lng: parseFloat({{ $viaje->destino_lng ?? 'null' }})
+            };
 
-    // Función principal del mapa
-    window.initConfirmarReservaMapa = function() {
-        if (mapaInicializado) return;
-        mapaInicializado = true;
-        
-        console.log('Iniciando mapa con datos:', VIAJE_DATA);
-        
-        // Validar coordenadas
-        if (!VIAJE_DATA.origen_lat || !VIAJE_DATA.origen_lng || 
-            !VIAJE_DATA.destino_lat || !VIAJE_DATA.destino_lng) {
-            document.getElementById('map').innerHTML = 
-                '<div style="padding:20px;text-align:center;color:#666;"><i class="fas fa-map"></i><br>Coordenadas no disponibles</div>';
-            return;
-        }
+            console.log('📍 Coordenadas origen:', origen);
+            console.log('📍 Coordenadas destino:', destino);
 
-        const origen = { lat: VIAJE_DATA.origen_lat, lng: VIAJE_DATA.origen_lng };
-        const destino = { lat: VIAJE_DATA.destino_lat, lng: VIAJE_DATA.destino_lng };
-
-        // Crear mapa
-        const map = new google.maps.Map(document.getElementById('map'), {
-            zoom: 12,
-            center: origen,
-            mapTypeId: 'roadmap'
-        });
-
-        // Marcadores
-        new google.maps.Marker({
-            position: origen,
-            map: map,
-            title: 'Origen',
-            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
-        });
-
-        new google.maps.Marker({
-            position: destino,
-            map: map,
-            title: 'Destino', 
-            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
-        });
-
-        // Ruta
-        const directionsService = new google.maps.DirectionsService();
-        const directionsRenderer = new google.maps.DirectionsRenderer({
-            suppressMarkers: true,
-            polylineOptions: { strokeColor: '#4285f4', strokeWeight: 4 }
-        });
-        
-        directionsRenderer.setMap(map);
-
-        directionsService.route({
-            origin: origen,
-            destination: destino,
-            travelMode: google.maps.TravelMode.DRIVING
-        }, function(response, status) {
-            if (status === 'OK') {
-                directionsRenderer.setDirections(response);
-            } else {
-                const bounds = new google.maps.LatLngBounds();
-                bounds.extend(origen);
-                bounds.extend(destino);
-                map.fitBounds(bounds);
+            // Validar coordenadas
+            if (isNaN(origen.lat) || isNaN(origen.lng) || isNaN(destino.lat) || isNaN(destino.lng)) {
+                console.error('❌ Coordenadas inválidas');
+                document.getElementById('map').innerHTML = `
+                    <div style="padding: 40px; text-align: center; color: #666; background: #f8f9fa; border-radius: 12px;">
+                        <i class="fas fa-map-marked-alt" style="font-size: 2rem; margin-bottom: 1rem; color: #dc3545;"></i>
+                        <h5>Mapa no disponible</h5>
+                        <p>Las coordenadas del viaje no están disponibles</p>
+                    </div>`;
+                return;
             }
-        });
-    };
 
-    // Función para actualizar precios
+            // Inicializar el mapa
+            const map = new google.maps.Map(document.getElementById('map'), {
+                zoom: 12,
+                center: origen,
+                mapTypeId: 'roadmap'
+            });
+
+            console.log('✅ Mapa inicializado');
+
+            // Crear marcadores primero
+            const markerOrigen = new google.maps.Marker({
+                position: origen,
+                map: map,
+                title: 'Origen: {{ addslashes($viaje->origen_direccion) }}',
+                icon: {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+                }
+            });
+                 
+            const markerDestino = new google.maps.Marker({
+                position: destino,
+                map: map,
+                title: 'Destino: {{ addslashes($viaje->destino_direccion) }}',
+                icon: {
+                    url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+                }
+            });
+
+            console.log('📌 Marcadores creados');
+
+            // Ajustar vista para mostrar ambos puntos
+            const bounds = new google.maps.LatLngBounds();
+            bounds.extend(origen);
+            bounds.extend(destino);
+            map.fitBounds(bounds);
+
+            // Intentar mostrar la ruta (si falla, al menos tenemos los marcadores)
+            const directionsService = new google.maps.DirectionsService();
+            const directionsRenderer = new google.maps.DirectionsRenderer({
+                suppressMarkers: true, // Usamos nuestros marcadores personalizados
+                polylineOptions: {
+                    strokeColor: '#4285f4',
+                    strokeWeight: 4
+                }
+            });
+                 
+            directionsRenderer.setMap(map);
+
+            console.log('🛣️ Calculando ruta...');
+
+            directionsService.route({
+                origin: origen,
+                destination: destino,
+                travelMode: google.maps.TravelMode.DRIVING
+            }, function(response, status) {
+                if (status === 'OK') {
+                    directionsRenderer.setDirections(response);
+                    console.log('✅ Ruta cargada exitosamente');
+                } else {
+                    console.log('⚠️ No se pudo cargar la ruta, pero los marcadores están visibles. Error:', status);
+                }
+            });
+
+        } catch (error) {
+            console.error('❌ Error al inicializar el mapa:', error);
+            document.getElementById('map').innerHTML = `
+                <div style="padding: 20px; text-align: center; color: #666;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem; margin-bottom: 1rem; color: #ffc107;"></i>
+                    <br>Error al cargar el mapa. Verifica la configuración de Google Maps.
+                    <br><small>Error: ${error.message}</small>
+                </div>`;
+        }
+    }
+
+    // ✅ FUNCIÓN PARA CARGAR EL MAPA CUANDO ESTÉ LISTO
+    function loadMap() {
+        if (typeof google !== 'undefined' && google.maps) {
+            console.log('🚀 Google Maps cargado, inicializando...');
+            initConfirmarReservaMapa();
+        } else {
+            console.log('⏳ Esperando Google Maps...');
+            setTimeout(loadMap, 100); // Intentar cada 100ms
+        }
+    }
+
+    // ✅ FUNCIÓN PARA ACTUALIZAR PRECIOS
     function updatePrice() {
         const cantidad = parseInt(document.getElementById('cantidad_puestos').value) || 1;
         const precio = VIAJE_DATA.precio;
         const total = cantidad * precio;
         
-        document.getElementById('totalPrice').textContent = 
-            '$' + total.toLocaleString('es-CO');
-        document.getElementById('priceBreakdown').textContent = 
-            cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + precio.toLocaleString('es-CO');
+        console.log('💰 Actualizando precio:', { cantidad, precio, total });
+        
+        const totalElement = document.getElementById('totalPrice');
+        const breakdownElement = document.getElementById('priceBreakdown');
+        
+        if (totalElement) {
+            totalElement.textContent = '$' + total.toLocaleString('es-CO');
+        }
+        
+        if (breakdownElement) {
+            breakdownElement.textContent = 
+                cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + precio.toLocaleString('es-CO');
+        }
     }
 
     // Alias para compatibilidad
@@ -779,20 +839,55 @@
         updatePrice();
     }
 
-    // Configuración inicial
+    // ✅ INICIALIZAR CUANDO CARGA LA PÁGINA
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('📋 DOM cargado, inicializando...');
+        
+        // Cargar mapa
+        loadMap();
+        
+        // Configurar eventos de precio
         const input = document.getElementById('cantidad_puestos');
         if (input) {
             input.addEventListener('input', function() {
-                if (this.value > VIAJE_DATA.puestos_max) this.value = VIAJE_DATA.puestos_max;
-                if (this.value < 1) this.value = 1;
+                let valor = parseInt(this.value);
+                
+                if (valor > VIAJE_DATA.puestos_max) {
+                    this.value = VIAJE_DATA.puestos_max;
+                    valor = VIAJE_DATA.puestos_max;
+                }
+                if (valor < 1) {
+                    this.value = 1;
+                    valor = 1;
+                }
+                
                 updatePrice();
             });
+            
+            input.addEventListener('change', updatePrice);
         }
+        
+        // Calcular precio inicial
+        updatePrice();
+        
+        console.log('✅ Configuración completada');
     });
-</script>
 
-<script async defer 
-    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initConfirmarReservaMapa">
+    // También exponer la función globalmente por si acaso
+    window.initConfirmarReservaMapa = initConfirmarReservaMapa;
+    
+    // ✅ DETECTAR ERRORES DE GOOGLE MAPS
+    window.gm_authFailure = function() {
+        console.error('❌ Error de autenticación de Google Maps');
+        const mapContainer = document.getElementById('map');
+        if (mapContainer) {
+            mapContainer.innerHTML = `
+                <div style="padding: 40px; text-align: center; color: #666; background: #f8f9fa; border-radius: 12px;">
+                    <i class="fas fa-key" style="font-size: 2rem; margin-bottom: 1rem; color: #dc3545;"></i>
+                    <h5>Error de autenticación</h5>
+                    <p>Problema con la API key de Google Maps</p>
+                </div>`;
+        }
+    };
 </script>
 @endsection
