@@ -276,7 +276,8 @@
 <script>
         document.addEventListener('DOMContentLoaded', function() {
             // COMENTÉ LA LÍNEA QUE CAUSABA EL ERROR
-            // calcularCosto(); // Esta función no existe, por eso rompía el dropdown
+            // calcularCosto(); 
+            
             
             const userDropdown = document.getElementById('userDropdown');
             const userMenu = document.getElementById('userMenu');

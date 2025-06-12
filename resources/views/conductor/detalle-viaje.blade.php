@@ -408,41 +408,49 @@
 </div>
 
 <script>
-// TODO EL JAVASCRIPT ORIGINAL EXACTO - SIN CAMBIOS
+// Cargar datos del viaje desde localStorage
 const viaje = JSON.parse(localStorage.getItem('ultimoViaje'));
 
 if (viaje) {
     document.getElementById('origenDireccion').textContent = viaje.origen.direccion;
     document.getElementById('destinoDireccion').textContent = viaje.destino.direccion;
-    document.getElementById('distanciaKm').textContent = viaje.distancia+'km';
+    document.getElementById('distanciaKm').textContent = viaje.distancia + 'km';
     document.getElementById('vehiculoTipo').textContent = viaje.vehiculo;
     document.getElementById('valorCalculado').textContent = parseFloat(viaje.costo).toFixed(2);
-    document.getElementById('fechaViaje').value = viaje.fecha;
+    
+    // ✅ CORREGIR: Asegurar formato de fecha correcto
+    if (viaje.fecha) {
+        document.getElementById('fechaViaje').value = viaje.fecha;
+    }
 }
+
+// ✅ FUNCIÓN PRINCIPAL - SIN DUPLICADOS
 function calcularValorPorPersona() {
-    const valorTotal = parseFloat(document.getElementById("valorCobrado").value);
-    const puestos = parseInt(document.getElementById("puestosTotales").value);
+    const valorTotal = parseFloat(document.getElementById("valorCobrado").value) || 0;
+    const puestos = parseInt(document.getElementById("puestosTotales").value) || 0;
     const costoServicio = {{ $costo_servicio }};
     const maxPorcentaje = {{ $nomasde }};
     
-    const valorEstimado = document.getElementById('valorCalculado').textContent = parseFloat(viaje.costo).toFixed(2); // Puedes pasarlo desde el controlador
+    console.log("🔍 Calculando:", { valorTotal, puestos, costoServicio, maxPorcentaje });
+    
+    // Obtener elementos del DOM
+    const valorEstimado = parseFloat(document.getElementById('valorCalculado').textContent) || 0;
     const maxValorPermitido = valorEstimado * (1 + (maxPorcentaje / 100));
     
     const inputValor = document.getElementById("valorCobrado");
     const textoElemento = document.getElementById("textoValorPersona");
     const botonAgendar = document.getElementById("botonAgendarContainer");
-    const inputHiddenTotal = document.getElementById("totalPorPasajero"); // 👈 NUEVO
+    const inputHiddenTotal = document.getElementById("totalPorPasajero");
     
-    // Validar que el valor ingresado no exceda el límite
-    if (!isNaN(valorTotal) && valorTotal > maxValorPermitido) {
-        // Marcar en rojo y bloquear
+    console.log("💰 Valores base:", { valorEstimado, maxValorPermitido });
+    
+    // Validar límite máximo
+    if (valorTotal > 0 && valorTotal > maxValorPermitido) {
+        console.log("❌ Valor excede límite");
+        
         inputValor.style.borderColor = "#dc3545";
         inputValor.style.backgroundColor = "#ffe6e6";
-        
-        // OCULTAR EL BOTÓN
         botonAgendar.style.display = "none";
-        
-        // LIMPIAR EL INPUT HIDDEN 👈 NUEVO
         inputHiddenTotal.value = "";
         
         textoElemento.innerHTML = `
@@ -452,77 +460,42 @@ function calcularValorPorPersona() {
                 • Máximo permitido (+${maxPorcentaje}%): $${maxValorPermitido.toLocaleString('es-CO')}<br>
                 <small>🚫 No puede agendar el viaje con este valor</small>
             </div>`;
-        
         return;
     }
     
-    if (!isNaN(valorTotal) && puestos > 0) {
-        // Restablecer estilos normales del input
-        inputValor.style.borderColor = "#28a745";
-        inputValor.style.backgroundColor = "#e6ffe6";
+    // ✅ SIEMPRE ACTUALIZAR valor_persona SI HAY PUESTOS (aunque no haya valor cobrado)
+    if (puestos > 0 && viaje && viaje.costo) {
+        const costoEstimado = parseFloat(viaje.costo);
+        const valorPersonaEstimado = costoEstimado / puestos;
         
-        // MOSTRAR EL BOTÓN
-        botonAgendar.style.display = "block";
-        
-        const valorPersona = valorTotal / puestos;
-        const costoServicioPesos = (valorPersona * costoServicio) / 100;
-        const valorFinal = valorPersona + costoServicioPesos; // 👈 ESTE ES EL VALOR QUE QUEREMOS
-        
-        // GUARDAR EN INPUT HIDDEN 👈 NUEVO
-        inputHiddenTotal.value = valorFinal.toFixed(2);
-        
-        const valorPersonaFormateado = valorPersona.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP'
-        });
-        
-        const costoServicioFormateado = costoServicioPesos.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP'
-        });
-        
-        const valorFinalFormateado = valorFinal.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP'
-        });
-        
-        textoElemento.innerHTML = `
-            <div style="color: #155724; background-color: #d4edda; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px;">
-                💡 <strong>Cálculo por pasajero:</strong><br>
-                • Valor base: <strong>${valorPersonaFormateado}</strong><br>
-                • Costo servicio (${costoServicio}%): <strong>${costoServicioFormateado}</strong><br>
-                • <strong>Total por pasajero: ${valorFinalFormateado}</strong>
-                <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
-            </div>`;
-    } else {
-        // Si no hay valores válidos, ocultar el botón y limpiar hidden
-        botonAgendar.style.display = "none";
-        inputHiddenTotal.value = ""; // 👈 NUEVO
-        
-        // Restablecer estilos
-        inputValor.style.borderColor = "";
-        inputValor.style.backgroundColor = "";
-        
-        textoElemento.innerHTML = '';
+        const valorPersonaInput = document.getElementById("valor_persona");
+        if (valorPersonaInput) {
+            valorPersonaInput.value = valorPersonaEstimado.toLocaleString('es-CO', {
+                style: 'currency',
+                currency: 'COP'
+            });
+            console.log("💸 Valor por persona estimado actualizado:", valorPersonaInput.value);
+        }
     }
-}
     
-    if (!isNaN(valorTotal) && puestos > 0) {
-        // Restablecer estilos normales del input
+    // Cálculo completo con valor cobrado
+    if (valorTotal > 0 && puestos > 0) {
+        console.log("✅ Calculando valores finales con valor cobrado");
+        
         inputValor.style.borderColor = "#28a745";
         inputValor.style.backgroundColor = "#e6ffe6";
-        
-        // MOSTRAR EL BOTÓN
         botonAgendar.style.display = "block";
-        botonAgendar.style.opacity = "0";
-        setTimeout(() => {
-            botonAgendar.style.opacity = "1";
-        }, 10);
         
         const valorPersona = valorTotal / puestos;
         const costoServicioPesos = (valorPersona * costoServicio) / 100;
         const valorFinal = valorPersona + costoServicioPesos;
         
+        console.log("💸 Cálculo final:", { valorPersona, costoServicioPesos, valorFinal });
+        
+        // Guardar en input hidden
+        inputHiddenTotal.value = valorFinal.toFixed(2);
+        
+        // Mostrar desglose
         const valorPersonaFormateado = valorPersona.toLocaleString('es-CO', {
             style: 'currency',
             currency: 'COP'
@@ -546,38 +519,124 @@ function calcularValorPorPersona() {
                 • <strong>Total por pasajero: ${valorFinalFormateado}</strong>
                 <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
             </div>`;
-    } else {
-        // Si no hay valores válidos, ocultar el botón
-        botonAgendar.style.transition = "opacity 0.3s ease";
-        botonAgendar.style.opacity = "0";
-        setTimeout(() => {
-            botonAgendar.style.display = "none";
-        }, 300);
+    } else if (puestos > 0 && viaje && viaje.costo && valorTotal === 0) {
+        // ✅ CASO: Solo hay puestos, no hay valor cobrado - mostrar estimado
+        console.log("📊 Mostrando solo valor estimado");
         
-        // Restablecer estilos
+        botonAgendar.style.display = "none";
+        inputHiddenTotal.value = "";
         inputValor.style.borderColor = "";
         inputValor.style.backgroundColor = "";
+        textoElemento.innerHTML = `
+            <div style="color: #6c757d; background-color: #f8f9fa; padding: 10px; border: 1px solid #e9ecef; border-radius: 5px;">
+                💡 <strong>Valor estimado por persona:</strong> ${(parseFloat(viaje.costo) / puestos).toLocaleString('es-CO', {
+                    style: 'currency',
+                    currency: 'COP'
+                })}<br>
+                <small>Ingresa el valor que cobrarás para ver el cálculo completo</small>
+            </div>`;
+    } else {
+        console.log("⚠️ Valores insuficientes para calcular");
         
+        // Limpiar todo si no hay valores válidos
+        botonAgendar.style.display = "none";
+        inputHiddenTotal.value = "";
+        inputValor.style.borderColor = "";
+        inputValor.style.backgroundColor = "";
         textoElemento.innerHTML = '';
-    }
-    
-
-function calcularCosto() {
-    const costoTotal = parseFloat(viaje.costo);
-    const puestos = parseInt(document.getElementById("puestosTotales").value);
-
-    if (!isNaN(costoTotal) && puestos > 0) {
-        const valorPersona = costoTotal / puestos;
-        document.getElementById("valor_persona").value = valorPersona.toLocaleString('es-CO', {
-            style: 'currency',
-            currency: 'COP'
-        });
+        
+        // Solo limpiar valor_persona si no hay puestos válidos
+        if (puestos <= 0) {
+            const valorPersonaInput = document.getElementById("valor_persona");
+            if (valorPersonaInput) {
+                valorPersonaInput.value = "";
+            }
+        }
     }
 }
 
-function guardarInfoConductor() {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+// ✅ FUNCIÓN PARA CALCULAR VALOR INICIAL BÁSICO
+function calcularValorInicialPorPersona() {
+    if (!viaje || !viaje.costo) {
+        console.log("⚠️ No hay datos de viaje para calcular valor inicial");
+        return;
+    }
+    
+    const puestosPorDefecto = 4; // Valor por defecto típico
+    const costoTotal = parseFloat(viaje.costo);
+    const valorPersonaInicial = costoTotal / puestosPorDefecto;
+    
+    console.log("💰 Calculando valor inicial:", { costoTotal, puestosPorDefecto, valorPersonaInicial });
+    
+    const valorPersonaInput = document.getElementById("valor_persona");
+    if (valorPersonaInput) {
+        valorPersonaInput.value = valorPersonaInicial.toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        });
+        console.log("✅ Valor inicial actualizado:", valorPersonaInput.value);
+    }
+}
 
+// ✅ INICIALIZACIÓN AL CARGAR LA PÁGINA
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("🚀 Página cargada, inicializando...");
+    
+    // 1. CALCULAR VALOR INICIAL INMEDIATAMENTE
+    if (viaje && viaje.costo) {
+        console.log("📊 Datos del viaje disponibles:", viaje);
+        calcularValorInicialPorPersona();
+    }
+    
+    // 2. CONFIGURAR EVENTOS PARA RECALCULAR
+    const valorCobradoInput = document.getElementById("valorCobrado");
+    const puestosTotalesInput = document.getElementById("puestosTotales");
+    
+    if (valorCobradoInput) {
+        valorCobradoInput.addEventListener('input', calcularValorPorPersona);
+        valorCobradoInput.addEventListener('change', calcularValorPorPersona);
+    }
+    
+    if (puestosTotalesInput) {
+        puestosTotalesInput.addEventListener('input', calcularValorPorPersona);
+        puestosTotalesInput.addEventListener('change', calcularValorPorPersona);
+        
+        // ✅ TAMBIÉN RECALCULAR CUANDO CAMBIEN LOS PUESTOS (sin valor cobrado)
+        puestosTotalesInput.addEventListener('input', function() {
+            const puestos = parseInt(this.value) || 0;
+            if (puestos > 0 && viaje && viaje.costo) {
+                const costoTotal = parseFloat(viaje.costo);
+                const valorPersona = costoTotal / puestos;
+                
+                const valorPersonaInput = document.getElementById("valor_persona");
+                if (valorPersonaInput) {
+                    valorPersonaInput.value = valorPersona.toLocaleString('es-CO', {
+                        style: 'currency',
+                        currency: 'COP'
+                    });
+                    console.log("🔄 Valor por persona actualizado:", valorPersonaInput.value);
+                }
+            }
+        });
+    }
+    
+    // 3. EJECUTAR CÁLCULO COMPLETO SI YA HAY VALORES
+    setTimeout(() => {
+        const valorCobrado = document.getElementById("valorCobrado")?.value;
+        const puestosTotales = document.getElementById("puestosTotales")?.value;
+        
+        if (valorCobrado && puestosTotales) {
+            console.log("🔄 Ejecutando cálculo completo con valores existentes");
+            calcularValorPorPersona();
+        }
+    }, 200);
+});
+
+// ✅ FUNCIÓN PARA GUARDAR INFO DEL CONDUCTOR
+function guardarInfoConductor() {
+    console.log("💾 Guardando información del conductor...");
+    
+    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
     const puestosTotales = parseInt(document.getElementById('puestosTotales').value || 0);
     const valorCobrado = parseFloat(document.getElementById('valorCobrado').value || 0);
     const puestosDisponibles = parseInt(document.getElementById('puestosDisponibles').value || 0);
@@ -590,8 +649,6 @@ function guardarInfoConductor() {
     }
 
     const valorPorPersona = valorCobrado / puestosTotales;
-
-    // ✅ Actualizar el input oculto con el valor calculado
     document.getElementById("totalPorPasajero").value = valorPorPersona.toFixed(2);
 
     const body = {
@@ -613,6 +670,8 @@ function guardarInfoConductor() {
         activo: true
     };
 
+    console.log("📤 Enviando datos:", body);
+
     fetch("{{ route('conductor.viaje.store') }}", {
         method: "POST",
         headers: {
@@ -623,6 +682,7 @@ function guardarInfoConductor() {
     })
     .then(res => res.json())
     .then(data => {
+        console.log("📥 Respuesta del servidor:", data);
         if (data.success) {
             document.getElementById("mensaje-exito").style.display = 'block';
             setTimeout(() => window.location.href = "{{ route('dashboard') }}", 1500);
@@ -631,10 +691,9 @@ function guardarInfoConductor() {
         }
     })
     .catch(err => {
-        console.error(err);
+        console.error("❌ Error:", err);
         document.getElementById("mensaje-error").style.display = 'block';
     });
 }
-
 </script>
 @endsection

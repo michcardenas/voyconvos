@@ -599,16 +599,6 @@
   .contact-info .social-icons a:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
-    background: #2980b9 !important;
-  }
-
-  .contact-info .social-icons a:hover i,
-  .contact-info .social-icons a:hover .fab,
-  .contact-info .social-icons a:hover .fa-facebook,
-  .contact-info .social-icons a:hover .fa-twitter,
-  .contact-info .social-icons a:hover .fa-instagram,
-  .contact-info .social-icons a:hover .fa-whatsapp {
-    color: #ffffff !important; /* Blancos en hover azul */
   }
 
   /* FORMULARIO DE CONTACTO */
