@@ -321,12 +321,16 @@
             </div>
         </div>
 
-        <!-- Content Layout -->
+       <!-- Content Layout -->
         @php
-            $contenido = \App\Models\Contenido::getValor('contenido-terminos', 'contenido');
+            $parrafos = [];
+            for ($i = 1; $i <= 8; $i++) {
+                $valor = \App\Models\Contenido::getValor('contenido-terminos', 'contenido_' . $i);
+                if ($valor) $parrafos[] = $valor;
+            }
         @endphp
 
-        @if($contenido)
+        @if(count($parrafos))
             <div class="content-layout">
                 <!-- Sidebar with Table of Contents -->
                 <div class="sidebar">
@@ -351,7 +355,9 @@
                     </div>
 
                     <div class="content-body" id="mainContent">
-                        {!! nl2br(e($contenido)) !!}
+                        @foreach($parrafos as $i => $texto)
+                            <p><strong>{{ $i + 1 }}.</strong> {{ $texto }}</p>
+                        @endforeach
                     </div>
                 </div>
             </div>
