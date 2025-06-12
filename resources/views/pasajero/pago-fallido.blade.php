@@ -116,12 +116,7 @@
 
                         <!-- Botones de acción -->
                         <div class="action-buttons">
-                            @if(isset($reserva) && $reserva->viaje)
-                            <a href="{{ route('pasajero.reserva.confirmar', $reserva->viaje->id) }}" class="btn btn-primary">
-                                <i class="fas fa-redo me-2"></i>
-                                Intentar de Nuevo
-                            </a>
-                            @endif
+                           
                             <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn btn-outline">
                                 <i class="fas fa-search me-2"></i>
                                 Buscar Otros Viajes
