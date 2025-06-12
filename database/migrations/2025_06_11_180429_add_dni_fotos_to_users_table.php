@@ -9,7 +9,6 @@ class AddDniFotosToUsersTable extends Migration
     public function up()
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('dni_foto')->nullable()->after('foto');
             $table->string('dni_foto_atras')->nullable()->after('dni_foto');
         });
     }
