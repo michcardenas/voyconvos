@@ -212,31 +212,57 @@
 <section class="contact-section">
     <div class="container">
         <div class="contact-content">
-            <div class="contact-info">
-                <h2>{{ \App\Models\Contenido::getValor('contacto', 'titulo') }}</h2>
-                <p>{{ \App\Models\Contenido::getValor('contacto', 'descripcion') }}</p>
-                <div class="contact-methods">
-                    <div class="contact-method">
-                        <i class="fas fa-envelope"></i>
-                        <p>{{ \App\Models\Contenido::getValor('contacto', 'email') }}</p>
-                    </div>
-                    <div class="contact-method">
-                        <i class="fas fa-phone"></i>
-                        <p>{{ \App\Models\Contenido::getValor('contacto', 'telefono') }}</p>
-                    </div>
-                    <div class="contact-method">
-                        <i class="fas fa-clock"></i>
-                        <p>{{ \App\Models\Contenido::getValor('contacto', 'horario') }}</p>
-                    </div>
-                </div>
-                <div class="social-icons">
-                    @foreach(['facebook', 'twitter', 'instagram', 'whatsapp'] as $social)
-                        <a href="{{ \App\Models\Contenido::getValor('contacto', 'social_' . $social) }}" target="_blank">
-                            <i class="fab fa-{{ $social }}"></i>
-                        </a>
-                    @endforeach
-                </div>
-            </div>
+            <div class="contact-info">                 
+    <h2>{{ \App\Models\Contenido::getValor('contacto', 'titulo') }}</h2>                 
+    
+    <div class="contact-methods">                     
+        <div class="contact-method">                         
+            <i class="fas fa-envelope"></i>                         
+            <p>{{ \App\Models\Contenido::getValor('contacto', 'email') }}</p>                     
+        </div>                     
+        <div class="contact-method">                         
+            <i class="fas fa-phone"></i>                         
+            <p>{{ \App\Models\Contenido::getValor('contacto', 'telefono') }}</p>                     
+        </div>                     
+        <div class="contact-method">                         
+            <i class="fas fa-clock"></i>                         
+            <p>{{ \App\Models\Contenido::getValor('contacto', 'horario') }}</p>                     
+        </div>                 
+    </div>
+    
+    <p>{{ \App\Models\Contenido::getValor('contacto', 'descripcion') }}</p>
+    
+    <div class="social-icons">                     
+@php
+    $sociales = [
+        'facebook' => 'fab fa-facebook',
+        'threads' => 'threads-img',
+        'instagram' => 'fab fa-instagram',
+        'whatsapp' => 'fab fa-whatsapp',
+    ];
+@endphp
+
+@foreach($sociales as $clave => $icono)
+    @php
+        $url = \App\Models\Contenido::getValor('contacto', 'social_' . $clave);
+    @endphp
+    @if($url)
+        <a href="{{ $url }}" target="_blank" style="display: inline-block; margin: 0 5px;">
+            @if($icono === 'threads-img')
+                <img src="{{ asset('img/threads.png') }}"
+                     alt="Threads"
+                     style="width: 32px; height: 32px;">
+            @else
+                <i class="{{ $icono }}" style="color: #27ae60 !important; transition: all 0.3s ease;"></i>
+            @endif
+        </a>
+    @endif
+@endforeach
+
+
+             
+    </div>             
+</div>
 
             {{-- Formulario de contacto --}}
 
