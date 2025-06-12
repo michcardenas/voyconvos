@@ -490,7 +490,7 @@
     box-shadow: 0 8px 25px rgba(255, 255, 255, 0.3);
   }
 
-  /* CONTACTO SECTION */
+  /* ===== CONTACTO SECTION CORREGIDO ===== */
   .contact-section {
     padding: 50px 0;
   }
@@ -500,27 +500,47 @@
     gap: 40px;
   }
 
+  /* Configuración base para contact-info */
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ORDEN FORZADO con flexbox order */
   .contact-info h2 {
+    order: 1; /* Título primero */
     font-size: 1.8rem;
     text-align: center;
-    margin-bottom: 20px;
+    margin-bottom: 30px;
     color: #2c3e50;
   }
 
-  .contact-info p {
-    text-align: center;
-    margin-bottom: 30px;
-    font-size: 1rem;
-    color: #7f8c8d;
-  }
-
   .contact-methods {
+    order: 2; /* Métodos de contacto segundo */
     display: flex;
     flex-direction: column;
-    gap: 20px;
-    margin-bottom: 30px;
+    gap: 15px;
+    margin-bottom: 25px;
   }
 
+  .social-icons {
+    order: 3; /* Redes sociales tercero */
+    display: flex;
+    justify-content: center;
+    gap: 68px;
+    margin-bottom: 25px;
+  }
+
+  .contact-info > p {
+    order: 4; /* Párrafo cuarto (al final) */
+    text-align: center;
+    margin: 0;
+    font-size: 1rem;
+    color: #7f8c8d;
+    line-height: 1.6;
+  }
+
+  /* Estilos de contact-method */
   .contact-method {
     display: flex;
     align-items: center;
@@ -528,6 +548,7 @@
     padding: 15px;
     background: #f8f9fa;
     border-radius: 10px;
+    width: 100%;
   }
 
   .contact-method i {
@@ -535,6 +556,7 @@
     color: #3498db;
     width: 25px;
     text-align: center;
+    flex-shrink: 0;
   }
 
   .contact-method p {
@@ -543,28 +565,50 @@
     color: #2c3e50;
   }
 
-  .social-icons {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-  }
-
+  /* Estilos de social-icons */
   .social-icons a {
     width: 45px;
     height: 45px;
-    background: #3498db;
-    color: white;
+    background: #3498db !important; /* Volver al azul original */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.2rem;
+    font-size: 30px;
     transition: all 0.3s ease;
+    text-decoration: none;
   }
 
-  .social-icons a:hover {
+  /* ICONOS VERDES para las redes sociales - MÁXIMA ESPECIFICIDAD */
+  .contact-info .social-icons a i {
+    color: #27ae60 !important;
+  }
+
+  .contact-info .social-icons a .fab {
+    color: #27ae60 !important;
+  }
+
+  .contact-info .social-icons a .fa-facebook,
+  .contact-info .social-icons a .fa-twitter,
+  .contact-info .social-icons a .fa-instagram,
+  .contact-info .social-icons a .fa-whatsapp {
+    color: #27ae60 !important;
+  }
+
+  /* HOVER AZUL como estaba antes */
+  .contact-info .social-icons a:hover {
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
+    background: #2980b9 !important;
+  }
+
+  .contact-info .social-icons a:hover i,
+  .contact-info .social-icons a:hover .fab,
+  .contact-info .social-icons a:hover .fa-facebook,
+  .contact-info .social-icons a:hover .fa-twitter,
+  .contact-info .social-icons a:hover .fa-instagram,
+  .contact-info .social-icons a:hover .fa-whatsapp {
+    color: #ffffff !important; /* Blancos en hover azul */
   }
 
   /* FORMULARIO DE CONTACTO */
@@ -762,6 +806,56 @@
 
   .form-header h3 {
     font-size: 1.2rem;
+  }
+}
+
+/* RESPONSIVE: mantener el orden en todas las pantallas */
+@media (min-width: 769px) and (max-width: 992px) {
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .contact-info h2 {
+    order: 1;
+  }
+  
+  .contact-methods {
+    order: 2;
+  }
+  
+  .social-icons {
+    order: 3;
+  }
+  
+  .contact-info > p {
+    order: 4;
+  }
+}
+
+@media (min-width: 993px) {
+  .contact-info {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .contact-info h2 {
+    order: 1;
+  }
+  
+  .contact-methods {
+    order: 2;
+    max-width: 600px;
+  }
+  
+  .social-icons {
+    order: 3;
+  }
+  
+  .contact-info > p {
+    order: 4;
+    max-width: 600px;
+    margin: 0 auto;
   }
 }
 

@@ -271,10 +271,19 @@
                 <div class="footer-column">
                     <h3>Síguenos</h3>
                     <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
-                    </div>
+    <a href="https://facebook.com/tuperfil" target="_blank">
+        <i class="fab fa-facebook"></i>
+    </a>
+    <a href="https://www.threads.net/@tuperfil" target="_blank">
+        <img src="{{ asset('img/threads-foo.png') }}"
+             alt="Threads"
+             title="Threads"
+             style="width: 35px; height: 35px; vertical-align: middle;">
+    </a>
+    <a href="https://instagram.com/tuperfil" target="_blank">
+        <i class="fab fa-instagram"></i>
+    </a>
+</div>
                 </div>
             </div>
 
