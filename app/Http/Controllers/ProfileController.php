@@ -83,6 +83,8 @@ public function actualizarPerfil(Request $request)
         'pais' => 'nullable|string|max:100',
         'ciudad' => 'nullable|string|max:100',
         'foto' => 'nullable|image|max:2048',
+        'dni_foto' => 'nullable|image|max:2048',
+        'dni_foto_atras' => 'nullable|image|max:2048',
         
         'marca_vehiculo' => 'nullable|string|max:100',
         'modelo_vehiculo' => 'nullable|string|max:100',
@@ -108,16 +110,35 @@ public function actualizarPerfil(Request $request)
             'celular' => $validated['celular'],
             'pais' => $validated['pais'],
             'ciudad' => $validated['ciudad'],
+            'foto' => $user->foto, // Mantener foto actual si no se subió una nueva
+            'dni_foto' => $user->dni_foto, // Mantener foto del DNI actual si no se subió una nueva
+            'dni_foto_atras' => $user->dni_foto_atras, // Mantener foto del reverso del DNI actual si no se subió una nueva
         ];
 
-        // Manejar foto si se subió
+
+        // Manejar foto del DNI (frente)
+        if ($request->hasFile('dni_foto')) {
+            if ($user->dni_foto && Storage::disk('public')->exists($user->dni_foto)) {
+                Storage::disk('public')->delete($user->dni_foto);
+            }
+            $userData['dni_foto'] = $request->file('dni_foto')->store("conductores/documentos/{$user->id}", 'public');
+        }
+
         if ($request->hasFile('foto')) {
-            // Eliminar foto anterior
             if ($user->foto && Storage::disk('public')->exists($user->foto)) {
                 Storage::disk('public')->delete($user->foto);
             }
-            $userData['foto'] = $request->file('foto')->store('conductores/fotos', 'public');
+            $userData['foto'] = $request->file('foto')->store("conductores/documentos/{$user->id}", 'public');
         }
+
+        // Manejar foto del DNI (reverso)
+        if ($request->hasFile('dni_foto_atras')) {
+            if ($user->dni_foto_atras && Storage::disk('public')->exists($user->dni_foto_atras)) {
+                Storage::disk('public')->delete($user->dni_foto_atras);
+            }
+            $userData['dni_foto_atras'] = $request->file('dni_foto_atras')->store("conductores/documentos/{$user->id}", 'public');
+        }
+
 
         $user->update($userData);
 
@@ -130,11 +151,11 @@ public function actualizarPerfil(Request $request)
             'modelo_vehiculo' => $validated['modelo_vehiculo'],
             'anio_vehiculo' => $validated['anio_vehiculo'],
             'anio_vehiculo' => $validated['anio_vehiculo'],
-            'numero_puestos' => $validated['numero_puestos'],
+            'numero_puestos' => $validated['numero_puestos'],   
         ]);
 
         // Manejar documentos
-        $documentos = ['licencia', 'cedula', 'cedula_verde', 'seguro', 'rto', 'antecedentes'];
+        $documentos = ['licencia', 'cedula', 'cedula_verde'];
         
         foreach ($documentos as $documento) {
             if ($request->hasFile($documento)) {
