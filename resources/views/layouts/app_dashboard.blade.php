@@ -219,58 +219,69 @@
     </header>
 
     {{-- CONTENIDO PRINCIPAL --}}
-<main style="padding-top: 100px;">
+    <main style="padding-top: 100px;">
         @yield('content')
     </main>
 
     {{-- FOOTER --}}
-    <footer>
-        <div class="container">
-            <div class="footer-contact">
-                <div class="footer-contact-text">
-                    <h2>¿Necesitas ayuda con algo?</h2>
-                    <p>Estamos aquí para responder tus dudas y ayudarte en todo lo que necesites</p>
+        <footer>
+            <div class="container-int">
+                <div class="footer-contact-int">
+                    <div class="footer-contact-text-int">
+                        <h2>¿Necesitas ayuda con algo?</h2>
+                        <p>Estamos aquí para responder tus dudas y ayudarte en todo lo que necesites</p>
+                    </div>
+                    <a href="{{ url('/contacto') }}" class="footer-contact-btn-int">
+                        <span>Contactar ahora</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
                 </div>
-                <a href="{{ url('/contacto') }}" class="footer-contact-btn">
-                    <span>Contactar ahora</span>
-                    <i class="fas fa-arrow-right"></i>
-                </a>
-            </div>
 
-            <div class="footer-divider"></div>
+                <div class="footer-divider-int"></div>
 
-            <div class="footer-columns">
-                <div class="footer-column">
-                    <h3>VoyConVos</h3>
-                    <ul>
-                        <li><a href="#">Sobre nosotros</a></li>
-                        <li><a href="#">Cómo funciona</a></li>
-                        <li><a href="{{ url('/contacto') }}">Contacto</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Información</h3>
-                    <ul>
-                        <li><a href="#">Preguntas frecuentes</a></li>
-                        <li><a href="#">Términos y condiciones</a></li>
-                        <li><a href="#">Política de privacidad</a></li>
-                    </ul>
-                </div>
-                <div class="footer-column">
-                    <h3>Síguenos</h3>
-                    <div class="social-icons">
-                        <a href="#"><i class="fab fa-facebook"></i></a>
-                        <a href="#"><i class="fab fa-twitter"></i></a>
-                        <a href="#"><i class="fab fa-instagram"></i></a>
+                <div class="footer-columns-int">
+                    <div class="footer-column-int">
+                        <h3>VoyConVos</h3>
+                        <ul>
+                            <li><a href="{{ route('sobre-nosotros') }}">Sobre nosotros</a></li>
+                            <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
+                            <li><a href="{{ url('/contacto') }}">Contacto</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column-int">
+                        <h3>Información</h3>
+                        <ul>
+                            <li><a href="{{ route('faq.index') }}">Preguntas frecuentes</a></li>
+                            <li><a href="{{ route('terminos.index') }}">Términos y condiciones</a></li>
+                            <li><a href="{{ route('politicas.index') }}">Política de privacidad</a></li>
+                        </ul>
+                    </div>
+                    <div class="footer-column-int">
+                        <h3>Síguenos</h3>
+                        <div class="social-icons-int">
+                            <a href="https://www.facebook.com/share/1EyRxy45Wy/?mibextid=wwXIfr
+" target="_blank">
+                                <i class="fab fa-facebook"></i>
+                            </a>
+                            <a href="https://www.threads.com/@voyconvos.arg?igshid=NTc4MTIwNjQ2YQ==" target="_blank">
+                                <img src="{{ asset('img/threads-foo.png') }}"
+                                    alt="Threads"
+                                    title="Threads"
+                                    style="width: 35px; height: 35px; vertical-align: middle;">
+                            </a>
+                            <a href="https://www.instagram.com/voyconvos.arg?igsh=dXl0NmJxMTk3Mndx&utm_source=qr
+" target="_blank">
+                                <i class="fab fa-instagram"></i>
+                            </a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="footer-bottom">
-                <p>&copy; 2025 VoyConVos. Todos los derechos reservados.</p>
+                <div class="footer-bottom-int">
+                    <p>&copy; 2025 VoyConVos. Todos los derechos reservados.</p>
+                </div>
             </div>
-        </div>
-    </footer>
+        </footer>
 
     {{-- JS: Menú de usuario --}}
 <script>

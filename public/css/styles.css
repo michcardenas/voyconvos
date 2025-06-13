@@ -26,8 +26,14 @@ body {
         width: 62px;
 }
 
-
 .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Container interno para footer */
+.container-int {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 20px;
@@ -916,7 +922,7 @@ nav ul li a:hover {
     margin-bottom: 30px;
 }
 
-/* Footer */
+/* Footer - ESTILOS ORIGINALES */
 footer {
     background-color: var(--color-principal);
     color: var(--color-blanco);
@@ -1057,19 +1063,160 @@ footer {
     margin-bottom: 40px;
 }
 
-/* Ajustes responsive */
+/* NUEVOS ESTILOS FOOTER CON SUFIJO -INT */
+.footer-columns-int {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 50px;
+}
+
+.footer-column-int {
+    flex: 1;
+}
+
+.footer-column-int h3 {
+    font-size: 18px;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+.footer-column-int h3:after {
+    content: "";
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 50px;
+    height: 2px;
+    background-color: var(--color-complementario);
+}
+
+.footer-column-int ul li {
+    margin-bottom: 10px;
+}
+
+.footer-column-int ul li a {
+    color: #ccc;
+    transition: color 0.3s ease;
+}
+
+.footer-column-int ul li a:hover {
+    color: var(--color-blanco);
+}
+
+.social-icons-int {
+    display: flex;
+    gap: 15px;
+}
+
+.social-icons-int a {
+    width: 55px;
+    height: 55px;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease;
+    font-size: 39px;
+}
+
+.social-icons-int a:hover {
+    background-color: rgba(255, 255, 255, 0.2);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 255, 255, 0.1);
+}
+
+.footer-bottom-int {
+    text-align: center;
+    padding-top: 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    color: #aaa;
+    font-size: 14px;
+}
+
+.footer-contact-int {
+    background-color: var(--color-azul-claro);
+    border-radius: 12px;
+    padding: 30px;
+    margin-bottom: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.footer-contact-text-int h2 {
+    font-size: 24px;
+    color: var(--color-principal);
+    margin-bottom: 10px;
+}
+
+.footer-contact-text-int p {
+    color: var(--color-neutro-oscuro);
+    font-size: 16px;
+    max-width: 500px;
+}
+
+.footer-contact-btn-int {
+    background-color: var(--color-principal);
+    color: white;
+    padding: 12px 25px;
+    border-radius: 50px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.footer-contact-btn-int:hover {
+    background-color: #163d61;
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.footer-contact-btn-int i {
+    margin-left: 10px;
+    transition: transform 0.3s ease;
+}
+
+.footer-contact-btn-int:hover i {
+    transform: translateX(5px);
+}
+
+.footer-divider-int {
+    height: 1px;
+    background-color: rgba(255, 255, 255, 0.1);
+    margin-bottom: 40px;
+}
+
+/* Ajustes responsive para footer interno */
 @media (max-width: 768px) {
-    .footer-contact {
+    .footer-contact-int {
         flex-direction: column;
         text-align: center;
     }
     
-    .footer-contact-text {
+    .footer-contact-text-int {
         margin-bottom: 20px;
     }
     
-    .footer-contact-text p {
+    .footer-contact-text-int p {
         margin: 0 auto;
+    }
+    
+    .footer-columns-int {
+        flex-direction: column;
+        gap: 30px;
+    }
+    
+    .social-icons-int {
+        justify-content: center;
+    }
+    
+    .social-icons-int a {
+        width: 50px;
+        height: 50px;
+        font-size: 18px;
     }
 }
 
