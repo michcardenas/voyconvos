@@ -2,6 +2,8 @@
 
 @section('title', 'Usuarios')
 
+
+
 @section('content')
 <div class="container py-5">
     <h1 class="fw-bold mb-4">Lista de Usuarios</h1>
