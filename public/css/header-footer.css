@@ -541,7 +541,7 @@ footer::before {
 
 .social-icons a:hover {
     background: #b2d3e9;
-    color: rgb(49, 123, 38);
+    /* color: rgb(49, 123, 38); */
     transform: translateY(-3px);
     box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
 }
