@@ -3,6 +3,7 @@
 @section('title', 'Editar Usuario')
 
 @section('content')
+
 <div class="container_profile">
     <h1 class="title_profile">Editar Usuario</h1>
 
@@ -119,4 +120,6 @@
     });
 </script>
 @endpush
+
+
 @endsection

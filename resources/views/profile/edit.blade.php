@@ -20,7 +20,7 @@
             <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
         </div>
 
-        <select name="role" class="form-control" required>
+        <select name="role" class="form-control" required; style="margin-bottom: 23px;">
             <option value="pasajero" {{ $user->hasRole('pasajero') ? 'selected' : '' }}>Pasajero</option>
             <option value="conductor" {{ $user->hasRole('conductor') ? 'selected' : '' }}>Conductor</option>
         </select>
