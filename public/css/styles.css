@@ -978,10 +978,6 @@ footer {
     transition: background-color 0.3s ease;
 }
 
-.social-icons a:hover {
-    background-color: var(--color-complementario);
-}
-
 .footer-bottom {
     text-align: center;
     padding-top: 30px;
