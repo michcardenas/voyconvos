@@ -536,16 +536,11 @@ footer::before {
     justify-content: center;
     text-decoration: none;
     font-size: 35px;
-    transition: all 0.3s ease;
+    /* transition: all 0.3s ease; */
     backdrop-filter: blur(10px);
 }
 
-.social-icons a:hover {
-    background: #b2d3e9;
-    color: rgb(49, 123, 38);
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
-}
+
 
 .footer-bottom {
     background: rgba(0, 0, 0, 0.3);

@@ -569,12 +569,11 @@
   .social-icons a {
     width: 45px;
     height: 45px;
-    background: #3498db !important; /* Volver al azul original */
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 30px;
+    font-size: 34px;
     transition: all 0.3s ease;
     text-decoration: none;
   }
@@ -593,22 +592,6 @@
   .contact-info .social-icons a .fa-instagram,
   .contact-info .social-icons a .fa-whatsapp {
     color: #27ae60 !important;
-  }
-
-  /* HOVER AZUL como estaba antes */
-  .contact-info .social-icons a:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.4);
-    background: #2980b9 !important;
-  }
-
-  .contact-info .social-icons a:hover i,
-  .contact-info .social-icons a:hover .fab,
-  .contact-info .social-icons a:hover .fa-facebook,
-  .contact-info .social-icons a:hover .fa-twitter,
-  .contact-info .social-icons a:hover .fa-instagram,
-  .contact-info .social-icons a:hover .fa-whatsapp {
-    color: #ffffff !important; /* Blancos en hover azul */
   }
 
   /* FORMULARIO DE CONTACTO */

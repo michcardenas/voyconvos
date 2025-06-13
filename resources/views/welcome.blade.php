@@ -232,36 +232,41 @@
     
     <p>{{ \App\Models\Contenido::getValor('contacto', 'descripcion') }}</p>
     
-    <div class="social-icons">                     
-@php
-    $sociales = [
-        'facebook' => 'fab fa-facebook',
-        'threads' => 'threads-img',
-        'instagram' => 'fab fa-instagram',
-        'whatsapp' => 'fab fa-whatsapp',
-    ];
-@endphp
-
-@foreach($sociales as $clave => $icono)
+<div class="social-icons" style="text-align: center; padding-top: 10px;">
     @php
-        $url = \App\Models\Contenido::getValor('contacto', 'social_' . $clave);
+        $sociales = [
+            'facebook' => 'fab fa-facebook',
+            'threads' => 'threads-img',
+            'instagram' => 'fab fa-instagram',
+            'whatsapp' => 'fab fa-whatsapp',
+        ];
     @endphp
-    @if($url)
-        <a href="{{ $url }}" target="_blank" style="display: inline-block; margin: 0 5px;">
-            @if($icono === 'threads-img')
-                <img src="{{ asset('img/threads.png') }}"
-                     alt="Threads"
-                     style="width: 32px; height: 32px;">
-            @else
-                <i class="{{ $icono }}" style="color: #27ae60 !important; transition: all 0.3s ease;"></i>
-            @endif
-        </a>
-    @endif
-@endforeach
 
+    @foreach($sociales as $clave => $icono)
+        @php
+            $url = \App\Models\Contenido::getValor('contacto', 'social_' . $clave);
+        @endphp
 
-             
-    </div>             
+        @if($url)
+            <a href="{{ $url }}" target="_blank"
+               style="display: inline-block; margin: 0 10px; transition: transform 0.3s ease;">
+                @if($icono === 'threads-img')
+                    <img src="{{ asset('img/threads.png') }}"
+                         alt="Threads"
+                         style="width: 27px; height: 27px; border-radius: 4px; transition: transform 0.3s ease;"
+                         onmouseover="this.style.transform='scale(1.2)'"
+                         onmouseout="this.style.transform='scale(1)'">
+                @else
+                    <i class="{{ $icono }}"
+                       style="color: #27ae60 !important; font-size: 28px; transition: transform 0.3s ease;"
+                       onmouseover="this.style.transform='scale(1.2)'"
+                       onmouseout="this.style.transform='scale(1)'"></i>
+                @endif
+            </a>
+        @endif
+    @endforeach
+</div>
+            
 </div>
 
             {{-- Formulario de contacto --}}
@@ -315,14 +320,16 @@
                         </div>
                     </div>
                     
-                    <div class="form-group checkbox-group">
-                        <label class="checkbox-wrapper">
-                            <input type="checkbox" id="acepto" name="acepto" required>
-                            <span class="checkmark"></span>
-                            {!! $acepto !!}
+                   <div class="form-group" style="margin-top: 1rem;">
+                        <label for="acepto" style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="acepto" name="acepto" required
+                                style="width: 20px; height: 20px; accent-color: #27ae60; margin: 0;">
+                            <span style="font-size: 14px; color: #333;">
+                                {!! $acepto !!}
+                            </span>
                         </label>
                     </div>
-                    
+
                     <button type="submit" class="submit-btn">
                         <span class="btn-text">{{ $boton }}</span>
                         <i class="fas fa-paper-plane btn-icon"></i>
