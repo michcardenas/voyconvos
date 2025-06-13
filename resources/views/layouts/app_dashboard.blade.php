@@ -41,7 +41,7 @@
         }
 
         .logo img {
-            height: 40px;
+            height: 51px;
             margin-right: 10px;
         }
 

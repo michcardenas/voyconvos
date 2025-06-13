@@ -386,8 +386,8 @@
                 <div class="info-item">
                     <div class="icon">🗓</div>
                     <div class="content">
-                        <div class="label">Fecha</div>
-                        <div class="value">{{ $viaje->fecha_salida }}</div>
+                   <div class="label">Fecha</div>
+<div class="value">{{ $viaje->fecha_salida ? \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') : 'No definida' }}</div>
                     </div>
                 </div>
                 
@@ -395,7 +395,8 @@
                     <div class="icon">🕒</div>
                     <div class="content">
                         <div class="label">Hora</div>
-                        <div class="value">{{ $viaje->hora_salida ?? 'No definida' }}</div>
+                        <div class="value">    {{ $viaje->hora_salida ? substr($viaje->hora_salida, 0, 10) : 'No definida' }}
+</div>
                     </div>
                 </div>
                 
