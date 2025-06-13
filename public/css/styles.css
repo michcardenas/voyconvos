@@ -1109,15 +1109,15 @@ footer {
 }
 
 .social-icons-int a {
-    width: 55px;
-    height: 55px;
+    width: 35px;
+    height: 35px;
     background-color: rgba(255, 255, 255, 0.1);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     transition: background-color 0.3s ease;
-    font-size: 39px;
+    font-size: 32px;
 }
 
 .social-icons-int a:hover {
