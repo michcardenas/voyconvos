@@ -58,12 +58,12 @@ COLORES DEL NAVBAR:
 }
 
 .logo-image {
-    height: 45px;
+    height: 60px;
     width: auto;
 }
 
 .logo-text {
-    height: 25px;
+    height: 62px;
     width: auto;
 }
 
@@ -591,24 +591,21 @@ footer::before {
 
 /* SOLO CELULARES (768px y menos) - APARECE HAMBURGUESA */
 @media (max-width: 768px) {
-    /* Header con fondo azul claro */
-    .navbar {
-        background: rgba(173, 216, 230, 0.95); /* Azul claro */
-    }
+
     
     /* Hamburguesa azul oscuro */
     .hamburger-line {
-        background: #2980b9; /* Azul oscuro */
+        background: #62b1e7 !important; /* Azul oscuro */
     }
     
     /* Ocultar menú desktop y mostrar hamburguesa */
     .desktop-nav,
     .desktop-user {
-        display: none;
+        display: none !important;
     }
 
     .hamburger-btn {
-        display: flex;
+        display: flex !important;
     }
 
     /* Ajustar header */
@@ -618,11 +615,11 @@ footer::before {
     }
 
     .logo-image {
-        height: 35px;
+        height: 61px;
     }
 
     .logo-text {
-        height: 20px;
+        height: 35px;
     }
 
     /* Menú móvil - asegurar que sea vertical */
@@ -671,24 +668,44 @@ footer::before {
     }
 }
 
+/* REGLA ADICIONAL PARA FORZAR OCULTACIÓN EN MÓVILES */
+@media screen and (max-width: 768px) {
+    .desktop-user,
+    .desktop-nav {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    .hamburger-btn {
+        display: flex !important;
+        visibility: visible !important;
+    }
+}
+
 /* CELULARES PEQUEÑOS (480px y menos) */
 @media (max-width: 480px) {
+    /* Asegurar que el usuario siga oculto */
+    .desktop-user {
+        display: none !important;
+    }
+    
     .header-container {
         height: 55px;
         padding: 0 10px;
     }
 
     .logo-image {
-        height: 30px;
+        height: 44px;
     }
 
     .logo-text {
-        height: 18px;
+        height: 27px;
     }
 
     .hamburger-btn {
         width: 40px;
         height: 40px;
+        display: flex !important;
     }
 
     .hamburger-line {

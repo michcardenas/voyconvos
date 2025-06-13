@@ -1083,6 +1083,7 @@ footer {
     .hero-text {
         margin-bottom: 40px;
         max-width: 100%;
+        margin-top: 70px;
     }
 
     .hero-buttons {
