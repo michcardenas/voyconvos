@@ -444,7 +444,8 @@
                         <td>{{ $viaje->origen_direccion }}</td>
                         <td>{{ $viaje->destino_direccion }}</td>
                         <td>{{ $viaje->hora_salida ?? '—' }}</td>
-                        <td>{{ $viaje->fecha_salida ?? '—' }}</td>
+                        <td>{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') ?? '—' }}</td>
+
                         <td>
                             {{ $viaje->puestos_disponibles }} / {{ $viaje->reservas->sum('cantidad_puestos') }}
                             <ul class="mt-1 mb-0">
