@@ -377,7 +377,7 @@
     <input type="hidden" id="totalPorPasajero" name="total_por_pasajero" value="">
 
           <div class="form-group">
-    <label for="valorCobrado" class="form-label">💵 Valor total a cobrar (manual)</label>
+    <label for="valorCobrado" class="form-label">💵 Valor total a cobrar del viaje </label>
     <input type="number"
            id="valorCobrado"
            class="form-control"
@@ -511,14 +511,20 @@ function calcularValorPorPersona() {
             currency: 'COP'
         });
         
-        textoElemento.innerHTML = `
-            <div style="color: #155724; background-color: #d4edda; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px;">
-                💡 <strong>Cálculo por pasajero:</strong><br>
-                • Valor base: <strong>${valorPersonaFormateado}</strong><br>
-                • Costo servicio (${costoServicio}%): <strong>${costoServicioFormateado}</strong><br>
-                • <strong>Total por pasajero: ${valorFinalFormateado}</strong>
-                <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
-            </div>`;
+    textoElemento.innerHTML = `
+    <div style="color: #155724; background-color: #d4edda; padding: 10px; border: 1px solid #c3e6cb; border-radius: 5px;">
+        💡 <strong>Cálculo por pasajero:</strong><br>
+        • Valor base: <strong>${valorPersonaFormateado}</strong><br>
+        • Costo servicio (${costoServicio}%): <strong>${costoServicioFormateado}</strong><br>
+        • <strong>Total por pasajero: ${valorFinalFormateado}</strong><br>
+        <hr>
+        💰 <strong>Costo total del viaje + costo servicio:</strong> ${ (valorFinal * puestos).toLocaleString('es-CO', {
+            style: 'currency',
+            currency: 'COP'
+        }) }
+        <br><small style="color: #6c757d;">✅ Valor dentro del límite permitido</small>
+    </div>`;
+
     } else if (puestos > 0 && viaje && viaje.costo && valorTotal === 0) {
         // ✅ CASO: Solo hay puestos, no hay valor cobrado - mostrar estimado
         console.log("📊 Mostrando solo valor estimado");

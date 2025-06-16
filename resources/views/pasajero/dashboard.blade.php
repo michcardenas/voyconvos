@@ -474,7 +474,7 @@
                 ]);
                 
                 $promedioCalificacion = $calificaciones->avg('calificacion') ?? 0;
-                $totalCalificaciones = $calificaciones->count();
+                $totalCalificaciones = 0;
             @endphp
 
             @if($totalCalificaciones > 0)
