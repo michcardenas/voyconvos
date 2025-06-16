@@ -36,4 +36,8 @@ class Viaje extends Model
     {
         return $this->belongsTo(User::class, 'conductor_id');
     }
+       public function registroConductor()
+{
+    return $this->hasOne(\App\Models\RegistroConductor::class, 'user_id', 'conductor_id');
+}
 }

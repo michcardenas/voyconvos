@@ -412,7 +412,16 @@
                     <div class="icon">🚗</div>
                     <div class="content">
                         <div class="label">Vehículo</div>
-                        <div class="value">{{ $viaje->vehiculo ?? 'No registrado' }}</div>
+                       <div class="value">
+                        @php
+                            $marca = $viaje->registroConductor->marca_vehiculo ?? null;
+                            $modelo = $viaje->registroConductor->modelo_vehiculo ?? null;
+                        @endphp
+
+                        {{ $viaje->vehiculo !== $marca ? ($viaje->vehiculo . ' - ') : '' }}
+                        {{ $marca }} {{ $modelo }}
+                    </div>
+
                     </div>
                 </div>
                 

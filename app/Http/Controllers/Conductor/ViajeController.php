@@ -24,12 +24,12 @@ class ViajeController extends Controller
     }
 
     public function detalle(Viaje $viaje)
-    {
-        $viaje->load([
-            'reservas.user',
-            'reservas.calificacionPasajero',
-            'reservas.calificacionConductor',
-        ]);
+    {    $viaje->load([
+        'reservas.user',
+        'reservas.calificacionPasajero',
+        'reservas.calificacionConductor',
+        'registroConductor', // Agregamos esta relación
+    ]);
         
         return view('conductor.viaje-detalles', compact('viaje'));
     }

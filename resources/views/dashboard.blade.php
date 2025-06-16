@@ -529,7 +529,7 @@
                 <a href="{{ route('conductor.gestion') }}" class="btn btn-outline-primary btn-modern">
                     ➕ Agendar nuevo viaje
                 </a>
-                <a href="#" class="btn btn-link text-decoration-none">
+                <a href="{{ route('contacto.formulario') }}" class="btn btn-link text-decoration-none">
                     ¿Necesitas ayuda?
                 </a>
             </div>
