@@ -344,6 +344,52 @@
         color: var(--vcv-dark);
         font-weight: 500;
     }
+    .btn-pay {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    border: none;
+    padding: 12px 30px;
+    font-weight: bold;
+    font-size: 16px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.btn-pay:hover {
+    background: linear-gradient(135deg, #218838, #1ea085);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+}
+
+.btn-pay:active {
+    transform: translateY(0);
+}
+
+.btn-pay i {
+    margin-right: 8px;
+}
+
+.payment-button-container {
+    border-top: 1px solid #eee;
+    padding-top: 15px;
+}
+
+/* Estilo específico para el estado pendiente_pago */
+.status-pendiente_pago {
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    animation: pulse-payment 2s infinite;
+}
+
+@keyframes pulse-payment {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
 
     @media (max-width: 768px) {
         .details-wrapper {
@@ -459,29 +505,42 @@
         </div>
 
         <!-- Tu Reserva -->
-        <div class="info-card">
-            <div class="card-header-custom">
-                <div class="card-icon booking">
-                    <i class="fas fa-ticket-alt"></i>
-                </div>
-                <h5 class="card-title">Tu Reserva</h5>
-            </div>
-            
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Estado</div>
-                    <div class="info-value">
-                        <span class="status-badge status-{{ strtolower($reserva->estado) }}">
-                            {{ ucfirst($reserva->estado) }}
-                        </span>
-                    </div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Fecha de Reserva</div>
-                    <div class="info-value">{{ $reserva->created_at->format('d/m/Y H:i') }}</div>
-                </div>
+       <div class="info-card">
+    <div class="card-header-custom">
+        <div class="card-icon booking">
+            <i class="fas fa-ticket-alt"></i>
+        </div>
+        <h5 class="card-title">Tu Reserva</h5>
+    </div>
+    
+    <div class="info-grid">
+        <div class="info-item">
+            <div class="info-label">Estado</div>
+            <div class="info-value">
+                <span class="status-badge status-{{ strtolower($reserva->estado) }}">
+                    @if($reserva->estado == 'pendiente_pago')
+                        Pendiente por pago
+                    @else
+                        {{ ucfirst($reserva->estado) }}
+                    @endif
+                </span>
             </div>
         </div>
+        <div class="info-item">
+            <div class="info-label">Fecha de Reserva</div>
+            <div class="info-value">{{ $reserva->created_at->format('d/m/Y H:i') }}</div>
+        </div>
+    </div>
+    
+    {{-- Botón de pago que solo aparece cuando el estado es pendiente_pago --}}
+    @if($reserva->estado == 'pendiente_pago')
+        <div class="payment-button-container" style="margin-top: 15px; text-align: center;">
+            <button type="button" class="btn btn-primary btn-pay" onclick="procesarPago({{ $reserva->id }})">
+                <i class="fas fa-credit-card"></i> PAGAR
+            </button>
+        </div>
+    @endif
+</div>
 
       <!-- Mapa -->
 <div class="map-container">

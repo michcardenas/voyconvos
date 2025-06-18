@@ -159,6 +159,9 @@ Route::delete('/viajes/{viaje}/eliminar', [\App\Http\Controllers\Conductor\Viaje
 // detalles del viaje conductor
 Route::get('/viajes/{viaje}/detalle', [ViajeController::class, 'detalle'])->name('conductor.viaje.detalle');
 Route::get('/conductor/viajes/{viaje}', [ConductorController::class, 'verViaje'])->name('conductor.viaje.detalles');
+Route::post('/conductor/verificar-pasajero/{reserva}', [ConductorController::class, 'verificarPasajero'])
+    ->name('conductor.verificar-pasajero')
+    ->middleware('auth');
 
 // Mostrar formulario calificación
 Route::get('/pasajero/reserva/{reserva}/calificar', [CalificacionController::class, 'formularioPasajero'])

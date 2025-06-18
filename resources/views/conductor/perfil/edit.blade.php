@@ -3,6 +3,7 @@
 @section('title', 'Editar Perfil de Conductor')
 
 @section('content')
+
 <div class="main-wrapper">
     <div class="container py-5">
         <div class="page-header">
@@ -169,6 +170,51 @@
                 </div>
             </div>
 
+            {{-- CONFIGURACIÓN DE VIAJES --}}
+            <div class="custom-card mb-4" data-aos="fade-up" data-aos-delay="50">
+                <div class="custom-card-header">
+                    <div class="header-content">
+                        <i class="fas fa-cogs me-2"></i>
+                        <span>Configuración de viajes</span>
+                    </div>
+                    <div class="header-decoration"></div>
+                </div>
+                <div class="custom-card-body">
+                    <div class="verification-setting">
+                        <div class="setting-item">
+                            <div class="setting-info">
+                                <div class="setting-title">
+                                    <i class="fas fa-user-check me-2 text-primary"></i>
+                                    Verificación manual de pasajeros
+                                </div>
+                                <div class="setting-description">
+                                    Cuando está activado, deberás aprobar manualmente cada reserva antes de que el pasajero pueda proceder al pago.
+                                </div>
+                            </div>
+                            <div class="setting-control">
+                                <div class="custom-switch">
+                                    <input type="hidden" name="verificar_pasajeros" value="0">
+                                    <input type="checkbox" 
+                                           name="verificar_pasajeros" 
+                                           id="verificar_pasajeros" 
+                                           value="1"
+                                           class="custom-switch-input"
+                                           {{ old('verificar_pasajeros', $registro->verificar_pasajeros ?? 0) ? 'checked' : '' }}>
+                                    <label for="verificar_pasajeros" class="custom-switch-label">
+                                        <span class="custom-switch-slider"></span>
+                                    </label>
+                                </div>
+                                <div class="switch-status">
+                                    <span class="status-text" id="switch-status">
+                                        {{ old('verificar_pasajeros', $registro->verificar_pasajeros ?? 0) ? 'Activado' : 'Desactivado' }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             {{-- DATOS DE CONDUCTOR --}}
             <div class="custom-card mb-4" data-aos="fade-up" data-aos-delay="100">
                 <div class="custom-card-header">
@@ -190,7 +236,6 @@
                                 ['modelo_vehiculo', 'Modelo', 'fas fa-car'],
                                 ['numero_puestos', 'Numero de puestos (incluidos el conductor)', 'fas fa-chair'],
                                 ['anio_vehiculo', 'Año', 'fas fa-calendar'],
-
                                 ['patente', 'Patente', 'fas fa-hashtag'],
                             ] as [$campo, $etiqueta, $icono])
                                 <div class="col-sm-6">
@@ -274,7 +319,6 @@
         </form>
     </div>
 </div>
-
 <style>
 :root {
     --color-principal: #1F4E79;
@@ -644,7 +688,134 @@
     color: #e53e3e;
     font-weight: 500;
 }
+/* Estilos para la sección de verificación */
+.verification-setting {
+    padding: 1.5rem;
+    background: linear-gradient(145deg, #f8f9fa, #fff);
+    border-radius: 12px;
+    border: 1px solid #e9ecef;
+}
 
+.setting-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 2rem;
+}
+
+.setting-info {
+    flex: 1;
+}
+
+.setting-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+}
+
+.setting-description {
+    color: #6c757d;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.setting-control {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+/* Switch personalizado */
+.custom-switch {
+    position: relative;
+    display: inline-block;
+}
+
+.custom-switch-input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.custom-switch-label {
+    position: relative;
+    display: inline-block;
+    width: 60px;
+    height: 34px;
+    cursor: pointer;
+    margin: 0;
+}
+
+.custom-switch-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 34px;
+}
+
+.custom-switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 26px;
+    width: 26px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+.custom-switch-input:checked + .custom-switch-label .custom-switch-slider {
+    background-color: #28a745;
+}
+
+.custom-switch-input:checked + .custom-switch-label .custom-switch-slider:before {
+    transform: translateX(26px);
+}
+
+.switch-status {
+    text-align: center;
+}
+
+.status-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+.custom-switch-input:checked ~ .switch-status .status-text {
+    color: #28a745;
+    background-color: rgba(40, 167, 69, 0.1);
+}
+
+.custom-switch-input:not(:checked) ~ .switch-status .status-text {
+    color: #6c757d;
+    background-color: rgba(108, 117, 125, 0.1);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .setting-item {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .setting-control {
+        align-items: center;
+    }
+}
 /* Responsive mejorado */
 @media (max-width: 768px) {
     .main-wrapper {
@@ -726,4 +897,14 @@
     opacity: 1;
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const switchInput = document.getElementById('verificar_pasajeros');
+    const statusText = document.getElementById('switch-status');
+    
+    switchInput.addEventListener('change', function() {
+        statusText.textContent = this.checked ? 'Activado' : 'Desactivado';
+    });
+});
+</script>
 @endsection

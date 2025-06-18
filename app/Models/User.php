@@ -52,6 +52,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'verificado' => 'boolean', // Añadido el cast para verificado
         ];
     }
 
@@ -60,4 +61,19 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Reserva::class);
     }
 
+    // Métodos helper para verificación (opcional)
+    public function isVerified(): bool
+    {
+        return $this->verificado;
+    }
+
+    public function markAsVerified(): void
+    {
+        $this->update(['verificado' => true]);
+    }
+
+    public function markAsUnverified(): void
+    {
+        $this->update(['verificado' => false]);
+    }
 }

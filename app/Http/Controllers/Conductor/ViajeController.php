@@ -23,15 +23,19 @@ class ViajeController extends Controller
         return redirect()->back()->with('success', '🚫 Viaje cancelado correctamente.');
     }
 
-    public function detalle(Viaje $viaje)
-    {    $viaje->load([
+ public function detalle(Viaje $viaje)
+{
+    $viaje->load([
         'reservas.user',
         'reservas.calificacionPasajero',
         'reservas.calificacionConductor',
-        'registroConductor', // Agregamos esta relación
+        'registroConductor',
     ]);
-        
-        return view('conductor.viaje-detalles', compact('viaje'));
-    }
+    
+    // Verificar si se requiere verificación de pasajeros
+    $requiereVerificacion = $viaje->registroConductor->verificar_pasajeros == 1;
+    
+    return view('conductor.viaje-detalles', compact('viaje', 'requiereVerificacion'));
+}
 
 }

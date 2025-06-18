@@ -125,31 +125,31 @@ public function reservar(Request $request, Viaje $viaje)
         $client = new PreferenceClient();
 
         // Crear preferencia de pago
-      $preferenceData = [
-    "items" => [
-        [
-            "id" => "VIAJE_" . $viaje->id,
-            "title" => substr("Viaje de " . ($viaje->origen_direccion ?? 'origen') . " a " . ($viaje->destino_direccion ?? 'destino'), 0, 255),
-            "description" => "Reserva de {$validated['cantidad_puestos']} puesto(s)",
-            "quantity" => (int) $validated['cantidad_puestos'],
-            "unit_price" => (float) $validated['valor_cobrado'],
-            "currency_id" => "ARS"
-        ]
-    ],
-    "back_urls" => [
-        "success" => route('pasajero.pago.success', $reserva->id),
-        "failure" => route('pasajero.pago.failure', $reserva->id),
-        "pending" => route('pasajero.pago.pending', $reserva->id)
-    ],
-    "auto_return" => "approved",
-    "external_reference" => "RESERVA_" . $reserva->id,
-    "payer" => [
-        "email" => auth()->user()->email,
-        "name" => auth()->user()->name
-    ],
-    // Opcional, solo si tienes endpoint público configurado:
-    //"notification_url" => route('webhook.mercadopago') 
-];
+            $preferenceData = [
+            "items" => [
+                [
+                    "id" => "VIAJE_" . $viaje->id,
+                    "title" => substr("Viaje de " . ($viaje->origen_direccion ?? 'origen') . " a " . ($viaje->destino_direccion ?? 'destino'), 0, 255),
+                    "description" => "Reserva de {$validated['cantidad_puestos']} puesto(s)",
+                    "quantity" => (int) $validated['cantidad_puestos'],
+                    "unit_price" => (float) $validated['valor_cobrado'],
+                    "currency_id" => "ARS"
+                ]
+            ],
+            "back_urls" => [
+                "success" => route('pasajero.pago.success', $reserva->id),
+                "failure" => route('pasajero.pago.failure', $reserva->id),
+                "pending" => route('pasajero.pago.pending', $reserva->id)
+            ],
+            "auto_return" => "approved",
+            "external_reference" => "RESERVA_" . $reserva->id,
+            "payer" => [
+                "email" => auth()->user()->email,
+                "name" => auth()->user()->name
+            ],
+            // Opcional, solo si tienes endpoint público configurado:
+            //"notification_url" => route('webhook.mercadopago') 
+        ];
 
         
         \Log::info('=== MERCADO PAGO REQUEST ===', [
@@ -221,7 +221,7 @@ public function reservar(Request $request, Viaje $viaje)
 
     public function pagoPending(Reserva $reserva)
     {
-        $reserva->estado = 'pendiente';
+        $reserva->estado = 'pendiente_pago';
         $reserva->save();
         
         return view('pasajero.pago-pendiente', compact('reserva'));

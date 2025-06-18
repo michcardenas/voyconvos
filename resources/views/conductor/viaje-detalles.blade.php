@@ -327,7 +327,198 @@
         border: 1px solid var(--border-color);
         text-align: center;
     }
+    .passenger-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
 
+.passenger-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+.passenger-name-clickable {
+    cursor: pointer;
+    color: #0066cc;
+    text-decoration: none;
+    transition: all 0.2s ease;
+    border-bottom: 1px dotted #0066cc;
+    display: inline-block;
+}
+
+.passenger-name-clickable:hover {
+    color: #004499;
+    border-bottom: 1px solid #004499;
+    transform: translateY(-1px);
+}
+
+.passenger-profile {
+    padding: 1rem 0;
+}
+
+.profile-photo-container {
+    position: relative;
+    display: inline-block;
+}
+
+.profile-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.no-photo-placeholder {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #6c757d, #adb5bd);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 2.5rem;
+    border: 4px solid #e9ecef;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.rating-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #ffc107, #ff8c00);
+    color: white;
+    padding: 0.375rem 1rem;
+    border-radius: 20px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
+}
+
+.passenger-details-grid {
+    display: grid;
+    gap: 1rem;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+    border-left: 4px solid transparent;
+    transition: all 0.2s ease;
+}
+
+.detail-item:hover {
+    background: #e9ecef;
+    transform: translateX(5px);
+}
+
+.detail-item:nth-child(1) { border-left-color: #007bff; }
+.detail-item:nth-child(2) { border-left-color: #28a745; }
+.detail-item:nth-child(3) { border-left-color: #dc3545; }
+.detail-item:nth-child(4) { border-left-color: #17a2b8; }
+
+.detail-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: white;
+    border-radius: 50%;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.detail-content {
+    flex: 1;
+}
+
+.detail-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+    margin-bottom: 0.25rem;
+}
+
+.detail-value {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #2c3e50;
+}
+
+@media (max-width: 768px) {
+    .profile-photo,
+    .no-photo-placeholder {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .no-photo-placeholder i {
+        font-size: 2rem;
+    }
+    
+    .detail-item {
+        padding: 0.75rem;
+    }
+    
+    .detail-icon {
+        width: 35px;
+        height: 35px;
+    }
+}
+</style>
+
+<style>
+.passenger-actions {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.passenger-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+}
+
+.modal-content {
+    border-radius: 12px;
+    border: none;
+}
+
+@media (max-width: 768px) {
+    .passenger-info {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .passenger-actions {
+        justify-content: flex-start;
+    }
+}
+@media (max-width: 768px) {
+    .passenger-info {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .passenger-actions {
+        justify-content: flex-start;
+    }
+}
     /* Responsive */
     @media (max-width: 768px) {
         .page-header {
@@ -469,59 +660,182 @@
         </div>
     </div>
 
-    <!-- Sección de pasajeros -->
-    <div class="passengers-section">
-        <h4 class="section-header">👥 Pasajeros</h4>
 
-        @if($viaje->reservas->count())
-            @foreach($viaje->reservas as $reserva)
-            <div class="passenger-card">
-                <div class="passenger-info">
-                    <div class="passenger-details">
-                        <h6>{{ $reserva->user->name }}</h6>
-                        <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
-                        @if($reserva->user->calificacion)
-                            <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
-                        @endif
-                    </div>
+<!-- Sección de pasajeros -->
+<div class="passengers-section">
+    <h4 class="section-header">👥 Pasajeros</h4>
+    
+    @if($viaje->reservas->count())
+        @foreach($viaje->reservas as $reserva)
+        <div class="passenger-card">
+            <div class="passenger-info">
+                <div class="passenger-details">
+                    <h6 class="passenger-name-clickable" 
+                        onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }})">
+                        {{ $reserva->user->name }}
+                    </h6>
+                    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
+                    @if($reserva->user->calificacion)
+                        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
+                    @endif
+                </div>
+                <div class="passenger-actions">
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
-                </div>
-
-                <div class="ratings-section">
-                    <h5 class="ratings-title">🗣️ Calificaciones</h5>
-
-                    {{-- Comentario del pasajero al conductor --}}
-                    @if($reserva->calificacionPasajero)
-                        <div class="rating-item">
-                            <div class="rating-header">Pasajero comentó:</div>
-                            <div class="rating-comment">{{ $reserva->calificacionPasajero->comentario }}</div>
-                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</div>
-                        </div>
-                    @else
-                        <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
-                    @endif
-
-                    {{-- Comentario del conductor al pasajero --}}
-                    @if($reserva->calificacionConductor)
-                        <div class="rating-item">
-                            <div class="rating-header">Conductor comentó:</div>
-                            <div class="rating-comment">{{ $reserva->calificacionConductor->comentario }}</div>
-                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</div>
-                        </div>
-                    @else
-                        <div class="no-rating">Aún no has calificado a este pasajero.</div>
+                    
+                    @if($requiereVerificacion && $reserva->estado == 'pendiente')
+                        <button type="button" 
+                                class="btn btn-sm btn-success btn-modern"
+                                data-bs-toggle="modal" 
+                                data-bs-target="#aprobarModal"
+                                onclick="setApprovalData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                            ✅ Aprobar
+                        </button>
+                    @elseif($requiereVerificacion && $reserva->estado == 'pendiente_pago')
+                        <span class="badge bg-success">✅ Aprobado</span>
                     @endif
                 </div>
             </div>
-            @endforeach
-        @else
-            <div style="padding: 2rem;">
-                <div class="alert alert-secondary alert-modern">
-                    Aún no hay pasajeros en este viaje.
-                </div>
+
+            <div class="ratings-section">
+                <h5 class="ratings-title">🗣️ Calificaciones</h5>
+
+                {{-- Comentario del pasajero al conductor --}}
+                @if($reserva->calificacionPasajero)
+                    <div class="rating-item">
+                        <div class="rating-header">Pasajero comentó:</div>
+                        <div class="rating-comment">{{ $reserva->calificacionPasajero->comentario }}</div>
+                        <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</div>
+                    </div>
+                @else
+                    <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
+                @endif
+
+                {{-- Comentario del conductor al pasajero --}}
+                @if($reserva->calificacionConductor)
+                    <div class="rating-item">
+                        <div class="rating-header">Conductor comentó:</div>
+                        <div class="rating-comment">{{ $reserva->calificacionConductor->comentario }}</div>
+                        <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</div>
+                    </div>
+                @else
+                    <div class="no-rating">Aún no has calificado a este pasajero.</div>
+                @endif
             </div>
-        @endif
+        </div>
+        @endforeach
+    @else
+        <div style="padding: 2rem;">
+            <div class="alert alert-secondary alert-modern">
+                Aún no hay pasajeros en este viaje.
+            </div>
+        </div>
+    @endif
+</div>
+
+<!-- Modal Simple de Aprobación -->
+<div class="modal fade" id="aprobarModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Aprobar Pasajero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
+                </div>
+                <h6 id="modalMessage">¿Estás seguro de aprobar a este pasajero?</h6>
+                <p class="text-muted">El pasajero pasará a estado "pendiente de pago"</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                
+                <form id="approvalForm" method="POST" style="display: inline;">
+                    @csrf
+                    <input type="hidden" name="accion" value="verificar">
+                    <button type="submit" class="btn btn-success">Sí, Aprobar</button>
+                </form>
+            </div>
+        </div>
     </div>
+</div>
+
+<!-- Modal de Información del Pasajero -->
+<div class="modal fade" id="passengerInfoModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-primary bg-opacity-10">
+                <h5 class="modal-title">
+                    <i class="fas fa-user me-2"></i>
+                    Información del Pasajero
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="passenger-profile">
+                    <div class="profile-photo-section text-center mb-4">
+                        <div class="profile-photo-container">
+                            <img id="passengerPhoto" 
+                                 src="" 
+                                 alt="Foto del pasajero" 
+                                 class="profile-photo">
+                            <div id="noPhotoPlaceholder" class="no-photo-placeholder" style="display: none;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        </div>
+                        <h5 id="passengerName" class="mt-3 mb-1"></h5>
+                        <div id="passengerRating" class="rating-badge"></div>
+                    </div>
+                    
+                    <div class="passenger-details-grid">
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-envelope text-primary"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Email</div>
+                                <div class="detail-value" id="passengerEmail"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-phone text-success"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Teléfono</div>
+                                <div class="detail-value" id="passengerPhone"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-map-marker-alt text-danger"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Ciudad</div>
+                                <div class="detail-value" id="passengerCity"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="detail-item">
+                            <div class="detail-icon">
+                                <i class="fas fa-chair text-info"></i>
+                            </div>
+                            <div class="detail-content">
+                                <div class="detail-label">Puestos reservados</div>
+                                <div class="detail-value" id="passengerSeats"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
 
     <!-- Botón de regreso -->
     <div class="actions-area" style="margin-top: 2rem;">
@@ -534,6 +848,60 @@
 
 <!-- Script para el mapa -->
 <script>
+function setApprovalData(reservaId, nombrePasajero) {
+    // Configurar el formulario
+    const form = document.getElementById('approvalForm');
+    form.action = `/conductor/verificar-pasajero/${reservaId}`;
+    
+    // Actualizar el mensaje del modal
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
+}
+
+function showPassengerModal(userId, name, photo, email, phone, city, rating, seats) {
+    // Actualizar información básica
+    document.getElementById('passengerName').textContent = name;
+    document.getElementById('passengerEmail').textContent = email;
+    document.getElementById('passengerPhone').textContent = phone;
+    document.getElementById('passengerCity').textContent = city;
+    document.getElementById('passengerSeats').textContent = `${seats} puesto(s)`;
+    
+    // Manejar foto de perfil
+    const photoElement = document.getElementById('passengerPhoto');
+    const placeholderElement = document.getElementById('noPhotoPlaceholder');
+    
+    if (photo && photo.trim() !== '') {
+        photoElement.src = photo;
+        photoElement.style.display = 'block';
+        placeholderElement.style.display = 'none';
+    } else {
+        photoElement.style.display = 'none';
+        placeholderElement.style.display = 'flex';
+    }
+    
+    // Manejar calificación
+    const ratingElement = document.getElementById('passengerRating');
+    if (rating && rating > 0) {
+        ratingElement.innerHTML = `<i class="fas fa-star"></i> ${rating}/5`;
+        ratingElement.style.display = 'inline-flex';
+    } else {
+        ratingElement.innerHTML = '<i class="fas fa-star-half-alt"></i> Sin calificaciones';
+        ratingElement.style.display = 'inline-flex';
+    }
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('passengerInfoModal'));
+    modal.show();
+}
+function setApprovalData(reservaId, nombrePasajero) {
+    // Configurar el formulario
+    const form = document.getElementById('approvalForm');
+    form.action = `/conductor/verificar-pasajero/${reservaId}`;
+    
+    // Actualizar el mensaje del modal
+    const modalMessage = document.getElementById('modalMessage');
+    modalMessage.textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
+}
 function initViajeDetalleMapa() {
     try {
         // Coordenadas del origen y destino desde Laravel
@@ -629,5 +997,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // También exponer la función globalmente por si acaso
 window.initViajeDetalleMapa = initViajeDetalleMapa;
+
 </script>
 @endsection
