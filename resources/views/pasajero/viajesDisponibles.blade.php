@@ -857,18 +857,18 @@
 
                                     <!-- Driver -->
                                     <div class="detail-row driver-row">
-                                        <div class="driver-avatar">
-                                            @if($viaje->conductor?->foto)
-                                                <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                                            @elseif($viaje->conductor?->avatar)
-                                                <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                                            @else
-                                                <div class="driver-photo-placeholder">
-                                                    <i class="fas fa-user"></i>
-                                                </div>
-                                            @endif
-                                        </div>
-                                        <div class="detail-content">
+                                   <div class="driver-avatar">
+                            @if($viaje->conductor)
+                                <img src="{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" 
+                                    alt="{{ $viaje->conductor->name }}" 
+                                    class="driver-photo">
+                            @else
+                                <div class="driver-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                        </div>
+                                                                <div class="detail-content">
                                             <div class="detail-label">Conductor</div>
                                             <div class="detail-value">
                                                 {{ $viaje->conductor?->name ?? 'No disponible' }}
