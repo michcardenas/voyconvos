@@ -451,18 +451,15 @@
                     <div class="info-label">Destino</div>
                     <div class="info-value">{{ $reserva->viaje->destino_direccion }}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Fecha</div>
-                    <div class="info-value">{{ $reserva->viaje->fecha_salida }}</div>
-                </div>
+           
                 <div class="info-item">
                     <div class="info-label">Hora</div>
                     <div class="info-value">{{ $reserva->viaje->hora_salida }}</div>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Fecha de Salida</div>
-                    <div class="info-value">{{ $reserva->viaje->fecha_salida }}</div>
-                </div>
+           <div class="info-item">
+                <div class="info-label">Fecha de Salida</div>
+                <div class="info-value">{{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('d/m/Y') }}</div>
+            </div>
                 <div class="info-item">
                     <div class="info-label">Puestos Reservados</div>
                     <div class="info-value">{{ $reserva->cantidad_puestos }}</div>
@@ -479,16 +476,103 @@
                 <h5 class="card-title">Conductor</h5>
             </div>
             
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Nombre</div>
-                    <div class="info-value">{{ $reserva->viaje->conductor->name ?? 'N/D' }}</div>
+         
+<!-- INFORMACIÓN DEL CONDUCTOR CON FOTO - RESPONSIVE -->
+<div class="conductor-section" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%); border-radius: 15px; padding: 20px; margin: 20px 0; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
+    <h5 style="margin-bottom: 15px; color: #333; text-align: center;">
+        <i class="fas fa-user-tie"></i> Tu Conductor
+    </h5>
+    
+    <!-- LEYENDA DE CONFIANZA -->
+    <div class="trust-badge" style="background: linear-gradient(45deg, #28a745, #20c997); color: white; padding: 12px; border-radius: 10px; text-align: center; margin-bottom: 20px; font-size: 0.95em; box-shadow: 0 2px 8px rgba(40, 167, 69, 0.3);">
+        <i class="fas fa-shield-alt" style="margin-right: 8px;"></i>
+        <strong>Conductor y vehículo verificados por nuestra plataforma.</strong> 
+        <br class="d-sm-none">¡Puedes viajar seguro!
+    </div>
+    
+    <div class="conductor-content" style="display: flex; flex-direction: column; gap: 20px;">
+        <!-- FOTO DEL CONDUCTOR - CENTRADA EN MÓVIL -->
+        <div class="conductor-photo" style="text-align: center;">
+            @if($reserva->viaje->conductor->foto)
+                <img src="{{ asset('storage/' . $reserva->viaje->conductor->foto) }}" 
+                     alt="Foto de {{ $reserva->viaje->conductor->name }}"
+                     style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 4px solid #007bff; box-shadow: 0 4px 12px rgba(0,123,255,0.3);">
+            @else
+                <div style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(45deg, #6c757d, #495057); display: inline-flex; align-items: center; justify-content: center; color: white; font-size: 32px; box-shadow: 0 4px 12px rgba(108,117,125,0.3);">
+                    <i class="fas fa-user"></i>
                 </div>
-                <div class="info-item">
-                    <div class="info-label">Email</div>
-                    <div class="info-value">{{ $reserva->viaje->conductor->email ?? 'N/D' }}</div>
+            @endif
+        </div>
+        
+        <!-- DATOS DEL CONDUCTOR - GRID RESPONSIVE -->
+        <div class="conductor-details">
+            <div class="row g-3">
+                <div class="col-12 col-md-6">
+                    <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+                            <i class="fas fa-user" style="margin-right: 5px;"></i> Nombre
+                        </div>
+                        <div class="info-value" style="color: #333; font-size: 1.15em; font-weight: 500;">
+                            {{ $reserva->viaje->conductor->name ?? 'N/D' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12 col-md-6">
+                    <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+                            <i class="fas fa-envelope" style="margin-right: 5px;"></i> Email
+                        </div>
+                        <div class="info-value" style="color: #333; font-size: 1rem; word-break: break-all;">
+                            {{ $reserva->viaje->conductor->email ?? 'N/D' }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-12">
+                    <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                        <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+                            <i class="fas fa-phone" style="margin-right: 5px;"></i> Contacto
+                        </div>
+                        <div class="info-value">
+                            @if($reserva->viaje->conductor->celular)
+                                <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
+                                   style="color: #007bff; text-decoration: none; font-size: 1.1em; font-weight: 500;">
+                                    <i class="fas fa-phone-alt" style="margin-right: 8px;"></i>
+                                    {{ $reserva->viaje->conductor->celular }}
+                                </a>
+                            @else
+                                <span style="color: #6c757d;">No disponible</span>
+                            @endif
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+    
+    <!-- BOTONES DE CONTACTO - RESPONSIVE -->
+    @if($reserva->viaje->conductor->celular)
+        <div class="contact-buttons" style="margin-top: 20px;">
+            <div class="row g-2">
+                <div class="col-12 col-sm-6">
+                    <a href="{{ route('chat.ver', $reserva->viaje_id) }}" class="btn-custom primary">
+                        <i class="fas fa-comments me-2"></i>Abrir Chat
+                    </a>
+                </div>
+                
+                <div class="col-12 col-sm-6">
+                    <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
+                       class="btn btn-outline-primary w-100"
+                       style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
+                        <i class="fas fa-phone" style="margin-right: 8px;"></i> 
+                        Llamar ahora
+                    </a>
+                </div>
+            </div>
+        </div>
+    @endif
+</div>
 
             @if (!$reserva->calificacionEnviadaPorPasajero())
                 <div style="margin-top: 1.5rem; text-align: center;">
@@ -577,9 +661,7 @@
     <a href="{{ route('pasajero.dashboard') }}" class="btn-custom secondary">
         <i class="fas fa-arrow-left me-2"></i>Volver al listado
     </a>
-    <a href="{{ route('chat.ver', $reserva->viaje_id) }}" class="btn-custom primary">
-        <i class="fas fa-comments me-2"></i>Abrir Chat
-    </a>
+  
 </div>
 
 <!-- 🔧 SCRIPT INLINE PARA DEBUGGING -->
