@@ -63,7 +63,41 @@ public function reservar(Request $request, Viaje $viaje)
         'viaje_total' => $viaje->valor_cobrado
     ]);
 
-    // Validar datos básicos
+    // 🔥 NUEVA LÓGICA: Verificar si ya existe una reserva
+    $reservaExistente = Reserva::where('viaje_id', $viaje->id)
+                              ->where('user_id', $userId)
+                              ->first();
+    
+    if ($reservaExistente) {
+        \Log::info('=== RESERVA EXISTENTE ENCONTRADA ===', [
+            'reserva_id' => $reservaExistente->id,
+            'estado' => $reservaExistente->estado
+        ]);
+        
+        // Si está pendiente de pago, saltar directo al pago
+        if ($reservaExistente->estado === 'pendiente_pago') {
+            \Log::info('=== PROCESANDO PAGO PARA RESERVA EXISTENTE ===');
+            
+            // Usar la reserva existente en lugar de crear una nueva
+            $reserva = $reservaExistente;
+            
+            // Saltar directo a la configuración de Mercado Pago
+            goto mercadopago_setup;
+        }
+        
+        // Si ya está confirmada o en otro estado, informar
+        if ($reservaExistente->estado === 'confirmada') {
+            return redirect()->route('pasajero.dashboard')
+                ->with('info', 'Ya tienes una reserva confirmada para este viaje');
+        }
+        
+        if ($reservaExistente->estado === 'pendiente') {
+            return redirect()->route('pasajero.dashboard')
+                ->with('info', 'Tu reserva está pendiente de confirmación por el conductor');
+        }
+    }
+
+    // Validar datos básicos (solo para reservas nuevas)
     $validated = $request->validate([
         'cantidad_puestos' => 'required|integer|min:1',
         'valor_cobrado' => 'required|numeric|min:0.01',
@@ -87,7 +121,7 @@ public function reservar(Request $request, Viaje $viaje)
             throw new \Exception('Usuario no autenticado');
         }
 
-        // Crear la reserva
+        // Crear la reserva (solo para nuevas)
         $reserva = new Reserva();
         $reserva->viaje_id = $viaje->id;
         $reserva->user_id = $userId;
@@ -101,8 +135,8 @@ public function reservar(Request $request, Viaje $viaje)
         // Actualizar puestos disponibles
         $viaje->puestos_disponibles -= $validated['cantidad_puestos'];
         $viaje->save();
+        
         // Si el viaje requiere verificación de pasajeros, no crear preferencia aún
-    
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
             $reserva->estado = 'pendiente';
@@ -113,6 +147,8 @@ public function reservar(Request $request, Viaje $viaje)
             return redirect()->route('pasajero.dashboard')->with('success', '✅ Se ha creado su reserva y está esperando la confirmación del conductor. Una vez confirmada, podrá proceder al pago.');
         }
 
+        // 🏷️ ETIQUETA PARA SALTO DIRECTO A MERCADO PAGO
+        mercadopago_setup:
 
         // Configurar Mercado Pago
         $accessToken = env('MERCADO_PAGO_ACCESS_TOKEN');
@@ -124,15 +160,15 @@ public function reservar(Request $request, Viaje $viaje)
         MercadoPagoConfig::setAccessToken($accessToken);
         $client = new PreferenceClient();
 
-        // Crear preferencia de pago
-            $preferenceData = [
+        // Crear preferencia de pago (funciona para nuevas y existentes)
+        $preferenceData = [
             "items" => [
                 [
                     "id" => "VIAJE_" . $viaje->id,
                     "title" => substr("Viaje de " . ($viaje->origen_direccion ?? 'origen') . " a " . ($viaje->destino_direccion ?? 'destino'), 0, 255),
-                    "description" => "Reserva de {$validated['cantidad_puestos']} puesto(s)",
-                    "quantity" => (int) $validated['cantidad_puestos'],
-                    "unit_price" => (float) $validated['valor_cobrado'],
+                    "description" => "Reserva de {$reserva->cantidad_puestos} puesto(s)",
+                    "quantity" => (int) $reserva->cantidad_puestos,
+                    "unit_price" => (float) $reserva->precio_por_persona,
                     "currency_id" => "ARS"
                 ]
             ],
@@ -146,14 +182,13 @@ public function reservar(Request $request, Viaje $viaje)
             "payer" => [
                 "email" => auth()->user()->email,
                 "name" => auth()->user()->name
-            ],
-            // Opcional, solo si tienes endpoint público configurado:
-            //"notification_url" => route('webhook.mercadopago') 
+            ]
         ];
 
-        
         \Log::info('=== MERCADO PAGO REQUEST ===', [
-            'preference_data' => $preferenceData
+            'preference_data' => $preferenceData,
+            'reserva_id' => $reserva->id,
+            'es_existente' => isset($reservaExistente)
         ]);
 
         $preference = $client->create($preferenceData);
@@ -161,14 +196,16 @@ public function reservar(Request $request, Viaje $viaje)
         // Guardar datos de MP
         $reserva->mp_preference_id = $preference->id;
         $reserva->mp_init_point = $preference->init_point;
+        $reserva->estado = 'pendiente_pago'; // Asegurar estado correcto
         $reserva->save();
         
         // Confirmar transacción
         \DB::commit();
         
-        \Log::info('=== RESERVA CREADA EXITOSAMENTE ===', [
+        \Log::info('=== RESERVA PROCESADA EXITOSAMENTE ===', [
             'reserva_id' => $reserva->id,
-            'mp_preference_id' => $preference->id
+            'mp_preference_id' => $preference->id,
+            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA'
         ]);
 
         // Redirigir a Mercado Pago
@@ -200,7 +237,6 @@ public function reservar(Request $request, Viaje $viaje)
         ]);
     }
 }
-
 
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)

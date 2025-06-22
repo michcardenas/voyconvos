@@ -573,6 +573,43 @@
 
 <!-- 🔧 SCRIPT INLINE PARA DEBUGGING -->
 <script>
+    function procesarPago(reservaId) {
+    console.log('🚀 Procesando pago para reserva:', reservaId);
+    
+    // Crear formulario
+    const form = document.createElement('form');
+    form.method = 'POST';
+    form.action = '/pasajero/reservar/{{ $reserva->viaje_id }}'; // URL directa
+    
+    // Campos requeridos
+    const campos = {
+        'cantidad_puestos': {{ $reserva->cantidad_puestos }},
+        'valor_cobrado': {{ $reserva->precio_por_persona }},
+        'total': {{ $reserva->total }},
+        'viaje_id': {{ $reserva->viaje_id }},
+        '_token': '{{ csrf_token() }}'
+    };
+    
+    // Crear inputs
+    Object.entries(campos).forEach(([name, value]) => {
+        const input = document.createElement('input');
+        input.type = 'hidden';
+        input.name = name;
+        input.value = value;
+        form.appendChild(input);
+    });
+    
+    // Deshabilitar botón
+    const btn = document.querySelector('.btn-pay');
+    if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+    }
+    
+    // Enviar
+    document.body.appendChild(form);
+    form.submit();
+}
 // ⚠️ TEST BÁSICO - Esto debería aparecer en consola
 console.log("🚨 SCRIPT EJECUTÁNDOSE - Si ves esto, JavaScript funciona");
 console.log("📍 Coordenadas:", {
