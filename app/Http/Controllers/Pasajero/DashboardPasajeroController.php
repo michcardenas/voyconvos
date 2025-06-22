@@ -58,7 +58,7 @@ public function index(Request $request) {
     $reservas = $query->get();
     
     // DEBUG: Ver cuántas reservas encuentra
-    // dd("Reservas encontradas: " . $reservas->count() . " con filtro: " . $estadoFiltro);
+     dd("Reservas encontradas: " . $reservas->count() . " con filtro: " . $estadoFiltro);
     
     return view('pasajero.dashboard', compact('reservas', 'estadoFiltro'));
 }
