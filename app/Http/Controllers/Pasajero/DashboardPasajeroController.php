@@ -9,6 +9,9 @@ use App\Models\Viaje;
 class DashboardPasajeroController extends Controller
 {
 public function index(Request $request) {
+        dd("MÉTODO INDEX EJECUTÁNDOSE");
+
+    
     $userId = auth()->id();
     $estadoFiltro = $request->get('estado', 'activos');
     
