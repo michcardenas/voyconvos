@@ -398,19 +398,23 @@
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
         
-        <!-- Filtros simples -->
+        <!-- Filtros completos -->
         <div class="d-flex gap-2 flex-wrap">
             <a href="{{ route('pasajero.dashboard', ['estado' => 'activos']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? 'activos') === 'activos' ? 'btn-primary' : 'btn-outline-primary' }}">
                 Activos
             </a>
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente']) }}" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente' ? 'btn-warning' : 'btn-outline-warning' }}">
+                Pendiente
+            </a>
             <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_pago']) }}" 
-               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'btn-warning' : 'btn-outline-warning' }}">
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'btn-info' : 'btn-outline-info' }}">
                 Por Pagar
             </a>
-            <a href="{{ route('pasajero.dashboard', ['estado' => 'completados']) }}" 
-               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'completados' ? 'btn-success' : 'btn-outline-success' }}">
-                Completados
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'confirmada']) }}" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'confirmada' ? 'btn-success' : 'btn-outline-success' }}">
+                Confirmada
             </a>
             <a href="{{ route('pasajero.dashboard', ['estado' => 'cancelados']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'cancelados' ? 'btn-danger' : 'btn-outline-danger' }}">
@@ -518,11 +522,34 @@
         <i class="fas fa-inbox fa-2x mb-3"></i>
         <h5>No hay reservas</h5>
         <p>
-            @if(($estadoFiltro ?? 'activos') === 'activos')
-                No tienes reservas activas. ¡Busca tu próximo viaje!
-            @else
-                No hay reservas en este estado.
-            @endif
+            @switch($estadoFiltro ?? 'activos')
+                @case('activos')
+                    No tienes reservas activas. ¡Busca tu próximo viaje!
+                    @break
+                @case('pendiente')
+                    No tienes reservas pendientes de aprobación.
+                    @break
+                @case('pendiente_pago')
+                    No tienes reservas pendientes de pago.
+                    @break
+                @case('confirmada')
+                    No tienes reservas confirmadas.
+                    @break
+                @case('cancelados')
+                    No tienes reservas canceladas.
+                    @break
+                @case('cancelada')
+                    No tienes reservas canceladas.
+                    @break
+                @case('fallida')
+                    No tienes reservas fallidas.
+                    @break
+                @case('todos')
+                    No tienes ninguna reserva.
+                    @break
+                @default
+                    No hay reservas en este estado.
+            @endswitch
         </p>
         @if(($estadoFiltro ?? 'activos') === 'activos')
             <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn btn-primary">
@@ -531,7 +558,6 @@
         @endif
     </div>
 @endif
-
         <!-- Calificaciones Section -->
         <div class="section-header">
             <h4><i class="fas fa-star me-2"></i>Tus calificaciones como pasajero</h4>
@@ -646,10 +672,13 @@
 @media (max-width: 768px) {
     .d-flex.gap-2 {
         gap: 5px !important;
+        justify-content: center;
+        flex-wrap: wrap;
     }
     .btn-sm {
         font-size: 0.7em;
         padding: 4px 8px;
+        white-space: nowrap;
     }
     .btn-custom.btn-sm {
         padding: 4px 8px;
@@ -658,6 +687,18 @@
     .d-flex.justify-content-between {
         flex-direction: column;
         gap: 15px;
+        text-align: center;
+    }
+    /* En móvil, hacer los filtros más compactos */
+    .d-flex.gap-2.flex-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .d-flex.gap-2.flex-wrap::-webkit-scrollbar {
+        display: none;
     }
 }
 </style>
