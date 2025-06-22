@@ -460,8 +460,9 @@
 }
 
 .filters-row {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
     gap: 20px;
     align-items: end;
 }
@@ -646,20 +647,24 @@
         <div class="page-header">
             <h2>🚗 Viajes Disponibles</h2>
         </div>
-<!-- Filtros simples -->
 <div class="filter-container">
-    <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form">
+    <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form" id="filterForm">
         <div class="filters-row">
             <!-- Filtro por Ciudad Origen -->
             <div class="filter-group">
                 <label for="ciudad_origen" class="filter-label">
-                    <i class="fas fa-map-marker-alt"></i>
-                    Ciudad origen:
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <span class="label-text">Ciudad origen:</span>
                 </label>
-                <select name="ciudad_origen" id="ciudad_origen" class="filter-select" onchange="this.form.submit()">
+                <select name="ciudad_origen" 
+                        id="ciudad_origen" 
+                        class="filter-select" 
+                        onchange="this.form.submit()"
+                        aria-label="Seleccionar ciudad de origen">
                     <option value="">Todas las ciudades</option>
                     @foreach($ciudadesOrigen as $ciudad)
-                        <option value="{{ $ciudad }}" {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
+                        <option value="{{ $ciudad }}" 
+                                {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
                             {{ $ciudad }}
                         </option>
                     @endforeach
@@ -669,13 +674,18 @@
             <!-- Filtro por Ciudad Destino -->
             <div class="filter-group">
                 <label for="ciudad_destino" class="filter-label">
-                    <i class="fas fa-flag-checkered"></i>
-                    Ciudad destino:
+                    <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                    <span class="label-text">Ciudad destino:</span>
                 </label>
-                <select name="ciudad_destino" id="ciudad_destino" class="filter-select" onchange="this.form.submit()">
+                <select name="ciudad_destino" 
+                        id="ciudad_destino" 
+                        class="filter-select" 
+                        onchange="this.form.submit()"
+                        aria-label="Seleccionar ciudad de destino">
                     <option value="">Todas las ciudades</option>
                     @foreach($ciudadesDestino as $ciudad)
-                        <option value="{{ $ciudad }}" {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
+                        <option value="{{ $ciudad }}" 
+                                {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
                             {{ $ciudad }}
                         </option>
                     @endforeach
@@ -685,8 +695,8 @@
             <!-- Filtro por Fecha -->
             <div class="filter-group">
                 <label for="fecha_salida" class="filter-label">
-                    <i class="fas fa-calendar"></i>
-                    Fecha de salida:
+                    <i class="fas fa-calendar" aria-hidden="true"></i>
+                    <span class="label-text">Fecha salida:</span>
                 </label>
                 <input type="date" 
                        name="fecha_salida" 
@@ -694,16 +704,21 @@
                        class="filter-select" 
                        value="{{ request('fecha_salida') }}"
                        min="{{ date('Y-m-d') }}"
-                       onchange="this.form.submit()">
+                       onchange="this.form.submit()"
+                       aria-label="Seleccionar fecha de salida">
             </div>
 
             <!-- Filtro por Puestos -->
             <div class="filter-group">
                 <label for="puestos_minimos" class="filter-label">
-                    <i class="fas fa-chair"></i>
-                    Puestos mínimos:
+                    <i class="fas fa-chair" aria-hidden="true"></i>
+                    <span class="label-text">Puestos mín:</span>
                 </label>
-                <select name="puestos_minimos" id="puestos_minimos" class="filter-select" onchange="this.form.submit()">
+                <select name="puestos_minimos" 
+                        id="puestos_minimos" 
+                        class="filter-select" 
+                        onchange="this.form.submit()"
+                        aria-label="Seleccionar número mínimo de puestos">
                     <option value="">Todos</option>
                     <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1+</option>
                     <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2+</option>
@@ -713,12 +728,17 @@
             </div>
 
             <!-- Botón limpiar -->
-            @if(request('puestos_minimos') || request('ciudad_origen') || request('ciudad_destino') || request('fecha_salida'))
+            @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
                 <div class="filter-group">
-                    <label class="filter-label" style="opacity: 0;">Acciones</label>
-                    <a href="{{ route('pasajero.viajes.disponibles') }}" class="clear-filter">
-                        <i class="fas fa-times"></i>
-                        Limpiar
+                    <label class="filter-label" style="opacity: 0; pointer-events: none;" aria-hidden="true">
+                        <span>Acciones</span>
+                    </label>
+                    <a href="{{ route('pasajero.viajes.disponibles') }}" 
+                       class="clear-filter"
+                       role="button"
+                       aria-label="Limpiar todos los filtros">
+                        <i class="fas fa-times" aria-hidden="true"></i>
+                        <span class="clear-text">Limpiar</span>
                     </a>
                 </div>
             @endif
@@ -726,36 +746,60 @@
     </form>
 </div>
 
-<!-- Mostrar filtros activos -->
-@if(request('puestos_minimos') || request('ciudad_origen') || request('ciudad_destino') || request('fecha_salida'))
-    <div class="active-filters">
-        @if(request('ciudad_origen'))
-            <span class="filter-tag">
-                <i class="fas fa-map-marker-alt"></i>
-                Origen: {{ request('ciudad_origen') }}
-            </span>
-        @endif
-        @if(request('ciudad_destino'))
-            <span class="filter-tag">
-                <i class="fas fa-flag-checkered"></i>
-                Destino: {{ request('ciudad_destino') }}
-            </span>
-        @endif
-        @if(request('fecha_salida'))
-            <span class="filter-tag">
-                <i class="fas fa-calendar"></i>
-                Fecha: {{ \Carbon\Carbon::parse(request('fecha_salida'))->format('d/m/Y') }}
-            </span>
-        @endif
-        @if(request('puestos_minimos'))
-            <span class="filter-tag">
-                <i class="fas fa-chair"></i>
-                {{ request('puestos_minimos') }}+ puestos
-            </span>
-        @endif
+<!-- Filtros Activos Responsive -->
+@if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+    <div class="active-filters" role="region" aria-label="Filtros aplicados">
+        <div class="active-filters-header" style="width: 100%; margin-bottom: 8px;">
+            <strong style="font-size: 14px; opacity: 0.9;">Filtros aplicados:</strong>
+        </div>
+        <div class="filters-tags-container">
+            @if(request('ciudad_origen'))
+                <span class="filter-tag" role="status">
+                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                    <span>Origen: {{ request('ciudad_origen') }}</span>
+                </span>
+            @endif
+            @if(request('ciudad_destino'))
+                <span class="filter-tag" role="status">
+                    <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                    <span>Destino: {{ request('ciudad_destino') }}</span>
+                </span>
+            @endif
+            @if(request('fecha_salida'))
+                <span class="filter-tag" role="status">
+                    <i class="fas fa-calendar" aria-hidden="true"></i>
+                    <span>Fecha: {{ \Carbon\Carbon::parse(request('fecha_salida'))->format('d/m/Y') }}</span>
+                </span>
+            @endif
+            @if(request('puestos_minimos'))
+                <span class="filter-tag" role="status">
+                    <i class="fas fa-chair" aria-hidden="true"></i>
+                    <span>{{ request('puestos_minimos') }}+ puestos</span>
+                </span>
+            @endif
+        </div>
     </div>
 @endif
 
+<!-- Resumen de Resultados Responsive -->
+<div class="results-summary" role="status" aria-live="polite">
+    <div class="results-content">
+        <p class="results-text">
+            <span class="results-icon">🔍</span>
+            Se encontraron 
+            <span class="results-count">{{ $viajesDisponibles->count() }}</span> 
+            {{ $viajesDisponibles->count() == 1 ? 'viaje disponible' : 'viajes disponibles' }}
+            @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+                <span class="filter-indicator">con los filtros aplicados</span>
+            @endif
+        </p>
+        @if($viajesDisponibles->count() == 0 && request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+            <p class="no-results-suggestion">
+                <small>💡 Intenta <a href="{{ route('pasajero.viajes.disponibles') }}" style="color: #17a2b8; text-decoration: underline;">quitar algunos filtros</a> para ver más opciones</small>
+            </p>
+        @endif
+    </div>
+</div>
 <!-- Resumen de resultados -->
 <div class="results-summary">
     <p class="results-text">
