@@ -394,60 +394,153 @@
             </div>
         </div>
 
-        <!-- Reservas Section -->
-        <div class="section-header">
-            <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
-        </div>
+       <!-- Reemplaza solo la sección de reservas en tu dashboard actual -->
 
-        @if($reservas->count())
-            <div class="table-container">
-                <div class="table-responsive">
-                    <table class="table align-middle">
-                        <thead>
-                            <tr>
-                                <th><i class="fas fa-map-marker-alt me-2"></i>Origen</th>
-                                <th><i class="fas fa-flag-checkered me-2"></i>Destino</th>
-                                <th><i class="fas fa-cogs me-2"></i>Acciones</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach($reservas as $reserva)
-                                @if($reserva->viaje)
-                                <tr>
-                                    <td>
-                                        <strong>{{ $reserva->viaje->origen_direccion }}</strong>
-                                    </td>
-                                    <td>
-                                        <strong>{{ $reserva->viaje->destino_direccion }}</strong>
-                                    </td>
-                                    <td>
-                                        <a href="{{ route('pasajero.reserva.detalles', $reserva->id) }}" 
-                                           class="btn-custom outline">
-                                            <i class="fas fa-info-circle me-1"></i>Detalles
-                                        </a>
-                                        <a href="{{ route('pasajero.reserva.detalles', $reserva->id) }}#mapa" 
-                                           class="btn-custom primary">
-                                            <i class="fas fa-map me-1"></i>Ver ruta
-                                        </a>
-                                        <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" 
-                                           class="btn-custom accent">
-                                            <i class="fas fa-comments me-1"></i>Chat
-                                        </a>
-                                    </td>
-                                </tr>
+<div class="section-header">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
+        
+        <!-- Filtros simples -->
+        <div class="d-flex gap-2 flex-wrap">
+            <a href="{{ route('pasajero.dashboard') }}?estado=activos" 
+               class="btn btn-sm {{ ($estadoFiltro ?? 'activos') === 'activos' ? 'btn-primary' : 'btn-outline-primary' }}">
+                Activos
+            </a>
+            <a href="{{ route('pasajero.dashboard') }}?estado=pendiente_pago" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'btn-warning' : 'btn-outline-warning' }}">
+                Por Pagar
+            </a>
+            <a href="{{ route('pasajero.dashboard') }}?estado=completados" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'completados' ? 'btn-success' : 'btn-outline-success' }}">
+                Completados
+            </a>
+            <a href="{{ route('pasajero.dashboard') }}?estado=cancelados" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'cancelados' ? 'btn-danger' : 'btn-outline-danger' }}">
+                Cancelados
+            </a>
+            <a href="{{ route('pasajero.dashboard') }}?estado=todos" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'todos' ? 'btn-dark' : 'btn-outline-dark' }}">
+                Todos
+            </a>
+        </div>
+    </div>
+</div>
+
+@if(isset($reservas) && $reservas->count() > 0)
+    <div class="table-container">
+        <div class="table-responsive">
+            <table class="table table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Ruta</th>
+                        <th class="d-none d-md-table-cell">Fecha</th>
+                        <th>Estado</th>
+                        <th class="d-none d-lg-table-cell">Puestos</th>
+                        <th class="d-none d-md-table-cell">Total</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($reservas as $reserva)
+                        @if($reserva->viaje)
+                        <tr>
+                            <!-- RUTA -->
+                            <td>
+                                <strong>{{ Str::limit($reserva->viaje->origen_direccion ?? 'Origen', 15) }}</strong>
+                                <br>
+                                <small class="text-muted">→ {{ Str::limit($reserva->viaje->destino_direccion ?? 'Destino', 15) }}</small>
+                            </td>
+                            
+                            <!-- FECHA -->
+                            <td class="d-none d-md-table-cell">
+                                @if($reserva->viaje->fecha_salida)
+                                    {{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('d/m/Y') }}
+                                    <br>
+                                    <small>{{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('H:i') }}</small>
+                                @else
+                                    <span class="text-muted">No definida</span>
                                 @endif
-                            @endforeach
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        @else
-            <div class="empty-state">
-                <i class="fas fa-inbox"></i>
-                <h5>No tienes reservas activas</h5>
-                <p>¡Busca y reserva tu próximo viaje!</p>
-            </div>
+                            </td>
+                            
+                            <!-- ESTADO -->
+                            <td>
+                                @if($reserva->estado === 'pendiente')
+                                    <span class="badge bg-warning">⏰ Pendiente</span>
+                                @elseif($reserva->estado === 'pendiente_pago')
+                                    <span class="badge bg-info">💳 Por Pagar</span>
+                                @elseif($reserva->estado === 'confirmada')
+                                    <span class="badge bg-success">✅ Confirmado</span>
+                                @elseif($reserva->estado === 'cancelada')
+                                    <span class="badge bg-danger">❌ Cancelado</span>
+                                @elseif($reserva->estado === 'fallida')
+                                    <span class="badge bg-dark">⚠️ Fallido</span>
+                                @else
+                                    <span class="badge bg-secondary">{{ $reserva->estado }}</span>
+                                @endif
+                            </td>
+                            
+                            <!-- PUESTOS -->
+                            <td class="d-none d-lg-table-cell">
+                                <span class="badge bg-light text-dark">{{ $reserva->cantidad_puestos ?? 1 }} 👤</span>
+                            </td>
+                            
+                            <!-- TOTAL -->
+                            <td class="d-none d-md-table-cell">
+                                <strong class="text-success">${{ number_format($reserva->total ?? 0, 0) }}</strong>
+                            </td>
+                            
+                            <!-- ACCIONES -->
+                            <td>
+                                <div class="d-flex gap-1 flex-wrap">
+                                    <!-- Detalles -->
+                                    <a href="{{ route('pasajero.reserva.detalles', $reserva->id) }}" 
+                                       class="btn btn-outline-primary btn-sm" title="Ver detalles">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                    
+                                    <!-- Pagar -->
+                                    @if(in_array($reserva->estado, ['pendiente_pago', 'cancelada', 'fallida']))
+                                        <button onclick="procesarPago({{ $reserva->id }})" 
+                                                class="btn btn-success btn-sm" title="Pagar">
+                                            <i class="fas fa-credit-card"></i>
+                                        </button>
+                                    @endif
+                                    
+                                    <!-- Chat -->
+                                    @if($reserva->estado === 'confirmada')
+                                        <a href="{{ route('chat.ver', $reserva->viaje_id) }}" 
+                                           class="btn btn-info btn-sm" title="Chat">
+                                            <i class="fas fa-comments"></i>
+                                        </a>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@else
+    <div class="alert alert-info text-center">
+        <i class="fas fa-inbox fa-2x mb-3"></i>
+        <h5>No hay reservas</h5>
+        <p>
+            @if(($estadoFiltro ?? 'activos') === 'activos')
+                No tienes reservas activas. ¡Busca tu próximo viaje!
+            @else
+                No hay reservas en este estado.
+            @endif
+        </p>
+        @if(($estadoFiltro ?? 'activos') === 'activos')
+            <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn btn-primary">
+                <i class="fas fa-search me-1"></i>Buscar viajes
+            </a>
         @endif
+    </div>
+@endif
+
 
         <!-- Calificaciones Section -->
         <div class="section-header">
@@ -527,4 +620,26 @@
         </div>
     </div>
 </div>
+<script>
+function procesarPago(reservaId) {
+    // Redirigir a la ruta de pago
+    window.location.href = `/pasajero/reservar/${reservaId}`;
+}
+</script>
+
+<style>
+@media (max-width: 768px) {
+    .d-flex.gap-2 {
+        gap: 5px !important;
+    }
+    .btn-sm {
+        font-size: 0.7em;
+        padding: 4px 8px;
+    }
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+    }
+}
+</style>
 @endsection
