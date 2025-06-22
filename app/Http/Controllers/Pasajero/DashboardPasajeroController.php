@@ -8,8 +8,7 @@ use App\Models\Viaje;
 
 class DashboardPasajeroController extends Controller
 {
-   public function index(Request $request)
-{
+public function index(Request $request) {
     $userId = auth()->id();
     $estadoFiltro = $request->get('estado', 'activos');
     
@@ -21,19 +20,32 @@ class DashboardPasajeroController extends Controller
         ->where('user_id', $userId)
         ->orderBy('created_at', 'desc');
     
-    // Filtros simples - VERSION MEJORADA
+    // Filtros ACTUALIZADOS - Incluye los casos que faltan
     switch ($estadoFiltro) {
+        case 'activos':
+            $query->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada']);
+            break;
+        case 'pendiente':
+            $query->where('estado', 'pendiente');
+            break;
         case 'pendiente_pago':
             $query->where('estado', 'pendiente_pago');
+            break;
+        case 'confirmada':
+            $query->where('estado', 'confirmada');
             break;
         case 'cancelados':
             $query->whereIn('estado', ['cancelada', 'fallida']);
             break;
-        case 'completados':
-            $query->where('estado', 'confirmada');
+        case 'cancelada':
+            $query->where('estado', 'cancelada');
             break;
-        case 'activos':
-            $query->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada']);
+        case 'fallida':
+            $query->where('estado', 'fallida');
+            break;
+        case 'completados':
+            // Alias para confirmada (por compatibilidad)
+            $query->where('estado', 'confirmada');
             break;
         case 'todos':
             // No filtrar nada
