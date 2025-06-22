@@ -353,7 +353,7 @@ public function confirmacionReserva(Reserva $reserva)
 
         return view('pasajero.reserva-detalles', compact('reserva'));
     }
-  public function mostrarViajesDisponibles()
+  public function mostrarViajesDisponibles(Request $request)
 {
     $usuarioId = auth()->id();
 
@@ -362,20 +362,63 @@ public function confirmacionReserva(Reserva $reserva)
         ->pluck('viaje_id')
         ->toArray();
 
-    $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
+    // Query base
+    $query = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
         ->whereNotIn('id', $viajesReservados)
-        ->with('conductor')
-        ->orderBy('fecha_salida', 'asc')
-        ->get();
+        ->with('conductor');
 
-    // Formatear las direcciones
+    // Filtro por número mínimo de puestos
+    if ($request->filled('puestos_minimos')) {
+        $query->where('puestos_disponibles', '>=', $request->puestos_minimos);
+    }
+
+    // Filtro por ciudad de origen
+    if ($request->filled('ciudad_origen')) {
+        $query->where('origen_direccion', 'LIKE', '%' . $request->ciudad_origen . '%');
+    }
+
+    $viajesDisponibles = $query->orderBy('fecha_salida', 'asc')->get();
+
+    // Formatear direcciones
     $viajesDisponibles->each(function ($viaje) {
-        $viaje->origen_formateado = $this->formatearDireccion($viaje->origen);
-        $viaje->destino_formateado = $this->formatearDireccion($viaje->destino);
+        $viaje->origen_direccion = $this->formatearDireccion($viaje->origen_direccion);
+        $viaje->destino_direccion = $this->formatearDireccion($viaje->destino_direccion);
     });
 
-    return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
+    // Obtener ciudades únicas para el filtro
+    $ciudadesOrigen = Viaje::whereDate('fecha_salida', '>=', now())
+        ->where('puestos_disponibles', '>', 0)
+        ->distinct()
+        ->pluck('origen_direccion')
+        ->map(function($direccion) {
+            return $this->extraerCiudad($direccion);
+        })
+        ->filter() // Remover valores vacíos
+        ->unique()
+        ->sort()
+        ->values();
+
+    return view('pasajero.viajesDisponibles', compact('viajesDisponibles', 'ciudadesOrigen'));
+}
+
+private function extraerCiudad($direccion)
+{
+    if (!$direccion) return '';
+    
+    // Formato: "MQ2X+7P Mosquera, Cundinamarca, Colombia"
+    $partes = explode(',', $direccion);
+    
+    if (count($partes) >= 1) {
+        // Tomar la primera parte: "MQ2X+7P Mosquera"
+        $primeraParte = trim($partes[0]);
+        
+        // Dividir por espacios y tomar la última palabra (la ciudad)
+        $palabras = explode(' ', $primeraParte);
+        return trim(end($palabras));
+    }
+    
+    return '';
 }
 
 private function formatearDireccion($direccion)
@@ -384,13 +427,10 @@ private function formatearDireccion($direccion)
     
     $partes = explode(', ', $direccion);
     
-    // Si tiene al menos 3 partes (dirección, barrio, ciudad, ...)
-    // Tomar desde la segunda parte (barrio) hasta la tercera (ciudad)
     if (count($partes) >= 3) {
         return $partes[1] . ', ' . $partes[2];
     }
     
-    // Si tiene menos partes, devolver lo que tenga sin el país
     if (count($partes) >= 2) {
         return implode(', ', array_slice($partes, 0, -1));
     }

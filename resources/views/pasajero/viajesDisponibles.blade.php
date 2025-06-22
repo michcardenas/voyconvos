@@ -445,6 +445,117 @@
         font-weight: 600;
         border: 1px solid rgba(76, 175, 80, 0.3);
     }
+    .filter-container {
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    border-left: 4px solid #667eea;
+}
+
+.filter-form {
+    margin: 0;
+}
+
+.filters-row {
+    display: flex;
+    align-items: end;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 200px;
+}
+
+.filter-label {
+    font-weight: 600;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 14px;
+}
+
+.filter-select {
+    padding: 10px 15px;
+    border: 2px solid #e1e5e9;
+    border-radius: 8px;
+    background: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #667eea;
+}
+
+.clear-filter {
+    background: #dc3545;
+    color: white;
+    padding: 10px 15px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    transition: background-color 0.3s ease;
+    height: fit-content;
+    font-weight: 500;
+}
+
+.clear-filter:hover {
+    background: #c82333;
+    color: white;
+    text-decoration: none;
+}
+
+.active-filters {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    color: white;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+}
+
+.filter-tag {
+    background: rgba(255, 255, 255, 0.2);
+    padding: 8px 12px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .filters-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .filter-group {
+        min-width: auto;
+        width: 100%;
+    }
+    
+    .active-filters {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
 
     @media (max-width: 768px) {
         .trips-wrapper {
@@ -512,7 +623,71 @@
         <div class="page-header">
             <h2>🚗 Viajes Disponibles</h2>
         </div>
+<!-- Filtros simples -->
+<div class="filter-container">
+    <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form">
+        <div class="filters-row">
+            <!-- Filtro por Ciudad -->
+            <div class="filter-group">
+                <label for="ciudad_origen" class="filter-label">
+                    <i class="fas fa-map-marker-alt"></i>
+                    Ciudad de origen:
+                </label>
+                <select name="ciudad_origen" id="ciudad_origen" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Todas las ciudades</option>
+                    @foreach($ciudadesOrigen as $ciudad)
+                        <option value="{{ $ciudad }}" {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
+                            {{ $ciudad }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
 
+            <!-- Filtro por Puestos -->
+            <div class="filter-group">
+                <label for="puestos_minimos" class="filter-label">
+                    <i class="fas fa-chair"></i>
+                    Puestos disponibles:
+                </label>
+                <select name="puestos_minimos" id="puestos_minimos" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Todos los viajes</option>
+                    <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1 o más puestos</option>
+                    <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2 o más puestos</option>
+                    <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3 o más puestos</option>
+                    <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4 o más puestos</option>
+                </select>
+            </div>
+
+            <!-- Botón limpiar (solo si hay filtros activos) -->
+            @if(request('puestos_minimos') || request('ciudad_origen'))
+                <div class="filter-group">
+                    <a href="{{ route('pasajero.viajes.disponibles') }}" class="clear-filter">
+                        <i class="fas fa-times"></i>
+                        Limpiar filtros
+                    </a>
+                </div>
+            @endif
+        </div>
+    </form>
+</div>
+
+<!-- Mostrar filtros activos -->
+@if(request('puestos_minimos') || request('ciudad_origen'))
+    <div class="active-filters">
+        @if(request('ciudad_origen'))
+            <span class="filter-tag">
+                <i class="fas fa-map-marker-alt"></i>
+                Ciudad: {{ request('ciudad_origen') }}
+            </span>
+        @endif
+        @if(request('puestos_minimos'))
+            <span class="filter-tag">
+                <i class="fas fa-chair"></i>
+                {{ request('puestos_minimos') }}+ puestos
+            </span>
+        @endif
+    </div>
+@endif
         <!-- Success/Error Messages -->
         @if(session('success'))
             <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
