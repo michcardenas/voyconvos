@@ -858,10 +858,15 @@
                                     <!-- Driver -->
                                     <div class="detail-row driver-row">
                                <div class="driver-avatar">
+    <!-- DEBUG: quitar después -->
+    <p>Foto value: "{{ $viaje->conductor->foto ?? 'NULL' }}"</p>
+    <p>Full URL: "{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : 'No foto' }}"</p>
+    
     @if($viaje->conductor)
         <img src="{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" 
              alt="{{ $viaje->conductor->name }}" 
-             class="driver-photo">
+             class="driver-photo"
+             style="border: 2px solid red;"> <!-- Para ver si se renderiza -->
     @else
         <div class="driver-photo-placeholder">
             <i class="fas fa-user"></i>
