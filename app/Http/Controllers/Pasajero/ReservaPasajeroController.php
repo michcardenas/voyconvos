@@ -74,9 +74,11 @@ public function reservar(Request $request, Viaje $viaje)
             'estado' => $reservaExistente->estado
         ]);
         
-        // Si está pendiente de pago, saltar directo al pago
-        if ($reservaExistente->estado === 'pendiente_pago') {
-            \Log::info('=== PROCESANDO PAGO PARA RESERVA EXISTENTE ===');
+        // Si está pendiente de pago o cancelada, saltar directo al pago
+        if ($reservaExistente->estado === 'pendiente_pago' || $reservaExistente->estado === 'cancelada') {
+            \Log::info('=== PROCESANDO PAGO PARA RESERVA EXISTENTE ===', [
+                'estado_original' => $reservaExistente->estado
+            ]);
             
             // Usar la reserva existente en lugar de crear una nueva
             $reserva = $reservaExistente;
