@@ -400,23 +400,23 @@
         
         <!-- Filtros simples -->
         <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('pasajero.dashboard') }}?estado=activos" 
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'activos']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? 'activos') === 'activos' ? 'btn-primary' : 'btn-outline-primary' }}">
                 Activos
             </a>
-            <a href="{{ route('pasajero.dashboard') }}?estado=pendiente_pago" 
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_pago']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'btn-warning' : 'btn-outline-warning' }}">
                 Por Pagar
             </a>
-            <a href="{{ route('pasajero.dashboard') }}?estado=completados" 
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'completados']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'completados' ? 'btn-success' : 'btn-outline-success' }}">
                 Completados
             </a>
-            <a href="{{ route('pasajero.dashboard') }}?estado=cancelados" 
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'cancelados']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'cancelados' ? 'btn-danger' : 'btn-outline-danger' }}">
                 Cancelados
             </a>
-            <a href="{{ route('pasajero.dashboard') }}?estado=todos" 
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'todos']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'todos' ? 'btn-dark' : 'btn-outline-dark' }}">
                 Todos
             </a>
@@ -531,6 +531,7 @@
         @endif
     </div>
 @endif
+
         <!-- Calificaciones Section -->
         <div class="section-header">
             <h4><i class="fas fa-star me-2"></i>Tus calificaciones como pasajero</h4>

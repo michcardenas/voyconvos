@@ -11,69 +11,44 @@ class DashboardPasajeroController extends Controller
    public function index(Request $request)
 {
     $userId = auth()->id();
-    
-    // Filtro de estado (por defecto: activos)
     $estadoFiltro = $request->get('estado', 'activos');
     
-    // Construir query base con relaciones
-    $reservasQuery = Reserva::with(['viaje.conductor', 'viaje.vehiculo'])
+    // DEBUG: Ver qué filtro llega
+    // dd("Estado filtro recibido: " . $estadoFiltro);
+    
+    // Query básico
+    $query = Reserva::with(['viaje.conductor'])
         ->where('user_id', $userId)
         ->orderBy('created_at', 'desc');
     
-    // Aplicar filtros
+    // Filtros simples - VERSION MEJORADA
     switch ($estadoFiltro) {
-        case 'activos':
-            $reservasQuery->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada']);
-            break;
         case 'pendiente_pago':
-            $reservasQuery->where('estado', 'pendiente_pago');
+            $query->where('estado', 'pendiente_pago');
             break;
         case 'cancelados':
-            $reservasQuery->whereIn('estado', ['cancelada', 'fallida']);
+            $query->whereIn('estado', ['cancelada', 'fallida']);
             break;
         case 'completados':
-            $reservasQuery->where('estado', 'confirmada');
+            $query->where('estado', 'confirmada');
+            break;
+        case 'activos':
+            $query->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada']);
             break;
         case 'todos':
-            // Mostrar todos, no filtrar
+            // No filtrar nada
             break;
         default:
-            $reservasQuery->where('estado', $estadoFiltro);
+            // Si viene un estado específico, usarlo directamente
+            $query->where('estado', $estadoFiltro);
     }
     
-    // Obtener reservas
-    $reservas = $reservasQuery->paginate(10);
+    $reservas = $query->get();
     
-    // Estadísticas básicas (mantener lo que ya tienes)
-    $totalViajes = 0; // O mantén tu lógica actual
-    $viajesProximos = 0; // O mantén tu lógica actual  
-    $viajesRealizados = 0; // O mantén tu lógica actual
+    // DEBUG: Ver cuántas reservas encuentra
+    // dd("Reservas encontradas: " . $reservas->count() . " con filtro: " . $estadoFiltro);
     
-    // Contar por estado para los badges
-    $conteoEstados = [
-        'activos' => Reserva::where('user_id', $userId)
-            ->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada'])
-            ->count(),
-        'pendiente_pago' => Reserva::where('user_id', $userId)
-            ->where('estado', 'pendiente_pago')
-            ->count(),
-        'cancelados' => Reserva::where('user_id', $userId)
-            ->whereIn('estado', ['cancelada', 'fallida'])
-            ->count(),
-        'completados' => Reserva::where('user_id', $userId)
-            ->where('estado', 'confirmada')
-            ->count(),
-        'todos' => Reserva::where('user_id', $userId)->count()
-    ];
-    
-    return view('pasajero.dashboard', compact(
-        'reservas',
-        'estadoFiltro', 
-        'conteoEstados',
-        'totalViajes',
-        'viajesProximos', 
-        'viajesRealizados'
-    ));
+    return view('pasajero.dashboard', compact('reservas', 'estadoFiltro'));
 }
 
     public function verViajesDisponibles()
