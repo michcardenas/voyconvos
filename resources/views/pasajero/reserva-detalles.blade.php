@@ -533,13 +533,24 @@
     </div>
     
     {{-- Botón de pago que solo aparece cuando el estado es pendiente_pago --}}
-    @if($reserva->estado == 'pendiente_pago')
-        <div class="payment-button-container" style="margin-top: 15px; text-align: center;">
-            <button type="button" class="btn btn-primary btn-pay" onclick="procesarPago({{ $reserva->id }})">
-                <i class="fas fa-credit-card"></i> PAGAR
-            </button>
-        </div>
-    @endif
+@if($reserva->estado == 'pendiente_pago' || $reserva->estado == 'cancelada')
+    <div class="payment-button-container" style="margin-top: 15px; text-align: center;">
+        <button type="button" class="btn btn-primary btn-pay" onclick="procesarPago({{ $reserva->id }})">
+            <i class="fas fa-credit-card"></i> 
+            @if($reserva->estado == 'cancelada')
+                REINTENTAR PAGO
+            @else
+                PAGAR
+            @endif
+        </button>
+        
+        @if($reserva->estado == 'cancelada')
+            <p class="text-muted mt-2" style="font-size: 0.9em;">
+                <i class="fas fa-info-circle"></i> El pago anterior fue cancelado. Puedes intentar nuevamente.
+            </p>
+        @endif
+    </div>
+@endif
 </div>
 
       <!-- Mapa -->
