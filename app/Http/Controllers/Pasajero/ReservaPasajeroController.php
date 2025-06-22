@@ -353,27 +353,50 @@ public function confirmacionReserva(Reserva $reserva)
 
         return view('pasajero.reserva-detalles', compact('reserva'));
     }
-    public function mostrarViajesDisponibles()
-    {
-        $usuarioId = auth()->id(); // ID del usuario logueado
+  public function mostrarViajesDisponibles()
+{
+    $usuarioId = auth()->id();
 
-        // Traer IDs de viajes que ya reservó el usuario
-        $viajesReservados = \DB::table('reservas')
-            ->where('user_id', $usuarioId)
-            ->pluck('viaje_id')
-            ->toArray();
+    $viajesReservados = \DB::table('reservas')
+        ->where('user_id', $usuarioId)
+        ->pluck('viaje_id')
+        ->toArray();
 
-        // Consultar solo los viajes que aún puede reservar
-        $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
-            ->where('puestos_disponibles', '>', 0)
-            ->whereNotIn('id', $viajesReservados)
-            ->with('conductor')
-            ->orderBy('fecha_salida', 'asc')
-            ->get();
+    $viajesDisponibles = Viaje::whereDate('fecha_salida', '>=', now())
+        ->where('puestos_disponibles', '>', 0)
+        ->whereNotIn('id', $viajesReservados)
+        ->with('conductor')
+        ->orderBy('fecha_salida', 'asc')
+        ->get();
 
-        return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
+    // Formatear las direcciones
+    $viajesDisponibles->each(function ($viaje) {
+        $viaje->origen_formateado = $this->formatearDireccion($viaje->origen);
+        $viaje->destino_formateado = $this->formatearDireccion($viaje->destino);
+    });
+
+    return view('pasajero.viajesDisponibles', compact('viajesDisponibles'));
+}
+
+private function formatearDireccion($direccion)
+{
+    if (!$direccion) return '';
+    
+    $partes = explode(', ', $direccion);
+    
+    // Si tiene al menos 3 partes (dirección, barrio, ciudad, ...)
+    // Tomar desde la segunda parte (barrio) hasta la tercera (ciudad)
+    if (count($partes) >= 3) {
+        return $partes[1] . ', ' . $partes[2];
     }
-
+    
+    // Si tiene menos partes, devolver lo que tenga sin el país
+    if (count($partes) >= 2) {
+        return implode(', ', array_slice($partes, 0, -1));
+    }
+    
+    return $direccion;
+}
     public function mostrarResumen(Request $request, Viaje $viaje)
     {
         // Validación de entrada
