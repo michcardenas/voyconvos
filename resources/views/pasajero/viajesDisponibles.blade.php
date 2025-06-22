@@ -858,15 +858,22 @@
                                     <!-- Driver -->
                                     <div class="detail-row driver-row">
                                <div class="driver-avatar">
-    <!-- DEBUG: quitar después -->
-    <p>Foto value: "{{ $viaje->conductor->foto ?? 'NULL' }}"</p>
-    <p>Full URL: "{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : 'No foto' }}"</p>
+    <!-- DEBUG COMPLETO: quitar después -->
+    <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px;">
+        <p><strong>¿Existe conductor?</strong> {{ $viaje->conductor ? 'SÍ' : 'NO' }}</p>
+        @if($viaje->conductor)
+            <p><strong>Nombre:</strong> {{ $viaje->conductor->name ?? 'Sin nombre' }}</p>
+            <p><strong>ID:</strong> {{ $viaje->conductor->id ?? 'Sin ID' }}</p>
+            <p><strong>Campo 'foto':</strong> "{{ $viaje->conductor->foto ?? 'NULL' }}"</p>
+            <p><strong>Todos los campos del conductor:</strong></p>
+            <pre>{{ print_r($viaje->conductor->toArray(), true) }}</pre>
+        @endif
+    </div>
     
-    @if($viaje->conductor)
-        <img src="{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" 
+    @if($viaje->conductor && $viaje->conductor->foto)
+        <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" 
              alt="{{ $viaje->conductor->name }}" 
-             class="driver-photo"
-             style="border: 2px solid red;"> <!-- Para ver si se renderiza -->
+             class="driver-photo">
     @else
         <div class="driver-photo-placeholder">
             <i class="fas fa-user"></i>
