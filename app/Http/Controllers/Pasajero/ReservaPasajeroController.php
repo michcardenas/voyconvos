@@ -378,6 +378,16 @@ public function confirmacionReserva(Reserva $reserva)
         $query->where('origen_direccion', 'LIKE', '%' . $request->ciudad_origen . '%');
     }
 
+    // Filtro por ciudad de destino
+    if ($request->filled('ciudad_destino')) {
+        $query->where('destino_direccion', 'LIKE', '%' . $request->ciudad_destino . '%');
+    }
+
+    // Filtro por fecha de salida
+    if ($request->filled('fecha_salida')) {
+        $query->whereDate('fecha_salida', $request->fecha_salida);
+    }
+
     $viajesDisponibles = $query->orderBy('fecha_salida', 'asc')->get();
 
     // Formatear direcciones
@@ -386,7 +396,7 @@ public function confirmacionReserva(Reserva $reserva)
         $viaje->destino_direccion = $this->formatearDireccion($viaje->destino_direccion);
     });
 
-    // Obtener ciudades únicas para el filtro
+    // Obtener ciudades únicas para los filtros
     $ciudadesOrigen = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
         ->distinct()
@@ -394,12 +404,24 @@ public function confirmacionReserva(Reserva $reserva)
         ->map(function($direccion) {
             return $this->extraerCiudad($direccion);
         })
-        ->filter() // Remover valores vacíos
+        ->filter()
         ->unique()
         ->sort()
         ->values();
 
-    return view('pasajero.viajesDisponibles', compact('viajesDisponibles', 'ciudadesOrigen'));
+    $ciudadesDestino = Viaje::whereDate('fecha_salida', '>=', now())
+        ->where('puestos_disponibles', '>', 0)
+        ->distinct()
+        ->pluck('destino_direccion')
+        ->map(function($direccion) {
+            return $this->extraerCiudad($direccion);
+        })
+        ->filter()
+        ->unique()
+        ->sort()
+        ->values();
+
+    return view('pasajero.viajesDisponibles', compact('viajesDisponibles', 'ciudadesOrigen', 'ciudadesDestino'));
 }
 
 private function extraerCiudad($direccion)

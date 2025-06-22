@@ -445,6 +445,8 @@
         font-weight: 600;
         border: 1px solid rgba(76, 175, 80, 0.3);
     }
+
+
     .filter-container {
     background: #f8f9fa;
     padding: 20px;
@@ -458,17 +460,16 @@
 }
 
 .filters-row {
-    display: flex;
-    align-items: end;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
     gap: 20px;
-    flex-wrap: wrap;
+    align-items: end;
 }
 
 .filter-group {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    min-width: 200px;
 }
 
 .filter-label {
@@ -489,6 +490,7 @@
     font-size: 14px;
     cursor: pointer;
     transition: border-color 0.3s ease;
+    font-family: inherit;
 }
 
 .filter-select:focus {
@@ -505,6 +507,7 @@
     font-size: 14px;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 5px;
     transition: background-color 0.3s ease;
     height: fit-content;
@@ -539,21 +542,41 @@
     font-size: 14px;
 }
 
+.results-summary {
+    background: #e8f4f8;
+    padding: 15px 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    border-left: 4px solid #17a2b8;
+}
+
+.results-text {
+    margin: 0;
+    color: #333;
+    font-weight: 500;
+}
+
+.results-count {
+    color: #17a2b8;
+    font-weight: 700;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .filters-row {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    
-    .filter-group {
-        min-width: auto;
-        width: 100%;
+        grid-template-columns: 1fr;
+        gap: 15px;
     }
     
     .active-filters {
         flex-direction: column;
         gap: 10px;
+    }
+}
+
+@media (max-width: 1200px) {
+    .filters-row {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 
@@ -627,11 +650,11 @@
 <div class="filter-container">
     <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form">
         <div class="filters-row">
-            <!-- Filtro por Ciudad -->
+            <!-- Filtro por Ciudad Origen -->
             <div class="filter-group">
                 <label for="ciudad_origen" class="filter-label">
                     <i class="fas fa-map-marker-alt"></i>
-                    Ciudad de origen:
+                    Ciudad origen:
                 </label>
                 <select name="ciudad_origen" id="ciudad_origen" class="filter-select" onchange="this.form.submit()">
                     <option value="">Todas las ciudades</option>
@@ -643,27 +666,59 @@
                 </select>
             </div>
 
+            <!-- Filtro por Ciudad Destino -->
+            <div class="filter-group">
+                <label for="ciudad_destino" class="filter-label">
+                    <i class="fas fa-flag-checkered"></i>
+                    Ciudad destino:
+                </label>
+                <select name="ciudad_destino" id="ciudad_destino" class="filter-select" onchange="this.form.submit()">
+                    <option value="">Todas las ciudades</option>
+                    @foreach($ciudadesDestino as $ciudad)
+                        <option value="{{ $ciudad }}" {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
+                            {{ $ciudad }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+
+            <!-- Filtro por Fecha -->
+            <div class="filter-group">
+                <label for="fecha_salida" class="filter-label">
+                    <i class="fas fa-calendar"></i>
+                    Fecha de salida:
+                </label>
+                <input type="date" 
+                       name="fecha_salida" 
+                       id="fecha_salida" 
+                       class="filter-select" 
+                       value="{{ request('fecha_salida') }}"
+                       min="{{ date('Y-m-d') }}"
+                       onchange="this.form.submit()">
+            </div>
+
             <!-- Filtro por Puestos -->
             <div class="filter-group">
                 <label for="puestos_minimos" class="filter-label">
                     <i class="fas fa-chair"></i>
-                    Puestos disponibles:
+                    Puestos mínimos:
                 </label>
                 <select name="puestos_minimos" id="puestos_minimos" class="filter-select" onchange="this.form.submit()">
-                    <option value="">Todos los viajes</option>
-                    <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1 o más puestos</option>
-                    <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2 o más puestos</option>
-                    <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3 o más puestos</option>
-                    <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4 o más puestos</option>
+                    <option value="">Todos</option>
+                    <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1+</option>
+                    <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2+</option>
+                    <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3+</option>
+                    <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4+</option>
                 </select>
             </div>
 
-            <!-- Botón limpiar (solo si hay filtros activos) -->
-            @if(request('puestos_minimos') || request('ciudad_origen'))
+            <!-- Botón limpiar -->
+            @if(request('puestos_minimos') || request('ciudad_origen') || request('ciudad_destino') || request('fecha_salida'))
                 <div class="filter-group">
+                    <label class="filter-label" style="opacity: 0;">Acciones</label>
                     <a href="{{ route('pasajero.viajes.disponibles') }}" class="clear-filter">
                         <i class="fas fa-times"></i>
-                        Limpiar filtros
+                        Limpiar
                     </a>
                 </div>
             @endif
@@ -672,12 +727,24 @@
 </div>
 
 <!-- Mostrar filtros activos -->
-@if(request('puestos_minimos') || request('ciudad_origen'))
+@if(request('puestos_minimos') || request('ciudad_origen') || request('ciudad_destino') || request('fecha_salida'))
     <div class="active-filters">
         @if(request('ciudad_origen'))
             <span class="filter-tag">
                 <i class="fas fa-map-marker-alt"></i>
-                Ciudad: {{ request('ciudad_origen') }}
+                Origen: {{ request('ciudad_origen') }}
+            </span>
+        @endif
+        @if(request('ciudad_destino'))
+            <span class="filter-tag">
+                <i class="fas fa-flag-checkered"></i>
+                Destino: {{ request('ciudad_destino') }}
+            </span>
+        @endif
+        @if(request('fecha_salida'))
+            <span class="filter-tag">
+                <i class="fas fa-calendar"></i>
+                Fecha: {{ \Carbon\Carbon::parse(request('fecha_salida'))->format('d/m/Y') }}
             </span>
         @endif
         @if(request('puestos_minimos'))
@@ -688,6 +755,16 @@
         @endif
     </div>
 @endif
+
+<!-- Resumen de resultados -->
+<div class="results-summary">
+    <p class="results-text">
+        Se encontraron <span class="results-count">{{ $viajesDisponibles->count() }}</span> viajes disponibles
+        @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+            con los filtros aplicados
+        @endif
+    </p>
+</div>
         <!-- Success/Error Messages -->
         @if(session('success'))
             <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
