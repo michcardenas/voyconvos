@@ -661,14 +661,7 @@
                                     Detalles
                                 </a>
 
-                                <form action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST" style="flex: 1;">
-                                    @csrf
-                                    <button type="submit" class="btn-custom success w-100"
-                                            onclick="return confirm('¿Estás seguro de que quieres reservar este viaje?')">
-                                        <i class="fas fa-check"></i>
-                                        Reservar
-                                    </button>
-                                </form>
+                               
 
                                 <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" class="btn-custom outline">
                                     <i class="fas fa-comments"></i>
