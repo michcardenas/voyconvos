@@ -801,30 +801,8 @@
     </div>
 </div>
 <!-- Resumen de resultados -->
-<div class="results-summary">
-    <p class="results-text">
-        Se encontraron <span class="results-count">{{ $viajesDisponibles->count() }}</span> viajes disponibles
-        @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
-            con los filtros aplicados
-        @endif
-    </p>
-</div>
         <!-- Success/Error Messages -->
-        @if(session('success'))
-            <div class="alert alert-success alert-custom alert-dismissible fade show" role="alert">
-                <i class="fas fa-check-circle me-2"></i>
-                {{ session('success') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
 
-        @if(session('error'))
-            <div class="alert alert-danger alert-custom alert-dismissible fade show" role="alert">
-                <i class="fas fa-exclamation-circle me-2"></i>
-                {{ session('error') }}
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        @endif
 
         <!-- Trips Grid -->
         @if($viajesDisponibles->isEmpty())
