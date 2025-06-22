@@ -394,9 +394,7 @@
             </div>
         </div>
 
-       <!-- Reemplaza solo la sección de reservas en tu dashboard actual -->
-
-<div class="section-header">
+       <div class="section-header">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
         
@@ -498,19 +496,12 @@
                                         <i class="fas fa-info-circle"></i>
                                     </a>
                                     
-                                    <!-- Pagar -->
-                                    @if(in_array($reserva->estado, ['pendiente_pago', 'cancelada', 'fallida']))
-                                        <button onclick="procesarPago({{ $reserva->id }})" 
-                                                class="btn btn-success btn-sm" title="Pagar">
-                                            <i class="fas fa-credit-card"></i>
-                                        </button>
-                                    @endif
-                                    
                                     <!-- Chat -->
                                     @if($reserva->estado === 'confirmada')
                                         <a href="{{ route('chat.ver', $reserva->viaje_id) }}" 
-                                           class="btn btn-info btn-sm" title="Chat">
-                                            <i class="fas fa-comments"></i>
+                                           class="btn-custom primary btn-sm" 
+                                           title="Abrir Chat">
+                                            <i class="fas fa-comments me-1"></i>Chat
                                         </a>
                                     @endif
                                 </div>
@@ -540,8 +531,6 @@
         @endif
     </div>
 @endif
-
-
         <!-- Calificaciones Section -->
         <div class="section-header">
             <h4><i class="fas fa-star me-2"></i>Tus calificaciones como pasajero</h4>
@@ -620,14 +609,39 @@
         </div>
     </div>
 </div>
-<script>
-function procesarPago(reservaId) {
-    // Redirigir a la ruta de pago
-    window.location.href = `/pasajero/reservar/${reservaId}`;
-}
-</script>
-
 <style>
+/* Estilos para btn-custom (del diseño original) */
+.btn-custom {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-custom.primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-color: #007bff;
+}
+
+.btn-custom.primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-custom.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+
 @media (max-width: 768px) {
     .d-flex.gap-2 {
         gap: 5px !important;
@@ -635,6 +649,10 @@ function procesarPago(reservaId) {
     .btn-sm {
         font-size: 0.7em;
         padding: 4px 8px;
+    }
+    .btn-custom.btn-sm {
+        padding: 4px 8px;
+        font-size: 0.7em;
     }
     .d-flex.justify-content-between {
         flex-direction: column;
