@@ -496,8 +496,6 @@
         <p>Gestiona tus viajes y conecta con otros viajeros de forma segura</p>
     </div>
 
-    
-
     <!-- Cards de estadísticas -->
     <div class="row g-4 mb-4 stats-cards">
         <div class="col-md-4">
@@ -540,6 +538,7 @@
                         <option value="pendiente" {{ $filtros['estado'] == 'pendiente' ? 'selected' : '' }}>Pendiente</option>
                         <option value="confirmado" {{ $filtros['estado'] == 'confirmado' ? 'selected' : '' }}>Confirmado</option>
                         <option value="en_proceso" {{ $filtros['estado'] == 'en_proceso' ? 'selected' : '' }}>En Proceso</option>
+                        <option value="ocupado_total" {{ $filtros['estado'] == 'ocupado_total' ? 'selected' : '' }}>Ocupado Total</option>
                         <option value="completado" {{ $filtros['estado'] == 'completado' ? 'selected' : '' }}>Completado</option>
                     </select>
                 </div>
@@ -650,7 +649,13 @@
                             @endif
                         </td>
                         <td>
-                            <span class="badge bg-vcv-info text-white badge-modern">{{ ucfirst($viaje->estado) }}</span>
+                            @if($viaje->estado === 'ocupado_total')
+                                <span class="badge bg-danger text-white badge-modern">
+                                    🚫 {{ ucfirst(str_replace('_', ' ', $viaje->estado)) }}
+                                </span>
+                            @else
+                                <span class="badge bg-vcv-info text-white badge-modern">{{ ucfirst($viaje->estado) }}</span>
+                            @endif
                         </td>
                         <td>
                             <div class="d-flex flex-column gap-1">
@@ -711,7 +716,6 @@
 
 </div>
 
-
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Validación de fechas
@@ -756,4 +760,3 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
-@endsection
