@@ -101,7 +101,6 @@ public function actualizarPerfil(Request $request)
         'rto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'antecedentes' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ]);
-    dd($request->all());
     try {
         // Actualizar datos del usuario
         $userData = [
