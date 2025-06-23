@@ -711,6 +711,7 @@
 
 </div>
 
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Validación de fechas

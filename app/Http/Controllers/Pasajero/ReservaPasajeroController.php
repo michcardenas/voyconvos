@@ -188,6 +188,21 @@ public function reservar(Request $request, Viaje $viaje)
         $viaje->puestos_disponibles -= $validated['cantidad_puestos'];
         $viaje->save();
         
+        // 🔥 NUEVA LÓGICA: Verificar si el viaje está completamente ocupado
+        if ($viaje->puestos_disponibles <= 0) {
+            $estadoAnterior = $viaje->estado;
+            $viaje->estado = 'ocupado_total';
+            $viaje->save();
+            
+            \Log::info('=== VIAJE COMPLETAMENTE OCUPADO ===', [
+                'viaje_id' => $viaje->id,
+                'estado_anterior' => $estadoAnterior,
+                'estado_nuevo' => 'ocupado_total',
+                'puestos_restantes' => $viaje->puestos_disponibles,
+                'reserva_id' => $reserva->id
+            ]);
+        }
+        
         // Si el viaje requiere verificación de pasajeros, no crear preferencia aún
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
@@ -289,7 +304,6 @@ public function reservar(Request $request, Viaje $viaje)
         ]);
     }
 }
-
     // Callbacks de Mercado Pago
     public function pagoSuccess(Reserva $reserva)
     {

@@ -58,7 +58,7 @@ public function handleGoogleCallback()
     }
 
     // Si es admin u otro rol
-    return redirect()->route('dashboard');
+return redirect()->route('admin.dashboard');
 }
 
 
