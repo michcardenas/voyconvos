@@ -90,6 +90,7 @@ public function actualizarPerfil(Request $request)
         'modelo_vehiculo' => 'nullable|string|max:100',
         'anio_vehiculo' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
         'numero_puestos' => 'nullable|integer' ,
+        'verificar_pasajeros' => 'nullable|boolean',
 
         'patente' => 'nullable|string|max:20',
         
