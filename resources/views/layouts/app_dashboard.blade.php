@@ -148,7 +148,7 @@
             </div>
             <nav>
                 <ul>
-                    <li><a href="#">Coche compartido</a></li>
+                    <!-- <li><a href="#">Coche compartido</a></li> -->
                     @role('admin')
                         <li>  
                         <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">

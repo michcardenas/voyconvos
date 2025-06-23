@@ -10,7 +10,7 @@ use App\Models\Reserva;
 
 class DashboardController extends Controller
 {
-    public function index()
+   public function index(Request $request)
     {
         $user = Auth::user();
 
@@ -20,11 +20,31 @@ class DashboardController extends Controller
         }
 
         // 🚗 Viajes como conductor
-        $viajesConductor = Viaje::where('conductor_id', $user->id)
-            // ->whereIn('estado', ['pendiente', 'en_proceso'])
-            ->where('activo', 1)
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $viajesConductorQuery = Viaje::where('conductor_id', $user->id)
+            ->where('activo', 1);
+
+        // Aplicar filtros simples
+        if ($request->filled('estado') && $request->estado !== 'todos') {
+            $viajesConductorQuery->where('estado', $request->estado);
+        }
+
+        if ($request->filled('fecha_desde')) {
+            $viajesConductorQuery->where('fecha_salida', '>=', $request->fecha_desde);
+        }
+
+        if ($request->filled('fecha_hasta')) {
+            $viajesConductorQuery->where('fecha_salida', '<=', $request->fecha_hasta);
+        }
+
+        if ($request->filled('buscar')) {
+            $buscar = $request->buscar;
+            $viajesConductorQuery->where(function ($query) use ($buscar) {
+                $query->where('origen_direccion', 'LIKE', '%' . $buscar . '%')
+                      ->orWhere('destino_direccion', 'LIKE', '%' . $buscar . '%');
+            });
+        }
+
+        $viajesConductor = $viajesConductorQuery->orderBy('created_at', 'desc')->get();
 
         // 🧍 Viajes como pasajero (futuro)
         $viajesPasajero = collect(); // por ahora vacío
@@ -40,11 +60,11 @@ class DashboardController extends Controller
             ->count();
 
         $reservasDetalles = Reserva::with(['viaje', 'user'])
-        ->whereIn('viaje_id', $viajeIds)
-        ->where('notificado', false)
-        ->latest()
-        ->take(5)
-        ->get();
+            ->whereIn('viaje_id', $viajeIds)
+            ->where('notificado', false)
+            ->latest()
+            ->take(5)
+            ->get();
 
         $notificaciones = Reserva::whereHas('viaje', function ($query) use ($user) {
             $query->where('conductor_id', $user->id);
@@ -57,10 +77,18 @@ class DashboardController extends Controller
             'viajesRealizados' => 0,
             'reservasNoVistas' => $reservasNoVistas,
             'notificaciones' => $notificaciones,
-            'reservasDetalles' => $reservasDetalles
+            'reservasDetalles' => $reservasDetalles,
+            // Pasar los filtros actuales a la vista
+            'filtros' => [
+                'estado' => $request->get('estado', 'todos'),
+                'fecha_desde' => $request->get('fecha_desde'),
+                'fecha_hasta' => $request->get('fecha_hasta'),
+                'buscar' => $request->get('buscar')
+            ]
         ]);
     }
 
+    
     protected function authenticated($request, $user)
     {
         if ($user->hasRole('conductor')) {

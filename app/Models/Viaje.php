@@ -25,6 +25,7 @@ class Viaje extends Model
         'puestos_disponibles',
         'estado',
         'activo',
+        'observaciones',
     ];
 
     public function reservas()

@@ -639,11 +639,13 @@
                     <span class="status-badge bg-primary text-light">{{ ucfirst($viaje->estado) }}</span>
                 </div>
 
-                @if($viaje->estado === 'pendiente')
-                <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" onsubmit="return confirm('¿Cancelar este viaje?')" style="margin: 0;">
+                @if($viaje->conductor_id === auth()->id())
+                <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" class="d-inline">
                     @csrf
                     @method('DELETE')
-                    <button class="btn btn-danger btn-modern">🗑 Cancelar Viaje</button>
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-modern btn-cancelar-viaje">
+                        ❌ Cancelar
+                    </button>
                 </form>
                 @endif
             </div>
@@ -842,7 +844,52 @@
         <a href="{{ route('dashboard') }}" class="btn btn-link btn-modern">⬅️ Volver al dashboard</a>
     </div>
 </div>
-
+<div class="modal fade" id="modalCancelarViaje" tabindex="-1" aria-labelledby="modalCancelarViajeLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalCancelarViajeLabel">❌ Cancelar Viaje</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form id="formCancelarViaje" method="POST">
+        @csrf
+        @method('DELETE')
+        <div class="modal-body">
+          <div class="alert alert-warning">
+            <strong>⚠️ Atención:</strong> Esta acción no se puede deshacer. El viaje será cancelado permanentemente.
+          </div>
+          
+          <div class="mb-3">
+            <label for="motivoCancelacion" class="form-label">
+              <strong>Motivo de cancelación</strong> <span class="text-danger">*</span>
+            </label>
+            <textarea class="form-control" id="motivoCancelacion" name="motivo_cancelacion" rows="4" 
+                      placeholder="Explica brevemente por qué cancelas este viaje..." required></textarea>
+            <div class="form-text">Este motivo será visible para los pasajeros que tenían reservas.</div>
+          </div>
+          
+          <div class="mb-3">
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" id="confirmarCancelacion" required>
+              <label class="form-check-label" for="confirmarCancelacion">
+                Confirmo que deseo cancelar este viaje
+              </label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+            <i class="fas fa-times me-1"></i> Cerrar
+          </button>
+          <button type="submit" class="btn btn-danger">
+            <i class="fas fa-ban me-1"></i> Cancelar Viaje
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 <!-- Cargar Google Maps para esta vista -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initViajeDetalleMapa&v=3.55"></script>
 
@@ -992,7 +1039,50 @@ function loadMap() {
 
 // Inicializar cuando carga la página
 document.addEventListener('DOMContentLoaded', function() {
+
     loadMap();
+     // Obtener todos los botones de cancelar
+    const botonesCancelar = document.querySelectorAll('.btn-cancelar-viaje');
+    const modal = new bootstrap.Modal(document.getElementById('modalCancelarViaje'));
+    const form = document.getElementById('formCancelarViaje');
+    
+    botonesCancelar.forEach(boton => {
+        boton.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            // Obtener la URL del formulario original
+            const actionUrl = this.closest('form').action;
+            
+            // Establecer la acción del modal al mismo endpoint
+            form.action = actionUrl;
+            
+            // Mostrar el modal
+            modal.show();
+        });
+    });
+    
+    // Validación del formulario
+    form.addEventListener('submit', function(e) {
+        const motivo = document.getElementById('motivoCancelacion').value.trim();
+        const confirmacion = document.getElementById('confirmarCancelacion').checked;
+        
+        if (!motivo || motivo.length < 10) {
+            e.preventDefault();
+            alert('El motivo debe tener al menos 10 caracteres');
+            return false;
+        }
+        
+        if (!confirmacion) {
+            e.preventDefault();
+            alert('Debes confirmar la cancelación');
+            return false;
+        }
+        
+        // Deshabilitar el botón para evitar doble envío
+        const submitBtn = this.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Cancelando...';
+    });
 });
 
 // También exponer la función globalmente por si acaso
