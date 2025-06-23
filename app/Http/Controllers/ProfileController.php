@@ -101,7 +101,7 @@ public function actualizarPerfil(Request $request)
         'rto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'antecedentes' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
     ]);
-dd($request->all());
+    dd($request->all());
     try {
         // Actualizar datos del usuario
         $userData = [
@@ -152,7 +152,8 @@ dd($request->all());
             'modelo_vehiculo' => $validated['modelo_vehiculo'],
             'anio_vehiculo' => $validated['anio_vehiculo'],
             'anio_vehiculo' => $validated['anio_vehiculo'],
-            'numero_puestos' => $validated['numero_puestos'],   
+            'numero_puestos' => $validated['numero_puestos'], 
+            'verificar_pasajeros' => $validated['verificar_pasajeros'] ?? 0, // Por defecto 0 si no se envía  
         ]);
 
         // Manejar documentos
