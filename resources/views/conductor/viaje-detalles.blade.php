@@ -684,7 +684,7 @@
                 <div class="passenger-actions">
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
                     
-                    @if($requiereVerificacion && $reserva->estado == 'pendiente')
+                    @if($requiereVerificacion && $reserva->estado == 'pendiente_confirmacion')
                         <button type="button" 
                                 class="btn btn-sm btn-success btn-modern"
                                 data-bs-toggle="modal" 
