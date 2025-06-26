@@ -169,6 +169,9 @@
         border-bottom: 1px solid #f0f0f0;
         padding: 1.5rem;
         transition: var(--transition);
+            display: flex
+;
+    justify-content: space-between;
     }
 
     .passenger-card:hover {
@@ -724,27 +727,27 @@
         @foreach($viaje->reservas as $reserva)
         <div class="passenger-card">
           <div class="passenger-details">
-    <h6 class="passenger-name-clickable"
-         onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
-        {{ $reserva->user->name }}
-    </h6>
-    
-    <!-- Badge de verificación en la tarjeta -->
-    @if($reserva->user->verificado == 1)
-        <span class="badge verification-mini verified">
-            <i class="fas fa-shield-check"></i> Verificado
-        </span>
-    @else
-        <span class="badge verification-mini not-verified">
-            <i class="fas fa-shield-exclamation"></i> No Verificado
-        </span>
-    @endif
-    
-    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
-    @if($reserva->user->calificacion)
-        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
-    @endif
-</div>
+                        <h6 class="passenger-name-clickable"
+                            onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
+                            {{ $reserva->user->name }}
+                        </h6>
+                        
+                        <!-- Badge de verificación en la tarjeta -->
+                        @if($reserva->user->verificado == 1)
+                            <span class="badge verification-mini verified">
+                                <i class="fas fa-shield-check"></i> Verificado
+                            </span>
+                        @else
+                            <span class="badge verification-mini not-verified">
+                                <i class="fas fa-shield-exclamation"></i> No Verificado
+                            </span>
+                        @endif
+                        
+                        <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
+                        @if($reserva->user->calificacion)
+                            <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
+                        @endif
+                    </div>
                 <div class="passenger-actions">
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
                     
