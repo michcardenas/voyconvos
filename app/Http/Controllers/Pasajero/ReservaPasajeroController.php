@@ -206,7 +206,7 @@ public function reservar(Request $request, Viaje $viaje)
         // Si el viaje requiere verificación de pasajeros, no crear preferencia aún
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
-            $reserva->estado = 'pendiente';
+            $reserva->estado = 'pendiente_confirmacion';
             $reserva->save();
 
             \DB::commit();
