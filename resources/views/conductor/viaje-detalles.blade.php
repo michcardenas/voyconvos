@@ -723,17 +723,28 @@
     @if($viaje->reservas->count())
         @foreach($viaje->reservas as $reserva)
         <div class="passenger-card">
-            <div class="passenger-info">
-                <div class="passenger-details">
-                    <h6 class="passenger-name-clickable"
-                         onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }})">
-                        {{ $reserva->user->name }}
-                    </h6>
-                    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
-                    @if($reserva->user->calificacion)
-                        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
-                    @endif
-                </div>
+          <div class="passenger-details">
+    <h6 class="passenger-name-clickable"
+         onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
+        {{ $reserva->user->name }}
+    </h6>
+    
+    <!-- Badge de verificación en la tarjeta -->
+    @if($reserva->user->verificado == 1)
+        <span class="badge verification-mini verified">
+            <i class="fas fa-shield-check"></i> Verificado
+        </span>
+    @else
+        <span class="badge verification-mini not-verified">
+            <i class="fas fa-shield-exclamation"></i> No Verificado
+        </span>
+    @endif
+    
+    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
+    @if($reserva->user->calificacion)
+        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
+    @endif
+</div>
                 <div class="passenger-actions">
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
                     
@@ -1017,7 +1028,7 @@ function setRejectionData(reservaId, nombrePasajero) {
     modalMessage.textContent = `¿Estás seguro de rechazar a ${nombrePasajero}?`;
 }
 
-function showPassengerModal(userId, name, photo, email, phone, city, rating, seats, verificationStatus = 'pendiente_confirmacion') {
+function showPassengerModal(userId, name, photo, email, phone, city, rating, seats, userVerified = 0) {
     // Llenar información básica
     document.getElementById('passengerName').textContent = name;
     document.getElementById('passengerEmail').textContent = email;
@@ -1048,30 +1059,16 @@ function showPassengerModal(userId, name, photo, email, phone, city, rating, sea
         ratingElement.style.display = 'block';
     }
     
-    // Manejar estado de verificación
+    // Manejar estado de verificación del usuario
     const verificationElement = document.getElementById('verificationStatus');
     verificationElement.className = 'verification-badge'; // Reset clases
     
-    switch(verificationStatus) {
-        case 'pendiente_pago':
-            verificationElement.classList.add('verified');
-            verificationElement.innerHTML = '<i class="fas fa-check-circle"></i> Pasajero Verificado';
-            break;
-        case 'cancelar_por_conductor':
-            verificationElement.classList.add('not-verified');
-            verificationElement.innerHTML = '<i class="fas fa-times-circle"></i> Cancelado por Conductor';
-            break;
-        case 'pendiente_confirmacion':
-            verificationElement.classList.add('pending');
-            verificationElement.innerHTML = '<i class="fas fa-clock"></i> Pendiente de Verificación';
-            break;
-        case 'confirmado':
-            verificationElement.classList.add('verified');
-            verificationElement.innerHTML = '<i class="fas fa-check-circle"></i> Reserva Confirmada';
-            break;
-        default:
-            verificationElement.classList.add('pending');
-            verificationElement.innerHTML = '<i class="fas fa-question-circle"></i> Estado Desconocido';
+    if (parseInt(userVerified) === 1) {
+        verificationElement.classList.add('verified');
+        verificationElement.innerHTML = '<i class="fas fa-shield-check"></i> Usuario Verificado';
+    } else {
+        verificationElement.classList.add('not-verified');
+        verificationElement.innerHTML = '<i class="fas fa-shield-exclamation"></i> Usuario No Verificado';
     }
     
     // Mostrar el modal
