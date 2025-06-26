@@ -320,13 +320,45 @@ public function reservar(Request $request, Viaje $viaje)
     }
 }
     // Callbacks de Mercado Pago
-    public function pagoSuccess(Reserva $reserva)
-    {
-        $reserva->estado = 'confirmada';
-        $reserva->save();
+   // Actualizar tu método pagoSuccess existente
+public function pagoSuccess(Reserva $reserva)
+{
+    $reserva->estado = 'confirmada';
+    $reserva->save();
+    
+    // Verificar si el viaje está completo
+    $this->verificarViajeCompleto($reserva->viaje);
+    
+    return view('pasajero.pago-exitoso', compact('reserva'));
+}
+
+// Agregar esta nueva función
+private function verificarViajeCompleto($viaje)
+{
+    // Refrescar datos del viaje
+    $viaje->refresh();
+    
+    // Contar reservas pendientes (no confirmadas)
+    $reservasPendientes = $viaje->reservas()
+        ->whereIn('estado', ['pendiente_confirmacion', 'pendiente_pago'])
+        ->count();
+    
+    // Contar reservas confirmadas
+    $reservasConfirmadas = $viaje->reservas()
+        ->where('estado', 'confirmada')
+        ->count();
+    
+    // Si no hay puestos disponibles, no hay pendientes, y hay confirmadas
+    if ($viaje->puestos_disponibles <= 0 && $reservasPendientes === 0 && $reservasConfirmadas > 0) {
         
-        return view('pasajero.pago-exitoso', compact('reserva'));
+        $viaje->update([
+            'estado' => 'listo_para_iniciar',
+            'updated_at' => now()
+        ]);
+        
+        \Log::info("Viaje {$viaje->id} completado - todas las reservas confirmadas");
     }
+}
 
     public function pagoFailure(Reserva $reserva)
     {
@@ -366,11 +398,7 @@ public function confirmacionReserva(Reserva $reserva)
 
     //     return view('pasajero.reserva-confirmada', compact('viaje', 'reserva'));
     // }
-    public function procesarPago(Reserva $reserva)
-    {
-        die('ESTOY AQUÍ - SI VES ESTO, ESTOY EDITANDO EL ARCHIVO CORRECTO procesar pago');
-
-    }
+   
     public function verDetalles(Reserva $reserva)
     {
         // Asegúrate de que la reserva pertenece al usuario logueado
