@@ -457,7 +457,59 @@
     font-weight: 600;
     color: #2c3e50;
 }
+/* Estilos para el estado de verificación */
+.verification-status-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+}
 
+.verification-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border: 1px solid;
+    transition: all 0.2s ease;
+}
+
+/* Estado verificado - verde suave */
+.verification-badge.verified {
+    background-color: #d1f2eb;
+    color: #0d6d3f;
+    border-color: #85d1b2;
+}
+
+/* Estado no verificado - rojo suave */
+.verification-badge.not-verified {
+    background-color: #fdeaea;
+    color: #c53030;
+    border-color: #f5b7b7;
+}
+
+/* Estado pendiente - amarillo suave */
+.verification-badge.pending {
+    background-color: #fff3cd;
+    color: #856404;
+    border-color: #ffd60a;
+}
+
+/* Iconos para los estados */
+.verification-badge i {
+    font-size: 0.875rem;
+}
+
+/* Responsive para dispositivos móviles */
+@media (max-width: 576px) {
+    .verification-badge {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+    }
+}
 @media (max-width: 768px) {
     .profile-photo,
     .no-photo-placeholder {
@@ -818,16 +870,23 @@
                 <div class="passenger-profile">
                     <div class="profile-photo-section text-center mb-4">
                         <div class="profile-photo-container">
-                            <img id="passengerPhoto" 
-                                 src="" 
-                                 alt="Foto del pasajero" 
-                                 class="profile-photo">
+                            <img id="passengerPhoto"
+                                  src=""
+                                  alt="Foto del pasajero"
+                                  class="profile-photo">
                             <div id="noPhotoPlaceholder" class="no-photo-placeholder" style="display: none;">
                                 <i class="fas fa-user"></i>
                             </div>
                         </div>
                         <h5 id="passengerName" class="mt-3 mb-1"></h5>
                         <div id="passengerRating" class="rating-badge"></div>
+                    </div>
+                    
+                    <!-- Label de verificación -->
+                    <div class="verification-status-container mb-3">
+                        <div id="verificationStatus" class="verification-badge">
+                            <!-- Este contenido se llenará dinámicamente -->
+                        </div>
                     </div>
                     
                     <div class="passenger-details-grid">
@@ -958,15 +1017,15 @@ function setRejectionData(reservaId, nombrePasajero) {
     modalMessage.textContent = `¿Estás seguro de rechazar a ${nombrePasajero}?`;
 }
 
-function showPassengerModal(userId, name, photo, email, phone, city, rating, seats) {
-    // Actualizar información básica
+function showPassengerModal(userId, name, photo, email, phone, city, rating, seats, verificationStatus = 'pendiente_confirmacion') {
+    // Llenar información básica
     document.getElementById('passengerName').textContent = name;
     document.getElementById('passengerEmail').textContent = email;
     document.getElementById('passengerPhone').textContent = phone;
     document.getElementById('passengerCity').textContent = city;
-    document.getElementById('passengerSeats').textContent = `${seats} puesto(s)`;
+    document.getElementById('passengerSeats').textContent = seats;
     
-    // Manejar foto de perfil
+    // Manejar foto del perfil
     const photoElement = document.getElementById('passengerPhoto');
     const placeholderElement = document.getElementById('noPhotoPlaceholder');
     
@@ -982,11 +1041,37 @@ function showPassengerModal(userId, name, photo, email, phone, city, rating, sea
     // Manejar calificación
     const ratingElement = document.getElementById('passengerRating');
     if (rating && rating > 0) {
-        ratingElement.innerHTML = `<i class="fas fa-star"></i> ${rating}/5`;
-        ratingElement.style.display = 'inline-flex';
+        ratingElement.innerHTML = `<i class="fas fa-star text-warning"></i> ${rating}/5`;
+        ratingElement.style.display = 'block';
     } else {
-        ratingElement.innerHTML = '<i class="fas fa-star-half-alt"></i> Sin calificaciones';
-        ratingElement.style.display = 'inline-flex';
+        ratingElement.innerHTML = '<span class="text-muted">Sin calificación</span>';
+        ratingElement.style.display = 'block';
+    }
+    
+    // Manejar estado de verificación
+    const verificationElement = document.getElementById('verificationStatus');
+    verificationElement.className = 'verification-badge'; // Reset clases
+    
+    switch(verificationStatus) {
+        case 'pendiente_pago':
+            verificationElement.classList.add('verified');
+            verificationElement.innerHTML = '<i class="fas fa-check-circle"></i> Pasajero Verificado';
+            break;
+        case 'cancelar_por_conductor':
+            verificationElement.classList.add('not-verified');
+            verificationElement.innerHTML = '<i class="fas fa-times-circle"></i> Cancelado por Conductor';
+            break;
+        case 'pendiente_confirmacion':
+            verificationElement.classList.add('pending');
+            verificationElement.innerHTML = '<i class="fas fa-clock"></i> Pendiente de Verificación';
+            break;
+        case 'confirmado':
+            verificationElement.classList.add('verified');
+            verificationElement.innerHTML = '<i class="fas fa-check-circle"></i> Reserva Confirmada';
+            break;
+        default:
+            verificationElement.classList.add('pending');
+            verificationElement.innerHTML = '<i class="fas fa-question-circle"></i> Estado Desconocido';
     }
     
     // Mostrar el modal
