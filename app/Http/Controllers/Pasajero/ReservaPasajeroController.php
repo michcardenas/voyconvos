@@ -189,19 +189,34 @@ public function reservar(Request $request, Viaje $viaje)
         $viaje->save();
         
         // 🔥 NUEVA LÓGICA: Verificar si el viaje está completamente ocupado
-        if ($viaje->puestos_disponibles <= 0) {
-            $estadoAnterior = $viaje->estado;
-            $viaje->estado = 'ocupado_total';
-            $viaje->save();
-            
-            \Log::info('=== VIAJE COMPLETAMENTE OCUPADO ===', [
-                'viaje_id' => $viaje->id,
-                'estado_anterior' => $estadoAnterior,
-                'estado_nuevo' => 'ocupado_total',
-                'puestos_restantes' => $viaje->puestos_disponibles,
-                'reserva_id' => $reserva->id
-            ]);
-        }
+     // 🔥 NUEVA LÓGICA: Verificar si el viaje está completamente ocupado
+            if ($viaje->puestos_disponibles <= 0) {
+                $estadoAnterior = $viaje->estado;
+                
+                // Verificar si el conductor requiere confirmación
+                $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
+                
+                if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
+                    // Si el conductor debe confirmar -> estado pendiente_confirmacion
+                    $viaje->estado = 'pendiente_confirmacion';
+                    $nuevoEstado = 'pendiente_confirmacion';
+                } else {
+                    // Si NO requiere confirmación -> estado pendiente (y procederá al pago)
+                    $viaje->estado = 'pendiente';
+                    $nuevoEstado = 'pendiente';
+                }
+                
+                $viaje->save();
+                
+                \Log::info('=== VIAJE COMPLETAMENTE OCUPADO ===', [
+                    'viaje_id' => $viaje->id,
+                    'estado_anterior' => $estadoAnterior,
+                    'estado_nuevo' => $nuevoEstado,
+                    'puestos_restantes' => $viaje->puestos_disponibles,
+                    'reserva_id' => $reserva->id,
+                    'conductor_requiere_confirmacion' => ($registroConductor && $registroConductor->verificar_pasajeros === 1)
+                ]);
+            }
         
         // Si el viaje requiere verificación de pasajeros, no crear preferencia aún
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
