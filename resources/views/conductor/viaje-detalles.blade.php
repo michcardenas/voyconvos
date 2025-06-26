@@ -690,7 +690,7 @@
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
                 <div>
                     <span class="label" style="font-weight: 600; color: var(--vcv-primary); font-size: 0.85rem; text-transform: uppercase; margin-right: 0.5rem;">📦 Estado:</span>
-                    <span class="status-badge bg-primary text-light">{{dd ($viaje->estado) }}</span>
+                    <span class="status-badge bg-primary text-light">{{ ucfirst($viaje->estado) }}</span>
                 </div>
 
                 @if($viaje->conductor_id === auth()->id())

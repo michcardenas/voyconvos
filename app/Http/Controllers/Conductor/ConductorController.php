@@ -36,6 +36,8 @@ public function verificarPasajero(Request $request, Reserva $reserva)
         return redirect()->back()->with('error', 'No se puede modificar esta reserva en su estado actual.');
     }
     
+    $viaje = $reserva->viaje;
+    
     if ($request->accion === 'verificar') {
         $reserva->update([
             'estado' => 'pendiente_pago',
@@ -52,8 +54,7 @@ public function verificarPasajero(Request $request, Reserva $reserva)
             'updated_at' => now()
         ]);
         
-        // Opcional: Devolver los puestos al viaje (incrementar puestos disponibles)
-        $viaje = $reserva->viaje;
+        // Devolver los puestos al viaje (incrementar puestos disponibles)
         $viaje->increment('puestos_disponibles', $reserva->cantidad_puestos);
         
         $mensaje = 'Pasajero rechazado exitosamente. Los puestos han sido liberados.';
@@ -63,7 +64,43 @@ public function verificarPasajero(Request $request, Reserva $reserva)
         // $this->notificarRechazoAlPasajero($reserva);
     }
     
+    // Verificar y actualizar el estado del viaje
+    $this->actualizarEstadoViaje($viaje);
+    
     return redirect()->back()->with($tipo, $mensaje);
+}
+
+/**
+ * Actualiza el estado del viaje basado en las reservas pendientes de confirmación
+ */
+private function actualizarEstadoViaje($viaje)
+{
+    // Contar reservas que aún están pendientes de confirmación
+    $reservasPendientesConfirmacion = $viaje->reservas()
+        ->where('estado', 'pendiente_confirmacion')
+        ->count();
+    
+    if ($reservasPendientesConfirmacion > 0) {
+        // Hay reservas esperando confirmación - cambiar a pendiente_confirmacion
+        if ($viaje->estado !== 'pendiente_confirmacion') {
+            $viaje->update([
+                'estado' => 'pendiente_confirmacion',
+                'updated_at' => now()
+            ]);
+            
+            \Log::info("Viaje {$viaje->id} cambió a 'pendiente_confirmacion' - {$reservasPendientesConfirmacion} reservas esperando confirmación");
+        }
+    } else {
+        // No hay reservas pendientes de confirmación - cambiar a pendiente
+        if ($viaje->estado !== 'pendiente') {
+            $viaje->update([
+                'estado' => 'pendiente',
+                'updated_at' => now()
+            ]);
+            
+            \Log::info("Viaje {$viaje->id} cambió a 'pendiente' - todas las reservas han sido procesadas");
+        }
+    }
 }
 
 // Método opcional para notificar al pasajero del rechazo
