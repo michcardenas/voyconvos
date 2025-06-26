@@ -602,7 +602,7 @@
             <div class="info-label">Estado</div>
             <div class="info-value">
                 <span class="status-badge status-{{ strtolower($reserva->estado) }}">
-                    @if($reserva->estado == 'pendiente_pago')
+                    @if($reserva->estado == 'pendiente_pago' || $reserva->estado == 'cancelada' || $reserva->estado == 'pendiente')
                         Pendiente por pago
                     @else
                         {{ ucfirst($reserva->estado) }}
