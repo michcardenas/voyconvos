@@ -664,6 +664,7 @@
 
 
 <!-- Sección de pasajeros -->
+<!-- Sección de pasajeros -->
 <div class="passengers-section">
     <h4 class="section-header">👥 Pasajeros</h4>
     
@@ -672,8 +673,8 @@
         <div class="passenger-card">
             <div class="passenger-info">
                 <div class="passenger-details">
-                    <h6 class="passenger-name-clickable" 
-                        onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }})">
+                    <h6 class="passenger-name-clickable"
+                         onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }})">
                         {{ $reserva->user->name }}
                     </h6>
                     <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
@@ -685,22 +686,38 @@
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
                     
                     @if($requiereVerificacion && $reserva->estado == 'pendiente_confirmacion')
-                        <button type="button" 
+                        <button type="button"
                                 class="btn btn-sm btn-success btn-modern"
-                                data-bs-toggle="modal" 
+                                data-bs-toggle="modal"
                                 data-bs-target="#aprobarModal"
-                                onclick="setApprovalData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                                onclick="setApprovalData({{ $reserva->id }}, '{{ $reserva->user->name }}', 'verificar')">
                             ✅ Aprobar
+                        </button>
+                        <button type="button"
+                                class="btn btn-sm btn-danger btn-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rechazarModal"
+                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                            ❌ Rechazar
                         </button>
                     @elseif($requiereVerificacion && $reserva->estado == 'pendiente_pago')
                         <span class="badge bg-success">✅ Aprobado</span>
+                        <button type="button"
+                                class="btn btn-sm btn-warning btn-modern"
+                                data-bs-toggle="modal"
+                                data-bs-target="#rechazarModal"
+                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                            🚫 Cancelar
+                        </button>
+                    @elseif($reserva->estado == 'cancelar_por_conductor')
+                        <span class="badge bg-danger">❌ Cancelado por conductor</span>
                     @endif
                 </div>
             </div>
-
+            
             <div class="ratings-section">
                 <h5 class="ratings-title">🗣️ Calificaciones</h5>
-
+                
                 {{-- Comentario del pasajero al conductor --}}
                 @if($reserva->calificacionPasajero)
                     <div class="rating-item">
@@ -711,7 +728,7 @@
                 @else
                     <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
                 @endif
-
+                
                 {{-- Comentario del conductor al pasajero --}}
                 @if($reserva->calificacionConductor)
                     <div class="rating-item">
@@ -761,7 +778,31 @@
         </div>
     </div>
 </div>
-
+<!-- Modal de Rechazar Pasajero -->
+<div class="modal fade" id="rechazarModal" tabindex="-1" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rechazarModalLabel">❌ Rechazar Pasajero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="modalRejectionMessage">¿Estás seguro de rechazar a este pasajero?</p>
+                <div class="alert alert-warning">
+                    <small>⚠️ Esta acción no se puede deshacer. El pasajero será notificado del rechazo.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <form id="rejectionForm" method="POST" style="display: inline;">
+                    @csrf
+                    <input type="hidden" name="accion" value="rechazar">
+                    <button type="submit" class="btn btn-danger">❌ Confirmar Rechazo</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <!-- Modal de Información del Pasajero -->
 <div class="modal fade" id="passengerInfoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -895,14 +936,26 @@
 
 <!-- Script para el mapa -->
 <script>
-function setApprovalData(reservaId, nombrePasajero) {
-    // Configurar el formulario
+// Función para configurar los datos de aprobación
+function setApprovalData(reservaId, nombrePasajero, accion = 'verificar') {
+    // Configurar el formulario de aprobación
     const form = document.getElementById('approvalForm');
     form.action = `/conductor/verificar-pasajero/${reservaId}`;
     
     // Actualizar el mensaje del modal
     const modalMessage = document.getElementById('modalMessage');
     modalMessage.textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
+}
+
+// Función para configurar los datos de rechazo
+function setRejectionData(reservaId, nombrePasajero) {
+    // Configurar el formulario de rechazo
+    const form = document.getElementById('rejectionForm');
+    form.action = `/conductor/verificar-pasajero/${reservaId}`;
+    
+    // Actualizar el mensaje del modal
+    const modalMessage = document.getElementById('modalRejectionMessage');
+    modalMessage.textContent = `¿Estás seguro de rechazar a ${nombrePasajero}?`;
 }
 
 function showPassengerModal(userId, name, photo, email, phone, city, rating, seats) {

@@ -20,26 +20,58 @@ public function gestion()
     ]);
 }
 
- public function verificarPasajero(Request $request, Reserva $reserva)
-    {
-        $request->validate([
-            'accion' => 'required|in:verificar,rechazar'
+public function verificarPasajero(Request $request, Reserva $reserva)
+{
+    $request->validate([
+        'accion' => 'required|in:verificar,rechazar'
+    ]);
+    
+    // Verificar que el usuario actual sea el conductor del viaje
+    if ($reserva->viaje->conductor_id !== auth()->id()) {
+        abort(403, 'No tienes permiso para realizar esta acción.');
+    }
+    
+    // Verificar que la reserva esté en un estado válido para ser modificada
+    if (!in_array($reserva->estado, ['pendiente_confirmacion', 'pendiente_pago'])) {
+        return redirect()->back()->with('error', 'No se puede modificar esta reserva en su estado actual.');
+    }
+    
+    if ($request->accion === 'verificar') {
+        $reserva->update([
+            'estado' => 'pendiente_pago',
+            'updated_at' => now()
         ]);
         
-        // Verificar que el usuario actual sea el conductor del viaje
-        if ($reserva->viaje->conductor_id !== auth()->id()) {
-            abort(403, 'No tienes permiso para realizar esta acción.');
-        }
+        $mensaje = 'Pasajero aprobado. Estado cambiado a pendiente de pago.';
+        $tipo = 'success';
         
-        if ($request->accion === 'verificar') {
-            $reserva->update([
-                'estado' => 'pendiente_pago',
-                'updated_at' => now()
-            ]);
-            
-            $mensaje = 'Pasajero aprobado. Estado cambiado a pendiente de pago.';
-        }
+    } elseif ($request->accion === 'rechazar') {
+        // Actualizar el estado a cancelado por conductor
+        $reserva->update([
+            'estado' => 'cancelar_por_conductor',
+            'updated_at' => now()
+        ]);
         
-        return redirect()->back()->with('success', $mensaje);
+        // Opcional: Devolver los puestos al viaje (incrementar puestos disponibles)
+        $viaje = $reserva->viaje;
+        $viaje->increment('puestos_disponibles', $reserva->cantidad_puestos);
+        
+        $mensaje = 'Pasajero rechazado exitosamente. Los puestos han sido liberados.';
+        $tipo = 'success';
+        
+        // Opcional: Enviar notificación al pasajero
+        // $this->notificarRechazoAlPasajero($reserva);
     }
+    
+    return redirect()->back()->with($tipo, $mensaje);
+}
+
+// Método opcional para notificar al pasajero del rechazo
+private function notificarRechazoAlPasajero(Reserva $reserva)
+{
+    // Aquí puedes implementar el envío de notificación por email, SMS, etc.
+    // Por ejemplo, usando el sistema de notificaciones de Laravel:
+    
+    // $reserva->user->notify(new PasajeroRechazadoNotification($reserva));
+}
 }
