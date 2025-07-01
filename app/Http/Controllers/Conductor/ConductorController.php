@@ -106,11 +106,47 @@ private function actualizarEstadoViaje($viaje)
 public function iniciarViaje(Viaje $viaje)
 {
     try {
-        // Verificar que el conductor sea el dueño del viaje
-        if ($viaje->conductor_id !== auth()->id()) {
+        // 🔍 DEBUG: Verificar datos
+        $usuarioAuth = auth()->id();
+        $conductorViaje = $viaje->conductor_id;
+        $usuarioCompleto = auth()->user();
+        
+        \Log::info('=== DEBUG INICIAR VIAJE ===', [
+            'viaje_id' => $viaje->id,
+            'conductor_id_viaje' => $conductorViaje,
+            'usuario_autenticado_id' => $usuarioAuth,
+            'usuario_autenticado' => $usuarioCompleto ? $usuarioCompleto->toArray() : null,
+            'tipos' => [
+                'conductor_id_type' => gettype($conductorViaje),
+                'usuario_auth_type' => gettype($usuarioAuth),
+            ],
+            'comparacion_estricta' => $conductorViaje === $usuarioAuth,
+            'comparacion_suave' => $conductorViaje == $usuarioAuth,
+        ]);
+
+        // 🔧 COMPARACIÓN MÁS FLEXIBLE (temporal para debug)
+        if ((int)$viaje->conductor_id !== (int)auth()->id()) {
+            \Log::warning('Acceso denegado al viaje', [
+                'viaje_id' => $viaje->id,
+                'conductor_id_viaje' => $viaje->conductor_id,
+                'usuario_id' => auth()->id(),
+                'convertidos' => [
+                    'conductor_int' => (int)$viaje->conductor_id,
+                    'usuario_int' => (int)auth()->id(),
+                ]
+            ]);
+            
             return response()->json([
                 'success' => false, 
-                'message' => 'No tienes permisos para iniciar este viaje'
+                'message' => 'No tienes permisos para iniciar este viaje',
+                'debug' => env('APP_DEBUG') ? [
+                    'conductor_id' => $viaje->conductor_id,
+                    'user_id' => auth()->id(),
+                    'tipos' => [
+                        'conductor_type' => gettype($viaje->conductor_id),
+                        'user_type' => gettype(auth()->id()),
+                    ]
+                ] : null
             ], 403);
         }
 
@@ -125,10 +161,11 @@ public function iniciarViaje(Viaje $viaje)
         // Cambiar estado a iniciado
         $viaje->update([
             'estado' => 'iniciado',
-            'hora_inicio_real' => now() // Opcional: guardar hora real de inicio
+            // Solo agregar si existe la columna
+            // 'hora_inicio_real' => now()
         ]);
 
-        \Log::info('Viaje iniciado', [
+        \Log::info('Viaje iniciado exitosamente', [
             'viaje_id' => $viaje->id,
             'conductor_id' => auth()->id(),
             'hora_inicio' => now()
@@ -143,14 +180,38 @@ public function iniciarViaje(Viaje $viaje)
     } catch (\Exception $e) {
         \Log::error('Error al iniciar viaje', [
             'viaje_id' => $viaje->id,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
 
         return response()->json([
             'success' => false, 
-            'message' => 'Error interno del servidor'
+            'message' => 'Error interno del servidor: ' . $e->getMessage()
         ], 500);
     }
+}
+
+// 🔍 MÉTODO ADICIONAL PARA DEBUG (temporal)
+public function debugViaje(Viaje $viaje)
+{
+    return response()->json([
+        'viaje' => [
+            'id' => $viaje->id,
+            'conductor_id' => $viaje->conductor_id,
+            'conductor_id_type' => gettype($viaje->conductor_id),
+            'estado' => $viaje->estado,
+        ],
+        'usuario' => [
+            'id' => auth()->id(),
+            'id_type' => gettype(auth()->id()),
+            'user' => auth()->user(),
+        ],
+        'comparaciones' => [
+            'estricta' => $viaje->conductor_id === auth()->id(),
+            'suave' => $viaje->conductor_id == auth()->id(),
+            'int_cast' => (int)$viaje->conductor_id === (int)auth()->id(),
+        ]
+    ]);
 }
 
 // 2. MÉTODO PARA MOSTRAR VISTA DE VERIFICACIÓN
