@@ -622,6 +622,10 @@
     </div>
 
  <!-- Card principal con detalles del viaje -->
+  <!-- imprimir hora actual -->
+   <div class="current-time">
+       <strong>Hora actual:</strong> {{ \Carbon\Carbon::now()->format('H:i') }}
+   </div>
 <div class="modern-card">
     <div class="card-header-custom">
         <h5 class="card-title-custom">📍 {{ $viaje->origen_direccion }} → {{ $viaje->destino_direccion }}</h5>
