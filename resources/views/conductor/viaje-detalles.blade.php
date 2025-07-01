@@ -621,93 +621,103 @@
         <p>Información completa sobre tu viaje y pasajeros</p>
     </div>
 
-    <!-- Card principal con detalles del viaje -->
-    <div class="modern-card">
-        <div class="card-header-custom">
-            <h5 class="card-title-custom">📍 {{ $viaje->origen_direccion }} → {{ $viaje->destino_direccion }}</h5>
-        </div>
-        <div class="card-body-custom">
-            <div class="trip-info-grid">
-                <div class="info-item">
-                    <div class="icon">🗓</div>
-                    <div class="content">
-                   <div class="label">Fecha</div>
+ <!-- Card principal con detalles del viaje -->
+<div class="modern-card">
+    <div class="card-header-custom">
+        <h5 class="card-title-custom">📍 {{ $viaje->origen_direccion }} → {{ $viaje->destino_direccion }}</h5>
+    </div>
+    <div class="card-body-custom">
+        <div class="trip-info-grid">
+            <div class="info-item">
+                <div class="icon">🗓</div>
+                <div class="content">
+               <div class="label">Fecha</div>
 <div class="value">{{ $viaje->fecha_salida ? \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') : 'No definida' }}</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="icon">🕒</div>
-                    <div class="content">
-                        <div class="label">Hora</div>
-                        <div class="value">    {{ $viaje->hora_salida ? substr($viaje->hora_salida, 0, 10) : 'No definida' }}
-</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="icon">🎯</div>
-                    <div class="content">
-                        <div class="label">Distancia estimada</div>
-                        <div class="value">{{ $viaje->distancia_km ?? '—' }} km</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="icon">🚗</div>
-                    <div class="content">
-                        <div class="label">Vehículo</div>
-                       <div class="value">
-                        @php
-                            $marca = $viaje->registroConductor->marca_vehiculo ?? null;
-                            $modelo = $viaje->registroConductor->modelo_vehiculo ?? null;
-                        @endphp
-
-                        {{ $viaje->vehiculo !== $marca ? ($viaje->vehiculo . ' - ') : '' }}
-                        {{ $marca }} {{ $modelo }}
-                    </div>
-
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="icon">💰</div>
-                    <div class="content">
-                        <div class="label">Valor por persona</div>
-                        <div class="value">${{ number_format($viaje->valor_persona, 2) }}</div>
-                    </div>
-                </div>
-                
-                <div class="info-item">
-                    <div class="icon">🪑</div>
-                    <div class="content">
-                        <div class="label">Puestos disponibles</div>
-                        <div class="value">{{ $viaje->puestos_disponibles }}</div>
-                    </div>
                 </div>
             </div>
+            
+            <div class="info-item">
+                <div class="icon">🕒</div>
+                <div class="content">
+                    <div class="label">Hora</div>
+                    <div class="value">{{ $viaje->hora_salida ? substr($viaje->hora_salida, 0, 5) : 'No definida' }}</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="icon">🎯</div>
+                <div class="content">
+                    <div class="label">Distancia estimada</div>
+                    <div class="value">{{ $viaje->distancia_km ?? '—' }} km</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="icon">🚗</div>
+                <div class="content">
+                    <div class="label">Vehículo</div>
+                   <div class="value">
+                    @php
+                        $marca = $viaje->registroConductor->marca_vehiculo ?? null;
+                        $modelo = $viaje->registroConductor->modelo_vehiculo ?? null;
+                    @endphp
 
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-                <div>
-                    <span class="label" style="font-weight: 600; color: var(--vcv-primary); font-size: 0.85rem; text-transform: uppercase; margin-right: 0.5rem;">📦 Estado:</span>
-                    <span class="status-badge {{ $viaje->estado === 'Listo_para_iniciar' ? 'bg-success' : 'bg-primary' }} text-light">
-                    {{ ucfirst(str_replace('_', ' ', $viaje->estado)) }}
-                </span>
-
+                    {{ $viaje->vehiculo !== $marca ? ($viaje->vehiculo . ' - ') : '' }}
+                    {{ $marca }} {{ $modelo }}
                 </div>
 
-                @if($viaje->conductor_id === auth()->id())
-                <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" class="d-inline">
-                    @csrf
-                    @method('DELETE')
-                    <button type="button" class="btn btn-sm btn-outline-danger btn-modern btn-cancelar-viaje">
-                        ❌ Cancelar
-                    </button>
-                </form>
-                @endif
+                </div>
             </div>
+            
+            <div class="info-item">
+                <div class="icon">💰</div>
+                <div class="content">
+                    <div class="label">Valor por persona</div>
+                    <div class="value">${{ number_format($viaje->valor_persona, 2) }}</div>
+                </div>
+            </div>
+            
+            <div class="info-item">
+                <div class="icon">🪑</div>
+                <div class="content">
+                    <div class="label">Puestos disponibles</div>
+                    <div class="value">{{ $viaje->puestos_disponibles }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🚀 BOTÓN INICIAR VIAJE - Solo visible 15 min antes de la hora -->
+        <div id="iniciarViajeContainer" style="display: none; margin: 1.5rem 0; text-align: center;">
+            <button id="btnIniciarViaje" 
+                    class="btn btn-success btn-lg px-5 py-3"
+                    style="font-size: 1.2rem; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); transition: all 0.3s ease;"
+                    onclick="iniciarViaje({{ $viaje->id }})">
+                🚀 INICIAR VIAJE
+            </button>
+            <div id="countdown" class="mt-2 text-muted" style="font-size: 0.9rem;"></div>
+        </div>
+
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+            <div>
+                <span class="label" style="font-weight: 600; color: var(--vcv-primary); font-size: 0.85rem; text-transform: uppercase; margin-right: 0.5rem;">📦 Estado:</span>
+                <span class="status-badge {{ $viaje->estado === 'Listo_para_iniciar' ? 'bg-success' : 'bg-primary' }} text-light">
+                {{ ucfirst(str_replace('_', ' ', $viaje->estado)) }}
+            </span>
+
+            </div>
+
+            @if($viaje->conductor_id === auth()->id())
+            <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" class="d-inline">
+                @csrf
+                @method('DELETE')
+                <button type="button" class="btn btn-sm btn-outline-danger btn-modern btn-cancelar-viaje">
+                    ❌ Cancelar
+                </button>
+            </form>
+            @endif
         </div>
     </div>
+</div>
 
     <!-- NUEVA SECCIÓN: Mapa de la ruta -->
     <div class="modern-card" style="margin-top: 1.5rem;">
@@ -1223,10 +1233,143 @@ document.addEventListener('DOMContentLoaded', function() {
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Cancelando...';
     });
+
+      // Datos del viaje desde PHP
+    const fechaSalida = '{{ $viaje->fecha_salida }}';
+    const horaSalida = '{{ $viaje->hora_salida }}';
+    const estadoViaje = '{{ $viaje->estado }}';
+    
+    console.log('Datos del viaje:', { fechaSalida, horaSalida, estadoViaje });
+    
+    if (!fechaSalida || !horaSalida) {
+        console.log('Fecha u hora de salida no definidas');
+        return;
+    }
+    
+    function verificarBotonIniciar() {
+        const ahora = new Date();
+        
+        // 🔧 CORRECCIÓN: Formatear correctamente la fecha y hora
+        const fechaFormateada = fechaSalida.split(' ')[0]; // Solo la fecha (YYYY-MM-DD)
+        const horaFormateada = horaSalida.substring(0, 8); // Solo HH:MM:SS
+        
+        // Crear la fecha completa
+        const fechaHoraSalida = new Date(fechaFormateada + 'T' + horaFormateada);
+        
+        // Calcular 15 minutos antes
+        const tiempoActivacion = new Date(fechaHoraSalida.getTime() - (15 * 60 * 1000));
+        
+        // 🔧 CORRECCIÓN: Comparar fechas más flexiblemente
+        const fechaAhora = ahora.toISOString().split('T')[0];
+        const fechaViaje = fechaFormateada;
+        const esMismoDia = fechaAhora === fechaViaje;
+        
+        // Verificar si estamos en el rango de tiempo (15 min antes hasta 3 horas después)
+        const tiempoMaximo = new Date(fechaHoraSalida.getTime() + (3 * 60 * 60 * 1000));
+        const enRangoTiempo = ahora >= tiempoActivacion && ahora <= tiempoMaximo;
+        
+        // 🔧 TEMPORAL: Para testing, mostrar siempre si es el mismo día
+        const modoTesting = true; // Cambia a false cuando esté funcionando
+        const deberiaVisible = modoTesting ? 
+            (esMismoDia && estadoViaje !== 'iniciado') : 
+            (esMismoDia && enRangoTiempo && estadoViaje !== 'iniciado');
+        
+        const container = document.getElementById('iniciarViajeContainer');
+        const countdown = document.getElementById('countdown');
+        
+        if (deberiaVisible) {
+            container.style.display = 'block';
+            
+            // Mostrar countdown
+            const diff = fechaHoraSalida.getTime() - ahora.getTime();
+            if (diff > 0) {
+                const horas = Math.floor(diff / (1000 * 60 * 60));
+                const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const segundos = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                if (horas > 0) {
+                    countdown.textContent = `⏱️ Salida en ${horas}h ${minutos}m ${segundos}s`;
+                } else {
+                    countdown.textContent = `⏱️ Salida en ${minutos}:${segundos.toString().padStart(2, '0')}`;
+                }
+            } else {
+                const tiempoPasado = Math.abs(diff);
+                const minutosPasados = Math.floor(tiempoPasado / (1000 * 60));
+                if (minutosPasados < 180) { // Menos de 3 horas
+                    countdown.textContent = `🚀 ¡Viaje disponible! (${minutosPasados} min desde la hora programada)`;
+                } else {
+                    countdown.textContent = '⏰ Tiempo de salida expirado';
+                }
+            }
+        } else {
+            container.style.display = 'none';
+        }
+        
+        // 🔍 Debug detallado
+        console.log('🔍 Debug completo:', {
+            ahora: ahora.toLocaleString('es-AR'),
+            fechaHoraSalida: fechaHoraSalida.toLocaleString('es-AR'),
+            tiempoActivacion: tiempoActivacion.toLocaleString('es-AR'),
+            fechaAhora,
+            fechaViaje,
+            esMismoDia,
+            enRangoTiempo,
+            deberiaVisible,
+            estadoViaje,
+            modoTesting,
+            diferencia: `${Math.floor((fechaHoraSalida - ahora) / (1000 * 60))} minutos`
+        });
+    }
+    
+    // Verificar inmediatamente
+    verificarBotonIniciar();
+    
+    // Verificar cada 10 segundos para testing
+    setInterval(verificarBotonIniciar, 10000);
 });
 
 // También exponer la función globalmente por si acaso
 window.initViajeDetalleMapa = initViajeDetalleMapa;
+
+
+function iniciarViaje(viajeId) {
+    if (confirm('¿Estás seguro de iniciar el viaje ahora?\n\nTe llevará a verificar qué pasajeros están presentes.')) {
+        // Mostrar loading
+        const btn = document.getElementById('btnIniciarViaje');
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+        btn.disabled = true;
+
+        fetch(`/conductor/viaje/${viajeId}/iniciar`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Redirigir a verificar pasajeros
+                window.location.href = data.redirect_url;
+            } else {
+                alert('Error al iniciar viaje: ' + data.message);
+                // Restaurar botón
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al conectar con el servidor');
+            // Restaurar botón
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        });
+    }
+}
+
+// 🎨 Efecto hover para el botón
 
 </script>
 @endsection

@@ -103,12 +103,142 @@ private function actualizarEstadoViaje($viaje)
     }
 }
 
-// Método opcional para notificar al pasajero del rechazo
-private function notificarRechazoAlPasajero(Reserva $reserva)
+public function iniciarViaje(Viaje $viaje)
 {
-    // Aquí puedes implementar el envío de notificación por email, SMS, etc.
-    // Por ejemplo, usando el sistema de notificaciones de Laravel:
-    
-    // $reserva->user->notify(new PasajeroRechazadoNotification($reserva));
+    try {
+        // Verificar que el conductor sea el dueño del viaje
+        if ($viaje->conductor_id !== auth()->id()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'No tienes permisos para iniciar este viaje'
+            ], 403);
+        }
+
+        // Verificar que el viaje esté en estado válido para iniciar
+        if ($viaje->estado === 'iniciado') {
+            return response()->json([
+                'success' => false, 
+                'message' => 'El viaje ya está iniciado'
+            ], 400);
+        }
+
+        // Cambiar estado a iniciado
+        $viaje->update([
+            'estado' => 'iniciado',
+            'hora_inicio_real' => now() // Opcional: guardar hora real de inicio
+        ]);
+
+        \Log::info('Viaje iniciado', [
+            'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
+            'hora_inicio' => now()
+        ]);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Viaje iniciado exitosamente',
+            'redirect_url' => route('conductor.viaje.verificar-pasajeros', $viaje->id)
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error al iniciar viaje', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false, 
+            'message' => 'Error interno del servidor'
+        ], 500);
+    }
 }
+
+// 2. MÉTODO PARA MOSTRAR VISTA DE VERIFICACIÓN
+public function verificarPasajeros(Viaje $viaje)
+{
+    // Verificar permisos
+    if ($viaje->conductor_id !== auth()->id()) {
+        abort(403, 'No tienes permisos para acceder a este viaje');
+    }
+
+    // Verificar que el viaje esté iniciado
+    if ($viaje->estado !== 'iniciado') {
+        return redirect()->route('conductor.viaje.detalle', $viaje->id)
+            ->with('error', 'El viaje debe estar iniciado para verificar pasajeros');
+    }
+
+    // Cargar reservas confirmadas con información del usuario
+    $viaje->load(['reservas' => function($query) {
+        $query->where('estado', 'confirmada')
+              ->with('user')
+              ->orderBy('created_at', 'asc');
+    }]);
+
+    return view('conductor.verificar-pasajeros', compact('viaje'));
+}
+
+// 3. MÉTODO PARA PROCESAR VERIFICACIÓN DE ASISTENCIA
+public function procesarAsistencia(Request $request, Viaje $viaje)
+{
+    $request->validate([
+        'asistencias' => 'required|array',
+        'asistencias.*' => 'required|in:presente,ausente'
+    ]);
+
+    try {
+        \DB::beginTransaction();
+
+        $pasajerosPresentes = 0;
+        $pasajerosAusentes = 0;
+
+        foreach ($request->asistencias as $reservaId => $estado) {
+            $reserva = $viaje->reservas()->findOrFail($reservaId);
+            
+            // Actualizar estado de asistencia
+            $reserva->update([
+                'asistencia' => $estado,
+                'verificado_por_conductor' => true,
+                'fecha_verificacion' => now()
+            ]);
+
+            if ($estado === 'presente') {
+                $pasajerosPresentes += $reserva->cantidad_puestos;
+            } else {
+                $pasajerosAusentes += $reserva->cantidad_puestos;
+                
+                // Opcional: Liberar puestos de pasajeros ausentes
+                $viaje->puestos_disponibles += $reserva->cantidad_puestos;
+            }
+        }
+
+        // Actualizar información del viaje
+        $viaje->update([
+            'pasajeros_presentes' => $pasajerosPresentes,
+            'pasajeros_ausentes' => $pasajerosAusentes,
+            'estado' => 'en_curso' // Cambiar a "en curso"
+        ]);
+
+        \DB::commit();
+
+        \Log::info('Asistencia verificada', [
+            'viaje_id' => $viaje->id,
+            'presentes' => $pasajerosPresentes,
+            'ausentes' => $pasajerosAusentes
+        ]);
+
+        return redirect()->route('conductor.viaje.en-curso', $viaje->id)
+            ->with('success', "Verificación completada. Presentes: {$pasajerosPresentes}, Ausentes: {$pasajerosAusentes}");
+
+    } catch (\Exception $e) {
+        \DB::rollBack();
+        
+        \Log::error('Error al procesar asistencia', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage()
+        ]);
+
+        return back()->withErrors(['error' => 'Error al procesar la verificación']);
+    }
+}
+
 }
