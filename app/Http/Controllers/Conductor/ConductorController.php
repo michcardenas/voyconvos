@@ -272,33 +272,43 @@ public function procesarAsistencia(Request $request, Viaje $viaje)
             }
         }
 
-        // Actualizar información del viaje
+        // Actualizar información del viaje - CAMBIAR A 'en_curso'
         $viaje->update([
+            'estado' => 'en_curso',  // ← CAMBIO IMPORTANTE
             'pasajeros_presentes' => $pasajerosPresentes,
             'pasajeros_ausentes' => $pasajerosAusentes,
-            'estado' => 'en_curso' // Cambiar a "en curso"
         ]);
 
         \DB::commit();
 
-        \Log::info('Asistencia verificada', [
+        \Log::info('Asistencia verificada y viaje en curso', [
             'viaje_id' => $viaje->id,
             'presentes' => $pasajerosPresentes,
-            'ausentes' => $pasajerosAusentes
+            'ausentes' => $pasajerosAusentes,
+            'nuevo_estado' => 'en_curso'
         ]);
 
-        return redirect()->route('conductor.viaje.en-curso', $viaje->id)
-            ->with('success', "Verificación completada. Presentes: {$pasajerosPresentes}, Ausentes: {$pasajerosAusentes}");
+        // 🔥 REDIRECCIÓN CORRECTA - Verificar que la ruta existe
+        $rutaDestino = route('conductor.viaje.en-curso', $viaje->id);
+        
+        \Log::info('Redirigiendo a viaje en curso', [
+            'viaje_id' => $viaje->id,
+            'ruta_destino' => $rutaDestino
+        ]);
+
+        return redirect()->to($rutaDestino)
+            ->with('success', "✅ Verificación completada. Presentes: {$pasajerosPresentes}, Ausentes: {$pasajerosAusentes}");
 
     } catch (\Exception $e) {
         \DB::rollBack();
         
         \Log::error('Error al procesar asistencia', [
             'viaje_id' => $viaje->id,
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
 
-        return back()->withErrors(['error' => 'Error al procesar la verificación']);
+        return back()->withErrors(['error' => 'Error al procesar la verificación: ' . $e->getMessage()]);
     }
 }
 public function viajeEnCurso(Viaje $viaje)
