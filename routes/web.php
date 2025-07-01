@@ -141,6 +141,9 @@ Route::prefix('conductor')->name('conductor.')->group(function () {
     
     Route::get('/viaje/{viaje}/en-curso', [App\Http\Controllers\Conductor\ConductorController::class, 'viajeEnCurso'])
         ->name('viaje.en-curso');
+        // Reemplaza tu ruta actual con:
+Route::get('/viaje/{viaje}/en-curso', [App\Http\Controllers\Conductor\ConductorController::class, 'viajeEnCurso'])
+    ->name('conductor.viaje.en-curso');
 });
 // Ver detalles de una reserva
 Route::get('/pasajero/reserva/{reserva}/detalles', [ReservaPasajeroController::class, 'verDetalles'])->name('pasajero.reserva.detalles');

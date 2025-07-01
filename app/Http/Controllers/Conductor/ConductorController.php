@@ -301,5 +301,123 @@ public function procesarAsistencia(Request $request, Viaje $viaje)
         return back()->withErrors(['error' => 'Error al procesar la verificación']);
     }
 }
+public function viajeEnCurso(Viaje $viaje)
+{
+    try {
+        // Verificar permisos
+        if ((int)$viaje->conductor_id !== (int)auth()->id()) {
+            abort(403, 'No tienes permisos para acceder a este viaje');
+        }
 
+        // Verificar que el viaje esté en estado válido
+        if (!in_array($viaje->estado, ['iniciado', 'en_curso'])) {
+            return redirect()->route('conductor.viaje.detalle', $viaje->id)
+                ->with('error', 'El viaje debe estar iniciado para ver esta pantalla');
+        }
+
+        // 🔥 CAMBIAR ESTADO A "EN_CURSO" si está iniciado
+        if ($viaje->estado === 'iniciado') {
+            $viaje->update([
+                'estado' => 'en_curso',
+                'hora_inicio_real' => now() // Si tienes esta columna
+            ]);
+
+            \Log::info('Viaje cambiado a en_curso', [
+                'viaje_id' => $viaje->id,
+                'conductor_id' => auth()->id(),
+                'hora_cambio' => now()
+            ]);
+        }
+
+        // Cargar datos necesarios
+        $viaje->load([
+            'reservas' => function($query) {
+                $query->where('estado', 'confirmada')
+                      ->whereNotNull('asistencia') // Solo los que fueron verificados
+                      ->with('user')
+                      ->orderBy('asistencia', 'desc') // Presentes primero
+                      ->orderBy('created_at', 'asc');
+            },
+            'registroConductor'
+        ]);
+
+        // Calcular estadísticas del viaje
+        $estadisticas = [
+            'total_reservas' => $viaje->reservas->count(),
+            'presentes' => $viaje->reservas->where('asistencia', 'presente')->count(),
+            'ausentes' => $viaje->reservas->where('asistencia', 'ausente')->count(),
+            'puestos_ocupados' => $viaje->reservas->where('asistencia', 'presente')->sum('cantidad_puestos'),
+            'ingresos_reales' => $viaje->reservas->where('asistencia', 'presente')->sum('total'),
+            'hora_inicio' => $viaje->hora_inicio_real ?? $viaje->created_at,
+        ];
+
+        return view('conductor.viaje-en-curso', compact('viaje', 'estadisticas'));
+
+    } catch (\Exception $e) {
+        \Log::error('Error en viajeEnCurso', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return redirect()->route('conductor.dashboard')
+            ->with('error', 'Error al acceder al viaje en curso');
+    }
+}
+
+// 🔥 MÉTODO ADICIONAL: Finalizar viaje
+public function finalizarViaje(Viaje $viaje)
+{
+    try {
+        // Verificar permisos
+        if ((int)$viaje->conductor_id !== (int)auth()->id()) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'No tienes permisos'
+            ], 403);
+        }
+
+        // Verificar estado
+        if ($viaje->estado !== 'en_curso') {
+            return response()->json([
+                'success' => false, 
+                'message' => 'El viaje no está en curso'
+            ], 400);
+        }
+
+        // Finalizar viaje
+        $viaje->update([
+            'estado' => 'finalizado',
+            'hora_finalizacion' => now()
+        ]);
+
+        // Actualizar reservas presentes a "completada"
+        $viaje->reservas()
+            ->where('asistencia', 'presente')
+            ->update(['estado' => 'completada']);
+
+        \Log::info('Viaje finalizado', [
+            'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
+            'hora_finalizacion' => now()
+        ]);
+
+        return response()->json([
+            'success' => true, 
+            'message' => 'Viaje finalizado exitosamente',
+            'redirect_url' => route('conductor.dashboard')
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error al finalizar viaje', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage()
+        ]);
+
+        return response()->json([
+            'success' => false, 
+            'message' => 'Error al finalizar el viaje'
+        ], 500);
+    }
+}
 }
