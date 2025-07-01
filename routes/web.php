@@ -129,21 +129,19 @@ Route::post('/conductor/viaje/{viaje}/iniciar', [ConductorController::class, 'in
 
 Route::prefix('conductor')->name('conductor.')->group(function () {
     
-    // 🔥 RUTAS PARA EL SISTEMA DE INICIAR VIAJE (SIN MIDDLEWARE ROLE)
-    Route::post('/viaje/{viaje}/iniciar', [App\Http\Controllers\Conductor\ConductorController::class, 'iniciarViaje'])
-        ->name('viaje.iniciar');
-    
-    Route::get('/viaje/{viaje}/verificar-pasajeros', [App\Http\Controllers\Conductor\ConductorController::class, 'verificarPasajeros'])
-        ->name('viaje.verificar-pasajeros');
-    
-    Route::post('/viaje/{viaje}/procesar-asistencia', [App\Http\Controllers\Conductor\ConductorController::class, 'procesarAsistencia'])
-        ->name('viaje.procesar-asistencia');
-    
+    // ✅ ESTA RUTA DEBE EXISTIR EXACTAMENTE ASÍ:
     Route::get('/viaje/{viaje}/en-curso', [App\Http\Controllers\Conductor\ConductorController::class, 'viajeEnCurso'])
         ->name('viaje.en-curso');
-        // Reemplaza tu ruta actual con:
-Route::get('/viaje/{viaje}/en-curso', [App\Http\Controllers\Conductor\ConductorController::class, 'viajeEnCurso'])
-    ->name('conductor.viaje.en-curso');
+        
+    // Las demás rutas...
+    Route::post('/viaje/{viaje}/iniciar', [App\Http\Controllers\Conductor\ConductorController::class, 'iniciarViaje'])
+        ->name('viaje.iniciar');
+        
+    Route::get('/viaje/{viaje}/verificar-pasajeros', [App\Http\Controllers\Conductor\ConductorController::class, 'verificarPasajeros'])
+        ->name('viaje.verificar-pasajeros');
+        
+    Route::post('/viaje/{viaje}/procesar-asistencia', [App\Http\Controllers\Conductor\ConductorController::class, 'procesarAsistencia'])
+        ->name('viaje.procesar-asistencia');
 });
 // Ver detalles de una reserva
 Route::get('/pasajero/reserva/{reserva}/detalles', [ReservaPasajeroController::class, 'verDetalles'])->name('pasajero.reserva.detalles');
