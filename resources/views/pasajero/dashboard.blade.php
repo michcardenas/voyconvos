@@ -363,6 +363,16 @@
             <p>Gestiona tus viajes y revisa tu actividad reciente</p>
         </div>
 
+          <div class="action-buttons mb-4">
+            <h5 class="mb-4 text-primary">¿Qué quieres hacer?</h5>
+            <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-custom primary me-3">
+                <i class="fas fa-search me-2"></i>Buscar viajes disponibles
+            </a>
+            <a href="#" class="btn-custom outline">
+                <i class="fas fa-history me-2"></i>Ver historial completo
+            </a>
+        </div>
+
         <!-- Stats Cards -->
         <div class="row g-4 mb-4">
             <div class="col-md-4">
@@ -394,35 +404,53 @@
             </div>
         </div>
 
-       <div class="section-header">
+      <div class="section-header">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
         
-        <!-- Filtros completos -->
+        <!-- Filtros completos con nuevos estados -->
         <div class="d-flex gap-2 flex-wrap">
-            <a href="{{ route('pasajero.dashboard', ['estado' => 'activos']) }}" 
-               class="btn btn-sm {{ ($estadoFiltro ?? 'activos') === 'activos' ? 'btn-primary' : 'btn-outline-primary' }}">
-                Activos
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'todos']) }}" 
+               class="btn btn-sm {{ ($estadoFiltro ?? 'todos') === 'todos' ? 'btn-dark' : 'btn-outline-dark' }}">
+                Todos
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $reservas->total() ?? $reservas->count() }}</span>
+                @endif
             </a>
-            <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente']) }}" 
-               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente' ? 'btn-warning' : 'btn-outline-warning' }}">
-                Pendiente
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'activos']) }}" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'activos' ? 'btn-primary' : 'btn-outline-primary' }}">
+                Activos
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $estadisticas['activos'] }}</span>
+                @endif
+            </a>
+            <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_confirmacion']) }}" 
+               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_confirmacion' ? 'btn-warning' : 'btn-outline-warning' }}">
+                Esperando
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $estadisticas['pendiente_confirmacion'] }}</span>
+                @endif
             </a>
             <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_pago']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'btn-info' : 'btn-outline-info' }}">
                 Por Pagar
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $estadisticas['pendiente_pago'] }}</span>
+                @endif
             </a>
             <a href="{{ route('pasajero.dashboard', ['estado' => 'confirmada']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'confirmada' ? 'btn-success' : 'btn-outline-success' }}">
-                Confirmada
+                Confirmadas
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $estadisticas['confirmada'] }}</span>
+                @endif
             </a>
             <a href="{{ route('pasajero.dashboard', ['estado' => 'cancelados']) }}" 
                class="btn btn-sm {{ ($estadoFiltro ?? '') === 'cancelados' ? 'btn-danger' : 'btn-outline-danger' }}">
                 Cancelados
-            </a>
-            <a href="{{ route('pasajero.dashboard', ['estado' => 'todos']) }}" 
-               class="btn btn-sm {{ ($estadoFiltro ?? '') === 'todos' ? 'btn-dark' : 'btn-outline-dark' }}">
-                Todos
+                @if(isset($estadisticas))
+                    <span class="badge bg-light text-dark ms-1">{{ $estadisticas['cancelados'] }}</span>
+                @endif
             </a>
         </div>
     </div>
@@ -464,21 +492,36 @@
                                 @endif
                             </td>
                             
-                            <!-- ESTADO -->
+                            <!-- ESTADO con nuevos estados -->
                             <td>
-                                @if($reserva->estado === 'pendiente')
-                                    <span class="badge bg-warning">⏰ Pendiente</span>
-                                @elseif($reserva->estado === 'pendiente_pago')
-                                    <span class="badge bg-info">💳 Por Pagar</span>
-                                @elseif($reserva->estado === 'confirmada')
-                                    <span class="badge bg-success">✅ Confirmado</span>
-                                @elseif($reserva->estado === 'cancelada')
-                                    <span class="badge bg-danger">❌ Cancelado</span>
-                                @elseif($reserva->estado === 'fallida')
-                                    <span class="badge bg-dark">⚠️ Fallido</span>
-                                @else
-                                    <span class="badge bg-secondary">{{ $reserva->estado }}</span>
-                                @endif
+                                @switch($reserva->estado)
+                                    @case('pendiente')
+                                        <span class="badge bg-warning">⏰ Pendiente</span>
+                                        @break
+                                    @case('pendiente_pago')
+                                        <span class="badge bg-info">💳 Por Pagar</span>
+                                        @break
+                                    @case('pendiente_confirmacion')
+                                        <span class="badge bg-warning">🕐 Esperando Confirmación</span>
+                                        @break
+                                    @case('confirmada')
+                                        <span class="badge bg-success">✅ Confirmado</span>
+                                        @break
+                                    @case('cancelada')
+                                        <span class="badge bg-danger">❌ Cancelado</span>
+                                        @break
+                                    @case('cancelada_por_conductor')
+                                        <span class="badge bg-danger">🚫 Cancelado por Conductor</span>
+                                        @break
+                                    @case('fallida')
+                                        <span class="badge bg-dark">⚠️ Fallido</span>
+                                        @break
+                                    @case('completada')
+                                        <span class="badge bg-success">🎉 Completado</span>
+                                        @break
+                                    @default
+                                        <span class="badge bg-secondary">{{ ucfirst($reserva->estado) }}</span>
+                                @endswitch
                             </td>
                             
                             <!-- PUESTOS -->
@@ -500,12 +543,21 @@
                                         <i class="fas fa-info-circle"></i>
                                     </a>
                                     
+                                    <!-- Pagar (si está pendiente de pago) -->
+                                    @if($reserva->estado === 'pendiente_pago' && $reserva->mp_init_point)
+                                        <a href="{{ $reserva->mp_init_point }}" 
+                                           class="btn btn-info btn-sm" 
+                                           title="Proceder al pago">
+                                            <i class="fas fa-credit-card"></i>
+                                        </a>
+                                    @endif
+                                    
                                     <!-- Chat -->
                                     @if($reserva->estado === 'confirmada')
                                         <a href="{{ route('chat.ver', $reserva->viaje_id) }}" 
-                                           class="btn-custom primary btn-sm" 
+                                           class="btn btn-success btn-sm" 
                                            title="Abrir Chat">
-                                            <i class="fas fa-comments me-1"></i>Chat
+                                            <i class="fas fa-comments"></i>
                                         </a>
                                     @endif
                                 </div>
@@ -516,13 +568,20 @@
                 </tbody>
             </table>
         </div>
+        
+        <!-- Paginación -->
+        @if(method_exists($reservas, 'links'))
+            <div class="d-flex justify-content-center mt-4">
+                {{ $reservas->appends(request()->query())->links() }}
+            </div>
+        @endif
     </div>
 @else
     <div class="alert alert-info text-center">
         <i class="fas fa-inbox fa-2x mb-3"></i>
         <h5>No hay reservas</h5>
         <p>
-            @switch($estadoFiltro ?? 'activos')
+            @switch($estadoFiltro ?? 'todos')
                 @case('activos')
                     No tienes reservas activas. ¡Busca tu próximo viaje!
                     @break
@@ -532,6 +591,9 @@
                 @case('pendiente_pago')
                     No tienes reservas pendientes de pago.
                     @break
+                @case('pendiente_confirmacion')
+                    No tienes reservas esperando confirmación del conductor.
+                    @break
                 @case('confirmada')
                     No tienes reservas confirmadas.
                     @break
@@ -539,19 +601,25 @@
                     No tienes reservas canceladas.
                     @break
                 @case('cancelada')
-                    No tienes reservas canceladas.
+                    No tienes reservas canceladas por ti.
+                    @break
+                @case('cancelada_por_conductor')
+                    No tienes reservas canceladas por conductores.
                     @break
                 @case('fallida')
                     No tienes reservas fallidas.
                     @break
+                @case('completada')
+                    No tienes viajes completados.
+                    @break
                 @case('todos')
-                    No tienes ninguna reserva.
+                    No tienes ninguna reserva aún.
                     @break
                 @default
                     No hay reservas en este estado.
             @endswitch
         </p>
-        @if(($estadoFiltro ?? 'activos') === 'activos')
+        @if(in_array($estadoFiltro ?? 'todos', ['activos', 'todos']))
             <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn btn-primary">
                 <i class="fas fa-search me-1"></i>Buscar viajes
             </a>
@@ -625,15 +693,7 @@
         </div>
 
         <!-- Action Buttons -->
-        <div class="action-buttons">
-            <h5 class="mb-3 text-primary">¿Qué quieres hacer?</h5>
-            <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-custom primary me-3">
-                <i class="fas fa-search me-2"></i>Buscar viajes disponibles
-            </a>
-            <a href="#" class="btn-custom outline">
-                <i class="fas fa-history me-2"></i>Ver historial completo
-            </a>
-        </div>
+      
     </div>
 </div>
 <style>

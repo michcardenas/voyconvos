@@ -1,4 +1,4 @@
-@extends('layouts.app_dashboard')
+@extends('layouts.app_dashboard_p')
 
 @section('title', 'Detalle de tu reserva')
 
@@ -11,6 +11,11 @@
         --vcv-accent: #4CAF50;
         --vcv-bg: #FCFCFD;
     }
+.details-wrapper .container {
+    max-width: 900px !important; /* Ancho óptimo para lectura */
+    margin: 0 auto !important; /* Centrado perfecto */
+    padding: 0 1.5rem !important; /* Espaciado lateral consistente */
+}
 
     .details-wrapper {
         background: linear-gradient(135deg, #DDF2FE 0%, #FCFCFD 50%, rgba(31, 78, 121, 0.03) 100%);
@@ -48,6 +53,8 @@
         backdrop-filter: blur(10px);
         position: relative;
         overflow: hidden;
+        margin-top: 5rem;
+
     }
 
     .page-header::before {
@@ -507,7 +514,8 @@
         <!-- DATOS DEL CONDUCTOR - GRID RESPONSIVE -->
         <div class="conductor-details">
             <div class="row g-3">
-                <div class="col-12 col-md-6">
+                <!-- NOMBRE - SIEMPRE VISIBLE -->
+                <div class="col-12 {{ $reserva->estado === 'confirmada' ? 'col-md-4' : '' }}">
                     <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
                         <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
                             <i class="fas fa-user" style="margin-right: 5px;"></i> Nombre
@@ -518,62 +526,83 @@
                     </div>
                 </div>
                 
-                <div class="col-12 col-md-6">
-                    <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
-                            <i class="fas fa-envelope" style="margin-right: 5px;"></i> Email
-                        </div>
-                        <div class="info-value" style="color: #333; font-size: 1rem; word-break: break-all;">
-                            {{ $reserva->viaje->conductor->email ?? 'N/D' }}
+                <!-- EMAIL - SOLO SI ESTÁ CONFIRMADA -->
+                @if($reserva->estado === 'confirmada')
+                    <div class="col-12 col-md-4">
+                        <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+                                <i class="fas fa-envelope" style="margin-right: 5px;"></i> Email
+                            </div>
+                            <div class="info-value" style="color: #333; font-size: 1rem; word-break: break-all;">
+                                {{ $reserva->viaje->conductor->email ?? 'N/D' }}
+                            </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="col-12">
-                    <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
-                        <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
-                            <i class="fas fa-phone" style="margin-right: 5px;"></i> Contacto
+                    
+                    <!-- TELÉFONO - SOLO SI ESTÁ CONFIRMADA -->
+                    <div class="col-12 col-md-4">
+                        <div class="info-item" style="background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05);">
+                            <div class="info-label" style="font-weight: 600; color: #6c757d; font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;">
+                                <i class="fas fa-phone" style="margin-right: 5px;"></i> Contacto
+                            </div>
+                            <div class="info-value">
+                                @if($reserva->viaje->conductor->celular)
+                                    <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
+                                       style="color: #007bff; text-decoration: none; font-size: 1.1em; font-weight: 500;">
+                                        <i class="fas fa-phone-alt" style="margin-right: 8px;"></i>
+                                        {{ $reserva->viaje->conductor->celular }}
+                                    </a>
+                                @else
+                                    <span style="color: #6c757d;">No disponible</span>
+                                @endif
+                            </div>
                         </div>
-                        <div class="info-value">
-                            @if($reserva->viaje->conductor->celular)
-                                <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
-                                   style="color: #007bff; text-decoration: none; font-size: 1.1em; font-weight: 500;">
-                                    <i class="fas fa-phone-alt" style="margin-right: 8px;"></i>
-                                    {{ $reserva->viaje->conductor->celular }}
-                                </a>
-                            @else
-                                <span style="color: #6c757d;">No disponible</span>
-                            @endif
+                    </div>
+                @else
+                    <!-- MENSAJE INFORMATIVO SI NO ESTÁ CONFIRMADA -->
+                    <div class="col-12">
+                        <div class="info-item" style="background: linear-gradient(135deg, #fff3cd, #ffeaa7); padding: 15px; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); border-left: 4px solid #ffc107;">
+                            <div style="text-align: center; color: #856404;">
+                                <i class="fas fa-info-circle" style="font-size: 1.5em; margin-bottom: 8px; display: block;"></i>
+                                <div style="font-weight: 600; margin-bottom: 5px;">
+                                    Información de contacto disponible
+                                </div>
+                                <div style="font-size: 0.9em;">
+                                    Los datos de contacto del conductor se mostrarán una vez que tu reserva sea 
+                                    <strong>confirmada</strong>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+                @endif
+            </div>
+        </div>
+        
+        <!-- BOTONES DE CONTACTO - SOLO SI ESTÁ CONFIRMADA -->
+        @if($reserva->estado === 'confirmada' && $reserva->viaje->conductor->celular)
+            <div class="contact-buttons" style="margin-top: 20px;">
+                <div class="row g-2">
+                    <div class="col-12 col-sm-6">
+                        <a href="{{ route('chat.ver', $reserva->viaje_id) }}" 
+                           class="btn btn-success w-100"
+                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
+                            <i class="fas fa-comments me-2"></i>Abrir Chat
+                        </a>
+                    </div>
+                    
+                    <div class="col-12 col-sm-6">
+                        <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
+                           class="btn btn-outline-primary w-100"
+                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
+                            <i class="fas fa-phone me-2"></i> 
+                            Llamar ahora
+                        </a>
                     </div>
                 </div>
             </div>
-        </div>
+        @endif
     </div>
-    
-    <!-- BOTONES DE CONTACTO - RESPONSIVE -->
-    @if($reserva->viaje->conductor->celular)
-        <div class="contact-buttons" style="margin-top: 20px;">
-            <div class="row g-2">
-                <div class="col-12 col-sm-6">
-                    <a href="{{ route('chat.ver', $reserva->viaje_id) }}" class="btn-custom primary">
-                        <i class="fas fa-comments me-2"></i>Abrir Chat
-                    </a>
-                </div>
-                
-                <div class="col-12 col-sm-6">
-                    <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
-                       class="btn btn-outline-primary w-100"
-                       style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
-                        <i class="fas fa-phone" style="margin-right: 8px;"></i> 
-                        Llamar ahora
-                    </a>
-                </div>
-            </div>
-        </div>
-    @endif
 </div>
-
             @if (!$reserva->calificacionEnviadaPorPasajero())
                 <div style="margin-top: 1.5rem; text-align: center;">
                     <a href="{{ route('pasajero.calificar.formulario', $reserva->id) }}" 

@@ -557,7 +557,7 @@
                     </div>
                     <div class="form-group">
                         <label>Precio del combustible (por galón/litro)</label>
-                        <input type="number" id="precio_galon" placeholder="Ej: 4.50 USD o 14000 COP" step="0.01">
+                        <input type="number" id="precio_galon" placeholder="Ej: 83.10 ARG" step="0.01">
                     </div>
                     <div class="form-group">
                         <label>Número de peajes</label>
@@ -565,7 +565,7 @@
                     </div>
                     <div class="form-group">
                         <label>Costo promedio por peaje</label>
-                        <input type="number" id="costo_peaje" placeholder="Ej: 5.00 USD o 10000 COP" step="0.01">
+                        <input type="number" id="costo_peaje" placeholder="Ej: 83 ARG" step="0.01">
                     </div>
                 </div>
 

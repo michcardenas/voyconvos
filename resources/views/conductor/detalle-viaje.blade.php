@@ -586,6 +586,8 @@ function calcularValorInicialPorPersona() {
 
 // ✅ INICIALIZACIÓN AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', function() {
+
+    
     console.log("🚀 Página cargada, inicializando...");
     
     // 1. CALCULAR VALOR INICIAL INMEDIATAMENTE
@@ -636,6 +638,81 @@ document.addEventListener('DOMContentLoaded', function() {
             calcularValorPorPersona();
         }
     }, 200);
+
+
+
+     const puestosTotales = document.getElementById('puestosTotales');
+    const puestosDisponibles = document.getElementById('puestosDisponibles');
+    
+    // Función de validación
+    function validarPuestosDisponibles() {
+        const totalPuestos = parseInt(puestosTotales.value);
+        const disponibles = parseInt(puestosDisponibles.value);
+        
+        // Si no hay valor, no validar
+        if (!disponibles || isNaN(disponibles)) {
+            puestosDisponibles.classList.remove('is-invalid');
+            return;
+        }
+        
+        // Validar que disponibles sea menor que total
+        if (disponibles >= totalPuestos) {
+            // Agregar clase de error
+            puestosDisponibles.classList.add('is-invalid');
+            
+            // Mostrar mensaje de error
+            mostrarMensajeError();
+            
+            // Ajustar automáticamente al máximo permitido
+            puestosDisponibles.value = totalPuestos - 1;
+            
+            // Remover error después del ajuste
+            setTimeout(() => {
+                puestosDisponibles.classList.remove('is-invalid');
+            }, 2000);
+        } else {
+            // Remover clase de error si está válido
+            puestosDisponibles.classList.remove('is-invalid');
+            ocultarMensajeError();
+        }
+    }
+    
+    // Función para mostrar mensaje de error
+    function mostrarMensajeError() {
+        // Buscar si ya existe el mensaje
+        let mensajeExistente = document.getElementById('errorPuestos');
+        
+        if (!mensajeExistente) {
+            // Crear mensaje de error
+            const mensaje = document.createElement('div');
+            mensaje.id = 'errorPuestos';
+            mensaje.className = 'text-danger mt-1 small';
+            mensaje.innerHTML = '⚠️ Los puestos disponibles deben ser menores que los puestos totales';
+            
+            // Insertar después del input
+            puestosDisponibles.parentNode.appendChild(mensaje);
+        }
+    }
+    
+    // Función para ocultar mensaje de error
+    function ocultarMensajeError() {
+        const mensaje = document.getElementById('errorPuestos');
+        if (mensaje) {
+            mensaje.remove();
+        }
+    }
+    
+    // Escuchar cambios en puestos disponibles
+    puestosDisponibles.addEventListener('input', validarPuestosDisponibles);
+    puestosDisponibles.addEventListener('blur', validarPuestosDisponibles);
+    
+    // También establecer el máximo permitido dinámicamente
+    puestosDisponibles.addEventListener('focus', function() {
+        const totalPuestos = parseInt(puestosTotales.value);
+        if (totalPuestos > 0) {
+            puestosDisponibles.setAttribute('max', totalPuestos - 1);
+        }
+    });
 });
 
 // ✅ FUNCIÓN PARA GUARDAR INFO DEL CONDUCTOR

@@ -11,88 +11,146 @@ use Illuminate\Support\Facades\Auth;
 use MercadoPago\MercadoPagoConfig;
 use MercadoPago\Client\Preference\PreferenceClient;
 use MercadoPago\Exceptions\MPApiException;
+use App\Models\RegistroConductor; // Asegúrate de importar el modelo correcto
 
 
 class ReservaPasajeroController extends Controller
 {
 
     // GET: Mostrar todas las reservas del pasajero
-   public function misReservas(Request $request)
+public function misReservas(Request $request) 
 {
     $usuario = Auth::user();
-
+    
     if (!$usuario) {
         return redirect()->route('login')->with('error', 'Debes iniciar sesión para ver tus reservas.');
     }
-
-    // DEBUG: Ver qué filtro llega
-    $estadoFiltro = $request->get('estado', 'activos');
-    // dd("Estado filtro recibido: " . $estadoFiltro);
-
+    
+    // 🔥 CAMBIO: Default a 'todos' en lugar de 'activos'
+    $estadoFiltro = $request->get('estado', 'todos');
+    
     // Query básico con relaciones
     $query = Reserva::with(['viaje.conductor'])
         ->where('user_id', $usuario->id)
         ->orderBy('created_at', 'desc');
-
-    // Aplicar filtros
+    
+    // Aplicar filtros con los nuevos estados
     switch ($estadoFiltro) {
         case 'activos':
-            $query->whereIn('estado', ['pendiente', 'pendiente_pago', 'confirmada']);
+            $query->whereIn('estado', [
+                'pendiente', 
+                'pendiente_pago', 
+                'pendiente_confirmacion', 
+                'confirmada'
+            ]);
             break;
+            
         case 'pendiente':
             $query->where('estado', 'pendiente');
             break;
+            
         case 'pendiente_pago':
             $query->where('estado', 'pendiente_pago');
             break;
+            
+        case 'pendiente_confirmacion':
+            $query->where('estado', 'pendiente_confirmacion');
+            break;
+            
         case 'confirmada':
             $query->where('estado', 'confirmada');
             break;
+            
         case 'cancelados':
-            $query->whereIn('estado', ['cancelada', 'fallida']);
+            $query->whereIn('estado', [
+                'cancelada', 
+                'fallida', 
+                'cancelada_por_conductor'
+            ]);
             break;
+            
         case 'cancelada':
             $query->where('estado', 'cancelada');
             break;
+            
+        case 'cancelada_por_conductor':
+            $query->where('estado', 'cancelada_por_conductor');
+            break;
+            
         case 'fallida':
             $query->where('estado', 'fallida');
             break;
-        case 'completados':
-            // Alias para confirmada
-            $query->where('estado', 'confirmada');
+            
+        case 'completada':
+            $query->where('estado', 'completada');
             break;
+            
+        case 'esperando_confirmacion':
+            $query->where('estado', 'pendiente_confirmacion');
+            break;
+            
         case 'todos':
-            // No filtrar nada
+            // No filtrar nada - mostrar todas las reservas
             break;
+            
         default:
-            // Estado específico
             $query->where('estado', $estadoFiltro);
     }
-
-    $reservas = $query->get();
-
-    // DEBUG: Ver cuántas reservas encuentra
-    // dd("Reservas encontradas: " . $reservas->count() . " con filtro: " . $estadoFiltro);
-
-    // Estadísticas (mantener tu lógica original)
-    $totalViajes = $reservas->count();
-    $viajesProximos = $reservas->filter(fn($r) => optional($r->viaje)->fecha_salida >= now())->count();
-    $viajesRealizados = $reservas->filter(fn($r) => optional($r->viaje)->fecha_salida < now())->count();
-
+    
+    // 🔥 NUEVA PAGINACIÓN: 10 elementos por página
+    $reservas = $query->paginate(10)->withQueryString();
+    
+    // Para estadísticas, necesitamos los totales (sin paginación)
+    $todasLasReservas = Reserva::where('user_id', $usuario->id)->get();
+    
+    // Estadísticas actualizadas con nuevos estados
+    $totalViajes = $todasLasReservas->count();
+    $viajesProximos = $todasLasReservas->filter(fn($r) => optional($r->viaje)->fecha_salida >= now())->count();
+    $viajesRealizados = $todasLasReservas->filter(fn($r) => optional($r->viaje)->fecha_salida < now())->count();
+    
+    // 🔥 ESTADÍSTICAS por estado (para los badges en los filtros)
+    $estadisticas = [
+        'activos' => $todasLasReservas->whereIn('estado', [
+            'pendiente', 
+            'pendiente_pago', 
+            'pendiente_confirmacion', 
+            'confirmada'
+        ])->count(),
+        
+        'pendiente_confirmacion' => $todasLasReservas->where('estado', 'pendiente_confirmacion')->count(),
+        'pendiente_pago' => $todasLasReservas->where('estado', 'pendiente_pago')->count(),
+        'confirmada' => $todasLasReservas->where('estado', 'confirmada')->count(),
+        
+        'cancelados' => $todasLasReservas->whereIn('estado', [
+            'cancelada', 
+            'fallida', 
+            'cancelada_por_conductor'
+        ])->count(),
+    ];
+    
     return view('pasajero.dashboard', compact(
-        'reservas', 
+        'reservas',           // ← Ahora es paginado
         'totalViajes', 
         'viajesProximos', 
         'viajesRealizados',
-        'estadoFiltro'  // ← IMPORTANTE: Agregar esta variable
+        'estadoFiltro',
+        'estadisticas'
     ));
 }
     // GET: Mostrar página de confirmación
-    public function mostrarConfirmacion(Viaje $viaje)
-    {
-        return view('pasajero.confirmar-reserva', compact('viaje'));
-    }
-
+   public function mostrarConfirmacion(Viaje $viaje)
+{
+    // Buscar información del vehículo manualmente
+    $vehiculoInfo = RegistroConductor::where('user_id', $viaje->conductor_id)
+        ->select('marca_vehiculo', 'modelo_vehiculo')
+        ->first();
+    
+    // Agregar la información al objeto viaje temporalmente
+    $viaje->vehiculo_info = $vehiculoInfo;
+    
+    
+    return view('pasajero.confirmar-reserva', compact('viaje'));
+}
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
 {

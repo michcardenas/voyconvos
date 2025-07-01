@@ -584,6 +584,19 @@
                             </div>
                         </div>
                     </div>
+                    <div class="detail-item">
+                        <div class="detail-icon" style="background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary);">
+                            <i class="fas fa-car"></i>
+                        </div>
+                        <div class="detail-content">
+                            <h6>Vehículo</h6>
+                            @if($viaje->vehiculo_info)
+                                <p>{{ ucfirst($viaje->vehiculo_info->marca_vehiculo) }} {{ ucfirst($viaje->vehiculo_info->modelo_vehiculo) }}</p>
+                            @else
+                                <p>{{ ucfirst($viaje->vehiculo ?? 'No especificado') }}</p>
+                            @endif
+                        </div>
+                    </div>
 
                     <!-- Available Seats -->
                     <div class="detail-item">
@@ -617,7 +630,7 @@
                     <i class="fas fa-map" style="color: #4285f4;"></i>
                     <h5 style="margin: 0; font-weight: 600;">Ruta del Viaje</h5>
                 </div>
-                <p style="margin: 0.5rem 0 0 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
+                <p style="margin: 0.5rem 0 0 0; color: rgba(255, 255, 255, 0.7); font-size: 0.9rem;">
                     Visualiza el recorrido de {{ $viaje->distancia_km ?? '—' }} km
                 </p>
             </div>
