@@ -351,7 +351,7 @@
             </button>
             
             <div class="mt-3">
-                <a href="{{ route('conductor.dashboard') }}" class="btn btn-outline-secondary">
+                <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
                     📊 Ir al Dashboard
                 </a>
             </div>

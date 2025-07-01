@@ -360,7 +360,7 @@ public function viajeEnCurso(Viaje $viaje)
             'trace' => $e->getTraceAsString()
         ]);
 
-        return redirect()->route('conductor.dashboard')
+        return redirect()->route('dashboard')
             ->with('error', 'Error al acceder al viaje en curso');
     }
 }
@@ -405,7 +405,7 @@ public function finalizarViaje(Viaje $viaje)
         return response()->json([
             'success' => true, 
             'message' => 'Viaje finalizado exitosamente',
-            'redirect_url' => route('conductor.dashboard')
+            'redirect_url' => route('dashboard')
         ]);
 
     } catch (\Exception $e) {
