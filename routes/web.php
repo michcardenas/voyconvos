@@ -127,6 +127,7 @@ Route::get('/pasajero/dashboard', [ReservaPasajeroController::class, 'misReserva
 Route::post('/conductor/viaje/{viaje}/iniciar', [ConductorController::class, 'iniciarViaje'])
     ->name('conductor.viaje.iniciar');
 
+Route::post('/webhook/uala-bis', [ReservaPasajeroController::class, 'handleUalaWebhook'])->name('uala.webhook');
 Route::prefix('conductor')->name('conductor.')->group(function () {
     
     // ✅ ESTA RUTA DEBE EXISTIR EXACTAMENTE ASÍ:

@@ -10,16 +10,14 @@ use App\Http\Controllers\Controller;
 
 class ConductorController extends Controller
 {
-public function gestion()
-{
-    $userId = auth()->id(); // o el ID que necesites
+public function gestion() {
+    $userId = auth()->id();
     $registro = RegistroConductor::where('user_id', $userId)->first();
-
+    
     return view('conductor.gestion', [
-        'marca' => $registro?->marca_vehiculo,
+        'marca' => $registro ? $registro->marca_vehiculo . ' ' . $registro->modelo_vehiculo : null,
     ]);
 }
-
 public function verificarPasajero(Request $request, Reserva $reserva)
 {
     $request->validate([
