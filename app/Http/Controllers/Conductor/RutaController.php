@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Http;
 use App\Models\Viaje;
 use Illuminate\Support\Facades\Log;
 use App\Models\RegistroConductor;
+use App\Models\ConfiguracionAdmin;
+
 use Illuminate\Support\Facades\Auth;
 
 class RutaController extends Controller
@@ -45,9 +47,9 @@ class RutaController extends Controller
     }
 
 
+
 public function detalle() {
-    $costo_servicio = 5;
-    $nomasde = 9; // Máximo porcentaje permitido
+    $nomasde = 9;
     
     $user = Auth::user();
     if (!$user) {
@@ -56,7 +58,22 @@ public function detalle() {
     
     $registroConductor = RegistroConductor::where('user_id', $user->id)->first();
     
-    return view('conductor.detalle-viaje', compact('registroConductor', 'costo_servicio', 'nomasde'));
+    // Obtener las configuraciones con nombre = 'comision'
+    $configuraciones = ConfiguracionAdmin::where('nombre', 'comision')
+        ->orderBy('created_at', 'desc')
+        ->get(['nombre', 'valor', 'created_at', 'updated_at']);
+    
+    // Obtener el valor de comisión más reciente de la BD
+    $costo_servicio = 5; // Valor por defecto como respaldo
+    
+    if ($configuraciones->isNotEmpty()) {
+        $costo_servicio = floatval($configuraciones->first()->valor);
+    }
+    
+ 
+    return view('conductor.detalle-viaje', compact(
+        'registroConductor', 'costo_servicio', 'nomasde', 'configuraciones'
+    ));
 }
 
    public function store(Request $request)

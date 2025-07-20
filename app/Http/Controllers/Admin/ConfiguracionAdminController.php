@@ -13,9 +13,14 @@ class ConfiguracionAdminController extends Controller
         return view('admin.configuracion.gestion', compact('configuraciones'));
     }
 
-    public function create()
-{
-    return view('admin.create_configuracion');
+public function create() {
+    // Solo los tipos que manejas en tu sistema
+    $tiposConfiguracion = [
+        'comision' => '💰 Comisión (%)',
+        'gasolina' => '⛽ Precio Gasolina ($)'
+    ];
+    
+    return view('admin.create_configuracion', compact('tiposConfiguracion'));
 }
 
 public function store(Request $request)
