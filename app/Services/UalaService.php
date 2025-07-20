@@ -79,7 +79,6 @@ class UalaService
 
     /**
      * Crear checkout usando el SDK oficial de Uala
-     * Mantiene la misma interfaz que teníamos antes
      */
     public function createCheckout(array $checkoutData): array
     {
@@ -104,6 +103,44 @@ class UalaService
             // Crear orden usando el SDK oficial
             $order = $this->sdk->createOrder($amount, $description, $callbackSuccess, $callbackFail);
 
+            // DEBUGGING PROFUNDO - Ver exactamente qué devuelve
+            Log::info('=== DEBUGGING RESPUESTA RAW DEL SDK ===', [
+                'type' => gettype($order),
+                'is_object' => is_object($order),
+                'is_array' => is_array($order),
+                'is_string' => is_string($order),
+                'class_name' => is_object($order) ? get_class($order) : 'N/A',
+                'var_dump' => var_export($order, true),
+                'json_encode' => json_encode($order),
+                'print_r' => print_r($order, true)
+            ]);
+
+            // Si es un objeto, mostrar sus propiedades
+            if (is_object($order)) {
+                $reflection = new \ReflectionObject($order);
+                $properties = [];
+                foreach ($reflection->getProperties() as $property) {
+                    $property->setAccessible(true);
+                    try {
+                        $properties[$property->getName()] = $property->getValue($order);
+                    } catch (\Exception $e) {
+                        $properties[$property->getName()] = 'Error: ' . $e->getMessage();
+                    }
+                }
+                
+                Log::info('=== PROPIEDADES DEL OBJETO ORDEN ===', [
+                    'properties' => $properties,
+                    'public_vars' => get_object_vars($order)
+                ]);
+            }
+
+            // Intentar diferentes métodos de acceso a los datos
+            $extractedData = $this->extractOrderData($order);
+
+            Log::info('=== DATOS EXTRAÍDOS DE LA ORDEN ===', [
+                'extracted_data' => $extractedData
+            ]);
+
             Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
                 'response' => $order
             ]);
@@ -123,33 +160,110 @@ class UalaService
     }
 
     /**
+     * Intentar extraer datos de la orden usando diferentes métodos
+     */
+    private function extractOrderData($order): array
+    {
+        $data = [];
+
+        try {
+            // Método 1: Tratar como array
+            if (is_array($order)) {
+                $data['as_array'] = $order;
+            }
+
+            // Método 2: Tratar como objeto con propiedades públicas
+            if (is_object($order)) {
+                $data['object_vars'] = get_object_vars($order);
+                
+                // Método 3: Intentar acceder a propiedades comunes
+                $commonProps = ['uuid', 'id', 'checkoutUrl', 'checkout_url', 'url', 'link', 'status', 'externalReference'];
+                foreach ($commonProps as $prop) {
+                    if (isset($order->$prop)) {
+                        $data['property_' . $prop] = $order->$prop;
+                    }
+                }
+
+                // Método 4: Si tiene método toArray()
+                if (method_exists($order, 'toArray')) {
+                    $data['to_array'] = $order->toArray();
+                }
+
+                // Método 5: Si tiene método getData()
+                if (method_exists($order, 'getData')) {
+                    $data['get_data'] = $order->getData();
+                }
+
+                // Método 6: Si tiene método getAttributes()
+                if (method_exists($order, 'getAttributes')) {
+                    $data['get_attributes'] = $order->getAttributes();
+                }
+            }
+
+            // Método 7: Convertir a string y ver si es JSON
+            $stringRep = (string) $order;
+            if (!empty($stringRep) && $stringRep !== '[]') {
+                $data['string_representation'] = $stringRep;
+                $decodedJson = json_decode($stringRep, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    $data['decoded_json'] = $decodedJson;
+                }
+            }
+
+        } catch (\Exception $e) {
+            $data['extraction_error'] = $e->getMessage();
+        }
+
+        return $data;
+    }
+
+    /**
      * Normalizar respuesta del SDK al formato que espera nuestro código
      */
     private function normalizeResponse($order): array
     {
-        // El SDK retorna un objeto, convertirlo a array si es necesario
-        $orderArray = is_object($order) ? (array) $order : $order;
+        // Extraer datos usando el método mejorado
+        $extractedData = $this->extractOrderData($order);
 
         Log::info('=== NORMALIZANDO RESPUESTA UALA ===', [
-            'raw_response' => $orderArray
+            'raw_response' => $order,
+            'extracted_data' => $extractedData
         ]);
 
-        // Adaptar la respuesta del SDK al formato que espera nuestro código
-        return [
-            'id' => $orderArray['uuid'] ?? $orderArray['id'] ?? null,
-            'payment_url' => $orderArray['checkoutUrl'] ?? $orderArray['checkout_url'] ?? null,
-            'checkout_url' => $orderArray['checkoutUrl'] ?? $orderArray['checkout_url'] ?? null,
-            'external_reference' => $orderArray['externalReference'] ?? $orderArray['external_reference'] ?? null,
-            'status' => $orderArray['status'] ?? 'pending',
-            'uuid' => $orderArray['uuid'] ?? null,
-            // Incluir toda la respuesta original por si necesitamos algo más
-            'original_response' => $orderArray
+        // Intentar encontrar los datos en diferentes lugares
+        $normalizedData = [
+            'id' => null,
+            'payment_url' => null,
+            'checkout_url' => null,
+            'external_reference' => null,
+            'status' => 'pending',
+            'uuid' => null,
+            'original_response' => $order,
+            'extracted_data' => $extractedData
         ];
+
+        // Si encontramos datos extraídos, usarlos
+        if (!empty($extractedData)) {
+            foreach ($extractedData as $method => $data) {
+                if (is_array($data)) {
+                    // Buscar campos conocidos
+                    if (isset($data['uuid'])) $normalizedData['uuid'] = $data['uuid'];
+                    if (isset($data['id'])) $normalizedData['id'] = $data['id'];
+                    if (isset($data['checkoutUrl'])) $normalizedData['payment_url'] = $data['checkoutUrl'];
+                    if (isset($data['checkout_url'])) $normalizedData['checkout_url'] = $data['checkout_url'];
+                    if (isset($data['url'])) $normalizedData['payment_url'] = $data['url'];
+                    if (isset($data['link'])) $normalizedData['payment_url'] = $data['link'];
+                    if (isset($data['status'])) $normalizedData['status'] = $data['status'];
+                    if (isset($data['externalReference'])) $normalizedData['external_reference'] = $data['externalReference'];
+                }
+            }
+        }
+
+        return $normalizedData;
     }
 
     /**
      * Preparar datos de checkout desde una reserva
-     * Mantiene la misma interfaz que teníamos antes
      */
     public function prepareCheckoutData($reserva, $viaje): array
     {

@@ -284,6 +284,7 @@ public function reservar(Request $request, Viaje $viaje)
         }
 
         // 🏷️ ETIQUETA PARA SALTO DIRECTO A UALA
+// 🏷️ ETIQUETA PARA SALTO DIRECTO A UALA
         uala_setup:
 
         // Configurar Uala
@@ -319,13 +320,26 @@ public function reservar(Request $request, Viaje $viaje)
         \Log::info('=== RESERVA PROCESADA EXITOSAMENTE CON UALA ===', [
             'reserva_id' => $reserva->id,
             'uala_checkout_id' => $reserva->uala_checkout_id,
-            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA'
+            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA',
+            'full_response' => $checkoutResponse
         ]);
 
-        // Validar que tengamos la URL de pago
+        // DEBUGGING TEMPORAL: Si no hay URL, mostrar información completa y fallar más graciosamente
         $paymentUrl = $reserva->uala_payment_url;
         if (!$paymentUrl) {
-            throw new \Exception('No se recibió URL de pago de Uala. Respuesta: ' . json_encode($checkoutResponse));
+            \Log::error('=== NO SE OBTUVO URL DE PAGO - DEBUGGING ===', [
+                'checkout_response' => $checkoutResponse,
+                'extracted_data' => $checkoutResponse['extracted_data'] ?? 'N/A',
+                'original_response' => $checkoutResponse['original_response'] ?? 'N/A'
+            ]);
+            
+            // Temporal: En lugar de fallar, redirigir con un mensaje de debug
+            return back()->withErrors([
+                'error' => 'DEBUG: La orden se creó pero no se recibió URL de pago. Revisa los logs para más información.'
+            ])->with('debug_info', [
+                'response' => $checkoutResponse,
+                'sdk_working' => 'El SDK se inicializó correctamente'
+            ]);
         }
 
         // Redirigir a Uala
