@@ -11,6 +11,7 @@ class UalaService
     private ?string $clientSecret;
     private ?string $username;
     private bool $isDev;
+    private UalaSDK $sdk;
 
     public function __construct()
     {
@@ -23,8 +24,8 @@ class UalaService
         // Validar configuraciones
         $this->validateConfig();
 
-        // Configurar el SDK de Uala
-        $this->setupUalaSDK();
+        // Crear instancia del SDK de Uala
+        $this->initializeUalaSDK();
     }
 
     /**
@@ -46,32 +47,33 @@ class UalaService
     }
 
     /**
-     * Configurar el SDK oficial de Uala
+     * Inicializar el SDK oficial de Uala
      */
-    private function setupUalaSDK(): void
+    private function initializeUalaSDK(): void
     {
         try {
-            Log::info('=== CONFIGURANDO SDK UALA ===', [
+            Log::info('=== INICIALIZANDO SDK UALA ===', [
                 'username' => $this->username,
                 'client_id' => $this->clientId,
                 'is_dev' => $this->isDev
             ]);
 
-            UalaSDK::setUp([
-                'userName' => $this->username,
-                'clientId' => $this->clientId,
-                'clientSecret' => $this->clientSecret,
-                'isDev' => $this->isDev, // true para staging, false para producción
-            ]);
+            // Crear instancia del SDK según la documentación oficial
+            $this->sdk = new UalaSDK(
+                $this->username,
+                $this->clientId,
+                $this->clientSecret,
+                $this->isDev
+            );
 
-            Log::info('=== SDK UALA CONFIGURADO EXITOSAMENTE ===');
+            Log::info('=== SDK UALA INICIALIZADO EXITOSAMENTE ===');
 
         } catch (\Exception $e) {
-            Log::error('=== ERROR CONFIGURANDO SDK UALA ===', [
+            Log::error('=== ERROR INICIALIZANDO SDK UALA ===', [
                 'message' => $e->getMessage(),
                 'trace' => $e->getTraceAsString()
             ]);
-            throw new \Exception("Error configurando SDK de Uala: " . $e->getMessage());
+            throw new \Exception("Error inicializando SDK de Uala: " . $e->getMessage());
         }
     }
 
@@ -82,15 +84,25 @@ class UalaService
     public function createCheckout(array $checkoutData): array
     {
         try {
-            // Convertir datos al formato del SDK
-            $orderData = $this->prepareOrderDataForSDK($checkoutData);
-            
             Log::info('=== CREANDO ORDEN CON SDK UALA ===', [
-                'order_data' => $orderData
+                'checkout_data' => $checkoutData
+            ]);
+
+            // Según la documentación: createOrder(amount, description, callbackSuccess, callbackFail)
+            $amount = $checkoutData['amount']['value'];
+            $description = $checkoutData['description'];
+            $callbackSuccess = $checkoutData['callback_urls']['success'];
+            $callbackFail = $checkoutData['callback_urls']['failure'];
+
+            Log::info('=== PARÁMETROS PARA CREAR ORDEN ===', [
+                'amount' => $amount,
+                'description' => $description,
+                'callbackSuccess' => $callbackSuccess,
+                'callbackFail' => $callbackFail
             ]);
 
             // Crear orden usando el SDK oficial
-            $order = UalaSDK::createOrder($orderData);
+            $order = $this->sdk->createOrder($amount, $description, $callbackSuccess, $callbackFail);
 
             Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
                 'response' => $order
@@ -111,35 +123,27 @@ class UalaService
     }
 
     /**
-     * Preparar datos para el SDK oficial de Uala
-     */
-    private function prepareOrderDataForSDK(array $checkoutData): array
-    {
-        return [
-            'amount' => $checkoutData['amount']['value'],
-            'description' => $checkoutData['description'],
-            'externalReference' => $checkoutData['external_reference'] ?? null,
-            'callbackSuccess' => $checkoutData['callback_urls']['success'],
-            'callbackFail' => $checkoutData['callback_urls']['failure'],
-            // El SDK puede tener otros campos, verificar documentación
-        ];
-    }
-
-    /**
      * Normalizar respuesta del SDK al formato que espera nuestro código
      */
     private function normalizeResponse($order): array
     {
+        // El SDK retorna un objeto, convertirlo a array si es necesario
+        $orderArray = is_object($order) ? (array) $order : $order;
+
+        Log::info('=== NORMALIZANDO RESPUESTA UALA ===', [
+            'raw_response' => $orderArray
+        ]);
+
         // Adaptar la respuesta del SDK al formato que espera nuestro código
         return [
-            'id' => $order['uuid'] ?? $order['id'] ?? null,
-            'payment_url' => $order['checkoutUrl'] ?? $order['checkout_url'] ?? null,
-            'checkout_url' => $order['checkoutUrl'] ?? $order['checkout_url'] ?? null,
-            'external_reference' => $order['externalReference'] ?? $order['external_reference'] ?? null,
-            'status' => $order['status'] ?? 'pending',
-            'uuid' => $order['uuid'] ?? null,
+            'id' => $orderArray['uuid'] ?? $orderArray['id'] ?? null,
+            'payment_url' => $orderArray['checkoutUrl'] ?? $orderArray['checkout_url'] ?? null,
+            'checkout_url' => $orderArray['checkoutUrl'] ?? $orderArray['checkout_url'] ?? null,
+            'external_reference' => $orderArray['externalReference'] ?? $orderArray['external_reference'] ?? null,
+            'status' => $orderArray['status'] ?? 'pending',
+            'uuid' => $orderArray['uuid'] ?? null,
             // Incluir toda la respuesta original por si necesitamos algo más
-            'original_response' => $order
+            'original_response' => $orderArray
         ];
     }
 
@@ -192,11 +196,11 @@ class UalaService
         try {
             Log::info('=== OBTENIENDO ORDEN UALA ===', ['uuid' => $uuid]);
             
-            $order = UalaSDK::getOrder($uuid);
+            $order = $this->sdk->getOrder($uuid);
             
             Log::info('=== ORDEN OBTENIDA EXITOSAMENTE ===', ['order' => $order]);
             
-            return $order;
+            return is_object($order) ? (array) $order : $order;
             
         } catch (\Exception $e) {
             Log::error('=== ERROR OBTENIENDO ORDEN UALA ===', [
@@ -205,30 +209,6 @@ class UalaService
             ]);
             
             throw new \Exception("Error obteniendo orden de Uala: " . $e->getMessage());
-        }
-    }
-
-    /**
-     * Obtener lista de órdenes (funcionalidad adicional del SDK)
-     */
-    public function getOrders(array $params = []): array
-    {
-        try {
-            Log::info('=== OBTENIENDO LISTA DE ÓRDENES UALA ===', ['params' => $params]);
-            
-            $orders = UalaSDK::getOrders($params);
-            
-            Log::info('=== ÓRDENES OBTENIDAS EXITOSAMENTE ===');
-            
-            return $orders;
-            
-        } catch (\Exception $e) {
-            Log::error('=== ERROR OBTENIENDO ÓRDENES UALA ===', [
-                'message' => $e->getMessage(),
-                'params' => $params
-            ]);
-            
-            throw new \Exception("Error obteniendo órdenes de Uala: " . $e->getMessage());
         }
     }
 }
