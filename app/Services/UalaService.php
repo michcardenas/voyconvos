@@ -2,29 +2,29 @@
 
 namespace App\Services;
 
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Cache;
+use Uala\SDK as UalaSDK;
 
 class UalaService
 {
-    private ?string $baseUrl;
     private ?string $clientId;
     private ?string $clientSecret;
     private ?string $username;
-    private int $timeout;
+    private bool $isDev;
 
     public function __construct()
     {
-        // Intentar primero desde config, luego directamente desde env
-        $this->baseUrl = config('services.uala.base_url') ?? env('UALA_BASE_URL');
+        // Obtener configuraciones
         $this->clientId = config('services.uala.client_id') ?? env('UALA_CLIENT_ID');
         $this->clientSecret = config('services.uala.client_secret') ?? env('UALA_CLIENT_SECRET');
         $this->username = config('services.uala.username') ?? env('UALA_USERNAME');
-        $this->timeout = config('services.uala.timeout', 30);
+        $this->isDev = config('services.uala.is_dev', true); // true para staging
 
-        // Validar que las configuraciones estén presentes
+        // Validar configuraciones
         $this->validateConfig();
+
+        // Configurar el SDK de Uala
+        $this->setupUalaSDK();
     }
 
     /**
@@ -33,7 +33,6 @@ class UalaService
     private function validateConfig(): void
     {
         $requiredConfigs = [
-            'base_url' => $this->baseUrl,
             'client_id' => $this->clientId,
             'client_secret' => $this->clientSecret,
             'username' => $this->username,
@@ -41,164 +40,112 @@ class UalaService
 
         foreach ($requiredConfigs as $key => $value) {
             if (empty($value)) {
-                throw new \Exception("Configuración de Uala faltante: {$key}. Verifica tu archivo .env y config/services.php");
+                throw new \Exception("Configuración de Uala faltante: {$key}. Verifica tu archivo .env");
             }
         }
     }
 
     /**
-     * Obtener token de acceso de Uala con cache
+     * Configurar el SDK oficial de Uala
      */
-    public function getAccessToken(): string
-    {
-        // Intentar obtener el token del cache primero
-        $cacheKey = 'uala_access_token';
-        $cachedToken = Cache::get($cacheKey);
-
-        if ($cachedToken) {
-            Log::info('=== UALA TOKEN DESDE CACHE ===');
-            return $cachedToken;
-        }
-
-        // Si no hay token en cache, solicitar uno nuevo
-        return $this->requestNewAccessToken();
-    }
-
-    /**
-     * Solicitar un nuevo token de acceso
-     */
-    private function requestNewAccessToken(): string
+    private function setupUalaSDK(): void
     {
         try {
-            Log::info('=== SOLICITANDO NUEVO TOKEN UALA ===', [
-                'url' => $this->baseUrl . '/v2/api/auth/token',
-                'client_id' => $this->clientId,
+            Log::info('=== CONFIGURANDO SDK UALA ===', [
                 'username' => $this->username,
+                'client_id' => $this->clientId,
+                'is_dev' => $this->isDev
             ]);
 
-            $response = Http::timeout($this->timeout)
-                ->post($this->baseUrl . '/v2/api/auth/token', [
-                    'username' => $this->username,
-                    'client_id' => $this->clientId,
-                    'client_secret_id' => $this->clientSecret,
-                    'grant_type' => 'client_credentials'
-                ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $accessToken = $data['access_token'];
-                $expiresIn = $data['expires_in'] ?? 86400; // 24 horas por defecto
-
-                // Guardar en cache por un tiempo menor al de expiración (90% del tiempo)
-                $cacheTime = (int) ($expiresIn * 0.9);
-                Cache::put('uala_access_token', $accessToken, now()->addSeconds($cacheTime));
-
-                Log::info('=== TOKEN UALA OBTENIDO EXITOSAMENTE ===', [
-                    'expires_in' => $expiresIn,
-                    'cached_for_seconds' => $cacheTime,
-                ]);
-
-                return $accessToken;
-            }
-
-            // Error en la respuesta
-            $errorBody = $response->body();
-            Log::error('=== ERROR OBTENIENDO TOKEN UALA ===', [
-                'status' => $response->status(),
-                'response' => $errorBody,
-                'headers' => $response->headers(),
+            UalaSDK::setUp([
+                'userName' => $this->username,
+                'clientId' => $this->clientId,
+                'clientSecret' => $this->clientSecret,
+                'isDev' => $this->isDev, // true para staging, false para producción
             ]);
 
-            throw new \Exception("Error obteniendo token de Uala (HTTP {$response->status()}): {$errorBody}");
+            Log::info('=== SDK UALA CONFIGURADO EXITOSAMENTE ===');
 
         } catch (\Exception $e) {
-            Log::error('=== EXCEPCIÓN AL OBTENER TOKEN UALA ===', [
+            Log::error('=== ERROR CONFIGURANDO SDK UALA ===', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString()
             ]);
-
-            // Limpiar cache en caso de error
-            Cache::forget('uala_access_token');
-            
-            throw new \Exception("Error de conexión con Uala: " . $e->getMessage());
+            throw new \Exception("Error configurando SDK de Uala: " . $e->getMessage());
         }
     }
 
     /**
-     * Crear orden en Uala (método corregido)
+     * Crear checkout usando el SDK oficial de Uala
+     * Mantiene la misma interfaz que teníamos antes
      */
     public function createCheckout(array $checkoutData): array
     {
         try {
-            $accessToken = $this->getAccessToken();
+            // Convertir datos al formato del SDK
+            $orderData = $this->prepareOrderDataForSDK($checkoutData);
             
-            // Convertir datos al formato de Uala Order
-            $orderData = $this->convertToUalaOrderFormat($checkoutData);
-            
-            Log::info('=== CREANDO ORDEN UALA ===', [
-                'order_data' => $orderData,
-                'endpoint' => $this->baseUrl . '/v2/api/orders',
+            Log::info('=== CREANDO ORDEN CON SDK UALA ===', [
+                'order_data' => $orderData
             ]);
 
-            $response = Http::timeout($this->timeout)
-                ->withHeaders([
-                    'Authorization' => 'Bearer ' . $accessToken,
-                    'Content-Type' => 'application/json',
-                    'Accept' => 'application/json',
-                ])
-                ->post($this->baseUrl . '/v2/api/orders', $orderData);
+            // Crear orden usando el SDK oficial
+            $order = UalaSDK::createOrder($orderData);
 
-            if ($response->successful()) {
-                $orderResponse = $response->json();
-                
-                Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
-                    'response' => $orderResponse,
-                ]);
-
-                return $orderResponse;
-            }
-
-            // Error en la respuesta
-            $errorBody = $response->body();
-            Log::error('=== ERROR CREANDO ORDEN UALA ===', [
-                'status' => $response->status(),
-                'response' => $errorBody,
-                'headers' => $response->headers(),
-                'request_data' => $orderData,
+            Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
+                'response' => $order
             ]);
 
-            throw new \Exception("Error creando orden en Uala (HTTP {$response->status()}): {$errorBody}");
+            // Convertir respuesta al formato que espera nuestro código
+            return $this->normalizeResponse($order);
 
         } catch (\Exception $e) {
-            Log::error('=== EXCEPCIÓN CREANDO ORDEN UALA ===', [
+            Log::error('=== ERROR CREANDO ORDEN CON SDK UALA ===', [
                 'message' => $e->getMessage(),
-                'file' => $e->getFile(),
-                'line' => $e->getLine(),
-                'checkout_data' => $checkoutData,
+                'trace' => $e->getTraceAsString(),
+                'checkout_data' => $checkoutData
             ]);
 
-            throw new \Exception("Error procesando orden con Uala: " . $e->getMessage());
+            throw new \Exception("Error procesando orden con Uala SDK: " . $e->getMessage());
         }
     }
 
     /**
-     * Convertir datos de checkout al formato de orden de Uala
+     * Preparar datos para el SDK oficial de Uala
      */
-    private function convertToUalaOrderFormat(array $checkoutData): array
+    private function prepareOrderDataForSDK(array $checkoutData): array
     {
         return [
             'amount' => $checkoutData['amount']['value'],
             'description' => $checkoutData['description'],
-            'externalReference' => $checkoutData['external_reference'],
+            'externalReference' => $checkoutData['external_reference'] ?? null,
             'callbackSuccess' => $checkoutData['callback_urls']['success'],
             'callbackFail' => $checkoutData['callback_urls']['failure'],
-            // Agregar otros campos según la documentación de Uala
+            // El SDK puede tener otros campos, verificar documentación
         ];
     }
 
     /**
-     * Preparar datos de checkout desde una reserva (formato simplificado)
+     * Normalizar respuesta del SDK al formato que espera nuestro código
+     */
+    private function normalizeResponse($order): array
+    {
+        // Adaptar la respuesta del SDK al formato que espera nuestro código
+        return [
+            'id' => $order['uuid'] ?? $order['id'] ?? null,
+            'payment_url' => $order['checkoutUrl'] ?? $order['checkout_url'] ?? null,
+            'checkout_url' => $order['checkoutUrl'] ?? $order['checkout_url'] ?? null,
+            'external_reference' => $order['externalReference'] ?? $order['external_reference'] ?? null,
+            'status' => $order['status'] ?? 'pending',
+            'uuid' => $order['uuid'] ?? null,
+            // Incluir toda la respuesta original por si necesitamos algo más
+            'original_response' => $order
+        ];
+    }
+
+    /**
+     * Preparar datos de checkout desde una reserva
+     * Mantiene la misma interfaz que teníamos antes
      */
     public function prepareCheckoutData($reserva, $viaje): array
     {
@@ -238,11 +185,50 @@ class UalaService
     }
 
     /**
-     * Limpiar cache de token (útil para testing o troubleshooting)
+     * Obtener información de una orden (funcionalidad adicional del SDK)
      */
-    public function clearTokenCache(): void
+    public function getOrder(string $uuid): array
     {
-        Cache::forget('uala_access_token');
-        Log::info('=== CACHE DE TOKEN UALA LIMPIADO ===');
+        try {
+            Log::info('=== OBTENIENDO ORDEN UALA ===', ['uuid' => $uuid]);
+            
+            $order = UalaSDK::getOrder($uuid);
+            
+            Log::info('=== ORDEN OBTENIDA EXITOSAMENTE ===', ['order' => $order]);
+            
+            return $order;
+            
+        } catch (\Exception $e) {
+            Log::error('=== ERROR OBTENIENDO ORDEN UALA ===', [
+                'message' => $e->getMessage(),
+                'uuid' => $uuid
+            ]);
+            
+            throw new \Exception("Error obteniendo orden de Uala: " . $e->getMessage());
+        }
+    }
+
+    /**
+     * Obtener lista de órdenes (funcionalidad adicional del SDK)
+     */
+    public function getOrders(array $params = []): array
+    {
+        try {
+            Log::info('=== OBTENIENDO LISTA DE ÓRDENES UALA ===', ['params' => $params]);
+            
+            $orders = UalaSDK::getOrders($params);
+            
+            Log::info('=== ÓRDENES OBTENIDAS EXITOSAMENTE ===');
+            
+            return $orders;
+            
+        } catch (\Exception $e) {
+            Log::error('=== ERROR OBTENIENDO ÓRDENES UALA ===', [
+                'message' => $e->getMessage(),
+                'params' => $params
+            ]);
+            
+            throw new \Exception("Error obteniendo órdenes de Uala: " . $e->getMessage());
+        }
     }
 }

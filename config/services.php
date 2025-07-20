@@ -50,12 +50,10 @@ return [
     'public_key' => env('MERCADO_PAGO_PUBLIC_KEY', env('MERCADOPAGO_PUBLIC_KEY')),
         ],
 
-          'uala' => [
-        'base_url' => env('UALA_BASE_URL', 'https://auth.stage.developers.ar.ua.la'),
+           'uala' => [
         'client_id' => env('UALA_CLIENT_ID'),
         'client_secret' => env('UALA_CLIENT_SECRET'),
         'username' => env('UALA_USERNAME'),
-        'timeout' => env('UALA_TIMEOUT', 30),
+        'is_dev' => env('UALA_IS_DEV', true), // true para staging, false para producción
     ],
-
 ];
