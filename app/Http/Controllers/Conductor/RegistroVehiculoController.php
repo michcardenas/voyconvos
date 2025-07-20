@@ -37,9 +37,7 @@ class RegistroVehiculoController extends Controller
         'licencia' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'cedula' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
         'cedula_verde' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        // 'seguro' => 'required|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        // 'rto' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
-        // 'antecedentes' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:2048',
+        'consumo_por_galon' => 'nullable|numeric|min:0|max:100', 
     ]);
 
     $user = Auth::user();
@@ -52,7 +50,7 @@ class RegistroVehiculoController extends Controller
             'anio_vehiculo' => $request->anio_vehiculo,
             'numero_puestos' => $request->numero_puestos, // Nuevo campo agregado
             'patente' => $request->patente,
-            
+            'consumo_por_galon' => $request->consumo_por_galon,
             'licencia' => $request->file('licencia')->store('documentos'),
             'cedula' => $request->file('cedula')->store('documentos'),
             'cedula_verde' => $request->file('cedula_verde')->store('documentos'),

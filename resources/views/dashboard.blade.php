@@ -751,6 +751,123 @@
             font-size: 0.7rem;
         }
     }
+    .btn-verificacion-pendiente {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    color: #6c757d;
+    transition: all 0.3s ease;
+    cursor: not-allowed;
+    opacity: 0.8;
+    min-width: 280px;
+}
+
+.btn-verificacion-pendiente .btn-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    background: #ffc107;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-verificacion-pendiente .btn-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.btn-verificacion-pendiente .btn-text strong {
+    font-size: 1.1rem;
+    color: #495057;
+    margin-bottom: 0.25rem;
+}
+
+.btn-verificacion-pendiente .btn-text small {
+    color: #6c757d;
+    font-size: 0.875rem;
+}
+
+.btn-verificacion-pendiente .btn-status {
+    font-size: 1.5rem;
+    margin-left: 1rem;
+    color: #dc3545;
+}
+
+.btn-destacado {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 1rem 1.5rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);
+    min-width: 280px;
+}
+
+.btn-destacado:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.btn-destacado .btn-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.btn-destacado .btn-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+}
+
+.btn-destacado .btn-text strong {
+    font-size: 1.1rem;
+    margin-bottom: 0.25rem;
+}
+
+.btn-destacado .btn-text small {
+    opacity: 0.9;
+    font-size: 0.875rem;
+}
+
+.btn-destacado .btn-arrow {
+    font-size: 1.5rem;
+    margin-left: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.btn-destacado:hover .btn-arrow {
+    transform: translateX(5px);
+}
+
+.alert {
+    border-radius: 12px;
+}
+
+.fs-4 {
+    font-size: 1.5rem !important;
+}
 </style>
 
 <div class="dashboard-wrapper">
@@ -759,26 +876,63 @@
             <h2>👋 Bienvenido, {{ auth()->user()->name ?? 'Invitado' }}</h2>
             <p>Gestiona tus viajes y conecta con otros viajeros de forma segura</p>
         </div>
-           @auth
-        @role('conductor')
-         <div class="action-buttons-enhanced mb-4">
-            <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center">
-                <a href="{{ route('conductor.gestion') }}" class="btn-destacado">
-                    <span class="btn-icon">🚗</span>
-                    <span class="btn-text">
-                        <strong>Agendar nuevo viaje</strong>
-                        <small>Conecta con más pasajeros</small>
-                    </span>
-                    <span class="btn-arrow">→</span>
-                </a>
-                
-                <a href="{{ route('contacto.formulario') }}" class="btn-ayuda">
-                    <i class="fas fa-question-circle me-2"></i>
-                    ¿Necesitas ayuda?
-                </a>
+          @auth
+@role('conductor')
+ <div class="action-buttons-enhanced mb-4">
+    <div class="d-flex gap-3 flex-wrap justify-content-center align-items-center">
+        
+        {{-- Verificar si el usuario está verificado --}}
+        @if(auth()->user()->verificado == 1)
+            {{-- Usuario verificado - Mostrar botón normal --}}
+            <a href="{{ route('conductor.gestion') }}" class="btn-destacado">
+                <span class="btn-icon">🚗</span>
+                <span class="btn-text">
+                    <strong>Agendar nuevo viaje</strong>
+                    <small>Conecta con más pasajeros</small>
+                </span>
+                <span class="btn-arrow">→</span>
+            </a>
+        @else
+            {{-- Usuario no verificado - Mostrar mensaje --}}
+            <div class="btn-verificacion-pendiente">
+                <span class="btn-icon">⏳</span>
+                <span class="btn-text">
+                    <strong>Cuenta en proceso de verificación</strong>
+                    <small>Podrás agendar viajes cuando tu cuenta sea verificada</small>
+                </span>
+                <span class="btn-status">🔒</span>
             </div>
+        @endif
+        
+        <a href="{{ route('contacto.formulario') }}" class="btn-ayuda">
+            <i class="fas fa-question-circle me-2"></i>
+            ¿Necesitas ayuda?
+        </a>
+    </div>
+</div>
+
+{{-- Alerta adicional para usuarios no verificados --}}
+@if(auth()->user()->verificado == 0)
+<div class="alert alert-warning border-0 shadow-sm mb-4">
+    <div class="d-flex align-items-start">
+        <i class="fas fa-clock text-warning me-3 fs-4"></i>
+        <div class="flex-grow-1">
+            <h6 class="alert-heading mb-2">
+                <i class="fas fa-shield-alt me-2"></i>
+                Verificación de Cuenta Pendiente
+            </h6>
+            <p class="mb-3">
+                Tu cuenta está siendo revisada por nuestro equipo de seguridad. 
+                Este proceso puede tomar entre 24 a 48 horas hábiles.
+            </p>
+            
+           
         </div>
-        @endrole
+    </div>
+</div>
+@endif
+
+@endrole
     @endauth
         <!-- Cards de estadísticas -->
         <div class="row g-4 mb-4 stats-cards">

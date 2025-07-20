@@ -7,15 +7,41 @@ use App\Models\RegistroConductor;
 use App\Models\Reserva;  // ← ESTO FALTA
 use App\Models\Viaje; 
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class ConductorController extends Controller
 {
-public function gestion() {
+public function gestion() 
+{
     $userId = auth()->id();
     $registro = RegistroConductor::where('user_id', $userId)->first();
     
+    // Obtener configuraciones más recientes de gasolina y comisión
+    $configuracionGasolina = DB::table('voyconvos.configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'gasolina')
+        ->orderBy('created_at', 'desc')
+        ->first();
+        
+    $configuracionComision = DB::table('voyconvos.configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'comision')
+        ->orderBy('created_at', 'desc')
+        ->first();
+    
     return view('conductor.gestion', [
         'marca' => $registro ? $registro->marca_vehiculo . ' ' . $registro->modelo_vehiculo : null,
+        'consumo_por_galon' => $registro ? $registro->consumo_por_galon : null,
+        'anio_vehiculo' => $registro ? $registro->anio_vehiculo : null,
+        'numero_puestos' => $registro ? $registro->numero_puestos : null,
+        'patente' => $registro ? $registro->patente : null,
+        'registro_completo' => $registro ? true : false,
+        
+        // Configuraciones de administrador
+        'precio_gasolina' => $configuracionGasolina ? $configuracionGasolina->valor : null,
+        'comision_plataforma' => $configuracionComision ? $configuracionComision->valor : null,
+        'config_gasolina' => $configuracionGasolina,
+        'config_comision' => $configuracionComision,
     ]);
 }
 public function verificarPasajero(Request $request, Reserva $reserva)

@@ -551,14 +551,69 @@
                         </div>
                     @endif
 
-                    <div class="form-group">
+
+                  <div class="form-group">
                         <label>Consumo (km por galón/litro)</label>
-                        <input type="number" id="consumo_km" placeholder="Ej: 30" step="0.1">
+                        @if($consumo_por_galon)
+                            <input type="number" 
+                                   id="consumo_km" 
+                                   value="{{ $consumo_por_galon }}" 
+                                   readonly 
+                                   class="form-control bg-light"
+                                   style="cursor: not-allowed;">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Consumo registrado en tu perfil de conductor
+                            </small>
+                        @else
+                            <input type="number" 
+                                   id="consumo_km" 
+                                   readonly 
+                                   placeholder="No configurado en tu perfil" 
+                                   class="form-control bg-light"
+                                   style="cursor: not-allowed;">
+                            <div class="alert alert-warning mt-2 mb-0">
+                                <i class="fas fa-user-edit me-2"></i>
+                                <strong>Consumo no configurado.</strong>
+                                <br>
+                                <small>
+                                    <a href="{{ route('conductor.perfil.edit') }}" class="alert-link">
+                                        Actualiza tu perfil de conductor
+                                    </a> 
+                                    para agregar esta información.
+                                </small>
+                            </div>
+                        @endif
                     </div>
-                    <div class="form-group">
+                  <div class="form-group">
                         <label>Precio del combustible (por galón/litro)</label>
-                        <input type="number" id="precio_galon" placeholder="Ej: 83.10 ARG" step="0.01">
-                    </div>
+                        @if($precio_gasolina)
+                            <input type="number" 
+                                   id="precio_galon" 
+                                   value="{{ $precio_gasolina }}" 
+                                   readonly 
+                                   class="form-control bg-light"
+                                   style="cursor: not-allowed;">
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                Precio actual configurado 
+                            </small>
+                        @else
+                            <input type="number" 
+                                   id="precio_galon" 
+                                   readonly 
+                                   placeholder="No configurado" 
+                                   class="form-control bg-light"
+                                   style="cursor: not-allowed;">
+                            <div class="alert alert-warning mt-2 mb-0">
+                                <i class="fas fa-exclamation-triangle me-2"></i>
+                                <strong>Precio de combustible no configurado.</strong>
+                                <br>
+                                <small>Contacta al administrador para configurar el precio actual de la gasolina.</small>
+                            </div>
+                        @endif
+                    </div> 
+                   
                     <div class="form-group">
                         <label>Número de peajes</label>
                         <input type="number" id="peajes" placeholder="Ej: 2" min="0">

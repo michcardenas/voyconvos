@@ -237,6 +237,7 @@
                                 ['numero_puestos', 'Numero de puestos (incluidos el conductor)', 'fas fa-chair'],
                                 ['anio_vehiculo', 'Año', 'fas fa-calendar'],
                                 ['patente', 'Patente', 'fas fa-hashtag'],
+                                ['consumo_por_galon', 'Consumo por galón (km/l)', 'fas fa-tachometer-alt'],
                             ] as [$campo, $etiqueta, $icono])
                                 <div class="col-sm-6">
                                     <div class="input-group-custom">

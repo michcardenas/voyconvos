@@ -91,9 +91,11 @@ public function actualizarPerfil(Request $request)
         'anio_vehiculo' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
         'numero_puestos' => 'nullable|integer' ,
         'verificar_pasajeros' => 'nullable|boolean',
+        'consumo_por_galon' => 'nullable|numeric|min:0|max:100',
 
         'patente' => 'nullable|string|max:20',
         
+
         'licencia' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'cedula' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'cedula_verde' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -153,6 +155,7 @@ public function actualizarPerfil(Request $request)
             'anio_vehiculo' => $validated['anio_vehiculo'],
             'numero_puestos' => $validated['numero_puestos'], 
             'verificar_pasajeros' => $validated['verificar_pasajeros'] ?? 0, // Por defecto 0 si no se envía  
+            'consumo_por_galon' => $validated['consumo_por_galon'],
         ]);
 
         // Manejar documentos

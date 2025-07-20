@@ -24,6 +24,7 @@ class RegistroConductor extends Model
         'estado_registro',
         'numero_puestos',
         'verificar_pasajeros', 
+        'consumo_por_galon',
        
     ];
 }
