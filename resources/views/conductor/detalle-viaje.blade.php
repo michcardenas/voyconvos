@@ -365,10 +365,11 @@
                     <label for="fechaViaje" class="form-label">📅 Fecha del viaje</label>
                     <input type="date" id="fechaViaje" class="form-control">
                 </div>
-                <div class="form-group">
-                    <label for="horaSalida" class="form-label">⏰ Hora de Salida</label>
-                    <input type="time" id="horaSalida" class="form-control">
-                </div>
+               <div class="form-group">
+    <label for="horaSalida" class="form-label">⏰ Hora de Salida</label>
+    <input type="time" id="horaSalida" name="hora_salida" class="form-control" step="60">
+</div>
+
                 <div class="form-group">
                     <label for="puestosDisponibles" class="form-label">🪑 Puestos Disponibles</label>
                     <input type="number" id="puestosDisponibles" class="form-control" min="1" placeholder="Ej: 3">

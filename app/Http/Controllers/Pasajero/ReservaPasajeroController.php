@@ -7,10 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Viaje;
 use App\Models\Reserva;
 use Illuminate\Support\Facades\Auth;
-
-use MercadoPago\MercadoPagoConfig;
-use MercadoPago\Client\Preference\PreferenceClient;
-use MercadoPago\Exceptions\MPApiException;
+use App\Services\UalaService;
 use App\Models\RegistroConductor; // Asegúrate de importar el modelo correcto
 
 
@@ -191,8 +188,8 @@ public function reservar(Request $request, Viaje $viaje)
             // Usar la reserva existente en lugar de crear una nueva
             $reserva = $reservaExistente;
             
-            // 🔄 CAMBIO: Saltar directo a la configuración de Ualá Bis
-            goto uala_bis_setup;
+            // Saltar directo a la configuración de Uala
+            goto uala_setup;
         }
         
         // Si ya está confirmada o en otro estado, informar
@@ -275,7 +272,7 @@ public function reservar(Request $request, Viaje $viaje)
             ]);
         }
         
-        // Si el viaje requiere verificación de pasajeros, no crear preferencia aún
+        // Si el viaje requiere verificación de pasajeros, no crear checkout aún
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
             $reserva->estado = 'pendiente_confirmacion';
@@ -286,183 +283,69 @@ public function reservar(Request $request, Viaje $viaje)
             return redirect()->route('pasajero.dashboard')->with('success', '✅ Se ha creado su reserva y está esperando la confirmación del conductor. Una vez confirmada, podrá proceder al pago.');
         }
 
-        // 🏷️ ETIQUETA PARA SALTO DIRECTO A UALÁ BIS (CAMBIO DE NOMBRE)
-        uala_bis_setup:
+        // 🏷️ ETIQUETA PARA SALTO DIRECTO A UALA
+        uala_setup:
 
-        // 🔄 REEMPLAZAR: Configurar Ualá Bis en lugar de Mercado Pago
-        $username = env('UALA_BIS_USERNAME');
-        $clientId = env('UALA_BIS_CLIENT_ID');
-        $clientSecret = env('UALA_BIS_CLIENT_SECRET');
+        // Configurar Uala
+        $ualaService = new \App\Services\UalaService();
         
-        if (!$username || !$clientId || !$clientSecret) {
-            throw new \Exception('Credenciales de Ualá Bis no configuradas');
-        }
+        \Log::info('=== INICIANDO PROCESO UALA ===', [
+            'reserva_id' => $reserva->id,
+            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA'
+        ]);
 
-        // Obtener token de acceso
-        $authResponse = $this->getUalaBisToken($username, $clientId, $clientSecret);
-        
-        if (!$authResponse || !isset($authResponse['access_token'])) {
-            throw new \Exception('Error al obtener token de Ualá Bis');
-        }
-        
-        $accessToken = $authResponse['access_token'];
+        // Preparar datos del checkout para Uala
+        $checkoutData = $ualaService->prepareCheckoutData($reserva, $viaje);
 
-        // Crear checkout en Ualá Bis (equivalente a preferencia de MP)
-        $checkoutData = [
-            'amount' => (string) $reserva->total, // Ualá Bis requiere string
-            'description' => substr("Viaje de " . ($viaje->origen_direccion ?? 'origen') . " a " . ($viaje->destino_direccion ?? 'destino'), 0, 255),
-            'notification_url' => route('uala.webhook'),
-            'callback_fail' => route('pasajero.pago.failure', $reserva->id),
-            'callback_success' => route('pasajero.pago.success', $reserva->id),
-            'external_reference' => 'RESERVA_' . $reserva->id
-        ];
-
-        \Log::info('=== UALÁ BIS REQUEST ===', [
+        \Log::info('=== UALA CHECKOUT REQUEST ===', [
             'checkout_data' => $checkoutData,
             'reserva_id' => $reserva->id,
             'es_existente' => isset($reservaExistente)
         ]);
 
-        $checkoutResponse = $this->createUalaBisCheckout($accessToken, $checkoutData);
-        
-        if (!$checkoutResponse || !isset($checkoutResponse['links']['checkout_link'])) {
-            throw new \Exception('Error al crear checkout en Ualá Bis');
-        }
+        // Crear checkout en Uala
+        $checkoutResponse = $ualaService->createCheckout($checkoutData);
 
-        // 🔄 CAMBIO: Guardar datos de Ualá Bis en lugar de MP
-        $reserva->uala_bis_uuid = $checkoutResponse['uuid'];
-        $reserva->uala_bis_checkout_link = $checkoutResponse['links']['checkout_link'];
-        $reserva->uala_bis_external_reference = $checkoutResponse['external_reference'];
+        // Guardar datos de Uala
+        $reserva->uala_checkout_id = $checkoutResponse['id'] ?? null;
+        $reserva->uala_payment_url = $checkoutResponse['payment_url'] ?? $checkoutResponse['checkout_url'] ?? null;
+        $reserva->uala_external_reference = $checkoutResponse['external_reference'] ?? null;
         $reserva->estado = 'pendiente_pago'; // Asegurar estado correcto
         $reserva->save();
         
         // Confirmar transacción
         \DB::commit();
         
-        \Log::info('=== RESERVA PROCESADA EXITOSAMENTE ===', [
+        \Log::info('=== RESERVA PROCESADA EXITOSAMENTE CON UALA ===', [
             'reserva_id' => $reserva->id,
-            'uala_bis_uuid' => $checkoutResponse['uuid'],
+            'uala_checkout_id' => $reserva->uala_checkout_id,
             'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA'
         ]);
 
-        // 🔄 CAMBIO: Redirigir a Ualá Bis en lugar de Mercado Pago
-        return redirect()->away($checkoutResponse['links']['checkout_link']);
+        // Validar que tengamos la URL de pago
+        $paymentUrl = $reserva->uala_payment_url;
+        if (!$paymentUrl) {
+            throw new \Exception('No se recibió URL de pago de Uala. Respuesta: ' . json_encode($checkoutResponse));
+        }
+
+        // Redirigir a Uala
+        return redirect()->away($paymentUrl);
 
     } catch (\Exception $e) {
         \DB::rollBack();
         
-        \Log::error('=== ERROR GENERAL ===', [
+        \Log::error('=== ERROR PROCESANDO PAGO CON UALA ===', [
             'message' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'trace' => $e->getTraceAsString(),
+            'reserva_id' => $reserva->id ?? 'N/A',
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
         ]);
         
         return back()->withErrors([
-            'error' => 'Error al procesar la reserva: ' . $e->getMessage()
+            'error' => 'Error al procesar el pago con Uala: ' . $e->getMessage()
         ]);
     }
-}
-
-// 🆕 AGREGAR: Métodos auxiliares para Ualá Bis
-private function getUalaBisToken($username, $clientId, $clientSecret)
-{
-    $authUrl = 'https://auth.developers.ar.ua.la/v2/api/auth/token';
-    
-    $payload = [
-        'username' => $username,
-        'client_id' => $clientId,
-        'client_secret_id' => $clientSecret,
-        'grant_type' => 'client_credentials'
-    ];
-
-    try {
-        $response = \Http::timeout(30)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json'
-            ])
-            ->post($authUrl, $payload);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        \Log::error('=== ERROR UALÁ BIS AUTH ===', [
-            'status' => $response->status(),
-            'body' => $response->body()
-        ]);
-
-        return null;
-    } catch (\Exception $e) {
-        \Log::error('=== EXCEPCIÓN UALÁ BIS AUTH ===', [
-            'message' => $e->getMessage()
-        ]);
-        return null;
-    }
-}
-
-private function createUalaBisCheckout($accessToken, $checkoutData)
-{
-    $checkoutUrl = 'https://checkout.developers.ar.ua.la/v2/api/checkout';
-
-    try {
-        $response = \Http::timeout(30)
-            ->withHeaders([
-                'Content-Type' => 'application/json',
-                'Accept' => 'application/json',
-                'Authorization' => 'Bearer ' . $accessToken
-            ])
-            ->post($checkoutUrl, $checkoutData);
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        \Log::error('=== ERROR UALÁ BIS CHECKOUT ===', [
-            'status' => $response->status(),
-            'body' => $response->body()
-        ]);
-
-        return null;
-    } catch (\Exception $e) {
-        \Log::error('=== EXCEPCIÓN UALÁ BIS CHECKOUT ===', [
-            'message' => $e->getMessage()
-        ]);
-        return null;
-    }
-}
-
-
-public function handleUalaWebhook(Request $request)
-{
-    \Log::info('=== WEBHOOK UALÁ BIS ===', $request->all());
-    
-    $uuid = $request->input('uuid');
-    $status = $request->input('status');
-    $externalReference = $request->input('external_reference');
-    
-    if ($uuid && $status && $externalReference) {
-        $reservaId = str_replace('RESERVA_', '', $externalReference);
-        $reserva = Reserva::where('id', $reservaId)->where('uala_bis_uuid', $uuid)->first();
-        
-        if ($reserva && strtoupper($status) === 'APPROVED') {
-            $reserva->estado = 'confirmada';
-            $reserva->save();
-        }
-    }
-    
-    return response('OK', 200);
-}
-    // Callbacks de Mercado Pago
-   // Actualizar tu método pagoSuccess existente
-public function pagoSuccess(Reserva $reserva)
-{
-    $reserva->estado = 'confirmada';
-    $reserva->save();
-    
-    // Verificar si el viaje está completo
-    $this->verificarViajeCompleto($reserva->viaje);
-    
-    return view('pasajero.pago-exitoso', compact('reserva'));
 }
 
 // Agregar esta nueva función
@@ -492,22 +375,62 @@ private function verificarViajeCompleto($viaje)
         \Log::info("Viaje {$viaje->id} completado - todas las reservas confirmadas");
     }
 }
+    // Callbacks de Mercado Pago
+   // Actualizar tu método pagoSuccess existente
+public function pagoSuccess(Request $request, Reserva $reserva)
+{
+    // Logging para Uala
+    \Log::info('=== UALA PAGO SUCCESS ===', [
+        'reserva_id' => $reserva->id,
+        'request_params' => $request->all(),
+        'estado_anterior' => $reserva->estado
+    ]);
 
-    public function pagoFailure(Reserva $reserva)
-    {
-        $reserva->estado = 'cancelada';
-        $reserva->save();
-        
-        return view('pasajero.pago-fallido', compact('reserva'));
-    }
+    // Actualizar información de Uala en la reserva
+    $reserva->estado = 'confirmada';
+    $reserva->uala_payment_status = 'approved';
+    $reserva->uala_payment_date = now();
+    $reserva->save();
+    
+    // Verificar si el viaje está completo (tu lógica existente)
+    $this->verificarViajeCompleto($reserva->viaje);
+    
+    return view('pasajero.pago-exitoso', compact('reserva'));
+}
 
-    public function pagoPending(Reserva $reserva)
-    {
-        $reserva->estado = 'pendiente_pago';
-        $reserva->save();
-        
-        return view('pasajero.pago-pendiente', compact('reserva'));
-    }
+public function pagoFailure(Request $request, Reserva $reserva)
+{
+    // Logging para Uala
+    \Log::info('=== UALA PAGO FAILURE ===', [
+        'reserva_id' => $reserva->id,
+        'request_params' => $request->all(),
+        'estado_anterior' => $reserva->estado
+    ]);
+
+    // Actualizar información de Uala en la reserva
+    $reserva->estado = 'cancelada';
+    $reserva->uala_payment_status = 'rejected';
+    $reserva->save();
+    
+    return view('pasajero.pago-fallido', compact('reserva'));
+}
+
+public function pagoPending(Request $request, Reserva $reserva)
+{
+    // Logging para Uala
+    \Log::info('=== UALA PAGO PENDING ===', [
+        'reserva_id' => $reserva->id,
+        'request_params' => $request->all(),
+        'estado_anterior' => $reserva->estado
+    ]);
+
+    // Actualizar información de Uala en la reserva
+    $reserva->estado = 'pendiente_pago';
+    $reserva->uala_payment_status = 'pending';
+    $reserva->save();
+    
+    return view('pasajero.pago-pendiente', compact('reserva'));
+}
 public function confirmacionReserva(Reserva $reserva)
 {
     // Verificar que la reserva pertenece al usuario autenticado
@@ -518,19 +441,7 @@ public function confirmacionReserva(Reserva $reserva)
     return view('pasajero.confirmacion-reserva', compact('reserva'));
 }
 
-    // // GET: Confirmación final de reserva
-    // public function confirmacion(Viaje $viaje)
-    // {
-    //     $reserva = Reserva::where('viaje_id', $viaje->id)
-    //                      ->where('user_id', Auth::id())
-    //                      ->first();
-
-    //     if (!$reserva) {
-    //         return redirect()->route('pasajero.dashboard')->with('error', 'No se encontró la reserva.');
-    //     }
-
-    //     return view('pasajero.reserva-confirmada', compact('viaje', 'reserva'));
-    // }
+ 
    
     public function verDetalles(Reserva $reserva)
     {

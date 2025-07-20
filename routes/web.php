@@ -26,7 +26,7 @@ use App\Http\Controllers\PoliticasController;
 use App\Http\Controllers\SobreNosotrosPublicoController;
 use App\Http\Controllers\ComoFuncionaPublicoController;
 use MercadoPago\SDK;
-
+use App\Http\Controllers\Admin\ConfiguracionAdminController;
 use App\Http\Controllers\InicioController;
 
 
@@ -109,6 +109,11 @@ Route::get('/configuracion/paginas/{pagina}/editar', [PaginaController::class, '
 // Contacto público
 Route::get('/contacto', [ContactoController::class, 'mostrarFormulario'])->name('contacto.formulario');
 Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name('contacto.enviar');
+
+//gestion
+Route::get('/admin/gestion', [ConfiguracionAdminController::class, 'index'])->name('admin.gestion');
+Route::get('/admin/gestion/create', [ConfiguracionAdminController::class, 'create'])->name('admin.gestion.create');
+Route::post('/admin/gestion', [ConfiguracionAdminController::class, 'store'])->name('admin.gestion.store');
 
 // Rutas conductores
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');

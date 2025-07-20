@@ -34,6 +34,10 @@
                     <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
                         Gestión de Usuarios
                     </a>
+
+                      <a href="{{ route('admin.gestion') }}" class="text-gray-700 hover:text-indigo-600">
+                        Gestión de admin
+                    </a>
                 @endrole
 
                 </li>
