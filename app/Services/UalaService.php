@@ -8,18 +8,19 @@ use Illuminate\Support\Facades\Cache;
 
 class UalaService
 {
-    private string $baseUrl;
-    private string $clientId;
-    private string $clientSecret;
-    private string $username;
+    private ?string $baseUrl;
+    private ?string $clientId;
+    private ?string $clientSecret;
+    private ?string $username;
     private int $timeout;
 
     public function __construct()
     {
-        $this->baseUrl = config('services.uala.base_url');
-        $this->clientId = config('services.uala.client_id');
-        $this->clientSecret = config('services.uala.client_secret');
-        $this->username = config('services.uala.username');
+        // Intentar primero desde config, luego directamente desde env
+        $this->baseUrl = config('services.uala.base_url') ?? env('UALA_BASE_URL');
+        $this->clientId = config('services.uala.client_id') ?? env('UALA_CLIENT_ID');
+        $this->clientSecret = config('services.uala.client_secret') ?? env('UALA_CLIENT_SECRET');
+        $this->username = config('services.uala.username') ?? env('UALA_USERNAME');
         $this->timeout = config('services.uala.timeout', 30);
 
         // Validar que las configuraciones estén presentes
@@ -40,7 +41,7 @@ class UalaService
 
         foreach ($requiredConfigs as $key => $value) {
             if (empty($value)) {
-                throw new \Exception("Configuración de Uala faltante: {$key}");
+                throw new \Exception("Configuración de Uala faltante: {$key}. Verifica tu archivo .env y config/services.php");
             }
         }
     }
@@ -125,16 +126,19 @@ class UalaService
     }
 
     /**
-     * Crear checkout en Uala
+     * Crear orden en Uala (método corregido)
      */
     public function createCheckout(array $checkoutData): array
     {
         try {
             $accessToken = $this->getAccessToken();
             
-            Log::info('=== CREANDO CHECKOUT UALA ===', [
-                'checkout_data' => $checkoutData,
-                'endpoint' => $this->baseUrl . '/v2/api/checkout',
+            // Convertir datos al formato de Uala Order
+            $orderData = $this->convertToUalaOrderFormat($checkoutData);
+            
+            Log::info('=== CREANDO ORDEN UALA ===', [
+                'order_data' => $orderData,
+                'endpoint' => $this->baseUrl . '/v2/api/orders',
             ]);
 
             $response = Http::timeout($this->timeout)
@@ -143,43 +147,58 @@ class UalaService
                     'Content-Type' => 'application/json',
                     'Accept' => 'application/json',
                 ])
-                ->post($this->baseUrl . '/v2/api/checkout', $checkoutData);
+                ->post($this->baseUrl . '/v2/api/orders', $orderData);
 
             if ($response->successful()) {
-                $checkoutResponse = $response->json();
+                $orderResponse = $response->json();
                 
-                Log::info('=== CHECKOUT UALA CREADO EXITOSAMENTE ===', [
-                    'response' => $checkoutResponse,
+                Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
+                    'response' => $orderResponse,
                 ]);
 
-                return $checkoutResponse;
+                return $orderResponse;
             }
 
             // Error en la respuesta
             $errorBody = $response->body();
-            Log::error('=== ERROR CREANDO CHECKOUT UALA ===', [
+            Log::error('=== ERROR CREANDO ORDEN UALA ===', [
                 'status' => $response->status(),
                 'response' => $errorBody,
                 'headers' => $response->headers(),
-                'request_data' => $checkoutData,
+                'request_data' => $orderData,
             ]);
 
-            throw new \Exception("Error creando checkout en Uala (HTTP {$response->status()}): {$errorBody}");
+            throw new \Exception("Error creando orden en Uala (HTTP {$response->status()}): {$errorBody}");
 
         } catch (\Exception $e) {
-            Log::error('=== EXCEPCIÓN CREANDO CHECKOUT UALA ===', [
+            Log::error('=== EXCEPCIÓN CREANDO ORDEN UALA ===', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'checkout_data' => $checkoutData,
             ]);
 
-            throw new \Exception("Error procesando checkout con Uala: " . $e->getMessage());
+            throw new \Exception("Error procesando orden con Uala: " . $e->getMessage());
         }
     }
 
     /**
-     * Preparar datos de checkout desde una reserva
+     * Convertir datos de checkout al formato de orden de Uala
+     */
+    private function convertToUalaOrderFormat(array $checkoutData): array
+    {
+        return [
+            'amount' => $checkoutData['amount']['value'],
+            'description' => $checkoutData['description'],
+            'externalReference' => $checkoutData['external_reference'],
+            'callbackSuccess' => $checkoutData['callback_urls']['success'],
+            'callbackFail' => $checkoutData['callback_urls']['failure'],
+            // Agregar otros campos según la documentación de Uala
+        ];
+    }
+
+    /**
+     * Preparar datos de checkout desde una reserva (formato simplificado)
      */
     public function prepareCheckoutData($reserva, $viaje): array
     {
