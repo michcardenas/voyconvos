@@ -80,48 +80,164 @@ class UalaService
     /**
      * Crear checkout usando el SDK oficial de Uala
      */
-    public function createCheckout(array $checkoutData): array
-    {
-        try {
-            Log::info('=== CREANDO ORDEN CON SDK UALA ===', [
-                'checkout_data' => $checkoutData
-            ]);
+   public function createCheckout(array $checkoutData): array 
+{
+    try {
+        Log::info('=== CREANDO ORDEN CON SDK UALA ===', [
+            'checkout_data' => $checkoutData
+        ]);
 
-            // Según la documentación: createOrder(amount, description, callbackSuccess, callbackFail)
-            $amount = $checkoutData['amount']['value'];
-            $description = $checkoutData['description'];
-            $callbackSuccess = $checkoutData['callback_urls']['success'];
-            $callbackFail = $checkoutData['callback_urls']['failure'];
+        // Según la documentación: createOrder(amount, description, callbackSuccess, callbackFail)
+        $amount = $checkoutData['amount']['value'];
+        $description = $checkoutData['description'];
+        $callbackSuccess = $checkoutData['callback_urls']['success'];
+        $callbackFail = $checkoutData['callback_urls']['failure'];
 
-            Log::info('=== PARÁMETROS PARA CREAR ORDEN ===', [
-                'amount' => $amount,
-                'description' => $description,
-                'callbackSuccess' => $callbackSuccess,
-                'callbackFail' => $callbackFail
-            ]);
+        Log::info('=== PARÁMETROS PARA CREAR ORDEN ===', [
+            'amount' => $amount,
+            'description' => $description,
+            'callbackSuccess' => $callbackSuccess,
+            'callbackFail' => $callbackFail
+        ]);
 
-            // Crear orden usando el SDK oficial
-            $order = $this->sdk->createOrder($amount, $description, $callbackSuccess, $callbackFail);
+        // Crear orden usando el SDK oficial
+        $order = $this->sdk->createOrder($amount, $description, $callbackSuccess, $callbackFail);
 
-            Log::info('=== ORDEN UALA CREADA EXITOSAMENTE ===', [
-                'uuid' => $order->uuid ?? 'N/A',
-                'status' => $order->status ?? 'N/A',
-                'checkoutLink' => $order->links->checkoutLink ?? 'N/A'
-            ]);
+        // 🔥 DEBUG COMPLETO DEL OBJETO RESPUESTA
+        Log::info('=== ANÁLISIS COMPLETO DEL OBJETO ORDER ===', [
+            'order_type' => gettype($order),
+            'order_class' => get_class($order),
+            'order_as_array' => (array) $order,
+            'object_vars' => get_object_vars($order),
+            'available_methods' => get_class_methods($order),
+            'order_serialized' => serialize($order),
+            'order_json_encode' => json_encode($order)
+        ]);
 
-            // Convertir respuesta al formato que espera nuestro código
-            return $this->normalizeResponse($order);
+        // Probar diferentes formas de acceder a las propiedades
+        $possibleProperties = [
+            'uuid', 'id', 'orderId', 'order_id', 'orderNumber', 'order_number',
+            'status', 'state', 'orderStatus', 'order_status',
+            'checkoutLink', 'checkout_link', 'paymentUrl', 'payment_url', 'link', 'url'
+        ];
 
-        } catch (\Exception $e) {
-            Log::error('=== ERROR CREANDO ORDEN CON SDK UALA ===', [
-                'message' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
-                'checkout_data' => $checkoutData
-            ]);
-
-            throw new \Exception("Error procesando orden con Uala SDK: " . $e->getMessage());
+        $foundProperties = [];
+        foreach ($possibleProperties as $prop) {
+            if (property_exists($order, $prop)) {
+                $foundProperties[$prop] = $order->$prop;
+            }
         }
+
+        Log::info('=== PROPIEDADES ENCONTRADAS EN ORDER ===', $foundProperties);
+
+        // Probar acceso a links si existe
+        if (property_exists($order, 'links')) {
+            Log::info('=== ANÁLISIS DEL OBJETO LINKS ===', [
+                'links_type' => gettype($order->links),
+                'links_class' => is_object($order->links) ? get_class($order->links) : 'not_object',
+                'links_as_array' => (array) $order->links,
+                'links_vars' => is_object($order->links) ? get_object_vars($order->links) : 'not_object'
+            ]);
+
+            // Probar propiedades comunes de links
+            $possibleLinkProps = ['checkoutLink', 'checkout_link', 'paymentUrl', 'payment_url', 'checkout', 'payment'];
+            $foundLinkProps = [];
+            
+            if (is_object($order->links)) {
+                foreach ($possibleLinkProps as $linkProp) {
+                    if (property_exists($order->links, $linkProp)) {
+                        $foundLinkProps[$linkProp] = $order->links->$linkProp;
+                    }
+                }
+            }
+            
+            Log::info('=== PROPIEDADES ENCONTRADAS EN LINKS ===', $foundLinkProps);
+        }
+
+        // Intentar acceso por array si el objeto es convertible
+        if (method_exists($order, 'toArray')) {
+            $orderArray = $order->toArray();
+            Log::info('=== ORDER->TOARRAY() ===', $orderArray);
+        }
+
+        // Log original (mantenemos para comparar)
+        Log::info('=== ORDEN UALA CREADA - ACCESO ORIGINAL ===', [
+            'uuid' => $order->uuid ?? 'N/A',
+            'status' => $order->status ?? 'N/A',
+            'checkoutLink' => isset($order->links) ? ($order->links->checkoutLink ?? 'N/A') : 'links_not_exist'
+        ]);
+
+        // Intentar múltiples formas de obtener el checkout link
+        $checkoutLink = null;
+        $possibleCheckoutPaths = [
+            fn() => $order->links->checkoutLink ?? null,
+            fn() => $order->links->checkout_link ?? null,
+            fn() => $order->links->paymentUrl ?? null,
+            fn() => $order->links->payment_url ?? null,
+            fn() => $order->checkoutLink ?? null,
+            fn() => $order->checkout_link ?? null,
+            fn() => $order->paymentUrl ?? null,
+            fn() => $order->payment_url ?? null,
+            fn() => $order->url ?? null,
+            fn() => $order->link ?? null
+        ];
+
+        foreach ($possibleCheckoutPaths as $index => $pathFunction) {
+            try {
+                $result = $pathFunction();
+                if (!empty($result)) {
+                    $checkoutLink = $result;
+                    Log::info("=== CHECKOUT LINK ENCONTRADO EN PATH {$index} ===", ['link' => $checkoutLink]);
+                    break;
+                }
+            } catch (\Exception $e) {
+                // Continuar con el siguiente path
+            }
+        }
+
+        // Intentar múltiples formas de obtener el UUID/ID
+        $orderId = null;
+        $possibleIdPaths = [
+            fn() => $order->uuid ?? null,
+            fn() => $order->id ?? null,
+            fn() => $order->orderId ?? null,
+            fn() => $order->order_id ?? null,
+            fn() => $order->orderNumber ?? null,
+            fn() => $order->order_number ?? null
+        ];
+
+        foreach ($possibleIdPaths as $index => $pathFunction) {
+            try {
+                $result = $pathFunction();
+                if (!empty($result)) {
+                    $orderId = $result;
+                    Log::info("=== ORDER ID ENCONTRADO EN PATH {$index} ===", ['id' => $orderId]);
+                    break;
+                }
+            } catch (\Exception $e) {
+                // Continuar con el siguiente path
+            }
+        }
+
+        // Convertir respuesta al formato que espera nuestro código
+        $normalizedResponse = $this->normalizeResponse($order, $orderId, $checkoutLink);
+        
+        Log::info('=== RESPUESTA NORMALIZADA FINAL ===', $normalizedResponse);
+        
+        return $normalizedResponse;
+
+    } catch (\Exception $e) {
+        Log::error('=== ERROR CREANDO ORDEN CON SDK UALA ===', [
+            'message' => $e->getMessage(),
+            'trace' => $e->getTraceAsString(),
+            'checkout_data' => $checkoutData,
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+
+        throw new \Exception("Error procesando orden con Uala SDK: " . $e->getMessage());
     }
+}
 
     /**
      * Normalizar respuesta del SDK al formato que espera nuestro código

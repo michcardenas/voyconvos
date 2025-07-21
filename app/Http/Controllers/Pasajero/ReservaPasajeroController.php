@@ -349,23 +349,7 @@ public function reservar(Request $request, Viaje $viaje)
         ]);
     }
 }
-public function createCheckout($checkoutData) {
-    \Log::info('=== ENVIANDO REQUEST A UALA ===', [
-        'url' => $this->apiUrl,
-        'headers' => $this->getHeaders(),
-        'data' => $checkoutData
-    ]);
-    
-    $response = // tu llamada HTTP aquí
-    
-    \Log::info('=== RESPUESTA RAW DE UALA ===', [
-        'status_code' => $response->status(),
-        'headers' => $response->headers(),
-        'body' => $response->body()
-    ]);
-    
-    return $response->json();
-}
+
 // Agregar esta nueva función
 private function verificarViajeCompleto($viaje)
 {
