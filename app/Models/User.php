@@ -76,4 +76,9 @@ class User extends Authenticatable
     {
         $this->update(['verificado' => false]);
     }
+
+    public function registroConductor()
+{
+    return $this->hasOne(\App\Models\RegistroConductor::class, 'user_id', 'id');
+}
 }

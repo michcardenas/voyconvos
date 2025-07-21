@@ -133,6 +133,10 @@ Route::post('/conductor/viaje/{viaje}/iniciar', [ConductorController::class, 'in
     ->name('conductor.viaje.iniciar');
 
 Route::post('/webhook/uala-bis', [ReservaPasajeroController::class, 'handleUalaWebhook'])->name('uala.webhook');
+Route::get('/conductor/viaje/{viaje}/detalles-finalizados', [App\Http\Controllers\Conductor\ConductorController::class, 'verViajeFinalizados'])
+    ->name('conductor.viaje.detalles.finalizados');
+    Route::post('/conductor/calificar-pasajero/{reserva}', [App\Http\Controllers\Conductor\ConductorController::class, 'calificar'])
+    ->name('conductor.calificar.pasajero');
 Route::prefix('conductor')->name('conductor.')->group(function () {
     
     // ✅ ESTA RUTA DEBE EXISTIR EXACTAMENTE ASÍ:
@@ -142,7 +146,13 @@ Route::prefix('conductor')->name('conductor.')->group(function () {
     // Las demás rutas...
     Route::post('/viaje/{viaje}/iniciar', [App\Http\Controllers\Conductor\ConductorController::class, 'iniciarViaje'])
         ->name('viaje.iniciar');
-        
+        Route::post('/conductor/finalizar-pasajero/{reserva}', [App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 'finalizar'])
+     ->name('conductor.finalizar.pasajero');
+     Route::post('/conductor/viaje/{viaje}/finalizar', [App\Http\Controllers\Conductor\ConductorController::class, 'finalizarViaje'])
+    ->name('conductor.viaje.finalizar');
+     Route::get('/conductor/test-finalizar', [App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 'test']);
+
+
     Route::get('/viaje/{viaje}/verificar-pasajeros', [App\Http\Controllers\Conductor\ConductorController::class, 'verificarPasajeros'])
         ->name('viaje.verificar-pasajeros');
         

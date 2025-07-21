@@ -737,22 +737,26 @@
         </div>
 
         <!-- 🔥 NUEVO: Campo de código -->
-        <div class="codigo-section">
-            <label for="codigoConfirmacion" class="codigo-label">
-                🔐 Código de Confirmación
-            </label>
-            <input 
-                type="text" 
-                id="codigoConfirmacion" 
-                class="codigo-input"
-                placeholder="Ingresa el código"
-                maxlength="6"
-                autocomplete="off"
-                autocapitalize="characters">
-            <div class="codigo-help">
-                <small>El pasajero debe proporcionarte este código</small>
-            </div>
-        </div>
+        <!-- 🔥 SECCIÓN DE CÓDIGO ACTUALIZADA -->
+<div class="codigo-section">
+    <label for="codigoConfirmacion" class="codigo-label">
+        🔐 Código de Confirmación (Opcional)
+    </label>
+    <input 
+        type="text" 
+        id="codigoConfirmacion" 
+        class="codigo-input"
+        placeholder="Ej: 0025"
+        maxlength="4"
+        autocomplete="off"
+        autocapitalize="characters">
+    <div class="codigo-help">
+        <small>
+            El código del pasajero aparecerá aquí<br>
+            <em style="color: #666;">Si no coincide, se mostrará advertencia pero se finalizará igual</em>
+        </small>
+    </div>
+</div>
                  
         <!-- Botones -->
         <div class="modal-buttons">
@@ -820,7 +824,8 @@ function finalizarViaje(viajeId) {
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalizando...';
         btn.disabled = true;
 
-        fetch(`/conductor/viaje/${viajeId}/finalizar`, {
+        // ✅ URL CORREGIDA con doble conductor (basándome en tu patrón anterior)
+        fetch(`/conductor/conductor/viaje/${viajeId}/finalizar`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -854,9 +859,22 @@ let reservaIdActual = null;
 function abrirModalFinalizarPasajero(reservaId, nombrePasajero, cantidadPuestos) {
     reservaIdActual = reservaId;
     
+    // 🎯 Generar código esperado (4 dígitos con ceros a la izquierda)
+    const codigoEsperado = reservaId.toString().padStart(4, '0');
+    
     // Actualizar información en el modal
     document.getElementById('pasajeroNombre').textContent = nombrePasajero;
     document.getElementById('pasajeroPuestos').textContent = cantidadPuestos;
+    
+    // 🔥 ACTUALIZAR: Mostrar el código esperado en el modal
+    const codigoHelp = document.querySelector('.codigo-help small');
+    if (codigoHelp) {
+        codigoHelp.innerHTML = `El código del pasajero es: <strong>${codigoEsperado}</strong><br>
+                               <em>Nota: Si no coincide, se mostrará una advertencia pero se finalizará igual</em>`;
+    }
+    
+    // Limpiar el campo de código
+    document.getElementById('codigoConfirmacion').value = '';
     
     // Mostrar modal
     const modal = document.getElementById('modalFinalizarPasajero');
@@ -865,9 +883,8 @@ function abrirModalFinalizarPasajero(reservaId, nombrePasajero, cantidadPuestos)
     // Prevenir scroll del body
     document.body.style.overflow = 'hidden';
     
-    console.log('Modal abierto para reserva:', reservaId, 'Pasajero:', nombrePasajero);
+    console.log('Modal abierto para reserva:', reservaId, 'Código esperado:', codigoEsperado, 'Pasajero:', nombrePasajero);
 }
-
 // Función para cerrar el modal
 function cerrarModalPasajero() {
     const modal = document.getElementById('modalFinalizarPasajero');
@@ -882,18 +899,76 @@ function cerrarModalPasajero() {
 function confirmarFinalizarPasajero() {
     if (!reservaIdActual) return;
     
-    console.log('Confirmando finalización de reserva:', reservaIdActual);
+    console.log('=== INICIANDO FINALIZACIÓN ===');
+    console.log('Reserva ID:', reservaIdActual);
     
-    // Aquí irá tu lógica para finalizar el pasajero
-    // Por ahora solo cerramos el modal y mostramos un mensaje
-    alert(`Pasajero con reserva ${reservaIdActual} finalizado exitosamente!`);
+    const codigoConfirmacion = document.getElementById('codigoConfirmacion').value.trim();
+    console.log('Código ingresado:', codigoConfirmacion);
     
-    cerrarModalPasajero();
+    const btnConfirmar = document.getElementById('btnConfirmarFinalizar');
+    const textoOriginal = btnConfirmar.innerHTML;
     
-    // TODO: Aquí llamarías a tu función para actualizar en el backend
-    // finalizarPasajeroIndividual(reservaIdActual);
+    // Mostrar loading
+    btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalizando...';
+    btnConfirmar.disabled = true;
+    
+    // 🌐 Nueva URL más simple
+const url = `/conductor/conductor/finalizar-pasajero/${reservaIdActual}`;
+    console.log('URL:', url);
+    
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        },
+        body: JSON.stringify({
+            codigo_confirmacion: codigoConfirmacion
+        })
+    })
+    .then(response => {
+        console.log('Response status:', response.status);
+        console.log('Response headers:', response.headers);
+        
+        // 🔍 CAPTURAR EL TEXTO REAL que devuelve el servidor
+        return response.text().then(text => {
+            console.log('=== RESPUESTA DEL SERVIDOR ===');
+            console.log(text);
+            console.log('=== FIN RESPUESTA ===');
+            
+            // Si la respuesta parece JSON, parsearla
+            if (text.startsWith('{') || text.startsWith('[')) {
+                try {
+                    return JSON.parse(text);
+                } catch (e) {
+                    throw new Error('JSON inválido: ' + text.substring(0, 100));
+                }
+            } else {
+                // Si no es JSON, mostrar el HTML recibido
+                throw new Error('Servidor devolvió HTML: ' + text.substring(0, 200));
+            }
+        });
+    })
+    .then(data => {
+        console.log('Response data:', data);
+        
+        if (data.success) {
+            alert(data.message);
+            cerrarModalPasajero();
+            window.location.reload();
+        } else {
+            alert('Error: ' + data.message);
+            btnConfirmar.innerHTML = textoOriginal;
+            btnConfirmar.disabled = false;
+        }
+    })
+    .catch(error => {
+        console.error('=== ERROR COMPLETO ===', error);
+        alert('Error al conectar: ' + error.message);
+        btnConfirmar.innerHTML = textoOriginal;
+        btnConfirmar.disabled = false;
+    });
 }
-
 // Cerrar modal al hacer click fuera
 document.getElementById('modalFinalizarPasajero').addEventListener('click', function(e) {
     if (e.target === this) {

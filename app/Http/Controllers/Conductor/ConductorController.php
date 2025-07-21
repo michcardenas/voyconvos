@@ -479,60 +479,115 @@ public function viajeEnCurso(Viaje $viaje)
             ->with('error', 'Error al cargar el viaje en curso.');
     }
 }
+public function verViajeFinalizados($viajeId)
+{
+    // ✅ QUITÉ 'vehiculo' de las relaciones porque no existe
+    $viaje = \App\Models\Viaje::with(['reservas.user', 'conductor.registroConductor'])
+        ->where('id', $viajeId)
+        ->where('conductor_id', auth()->id())
+        ->firstOrFail();
 
-// 🔥 MÉTODO ADICIONAL: Finalizar viaje
-public function finalizarViaje(Viaje $viaje)
+    // Calcular estadísticas finales
+    $estadisticas = [
+        'total_pasajeros' => $viaje->reservas->count(),
+        'pasajeros_presentes' => $viaje->reservas->where('asistencia', 'presente')->count(),
+        'pasajeros_ausentes' => $viaje->reservas->where('asistencia', 'ausente')->count(),
+        'pasajeros_finalizados' => $viaje->reservas->where('estado', 'finalizado')->count(),
+        'ingresos_totales' => $viaje->reservas->where('asistencia', 'presente')->sum('valor_pagado'),
+        'puestos_vendidos' => $viaje->reservas->sum('cantidad_puestos'),
+        'duracion_viaje' => $viaje->fecha_inicio_real ? 
+            \Carbon\Carbon::parse($viaje->fecha_inicio_real)->diffForHumans(now()) : 'No calculada'
+    ];
+
+    return view('conductor.viaje-finalizado', compact('viaje', 'estadisticas'));
+}
+
+public function calificar(Request $request, $reservaId)
 {
     try {
-        // Verificar permisos
-        if ((int)$viaje->conductor_id !== (int)auth()->id()) {
-            return response()->json([
-                'success' => false, 
-                'message' => 'No tienes permisos'
-            ], 403);
-        }
-
-        // Verificar estado
-        if ($viaje->estado !== 'en_curso') {
-            return response()->json([
-                'success' => false, 
-                'message' => 'El viaje no está en curso'
-            ], 400);
-        }
-
-        // Finalizar viaje
-        $viaje->update([
-            'estado' => 'finalizado',
-            'hora_finalizacion' => now()
+        // Validar datos
+        $request->validate([
+            'calificacion' => 'required|integer|min:1|max:5',
+            'comentario' => 'nullable|string|max:500'
         ]);
 
-        // Actualizar reservas presentes a "completada"
-        $viaje->reservas()
-            ->where('asistencia', 'presente')
-            ->update(['estado' => 'completada']);
+        // Verificar que la reserva existe y pertenece a un viaje del conductor
+        $reserva = \App\Models\Reserva::whereHas('viaje', function($query) {
+            $query->where('conductor_id', auth()->id());
+        })->findOrFail($reservaId);
 
-        \Log::info('Viaje finalizado', [
-            'viaje_id' => $viaje->id,
-            'conductor_id' => auth()->id(),
-            'hora_finalizacion' => now()
+        // Crear calificación
+        \App\Models\Calificacion::create([
+            'reserva_id' => $reservaId,
+            'usuario_id' => auth()->id(), // El conductor que califica
+            'calificacion' => $request->calificacion,
+            'comentario' => $request->comentario,
+            'tipo' => 'conductor_a_pasajero'
         ]);
 
         return response()->json([
-            'success' => true, 
-            'message' => 'Viaje finalizado exitosamente',
-            'redirect_url' => route('dashboard')
+            'success' => true,
+            'message' => 'Calificación enviada exitosamente'
         ]);
 
     } catch (\Exception $e) {
-        \Log::error('Error al finalizar viaje', [
-            'viaje_id' => $viaje->id,
-            'error' => $e->getMessage()
-        ]);
-
         return response()->json([
-            'success' => false, 
-            'message' => 'Error al finalizar el viaje'
+            'success' => false,
+            'message' => 'Error al enviar calificación'
         ], 500);
     }
 }
+
+
+
+// 🔥 MÉTODO ADICIONAL: Finalizar viaje
+public function finalizarViaje(Request $request, $viajeId)
+{
+    try {
+        // 🔍 Buscar el viaje
+        $viaje = \App\Models\Viaje::findOrFail($viajeId);
+        
+        // 🔐 Verificar que el conductor es el dueño del viaje
+        if ($viaje->conductor_id !== auth()->id()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No tienes permisos para finalizar este viaje'
+            ], 403);
+        }
+
+        // 🔄 Cambiar estado a finalizado
+        $viaje->update([
+            'estado' => 'finalizado',
+            'fecha_finalizacion' => now() // Opcional: agregar timestamp de finalización
+        ]);
+
+        // 📝 Log para auditoría
+        \Illuminate\Support\Facades\Log::info('Viaje finalizado', [
+            'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
+            'fecha_finalizacion' => now()
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Viaje finalizado exitosamente',
+            'redirect_url' => route('conductor.viaje.detalles.finalizados', $viaje->id)
+        ]);
+
+    } catch (\Exception $e) {
+        \Illuminate\Support\Facades\Log::error('Error al finalizar viaje', [
+            'error' => $e->getMessage(),
+            'viaje_id' => $viajeId,
+            'conductor_id' => auth()->id()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'No se pudo finalizar el viaje. Intenta nuevamente.'
+        ], 500);
+    }
+}
+
+
+
 }
