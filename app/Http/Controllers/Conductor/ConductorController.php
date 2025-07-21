@@ -152,7 +152,7 @@ public function iniciarViaje(Viaje $viaje)
         ]);
 
         // 🔍 Verificar estado actual del viaje (solo pendiente puede iniciarse)
-        if (!in_array($viaje->estado, ['pendiente'])) {
+        if (!in_array($viaje->estado, ['pendiente', 'listo_para_iniciar'])) {
             $mensajes = [
                 'iniciado' => 'El viaje ya está iniciado',
                 'en_curso' => 'El viaje ya está en curso',
