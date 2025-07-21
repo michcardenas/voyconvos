@@ -127,36 +127,49 @@ private function actualizarEstadoViaje($viaje)
     }
 }
 
-public function iniciarViaje(Viaje $viaje) 
+public function iniciarViaje(Viaje $viaje)
 {
     try {
-        // 🔒 Verificar permisos de forma simple
+        // 🔒 Verificar permisos
         if ((int)$viaje->conductor_id !== (int)auth()->id()) {
             \Log::warning('Acceso denegado al viaje', [
                 'viaje_id' => $viaje->id,
                 'conductor_id_viaje' => $viaje->conductor_id,
                 'usuario_id' => auth()->id()
             ]);
-                     
+            
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => 'No tienes permisos para iniciar este viaje'
             ], 403);
         }
 
-        // 🔍 Verificar estado actual del viaje
+        // 🔍 Debug del estado actual
+        \Log::info('Debug estado del viaje antes de verificar', [
+            'viaje_id' => $viaje->id,
+            'estado_actual' => $viaje->estado,
+            'conductor_id' => auth()->id()
+        ]);
+
+        // 🔍 Verificar estado actual del viaje (solo pendiente puede iniciarse)
         if (!in_array($viaje->estado, ['pendiente'])) {
             $mensajes = [
-                'iniciando' => 'El viaje ya está en proceso de inicio',
+                'iniciado' => 'El viaje ya está iniciado',
                 'en_curso' => 'El viaje ya está en curso',
                 'finalizado' => 'El viaje ya está finalizado',
                 'cancelado' => 'El viaje está cancelado'
             ];
 
-            $mensaje = $mensajes[$viaje->estado] ?? 'El viaje no puede ser iniciado';
+            $mensaje = $mensajes[$viaje->estado] ?? 'El viaje no puede ser iniciado desde el estado actual: ' . $viaje->estado;
             
+            \Log::warning('Intento de iniciar viaje con estado inválido', [
+                'viaje_id' => $viaje->id,
+                'estado_actual' => $viaje->estado,
+                'mensaje' => $mensaje
+            ]);
+
             return response()->json([
-                'success' => false, 
+                'success' => false,
                 'message' => $mensaje
             ], 400);
         }
@@ -164,50 +177,72 @@ public function iniciarViaje(Viaje $viaje)
         // 🕐 Verificar si hay reservas confirmadas
         $reservasConfirmadas = $viaje->reservas()->whereIn('estado', ['confirmado', 'pendiente'])->count();
         
-       
-
-        // 🚀 Cambiar estado a "iniciando" (estado intermedio)
-        $viaje->update([
-            'estado' => 'iniciando',  // ← Estado intermedio antes de verificar pasajeros
-            'fecha_inicio_proceso' => now()  // Si tienes este campo
+        \Log::info('Reservas encontradas', [
+            'viaje_id' => $viaje->id,
+            'reservas_confirmadas' => $reservasConfirmadas
         ]);
 
-        \Log::info('Viaje iniciado - redirigiendo a verificación', [
+        // 🚀 Cambiar estado a "iniciado"
+        $viaje->update([
+            'estado' => 'iniciado',
+            'fecha_inicio_proceso' => now()
+        ]);
+
+        // ✅ Verificar que el estado se guardó correctamente
+        $viaje->refresh(); // Recargar desde BD
+        
+        \Log::info('Viaje iniciado exitosamente', [
             'viaje_id' => $viaje->id,
             'conductor_id' => auth()->id(),
             'reservas_confirmadas' => $reservasConfirmadas,
-            'nuevo_estado' => 'iniciando'
+            'estado_anterior' => 'pendiente',
+            'estado_nuevo' => $viaje->estado
         ]);
 
-        // 🔄 Verificar que la ruta de verificación existe
+        // 🔄 Generar URL de verificación
         try {
             $redirectUrl = route('conductor.viaje.verificar-pasajeros', $viaje->id);
+            
+            \Log::info('Ruta de verificación generada', [
+                'viaje_id' => $viaje->id,
+                'redirect_url' => $redirectUrl
+            ]);
+            
         } catch (\Exception $routeException) {
             \Log::error('Ruta verificar-pasajeros no encontrada', [
                 'viaje_id' => $viaje->id,
                 'error' => $routeException->getMessage()
             ]);
+
+            // Fallback: usar ruta de detalle con parámetro
+            $redirectUrl = route('conductor.viaje.detalle', $viaje->id) . '?accion=verificar';
             
-            // Fallback: usar una ruta alternativa o crear la verificación inline
-            $redirectUrl = route('conductor.viaje.detalle', $viaje->id) . '?verificar=true';
+            \Log::info('Usando ruta fallback', [
+                'viaje_id' => $viaje->id,
+                'fallback_url' => $redirectUrl
+            ]);
         }
 
         return response()->json([
-            'success' => true, 
-            'message' => 'Redirigiendo a verificación de pasajeros...',
-            'redirect_url' => $redirectUrl
+            'success' => true,
+            'message' => 'Viaje iniciado. Redirigiendo a verificación de pasajeros...',
+            'redirect_url' => $redirectUrl,
+            'viaje_id' => $viaje->id,
+            'estado' => $viaje->estado
         ]);
 
     } catch (\Exception $e) {
-        \Log::error('Error al iniciar viaje', [
-            'viaje_id' => $viaje->id,
+        \Log::error('Error crítico al iniciar viaje', [
+            'viaje_id' => $viaje->id ?? 'desconocido',
             'conductor_id' => auth()->id(),
             'error' => $e->getMessage(),
-            'linea' => $e->getLine()
+            'archivo' => $e->getFile(),
+            'linea' => $e->getLine(),
+            'trace' => $e->getTraceAsString()
         ]);
 
         return response()->json([
-            'success' => false, 
+            'success' => false,
             'message' => 'Error interno del servidor. Inténtalo nuevamente.'
         ], 500);
     }
