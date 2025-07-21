@@ -17,13 +17,13 @@ public function gestion()
     $registro = RegistroConductor::where('user_id', $userId)->first();
     
     // Obtener configuraciones más recientes de gasolina y comisión
-    $configuracionGasolina = DB::table('voyconvos.configuracion_admin')
+    $configuracionGasolina = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
         ->where('nombre', 'gasolina')
         ->orderBy('created_at', 'desc')
         ->first();
         
-    $configuracionComision = DB::table('voyconvos.configuracion_admin')
+    $configuracionComision = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
         ->where('nombre', 'comision')
         ->orderBy('created_at', 'desc')
@@ -127,90 +127,93 @@ private function actualizarEstadoViaje($viaje)
     }
 }
 
-public function iniciarViaje(Viaje $viaje)
+public function iniciarViaje(Viaje $viaje) 
 {
     try {
-        // 🔍 DEBUG: Verificar datos
-        $usuarioAuth = auth()->id();
-        $conductorViaje = $viaje->conductor_id;
-        $usuarioCompleto = auth()->user();
-        
-        \Log::info('=== DEBUG INICIAR VIAJE ===', [
-            'viaje_id' => $viaje->id,
-            'conductor_id_viaje' => $conductorViaje,
-            'usuario_autenticado_id' => $usuarioAuth,
-            'usuario_autenticado' => $usuarioCompleto ? $usuarioCompleto->toArray() : null,
-            'tipos' => [
-                'conductor_id_type' => gettype($conductorViaje),
-                'usuario_auth_type' => gettype($usuarioAuth),
-            ],
-            'comparacion_estricta' => $conductorViaje === $usuarioAuth,
-            'comparacion_suave' => $conductorViaje == $usuarioAuth,
-        ]);
-
-        // 🔧 COMPARACIÓN MÁS FLEXIBLE (temporal para debug)
+        // 🔒 Verificar permisos de forma simple
         if ((int)$viaje->conductor_id !== (int)auth()->id()) {
             \Log::warning('Acceso denegado al viaje', [
                 'viaje_id' => $viaje->id,
                 'conductor_id_viaje' => $viaje->conductor_id,
-                'usuario_id' => auth()->id(),
-                'convertidos' => [
-                    'conductor_int' => (int)$viaje->conductor_id,
-                    'usuario_int' => (int)auth()->id(),
-                ]
+                'usuario_id' => auth()->id()
             ]);
-            
+                     
             return response()->json([
                 'success' => false, 
-                'message' => 'No tienes permisos para iniciar este viaje',
-                'debug' => env('APP_DEBUG') ? [
-                    'conductor_id' => $viaje->conductor_id,
-                    'user_id' => auth()->id(),
-                    'tipos' => [
-                        'conductor_type' => gettype($viaje->conductor_id),
-                        'user_type' => gettype(auth()->id()),
-                    ]
-                ] : null
+                'message' => 'No tienes permisos para iniciar este viaje'
             ], 403);
         }
 
-        // Verificar que el viaje esté en estado válido para iniciar
-        if ($viaje->estado === 'iniciado') {
+        // 🔍 Verificar estado actual del viaje
+        if (!in_array($viaje->estado, ['pendiente'])) {
+            $mensajes = [
+                'iniciando' => 'El viaje ya está en proceso de inicio',
+                'en_curso' => 'El viaje ya está en curso',
+                'finalizado' => 'El viaje ya está finalizado',
+                'cancelado' => 'El viaje está cancelado'
+            ];
+
+            $mensaje = $mensajes[$viaje->estado] ?? 'El viaje no puede ser iniciado';
+            
             return response()->json([
                 'success' => false, 
-                'message' => 'El viaje ya está iniciado'
+                'message' => $mensaje
             ], 400);
         }
 
-        // Cambiar estado a iniciado
+        // 🕐 Verificar si hay reservas confirmadas
+        $reservasConfirmadas = $viaje->reservas()->whereIn('estado', ['confirmado', 'pendiente'])->count();
+        
+        if ($reservasConfirmadas === 0) {
+            return response()->json([
+                'success' => false, 
+                'message' => 'No hay pasajeros confirmados para este viaje'
+            ], 400);
+        }
+
+        // 🚀 Cambiar estado a "iniciando" (estado intermedio)
         $viaje->update([
-            'estado' => 'iniciado',
-            // Solo agregar si existe la columna
-            // 'hora_inicio_real' => now()
+            'estado' => 'iniciando',  // ← Estado intermedio antes de verificar pasajeros
+            'fecha_inicio_proceso' => now()  // Si tienes este campo
         ]);
 
-        \Log::info('Viaje iniciado exitosamente', [
+        \Log::info('Viaje iniciado - redirigiendo a verificación', [
             'viaje_id' => $viaje->id,
             'conductor_id' => auth()->id(),
-            'hora_inicio' => now()
+            'reservas_confirmadas' => $reservasConfirmadas,
+            'nuevo_estado' => 'iniciando'
         ]);
+
+        // 🔄 Verificar que la ruta de verificación existe
+        try {
+            $redirectUrl = route('conductor.viaje.verificar-pasajeros', $viaje->id);
+        } catch (\Exception $routeException) {
+            \Log::error('Ruta verificar-pasajeros no encontrada', [
+                'viaje_id' => $viaje->id,
+                'error' => $routeException->getMessage()
+            ]);
+            
+            // Fallback: usar una ruta alternativa o crear la verificación inline
+            $redirectUrl = route('conductor.viaje.detalle', $viaje->id) . '?verificar=true';
+        }
 
         return response()->json([
             'success' => true, 
-            'message' => 'Viaje iniciado exitosamente',
-            'redirect_url' => route('conductor.viaje.verificar-pasajeros', $viaje->id)
+            'message' => 'Redirigiendo a verificación de pasajeros...',
+            'redirect_url' => $redirectUrl
         ]);
 
     } catch (\Exception $e) {
         \Log::error('Error al iniciar viaje', [
             'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'linea' => $e->getLine()
         ]);
 
         return response()->json([
             'success' => false, 
-            'message' => 'Error interno del servidor: ' . $e->getMessage()
+            'message' => 'Error interno del servidor. Inténtalo nuevamente.'
         ], 500);
     }
 }
@@ -263,7 +266,7 @@ public function verificarPasajeros(Viaje $viaje)
 }
 
 // 3. MÉTODO PARA PROCESAR VERIFICACIÓN DE ASISTENCIA
-public function procesarAsistencia(Request $request, Viaje $viaje)
+public function procesarAsistencia(Request $request, Viaje $viaje) 
 {
     $request->validate([
         'asistencias' => 'required|array',
@@ -279,26 +282,37 @@ public function procesarAsistencia(Request $request, Viaje $viaje)
         foreach ($request->asistencias as $reservaId => $estado) {
             $reserva = $viaje->reservas()->findOrFail($reservaId);
             
-            // Actualizar estado de asistencia
+            // 🔥 ACTUALIZAR ESTADO SEGÚN LA LÓGICA CORRECTA
+            if ($estado === 'presente') {
+                $estadoReserva = 'en_curso';  // Pasajero presente y viajando
+                $pasajerosPresentes += $reserva->cantidad_puestos;
+            } else {
+                $estadoReserva = 'ausente';   // Pasajero no se presentó
+                $pasajerosAusentes += $reserva->cantidad_puestos;
+                
+                // Liberar puestos de pasajeros ausentes
+                $viaje->puestos_disponibles += $reserva->cantidad_puestos;
+            }
+
+            // Actualizar reserva con estado correcto
             $reserva->update([
-                'asistencia' => $estado,
+                'estado' => $estadoReserva,                    // ← CAMPO PRINCIPAL
+                'asistencia' => $estado,                       // ← MANTENER SI LO USAS
                 'verificado_por_conductor' => true,
                 'fecha_verificacion' => now()
             ]);
 
-            if ($estado === 'presente') {
-                $pasajerosPresentes += $reserva->cantidad_puestos;
-            } else {
-                $pasajerosAusentes += $reserva->cantidad_puestos;
-                
-                // Opcional: Liberar puestos de pasajeros ausentes
-                $viaje->puestos_disponibles += $reserva->cantidad_puestos;
-            }
+            \Log::info("Reserva {$reservaId} actualizada", [
+                'estado_anterior' => $reserva->getOriginal('estado'),
+                'estado_nuevo' => $estadoReserva,
+                'asistencia' => $estado,
+                'cantidad_puestos' => $reserva->cantidad_puestos
+            ]);
         }
 
         // Actualizar información del viaje - CAMBIAR A 'en_curso'
         $viaje->update([
-            'estado' => 'en_curso',  // ← CAMBIO IMPORTANTE
+            'estado' => 'en_curso',                          // ← CAMBIO PRINCIPAL
             'pasajeros_presentes' => $pasajerosPresentes,
             'pasajeros_ausentes' => $pasajerosAusentes,
         ]);
@@ -307,95 +321,132 @@ public function procesarAsistencia(Request $request, Viaje $viaje)
 
         \Log::info('Asistencia verificada y viaje en curso', [
             'viaje_id' => $viaje->id,
+            'estado_anterior' => $viaje->getOriginal('estado'),
+            'estado_nuevo' => 'en_curso',
             'presentes' => $pasajerosPresentes,
             'ausentes' => $pasajerosAusentes,
-            'nuevo_estado' => 'en_curso'
+            'puestos_liberados' => $pasajerosAusentes,
+            'puestos_disponibles_final' => $viaje->puestos_disponibles
         ]);
 
-        // 🔥 REDIRECCIÓN CORRECTA - Verificar que la ruta existe
-        $rutaDestino = route('conductor.viaje.en-curso', $viaje->id);
-        
-        \Log::info('Redirigiendo a viaje en curso', [
+        // Verificar que la ruta existe
+        try {
+            $rutaDestino = route('conductor.viaje.en-curso', $viaje->id);
+        } catch (\Exception $routeException) {
+            // Si la ruta no existe, redirigir al dashboard
+            \Log::warning('Ruta viaje.en-curso no existe, redirigiendo a dashboard', [
+                'viaje_id' => $viaje->id,
+                'error' => $routeException->getMessage()
+            ]);
+            $rutaDestino = route('conductor.dashboard');
+        }
+
+        \Log::info('Redirigiendo después de verificación', [
             'viaje_id' => $viaje->id,
             'ruta_destino' => $rutaDestino
         ]);
 
         return redirect()->to($rutaDestino)
-            ->with('success', "✅ Verificación completada. Presentes: {$pasajerosPresentes}, Ausentes: {$pasajerosAusentes}");
+            ->with('success', "✅ Viaje iniciado exitosamente. Presentes: {$pasajerosPresentes}, Ausentes: {$pasajerosAusentes}");
 
     } catch (\Exception $e) {
         \DB::rollBack();
-        
+
         \Log::error('Error al procesar asistencia', [
             'viaje_id' => $viaje->id,
+            'usuario_id' => auth()->id(),
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'linea' => $e->getLine(),
+            'archivo' => $e->getFile(),
+            'datos_request' => $request->all()
         ]);
 
-        return back()->withErrors(['error' => 'Error al procesar la verificación: ' . $e->getMessage()]);
+        return back()
+            ->withErrors(['error' => 'Error al procesar la verificación: ' . $e->getMessage()])
+            ->withInput();
     }
 }
+/**
+ * Mostrar página de viaje en curso con todas las estadísticas
+ */
 public function viajeEnCurso(Viaje $viaje)
 {
     try {
         // Verificar permisos
         if ((int)$viaje->conductor_id !== (int)auth()->id()) {
-            abort(403, 'No tienes permisos para acceder a este viaje');
+            return redirect()
+                ->route('conductor.dashboard')
+                ->with('error', 'No tienes permisos para ver este viaje.');
         }
 
-        // Verificar que el viaje esté en estado válido
-        if (!in_array($viaje->estado, ['iniciado', 'en_curso'])) {
-            return redirect()->route('conductor.viaje.detalle', $viaje->id)
-                ->with('error', 'El viaje debe estar iniciado para ver esta pantalla');
-        }
-
-        // 🔥 CAMBIAR ESTADO A "EN_CURSO" si está iniciado
-        if ($viaje->estado === 'iniciado') {
-            $viaje->update([
-                'estado' => 'en_curso',
-                'hora_inicio_real' => now() // Si tienes esta columna
-            ]);
-
-            \Log::info('Viaje cambiado a en_curso', [
+        // Verificar que el viaje esté en curso
+        if ($viaje->estado !== 'en_curso') {
+            \Log::info('Acceso a viaje que no está en curso', [
                 'viaje_id' => $viaje->id,
-                'conductor_id' => auth()->id(),
-                'hora_cambio' => now()
+                'estado_actual' => $viaje->estado
             ]);
+            
+            return redirect()
+                ->route('conductor.viaje.detalle', $viaje->id)
+                ->with('error', 'Este viaje no está en curso.');
         }
 
-        // Cargar datos necesarios
-        $viaje->load([
-            'reservas' => function($query) {
-                $query->where('estado', 'confirmada')
-                      ->whereNotNull('asistencia') // Solo los que fueron verificados
-                      ->with('user')
-                      ->orderBy('asistencia', 'desc') // Presentes primero
-                      ->orderBy('created_at', 'asc');
-            },
-            'registroConductor'
-        ]);
-
-        // Calcular estadísticas del viaje
+        // Cargar datos relacionados
+        $viaje->load(['reservas.user']);
+        
+        // 🔥 CALCULAR TODAS LAS ESTADÍSTICAS QUE NECESITA LA VISTA
+        
+        // Separar reservas por estado de asistencia
+        $reservasPresentas = $viaje->reservas->where('asistencia', 'presente');
+        $reservasAusentes = $viaje->reservas->where('asistencia', 'ausente');
+        
+        // Contar pasajeros y puestos
+        $pasajerosPresentes = $reservasPresentas->sum('cantidad_puestos');
+        $pasajerosAusentes = $reservasAusentes->sum('cantidad_puestos');
+        $puestosOcupados = $pasajerosPresentes; // Los puestos que realmente están ocupados
+        
+        // Calcular ingresos reales (solo de los presentes)
+        $ingresosReales = $reservasPresentas->sum(function($reserva) {
+            return $reserva->cantidad_puestos * $reserva->precio_por_persona;
+        });
+        
+        // Determinar hora de inicio (pueden ser varios campos)
+        $horaInicio = $viaje->fecha_inicio_real ?? 
+                     $viaje->fecha_inicio_proceso ?? 
+                     $viaje->updated_at; // Como fallback
+        
+        // Crear array de estadísticas que espera la vista
         $estadisticas = [
+            'presentes' => $pasajerosPresentes,
+            'ausentes' => $pasajerosAusentes,
+            'puestos_ocupados' => $puestosOcupados,
+            'ingresos_reales' => $ingresosReales,
+            'hora_inicio' => $horaInicio->toISOString(), // Para JavaScript
             'total_reservas' => $viaje->reservas->count(),
-            'presentes' => $viaje->reservas->where('asistencia', 'presente')->count(),
-            'ausentes' => $viaje->reservas->where('asistencia', 'ausente')->count(),
-            'puestos_ocupados' => $viaje->reservas->where('asistencia', 'presente')->sum('cantidad_puestos'),
-            'ingresos_reales' => $viaje->reservas->where('asistencia', 'presente')->sum('total'),
-            'hora_inicio' => $viaje->hora_inicio_real ?? $viaje->created_at,
+            'total_puestos_originales' => $viaje->reservas->sum('cantidad_puestos'),
         ];
+
+        // 🔍 DEBUG: Log de estadísticas para verificar
+        \Log::info('Estadísticas de viaje en curso', [
+            'viaje_id' => $viaje->id,
+            'estadisticas' => $estadisticas,
+            'reservas_total' => $viaje->reservas->count(),
+            'reservas_presentes' => $reservasPresentas->count(),
+            'reservas_ausentes' => $reservasAusentes->count()
+        ]);
 
         return view('conductor.viaje-en-curso', compact('viaje', 'estadisticas'));
 
     } catch (\Exception $e) {
-        \Log::error('Error en viajeEnCurso', [
+        \Log::error('Error al mostrar viaje en curso', [
             'viaje_id' => $viaje->id,
             'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'linea' => $e->getLine()
         ]);
 
-        return redirect()->route('dashboard')
-            ->with('error', 'Error al acceder al viaje en curso');
+        return redirect()
+            ->route('conductor.dashboard')
+            ->with('error', 'Error al cargar el viaje en curso.');
     }
 }
 

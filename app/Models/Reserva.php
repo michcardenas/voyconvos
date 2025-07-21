@@ -22,7 +22,10 @@ class Reserva extends Model
         'mp_init_point',        // ✅ Nuevo campo para Mercado Pago
         'mp_payment_id',        // ✅ Nuevo campo para Mercado Pago
         'fecha_pago',           // ✅ Nuevo campo para Mercado Pago
-        'notificado'            // ✅ Tu campo actual
+        'notificado',            // ✅ Tu campo actual
+        'verificado_por_conductor', // ✅ nuevo campo para verificación de asistencia
+        'fecha_verificacion',   // ✅ nuevo campo para fecha de verificación
+        'asistencia',           // ✅ nuevo campo para estado de asistencia
     ];
 
     // ✅ AGREGAR: Campos de fecha para manejo automático

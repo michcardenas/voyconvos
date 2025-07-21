@@ -144,6 +144,7 @@
         gap: 1rem;
         border-left: 4px solid;
         transition: all 0.3s ease;
+        justify-content: space-between;
     }
 
     .passenger-item.presente {
@@ -249,6 +250,365 @@
             grid-template-columns: 1fr;
         }
     }
+    
+/* Ajustes para el contenedor de acciones del pasajero */
+.passenger-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+/* Botón para finalizar pasajero individual */
+.btn-finalizar-pasajero {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    white-space: nowrap;
+}
+
+.btn-finalizar-pasajero:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.4);
+}
+
+.btn-finalizar-pasajero:active {
+    transform: translateY(0);
+}
+
+/* Badge para pasajeros ya finalizados */
+.badge-finalizado {
+    background: #e8f5e8;
+    color: #28a745;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    border: 1px solid #d4edda;
+}
+
+/* Modal overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Modal container */
+.modal-container {
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
+    border-radius: 20px;
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    box-shadow: 
+        0 20px 60px rgba(0, 0, 0, 0.15),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    transform: scale(0.8) translateY(30px);
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-overlay.show .modal-container {
+    transform: scale(1) translateY(0);
+}
+
+/* Línea decorativa */
+.modal-container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #ff6b6b, #ee5a52, #ff8a80);
+}
+
+/* Icono del modal */
+.modal-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 30px rgba(255, 107, 107, 0.3);
+    animation: pulse 2s infinite;
+}
+
+.modal-icon i {
+    font-size: 2.5rem;
+    color: white;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+/* Título del modal */
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+}
+
+/* Información del pasajero en el modal */
+.passenger-info-modal {
+    background: #f8f9fa;
+    border-radius: 12px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    border-left: 4px solid #ff6b6b;
+}
+
+.info-row {
+    margin: 0.5rem 0;
+}
+
+.info-row:first-child {
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.info-row:last-child {
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+/* Mensaje del modal */
+.modal-message {
+    color: #6c757d;
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 2rem;
+}
+
+.modal-highlight {
+    color: #ff6b6b;
+    font-weight: 600;
+}
+
+/* Botones del modal */
+.modal-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+}
+
+.modal-btn {
+    padding: 12px 30px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-width: 120px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Botón confirmar (rojo) */
+.modal-btn-confirm-red {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+}
+
+.modal-btn-confirm-red:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.5);
+}
+
+/* Botón cancelar */
+.modal-btn-cancel {
+    background: #f8f9fa;
+    color: #6c757d;
+    border: 2px solid #e9ecef;
+}
+
+.modal-btn-cancel:hover {
+    background: #e9ecef;
+    color: #495057;
+    transform: translateY(-2px);
+}
+
+/* Estado de loading */
+.modal-btn.loading {
+    pointer-events: none;
+    opacity: 0.8;
+}
+
+.modal-btn.loading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 20px;
+    height: 20px;
+    margin: -10px 0 0 -10px;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .passenger-actions {
+        flex-direction: column;
+        gap: 0.5rem;
+        align-items: flex-end;
+    }
+    
+    .btn-finalizar-pasajero {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .modal-container {
+        margin: 1rem;
+        padding: 1.5rem;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+    }
+
+    .modal-btn {
+        width: 100%;
+    }
+}
+
+
+.codigo-section {
+    margin: 1.5rem 0 2rem 0;
+    text-align: left;
+}
+
+.codigo-label {
+    display: block;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.75rem;
+    font-size: 1rem;
+    text-align: center;
+}
+
+.codigo-input {
+    width: 100%;
+    padding: 15px 20px;
+    border: 2px solid #e9ecef;
+    border-radius: 12px;
+    font-size: 1.2rem;
+    font-weight: 600;
+    text-align: center;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    outline: none;
+    font-family: 'Courier New', monospace;
+}
+
+.codigo-input:focus {
+    border-color: #ff6b6b;
+    background: white;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    transform: scale(1.02);
+}
+
+.codigo-input::placeholder {
+    color: #adb5bd;
+    font-weight: normal;
+    letter-spacing: normal;
+    text-transform: none;
+    font-family: inherit;
+}
+
+.codigo-help {
+    text-align: center;
+    margin-top: 0.5rem;
+}
+
+.codigo-help small {
+    color: #6c757d;
+    font-size: 0.85rem;
+    font-style: italic;
+}
+
+/* Efectos visuales cuando el input está vacío/lleno */
+.codigo-input:valid {
+    border-color: #28a745;
+    background: #f8fff8;
+}
+
+.codigo-input:invalid:not(:placeholder-shown) {
+    border-color: #dc3545;
+    background: #fff8f8;
+}
+
+/* Animación del botón cuando el código está listo */
+.modal-btn-confirm-red:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.modal-btn-confirm-red.ready {
+    animation: pulse-ready 2s infinite;
+}
+
+@keyframes pulse-ready {
+    0%, 100% { 
+        box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4);
+    }
+    50% { 
+        box-shadow: 0 6px 25px rgba(255, 107, 107, 0.6);
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 480px) {
+    .codigo-input {
+        padding: 12px 16px;
+        font-size: 1.1rem;
+    }
+}
 </style>
 
 <div class="en-curso-wrapper">
@@ -294,48 +654,117 @@
             </div>
         </div>
 
-        <!-- Lista de pasajeros -->
-        <div class="passengers-section">
-            <h3 class="section-title">👥 Pasajeros en el Viaje</h3>
-            
-            @if($viaje->reservas->count() > 0)
-                <div class="passenger-list">
-                    @foreach($viaje->reservas as $reserva)
-                        <div class="passenger-item {{ $reserva->asistencia }}">
-                            <div class="passenger-avatar">
-                                @if($reserva->user->foto)
-                                    <img src="{{ asset('storage/' . $reserva->user->foto) }}" alt="{{ $reserva->user->name }}">
-                                @else
-                                    {{ substr($reserva->user->name, 0, 1) }}
-                                @endif
-                            </div>
-                            
-                            <div class="passenger-details">
-                                <h6>{{ $reserva->user->name }}</h6>
-                                <div class="passenger-meta">
-                                    {{ $reserva->cantidad_puestos }} puesto{{ $reserva->cantidad_puestos > 1 ? 's' : '' }}
-                                    @if($reserva->user->celular)
-                                        • {{ $reserva->user->celular }}
-                                    @endif
-                                </div>
-                            </div>
-                            
-                            <div class="status-icon">
-                                @if($reserva->asistencia === 'presente')
-                                    <span style="color: var(--vcv-success);">✅</span>
-                                @else
-                                    <span style="color: var(--vcv-danger);">❌</span>
-                                @endif
-                            </div>
+       <div class="passengers-section">
+    <h3 class="section-title">👥 Pasajeros en el Viaje</h3>
+                     
+    @if($viaje->reservas->count() > 0)
+        <div class="passenger-list">
+            @foreach($viaje->reservas as $reserva)
+                <div class="passenger-item {{ $reserva->asistencia }}">
+                    <div class="passenger-avatar">
+                        @if($reserva->user->foto)
+                            <img src="{{ asset('storage/' . $reserva->user->foto) }}" alt="{{ $reserva->user->name }}">
+                        @else
+                            {{ substr($reserva->user->name, 0, 1) }}
+                        @endif
+                    </div>
+                                         
+                    <div class="passenger-details">
+                        <h6>{{ $reserva->user->name }}</h6>
+                        <div class="passenger-meta">
+                            {{ $reserva->cantidad_puestos }} puesto{{ $reserva->cantidad_puestos > 1 ? 's' : '' }}
+                            @if($reserva->user->celular)
+                                • {{ $reserva->user->celular }}
+                            @endif
                         </div>
-                    @endforeach
+                    </div>
+                                         
+                    <div class="passenger-actions">
+                        <div class="status-icon">
+                            @if($reserva->asistencia === 'presente')
+                                <span style="color: var(--vcv-success);">✅</span>
+                            @else
+                                <span style="color: var(--vcv-danger);">❌</span>
+                            @endif
+                        </div>
+                        
+                        <!-- 🔥 BOTÓN NUEVO para finalizar pasajero -->
+                        @if($reserva->asistencia === 'presente' && $reserva->estado !== 'finalizado')
+                            <button type="button" 
+                                    class="btn-finalizar-pasajero" 
+                                    onclick="abrirModalFinalizarPasajero({{ $reserva->id }}, '{{ $reserva->user->name }}', {{ $reserva->cantidad_puestos }})">
+                                🏁 Finalizar
+                            </button>
+                        @elseif($reserva->estado === 'finalizado')
+                            <span class="badge-finalizado">✅ Finalizado</span>
+                        @endif
+                    </div>
                 </div>
-            @else
-                <div class="text-center py-4">
-                    <p class="text-muted">No hay pasajeros verificados en este viaje.</p>
-                </div>
-            @endif
+            @endforeach
         </div>
+    @else
+        <div class="text-center py-4">
+            <p class="text-muted">No hay pasajeros verificados en este viaje.</p>
+        </div>
+    @endif
+</div>
+
+<!-- 🎯 MODAL PARA FINALIZAR PASAJERO -->
+<div id="modalFinalizarPasajero" class="modal-overlay">
+    <div class="modal-container">
+        <!-- Icono y título -->
+        <div class="modal-icon" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52);">
+            <i class="fas fa-map-marker-alt"></i>
+        </div>
+                 
+        <h2 class="modal-title">¿Finalizar viaje del pasajero?</h2>
+                 
+        <!-- Información del pasajero -->
+        <div class="passenger-info-modal">
+            <div class="info-row">
+                <strong id="pasajeroNombre">Nombre del pasajero</strong>
+            </div>
+            <div class="info-row">
+                <span id="pasajeroPuestos">0</span> puesto(s) • Llegó a su destino
+            </div>
+        </div>
+                 
+        <!-- Mensaje -->
+        <div class="modal-message">
+            El pasajero ha llegado a su destino y se bajará del vehículo.
+            <br><br>
+            <span class="modal-highlight">Solicita el código de confirmación al pasajero:</span>
+        </div>
+
+        <!-- 🔥 NUEVO: Campo de código -->
+        <div class="codigo-section">
+            <label for="codigoConfirmacion" class="codigo-label">
+                🔐 Código de Confirmación
+            </label>
+            <input 
+                type="text" 
+                id="codigoConfirmacion" 
+                class="codigo-input"
+                placeholder="Ingresa el código"
+                maxlength="6"
+                autocomplete="off"
+                autocapitalize="characters">
+            <div class="codigo-help">
+                <small>El pasajero debe proporcionarte este código</small>
+            </div>
+        </div>
+                 
+        <!-- Botones -->
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" onclick="cerrarModalPasajero()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="modal-btn modal-btn-confirm-red" onclick="confirmarFinalizarPasajero()" id="btnConfirmarFinalizar">
+                <i class="fas fa-check"></i> Sí, finalizar
+            </button>
+        </div>
+    </div>
+</div>
 
         <!-- Acciones -->
         <div class="actions-section">
@@ -419,5 +848,64 @@ function finalizarViaje(viajeId) {
         });
     }
 }
+let reservaIdActual = null;
+
+// Función para abrir el modal de finalizar pasajero
+function abrirModalFinalizarPasajero(reservaId, nombrePasajero, cantidadPuestos) {
+    reservaIdActual = reservaId;
+    
+    // Actualizar información en el modal
+    document.getElementById('pasajeroNombre').textContent = nombrePasajero;
+    document.getElementById('pasajeroPuestos').textContent = cantidadPuestos;
+    
+    // Mostrar modal
+    const modal = document.getElementById('modalFinalizarPasajero');
+    modal.classList.add('show');
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    console.log('Modal abierto para reserva:', reservaId, 'Pasajero:', nombrePasajero);
+}
+
+// Función para cerrar el modal
+function cerrarModalPasajero() {
+    const modal = document.getElementById('modalFinalizarPasajero');
+    modal.classList.remove('show');
+    
+    // Restaurar scroll del body
+    document.body.style.overflow = '';
+    reservaIdActual = null;
+}
+
+// Función para confirmar finalización del pasajero
+function confirmarFinalizarPasajero() {
+    if (!reservaIdActual) return;
+    
+    console.log('Confirmando finalización de reserva:', reservaIdActual);
+    
+    // Aquí irá tu lógica para finalizar el pasajero
+    // Por ahora solo cerramos el modal y mostramos un mensaje
+    alert(`Pasajero con reserva ${reservaIdActual} finalizado exitosamente!`);
+    
+    cerrarModalPasajero();
+    
+    // TODO: Aquí llamarías a tu función para actualizar en el backend
+    // finalizarPasajeroIndividual(reservaIdActual);
+}
+
+// Cerrar modal al hacer click fuera
+document.getElementById('modalFinalizarPasajero').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModalPasajero();
+    }
+});
+
+// Cerrar modal con Escape
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModalPasajero();
+    }
+});
 </script>
 @endsection

@@ -578,44 +578,48 @@
             </div>
         </div>
         
-        <!-- BOTONES DE CONTACTO - SOLO SI ESTÁ CONFIRMADA -->
+       <!-- BOTONES DE CONTACTO - SOLO SI ESTÁ CONFIRMADA -->
         @if($reserva->estado === 'confirmada' && $reserva->viaje->conductor->celular)
             <div class="contact-buttons" style="margin-top: 20px;">
-                <div class="row g-2">
-                    <div class="col-12 col-sm-6">
+                <!-- BOTONES SUPERIORES: CHAT Y LLAMAR -->
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
                         <a href="{{ route('chat.ver', $reserva->viaje_id) }}" 
                            class="btn btn-success w-100"
-                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
+                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease; text-align: center;">
                             <i class="fas fa-comments me-2"></i>Abrir Chat
                         </a>
                     </div>
                     
-                    <div class="col-12 col-sm-6">
+                    <div class="col-6">
                         <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
                            class="btn btn-outline-primary w-100"
-                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease;">
-                            <i class="fas fa-phone me-2"></i> 
-                            Llamar ahora
+                           style="padding: 12px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease; text-align: center;">
+                            <i class="fas fa-phone me-2"></i>Llamar ahora
                         </a>
+                    </div>
+                </div>
+                
+                <!-- BOTÓN INFERIOR: CALIFICAR (CENTRADO) -->
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center">
+                        @if (!$reserva->calificacionEnviadaPorPasajero())
+                            <a href="{{ route('pasajero.calificar.formulario', $reserva->id) }}" 
+                               class="btn btn-warning"
+                               style="padding: 15px 30px; font-weight: 600; border-radius: 10px; border-width: 2px; transition: all 0.3s ease; min-width: 250px; text-align: center;">
+                                <i class="fas fa-star me-2"></i>Calificar al conductor
+                            </a>
+                        @else
+                            <div class="alert alert-success" style="border-radius: 10px; padding: 15px; margin: 0; min-width: 250px; text-align: center;">
+                                <i class="fas fa-check-circle me-2"></i>Ya calificaste al conductor
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
         @endif
     </div>
 </div>
-            @if (!$reserva->calificacionEnviadaPorPasajero())
-                <div style="margin-top: 1.5rem; text-align: center;">
-                    <a href="{{ route('pasajero.calificar.formulario', $reserva->id) }}" 
-                       class="btn-custom accent">
-                        <i class="fas fa-star me-2"></i>Calificar al conductor
-                    </a>
-                </div>
-            @else
-                <div class="rating-status">
-                    <i class="fas fa-check-circle me-2"></i>Ya calificaste al conductor
-                </div>
-            @endif
-        </div>
 
         <!-- Tu Reserva -->
        <div class="info-card">

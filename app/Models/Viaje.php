@@ -26,6 +26,8 @@ class Viaje extends Model
         'estado',
         'activo',
         'observaciones',
+        'pasajeros_presentes',
+        'pasajeros_ausentes',
     ];
 
     public function reservas()

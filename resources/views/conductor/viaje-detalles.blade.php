@@ -532,6 +532,198 @@
         height: 35px;
     }
 }
+
+/* Modal Overlay */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        /* Modal Container */
+        .modal-container {
+            background: linear-gradient(145deg, #ffffff, #f8f9fa);
+            border-radius: 20px;
+            padding: 2rem;
+            max-width: 450px;
+            width: 90%;
+            box-shadow: 
+                0 20px 60px rgba(0, 0, 0, 0.15),
+                0 0 0 1px rgba(255, 255, 255, 0.1);
+            transform: scale(0.8) translateY(30px);
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .modal-overlay.show .modal-container {
+            transform: scale(1) translateY(0);
+        }
+
+        /* Decorative Elements */
+        .modal-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
+        }
+
+        /* Icon */
+        .modal-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            background: linear-gradient(135deg, #28a745, #20c997);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .modal-icon i {
+            font-size: 2.5rem;
+            color: white;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* Title */
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            line-height: 1.3;
+        }
+
+        /* Message */
+        .modal-message {
+            color: #6c757d;
+            font-size: 1rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+        }
+
+        .modal-highlight {
+            color: #28a745;
+            font-weight: 600;
+        }
+
+        /* Buttons Container */
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        /* Button Base */
+        .modal-btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Confirm Button */
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
+        }
+
+        .modal-btn-confirm:active {
+            transform: translateY(0);
+        }
+
+        /* Cancel Button */
+        .modal-btn-cancel {
+            background: #f8f9fa;
+            color: #6c757d;
+            border: 2px solid #e9ecef;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #e9ecef;
+            color: #495057;
+            transform: translateY(-2px);
+        }
+
+        /* Loading State */
+        .modal-btn.loading {
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .modal-btn.loading::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 20px;
+            height: 20px;
+            margin: -10px 0 0 -10px;
+            border: 2px solid transparent;
+            border-top: 2px solid currentColor;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            .modal-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            .modal-buttons {
+                flex-direction: column;
+            }
+
+            .modal-btn {
+                width: 100%;
+            }
+        }
 </style>
 
 <style>
@@ -692,10 +884,9 @@
 
         <!-- 🚀 BOTÓN INICIAR VIAJE - Solo visible 15 min antes de la hora -->
         <div id="iniciarViajeContainer" style="display: none; margin: 1.5rem 0; text-align: center;">
-            <button id="btnIniciarViaje" 
+                <button id="btnIniciarViaje"
                     class="btn btn-success btn-lg px-5 py-3"
-                    style="font-size: 1.2rem; font-weight: bold; border-radius: 12px; box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4); transition: all 0.3s ease;"
-                    onclick="iniciarViaje({{ $viaje->id }})">
+                    onclick="mostrarModalConfirmacion({{ $viaje->id }})">  <!-- ← Cambio aquí -->
                 🚀 INICIAR VIAJE
             </button>
             <div id="countdown" class="mt-2 text-muted" style="font-size: 0.9rem;"></div>
@@ -1020,6 +1211,33 @@
     </div>
   </div>
 </div>
+
+<!-- Agregar después de tu botón existente -->
+<div id="modalConfirmarViaje" class="modal-overlay">
+    <div class="modal-container">
+        <div class="modal-icon">
+            <i class="fas fa-route"></i>
+        </div>
+        
+        <h2 class="modal-title">¿Iniciar el viaje ahora?</h2>
+        
+        <div class="modal-message">
+            Estás a punto de iniciar el viaje. Serás dirigido a la pantalla para 
+            <span class="modal-highlight">verificar qué pasajeros están presentes</span>.
+            <br><br>
+            ¿Estás listo para comenzar?
+        </div>
+        
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-cancel" onclick="cerrarModal()">
+                <i class="fas fa-times"></i> Cancelar
+            </button>
+            <button class="modal-btn modal-btn-confirm" onclick="confirmarInicioViaje()">
+                <i class="fas fa-check"></i> ¡Sí, iniciar!
+            </button>
+        </div>
+    </div>
+</div>
 <!-- Cargar Google Maps para esta vista -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initViajeDetalleMapa&v=3.55"></script>
 
@@ -1336,42 +1554,106 @@ document.addEventListener('DOMContentLoaded', function() {
 window.initViajeDetalleMapa = initViajeDetalleMapa;
 
 
-function iniciarViaje(viajeId) {
-    if (confirm('¿Estás seguro de iniciar el viaje ahora?\n\nTe llevará a verificar qué pasajeros están presentes.')) {
-        // Mostrar loading
-        const btn = document.getElementById('btnIniciarViaje');
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
-        btn.disabled = true;
+ let viajeIdActual = null;
 
-        fetch(`/conductor/viaje/${viajeId}/iniciar`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        // Función para mostrar el modal (reemplaza el confirm())
+        function mostrarModalConfirmacion(viajeId = 123) {
+            viajeIdActual = viajeId;
+            const modal = document.getElementById('modalConfirmarViaje');
+            modal.classList.add('show');
+            
+            // Prevenir scroll del body
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Función para cerrar el modal
+        function cerrarModal() {
+            const modal = document.getElementById('modalConfirmarViaje');
+            modal.classList.remove('show');
+            
+            // Restaurar scroll del body
+            document.body.style.overflow = '';
+            viajeIdActual = null;
+        }
+
+        // Función para confirmar el inicio del viaje
+        function confirmarInicioViaje() {
+            if (!viajeIdActual) return;
+            
+            // Aquí va tu lógica original de iniciarViaje()
+            iniciarViaje(viajeIdActual);
+            cerrarModal();
+        }
+
+        // Cerrar modal al hacer click fuera
+        document.getElementById('modalConfirmarViaje').addEventListener('click', function(e) {
+            if (e.target === this) {
+                cerrarModal();
             }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Redirigir a verificar pasajeros
-                window.location.href = data.redirect_url;
-            } else {
-                alert('Error al iniciar viaje: ' + data.message);
-                // Restaurar botón
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('Error al conectar con el servidor');
-            // Restaurar botón
-            btn.innerHTML = originalText;
-            btn.disabled = false;
         });
-    }
-}
+
+        // Cerrar modal con Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                cerrarModal();
+            }
+        });
+
+        // Tu función original modificada
+        function iniciarViaje(viajeId) {
+            // Mostrar loading en el botón del modal
+            const confirmBtn = document.querySelector('.modal-btn-confirm');
+            const originalText = confirmBtn.innerHTML;
+            confirmBtn.innerHTML = '';
+            confirmBtn.classList.add('loading');
+            
+            // También actualizar el botón principal
+            const btn = document.getElementById('btnIniciarViaje');
+            if (btn) {
+                const btnOriginalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+                btn.disabled = true;
+            }
+
+            fetch(`/conductor/viaje/${viajeId}/iniciar`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirigir a verificar pasajeros
+                    window.location.href = data.redirect_url;
+                } else {
+                    alert('Error al iniciar viaje: ' + data.message);
+                    
+                    // Restaurar botones
+                    confirmBtn.innerHTML = originalText;
+                    confirmBtn.classList.remove('loading');
+                    
+                    if (btn) {
+                        btn.innerHTML = btnOriginalText;
+                        btn.disabled = false;
+                    }
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error al conectar con el servidor');
+                
+                // Restaurar botones
+                confirmBtn.innerHTML = originalText;
+                confirmBtn.classList.remove('loading');
+                
+                if (btn) {
+                    btn.innerHTML = btnOriginalText;
+                    btn.disabled = false;
+                }
+            });
+        }
 
 // 🎨 Efecto hover para el botón
 
