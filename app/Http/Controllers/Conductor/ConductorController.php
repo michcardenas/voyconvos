@@ -164,12 +164,7 @@ public function iniciarViaje(Viaje $viaje)
         // 🕐 Verificar si hay reservas confirmadas
         $reservasConfirmadas = $viaje->reservas()->whereIn('estado', ['confirmado', 'pendiente'])->count();
         
-        if ($reservasConfirmadas === 0) {
-            return response()->json([
-                'success' => false, 
-                'message' => 'No hay pasajeros confirmados para este viaje'
-            ], 400);
-        }
+       
 
         // 🚀 Cambiar estado a "iniciando" (estado intermedio)
         $viaje->update([
