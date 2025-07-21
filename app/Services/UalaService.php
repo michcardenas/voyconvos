@@ -100,6 +100,31 @@ public function createCheckout(array $checkoutData): array
             'callbackFail' => $callbackFail
         ]);
 
+        // 🔥 VERIFICACIÓN CRÍTICA: Los callbacks deben apuntar a las URLs correctas
+        Log::info('=== VERIFICANDO CALLBACKS ANTES DE ENVIAR A UALA ===', [
+            'callbackSuccess_should_go_to' => 'success endpoint',
+            'callbackSuccess_value' => $callbackSuccess,
+            'callbackFail_should_go_to' => 'failure endpoint', 
+            'callbackFail_value' => $callbackFail,
+            'success_contains_success' => str_contains($callbackSuccess, '/success/'),
+            'failure_contains_failure' => str_contains($callbackFail, '/failure/')
+        ]);
+
+        // ✅ VERIFICAR que success contenga 'success' y failure contenga 'failure'
+        if (!str_contains($callbackSuccess, '/success/')) {
+            Log::error('=== ❌ ERROR: SUCCESS CALLBACK NO APUNTA A SUCCESS ===', [
+                'callbackSuccess' => $callbackSuccess,
+                'expected' => 'should contain /success/'
+            ]);
+        }
+        
+        if (!str_contains($callbackFail, '/failure/')) {
+            Log::error('=== ❌ ERROR: FAILURE CALLBACK NO APUNTA A FAILURE ===', [
+                'callbackFail' => $callbackFail,
+                'expected' => 'should contain /failure/'
+            ]);
+        }
+
         // 🔥 DEBUG DEL SDK ANTES DE LA LLAMADA
         Log::info('=== ESTADO DEL SDK ANTES DE CREATEORDER ===', [
             'sdk_class' => get_class($this->sdk),
@@ -118,9 +143,22 @@ public function createCheckout(array $checkoutData): array
         });
 
         try {
-            // Crear orden usando el SDK oficial
-            Log::info('=== LLAMANDO $this->sdk->createOrder() ===');
-            $order = $this->sdk->createOrder($amount, $description, $callbackSuccess, $callbackFail);
+            // 🔥 SOLUCIÓN CRÍTICA: INTERCAMBIAR LOS CALLBACKS
+            // El SDK de Uala interpreta los parámetros de manera diferente a la documentación
+            // Basándose en los logs anteriores, el 3er parámetro va a failure y el 4to a success
+            
+            Log::info('=== ⚠️  INTERCAMBIANDO CALLBACKS PARA CORREGIR BUG DEL SDK ===', [
+                'problema' => 'El SDK interpreta los callbacks en orden inverso',
+                'original_success' => $callbackSuccess,
+                'original_failure' => $callbackFail,
+                'enviando_como_3er_param' => $callbackFail,   // failure como 3er parámetro
+                'enviando_como_4to_param' => $callbackSuccess  // success como 4to parámetro
+            ]);
+            
+            // ✅ ORDEN CORREGIDO: createOrder(amount, description, failure_url, success_url)
+            // Esto es contraintuitivo pero basado en los logs, así es como el SDK lo interpreta
+            Log::info('=== LLAMANDO $this->sdk->createOrder() CON CALLBACKS INTERCAMBIADOS ===');
+            $order = $this->sdk->createOrder($amount, $description, $callbackFail, $callbackSuccess);
             Log::info('=== LLAMADA A createOrder() COMPLETADA ===');
             
         } catch (\Throwable $sdkException) {
@@ -155,10 +193,35 @@ public function createCheckout(array $checkoutData): array
             'order_class' => is_object($order) ? get_class($order) : 'not_object',
             'order_as_array' => (array) $order,
             'object_vars' => is_object($order) ? get_object_vars($order) : 'not_object',
-            'order_json_encode' => json_encode($order),
-            'order_var_dump' => var_export($order, true),
-            'order_print_r' => print_r($order, true)
+            'order_json_encode' => json_encode($order)
         ]);
+
+        // 🚨 VERIFICACIÓN POST-CREACIÓN: Los callbacks ahora deberían estar correctos
+        if (is_object($order) && isset($order->links)) {
+            Log::info('=== VERIFICANDO CALLBACKS EN LA RESPUESTA ===', [
+                'success_callback_en_respuesta' => $order->links->success ?? 'not_found',
+                'failed_callback_en_respuesta' => $order->links->failed ?? 'not_found',
+                'success_apunta_a_success' => isset($order->links->success) && str_contains($order->links->success, '/success/'),
+                'failed_apunta_a_failure' => isset($order->links->failed) && str_contains($order->links->failed, '/failure/')
+            ]);
+            
+            // Verificar que los callbacks estén ahora correctos
+            if (isset($order->links->success) && str_contains($order->links->success, '/success/')) {
+                Log::info('=== ✅ SUCCESS CALLBACK AHORA APUNTA CORRECTAMENTE A SUCCESS ===');
+            } else {
+                Log::error('=== ❌ SUCCESS CALLBACK SIGUE MAL CONFIGURADO ===', [
+                    'success_callback' => $order->links->success ?? 'not_found'
+                ]);
+            }
+            
+            if (isset($order->links->failed) && str_contains($order->links->failed, '/failure/')) {
+                Log::info('=== ✅ FAILURE CALLBACK AHORA APUNTA CORRECTAMENTE A FAILURE ===');
+            } else {
+                Log::error('=== ❌ FAILURE CALLBACK SIGUE MAL CONFIGURADO ===', [
+                    'failed_callback' => $order->links->failed ?? 'not_found'
+                ]);
+            }
+        }
 
         // 🚨 VERIFICAR SI EL SDK TIENE MÉTODOS PARA OBTENER ERRORES
         if (is_object($this->sdk)) {
@@ -174,21 +237,6 @@ public function createCheckout(array $checkoutData): array
                 }
             }
         }
-
-        // 🚨 VERIFICAR PROPIEDADES OCULTAS O PRIVADAS
-        $reflection = new \ReflectionObject($order);
-        $allProperties = $reflection->getProperties();
-        $propertyDetails = [];
-        
-        foreach ($allProperties as $property) {
-            $property->setAccessible(true);
-            $propertyDetails[$property->getName()] = [
-                'visibility' => $property->isPublic() ? 'public' : ($property->isProtected() ? 'protected' : 'private'),
-                'value' => $property->getValue($order)
-            ];
-        }
-        
-        Log::info('=== PROPIEDADES DEL OBJETO ORDER (INCLUYENDO PRIVADAS) ===', $propertyDetails);
 
         // Si el objeto está vacío, intentar alternativas
         if (empty((array) $order)) {
@@ -211,7 +259,7 @@ public function createCheckout(array $checkoutData): array
             Log::info('=== PROPIEDADES DEL SDK DESPUÉS DE createOrder ===', $sdkPropertyDetails);
         }
 
-        // Proceder con normalización (aunque esté vacío, para mantener el flujo)
+        // Proceder con normalización
         return $this->normalizeResponse($order);
 
     } catch (\Exception $e) {
