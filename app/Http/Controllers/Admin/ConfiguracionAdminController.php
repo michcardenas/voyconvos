@@ -7,11 +7,17 @@ use App\Models\ConfiguracionAdmin;
 use Illuminate\Http\Request;
 class ConfiguracionAdminController extends Controller
 {
-    public function index()
-    {
-        $configuraciones = ConfiguracionAdmin::all();
-        return view('admin.configuracion.gestion', compact('configuraciones'));
-    }
+public function index()
+{
+    // Agrupar por nombre y ordenar cada grupo por fecha más reciente
+    $configuraciones = ConfiguracionAdmin::whereNotNull('created_at')
+        ->orderBy('nombre')
+        ->latest()
+        ->get()
+        ->groupBy('nombre');
+    
+    return view('admin.configuracion.gestion', compact('configuraciones'));
+}
 
 public function create() {
     // Solo los tipos que manejas en tu sistema

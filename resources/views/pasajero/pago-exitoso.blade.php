@@ -125,7 +125,7 @@
                 <div class="footer-note text-center mt-4">
                     <p class="mb-1">
                         <i class="fas fa-shield-alt me-2"></i>
-                        Tu pago está protegido por Mercado Pago
+                    
                     </p>
                     <small>Gracias por elegir VoyConVos</small>
                 </div>

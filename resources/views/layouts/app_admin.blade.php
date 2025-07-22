@@ -26,7 +26,7 @@
     <nav class="bg-white shadow">
         <div class="container mx-auto px-4 py-3 flex justify-between items-center">
             <div>
-                <a href="{{ url('/dashboard') }}" class="text-lg font-bold text-gray-800">VoyConVos</a>
+                <a href="{{ url('admin/dashboard') }}" class="text-lg font-bold text-gray-800">VoyConVos</a>
             </div>
             <ul class="flex space-x-4">
                 <li>
@@ -38,6 +38,9 @@
                       <a href="{{ route('admin.gestion') }}" class="text-gray-700 hover:text-indigo-600">
                         Gestión de admin
                     </a>
+                    <a href="{{ route('configuracion.index') }}" class="text-gray-700 hover:text-indigo-600">
+                            Configuración
+                        </a>
                 @endrole
 
                 </li>

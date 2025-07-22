@@ -56,51 +56,65 @@
         <div class="card-body p-0">
             <div class="table-responsive">
                 <table class="table table-hover table-striped mb-0" id="tabla-usuarios">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Nombre</th>
-                <th>Email</th>
-                <th>Rol</th>
-                <th>Verificado</th>
-                <th>Acciones</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach($users as $user)
-            <tr>
-                <td>{{ $user->id }}</td>
-                <td>{{ $user->name }}</td>
-                <td>{{ $user->email }}</td>
-                <td>
-                    @php
-                        $rol = $user->getRoleNames()->first();
-                    @endphp
-                    <span class="badge 
-                        @if($rol == 'admin') bg-danger
-                        @elseif($rol == 'conductor') bg-warning text-dark
-                        @elseif($rol == 'pasajero') bg-info
-                        @else bg-secondary
-                        @endif">
-                        {{ ucfirst($rol) }}
-                    </span>
-                </td>
-                <td>
-                    @if($user->verificado)
-                        <span class="badge bg-success">Verificado</span>
-                    @else
-                        <span class="badge bg-danger">No verificado</span>
-                    @endif
-                </td>
-                <td>
-                    <a href="{{ route('admin.users.edit', $user) }}" class="btn btn-sm btn-warning">Editar</a>
-                    <form action="{{ route('admin.users.destroy', $user) }}" method="POST" style="display:inline;">
-                        @csrf @method('DELETE')
-                        <button class="btn btn-sm btn-danger" onclick="return confirm('¿Seguro?')">Eliminar</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre</th>
+                            <th>Email</th>
+                            <th>Rol</th>
+                            <th>Verificado</th>
+                            <th>Fecha Registro</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($users as $user)
+                        <tr>
+                            <td>{{ $user->id }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>
+                                @php
+                                    $rol = $user->getRoleNames()->first();
+                                @endphp
+                                <span class="badge 
+                                    @if($rol == 'admin') bg-danger
+                                    @elseif($rol == 'conductor') bg-warning text-dark
+                                    @elseif($rol == 'pasajero') bg-info
+                                    @else bg-secondary
+                                    @endif">
+                                    {{ ucfirst($rol) }}
+                                </span>
+                            </td>
+                         
+                            <td>
+                                <small class="text-muted">
+                                    {{ $user->created_at->format('d/m/Y') }}<br>
+                                    <span class="text-xs">{{ $user->created_at->format('H:i') }}</span>
+                                </small>
+                            </td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('admin.users.edit', $user) }}" 
+                                       class="btn btn-sm btn-warning" 
+                                       title="Editar usuario">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <form action="{{ route('admin.users.destroy', $user) }}" 
+                                          method="POST" 
+                                          style="display:inline;">
+                                        @csrf @method('DELETE')
+                                        <button class="btn btn-sm btn-danger" 
+                                                onclick="return confirm('¿Estás seguro de eliminar este usuario?')"
+                                                title="Eliminar usuario">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
                 </table>
             </div>
         </div>
@@ -176,9 +190,36 @@
     font-size: 0.875rem;
 }
 
+.text-xs {
+    font-size: 0.65rem;
+}
+
+.btn-group .btn {
+    border-radius: 0;
+}
+
+.btn-group .btn:first-child {
+    border-radius: 0.375rem 0 0 0.375rem;
+}
+
+.btn-group .btn:last-child {
+    border-radius: 0 0.375rem 0.375rem 0;
+}
+
 @media (max-width: 768px) {
     .row.g-2 > .col-sm-5, .row.g-2 > .col-sm-2 {
         margin-bottom: 0.5rem;
+    }
+    
+    .btn-group {
+        display: flex;
+        flex-direction: column;
+        width: 100%;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0.375rem !important;
+        margin-bottom: 2px;
     }
 }
 </style>
@@ -209,8 +250,10 @@
             const verificadoSeleccionado = filtroVerificado.value;
 
             filas.forEach(fila => {
+                // Obtener el texto de los badges
                 const rolTexto = fila.querySelector('td:nth-child(4) .badge').textContent.toLowerCase();
-                const verificadoTexto = fila.querySelector('td:nth-child(5) .badge').textContent.toLowerCase();
+                const verificadoBadge = fila.querySelector('td:nth-child(5) .badge');
+                const esVerificado = verificadoBadge.classList.contains('bg-success'); // Verde = verificado, Rojo = no verificado
                 
                 let mostrarPorRol = true;
                 let mostrarPorVerificado = true;
@@ -220,10 +263,10 @@
                     mostrarPorRol = false;
                 }
 
-                // Filtro por verificación
-                if (verificadoSeleccionado === 'verificado' && !verificadoTexto.includes('verificado')) {
+                // Filtro por verificación - corregido para trabajar con clases CSS
+                if (verificadoSeleccionado === 'verificado' && !esVerificado) {
                     mostrarPorVerificado = false;
-                } else if (verificadoSeleccionado === 'no-verificado' && verificadoTexto.includes('verificado')) {
+                } else if (verificadoSeleccionado === 'no-verificado' && esVerificado) {
                     mostrarPorVerificado = false;
                 }
 
@@ -247,7 +290,7 @@
                 if (!mensajeVacio) {
                     mensajeVacio = document.createElement('tr');
                     mensajeVacio.className = 'mensaje-vacio';
-                    mensajeVacio.innerHTML = '<td colspan="6" class="text-center py-4 text-muted">No se encontraron usuarios con los filtros aplicados</td>';
+                    mensajeVacio.innerHTML = '<td colspan="7" class="text-center py-4 text-muted">No se encontraron usuarios con los filtros aplicados</td>';
                     tabla.querySelector('tbody').appendChild(mensajeVacio);
                 }
                 mensajeVacio.style.display = '';
@@ -268,6 +311,9 @@
         filtroRol.addEventListener('change', aplicarFiltros);
         filtroVerificado.addEventListener('change', aplicarFiltros);
         limpiarFiltros.addEventListener('click', limpiarTodosFiltros);
+
+        // Debug para verificar el funcionamiento
+        console.log('Filtros inicializados correctamente');
     });
 </script>
 @endpush

@@ -1,4 +1,4 @@
-@extends('layouts.app_dashboard') 
+@extends('layouts.app_admin') 
 
 @section('title', 'Configuración')
 

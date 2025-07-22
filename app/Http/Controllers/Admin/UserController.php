@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Storage; // Añadir este import
 
 class UserController extends Controller
 {
-    public function index()
-{
+  public function index() {
     $users = User::latest()->paginate(10); // 10 usuarios por página, ordenados por más reciente
     return view('admin.users.index', compact('users'));
 }
