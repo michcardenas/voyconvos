@@ -361,14 +361,29 @@
             <h4 class="section-title">🕒 Detalles del viaje</h4>
             
             <div class="form-grid">
-                <div class="form-group">
-                    <label for="fechaViaje" class="form-label">📅 Fecha del viaje</label>
-                    <input type="date" id="fechaViaje" class="form-control">
-                </div>
-               <div class="form-group">
-    <label for="horaSalida" class="form-label">⏰ Hora de Salida</label>
-    <input type="time" id="horaSalida" name="hora_salida" class="form-control" step="60">
+             @php
+    $hoy = date('Y-m-d');
+@endphp
+
+<div class="form-group">
+    <label for="fechaViaje" class="form-label">📅 Fecha del viaje</label>
+    <input type="date"
+           id="fechaViaje"
+           name="fecha_viaje"
+           class="form-control"
+           min="{{ $hoy }}"
+           value="{{ old('fecha_viaje') }}">
 </div>
+
+           <div class="form-group">
+    <label for="horaSalida" class="form-label">⏰ Hora de Salida</label>
+    <input type="text"
+           id="horaSalida"
+           name="hora_salida"
+           class="form-control"
+           value="{{ old('hora_salida') }}">
+</div>
+
 
                 <div class="form-group">
                     <label for="puestosDisponibles" class="form-label">🪑 Puestos Disponibles</label>
@@ -588,7 +603,12 @@ function calcularValorInicialPorPersona() {
 // ✅ INICIALIZACIÓN AL CARGAR LA PÁGINA
 document.addEventListener('DOMContentLoaded', function() {
 
-    
+     flatpickr("#horaSalida", {
+            enableTime: true,
+            noCalendar: true,
+            dateFormat: "H:i",
+            time_24hr: true
+        });
     console.log("🚀 Página cargada, inicializando...");
     
     // 1. CALCULAR VALOR INICIAL INMEDIATAMENTE
@@ -779,5 +799,6 @@ function guardarInfoConductor() {
         document.getElementById("mensaje-error").style.display = 'block';
     });
 }
+
 </script>
 @endsection

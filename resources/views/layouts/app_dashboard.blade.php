@@ -7,6 +7,7 @@
     <title>@yield('title', 'VoyConVos - Viajes Compartidos')</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/contacto.css') }}">
@@ -282,6 +283,8 @@
                 </div>
             </div>
         </footer>
+<!-- Flatpickr JS -->
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
     {{-- JS: Menú de usuario --}}
 <script>
