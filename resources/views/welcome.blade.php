@@ -106,7 +106,7 @@
             </button>
 
             {{-- Enlace Cómo Funciona --}}
-            <a href="#como-funciona" class="como-funciona">
+            <a href="/dashboard" class="como-funciona">
                 {{ \App\Models\Contenido::getValor('hero', 'como_funciona') }} <i class="fas fa-arrow-right"></i>
             </a>
         </div>

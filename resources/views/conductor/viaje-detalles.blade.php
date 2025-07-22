@@ -816,7 +816,7 @@
  <!-- Card principal con detalles del viaje -->
   <!-- imprimir hora actual -->
    <div class="current-time">
-       <strong>Hora actual:</strong> {{ \Carbon\Carbon::now()->format('H:i') }}
+       <!-- <strong>Hora actual:</strong> {{ \Carbon\Carbon::now()->format('H:i') }} -->
    </div>
 <div class="modern-card">
     <div class="card-header-custom">

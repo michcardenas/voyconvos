@@ -30,19 +30,52 @@ class ViajeController extends Controller
     return redirect()->back()->with('success', '🚫 Viaje cancelado correctamente.');
 }
 
- public function detalle(Viaje $viaje)
+public function detalle(Viaje $viaje) 
 {
-    $viaje->load([
-        'reservas.user',
-        'reservas.calificacionPasajero',
-        'reservas.calificacionConductor',
-        'registroConductor',
-    ]);
-    
-    // Verificar si se requiere verificación de pasajeros
-    $requiereVerificacion = $viaje->registroConductor->verificar_pasajeros == 1;
-    
-    return view('conductor.viaje-detalles', compact('viaje', 'requiereVerificacion'));
-}
+    try {
+        // 🔍 Cargar relaciones básicas
+        $viaje->load([
+            'reservas.user',
+            'conductor.registroConductor'
+        ]);
 
+        // 🎯 Para cada reserva, agregar las calificaciones como propiedades
+        foreach ($viaje->reservas as $reserva) {
+            // Calificación del pasajero al conductor
+            $reserva->calificacionPasajero = \App\Models\Calificacion::where([
+                'reserva_id' => $reserva->id,
+                'tipo' => 'pasajero_a_conductor',
+                'usuario_id' => $reserva->user_id
+            ])->first();
+            
+            // Calificación del conductor al pasajero  
+            $reserva->calificacionConductor = \App\Models\Calificacion::where([
+                'reserva_id' => $reserva->id,
+                'tipo' => 'conductor_a_pasajero',
+                'usuario_id' => $viaje->conductor_id
+            ])->first();
+        }
+
+        // Verificar si se requiere verificación de pasajeros
+        $requiereVerificacion = $viaje->conductor->registroConductor->verificar_pasajeros == 1;
+
+        // 📝 Log para debug
+        \Log::info('Detalle de viaje cargado con calificaciones', [
+            'viaje_id' => $viaje->id,
+            'reservas_count' => $viaje->reservas->count(),
+        ]);
+
+        return view('conductor.viaje-detalles', compact('viaje', 'requiereVerificacion'));
+        
+    } catch (\Exception $e) {
+        \Log::error('Error al cargar detalle de viaje', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine()
+        ]);
+
+        return redirect()->route('dashboard')
+                        ->with('error', 'Error al cargar los detalles del viaje.');
+    }
+}
 }
