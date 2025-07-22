@@ -214,7 +214,6 @@ public function iniciarViaje(Viaje $viaje)
                 'error' => $routeException->getMessage()
             ]);
 
-            // Fallback: usar ruta de detalle con parámetro
             $redirectUrl = route('conductor.viaje.detalle', $viaje->id) . '?accion=verificar';
             
             \Log::info('Usando ruta fallback', [
@@ -282,19 +281,38 @@ public function verificarPasajeros(Viaje $viaje)
     // Verificar que el viaje esté iniciado
     if ($viaje->estado !== 'iniciado') {
         return redirect()->route('conductor.viaje.detalle', $viaje->id)
-            ->with('error', 'El viaje debe estar iniciado para verificar pasajeros');
+            ->with('error', 'El viaje debe estar iniciado para continuar');
     }
 
-    // Cargar reservas confirmadas con información del usuario
-    $viaje->load(['reservas' => function($query) {
-        $query->where('estado', 'confirmada')
-              ->with('user')
-              ->orderBy('created_at', 'asc');
-    }]);
+    try {
+        // 🎯 CAMBIO DIRECTO: Pasar automáticamente a "en_curso"
+        $viaje->update([
+            'estado' => 'en_curso',
+            'fecha_inicio_real' => $viaje->fecha_inicio_real ?? now(), // Solo si no existe
+        ]);
 
-    return view('conductor.verificar-pasajeros', compact('viaje'));
+        // 📝 Log para seguimiento
+        \Log::info('Viaje pasado automáticamente a en_curso', [
+            'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
+            'timestamp' => now()
+        ]);
+
+        // 🚀 REDIRECCIÓN DIRECTA a viaje en curso
+        return redirect()->route('conductor.viaje.en-curso', $viaje->id)
+            ->with('success', 'Viaje iniciado correctamente. ¡Buen viaje!');
+
+    } catch (\Exception $e) {
+        \Log::error('Error al iniciar viaje automáticamente', [
+            'viaje_id' => $viaje->id,
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine()
+        ]);
+
+        return redirect()->route('conductor.viaje.detalle', $viaje->id)
+            ->with('error', 'Error al iniciar el viaje. Intenta nuevamente.');
+    }
 }
-
 // 3. MÉTODO PARA PROCESAR VERIFICACIÓN DE ASISTENCIA
 public function procesarAsistencia(Request $request, Viaje $viaje) 
 {
@@ -479,30 +497,87 @@ public function viajeEnCurso(Viaje $viaje)
             ->with('error', 'Error al cargar el viaje en curso.');
     }
 }
-public function verViajeFinalizados($viajeId)
+// 🔍 CONTROLADOR TEMPORAL PARA DEBUG
+
+public function verViajeFinalizados($viajeId) 
 {
-    // ✅ QUITÉ 'vehiculo' de las relaciones porque no existe
-    $viaje = \App\Models\Viaje::with(['reservas.user', 'conductor.registroConductor'])
+    try {
+        // 🔍 PASO 1: Cargar viaje SIN calificaciones primero
+        $viaje = \App\Models\Viaje::with([
+            'reservas.user', 
+            'conductor.registroConductor'
+        ])
         ->where('id', $viajeId)
         ->where('conductor_id', auth()->id())
         ->firstOrFail();
 
-    // Calcular estadísticas finales
-    $estadisticas = [
-        'total_pasajeros' => $viaje->reservas->count(),
-        'pasajeros_presentes' => $viaje->reservas->where('asistencia', 'presente')->count(),
-        'pasajeros_ausentes' => $viaje->reservas->where('asistencia', 'ausente')->count(),
-        'pasajeros_finalizados' => $viaje->reservas->where('estado', 'finalizado')->count(),
-        'ingresos_totales' => $viaje->reservas->where('asistencia', 'presente')->sum('valor_pagado'),
-        'puestos_vendidos' => $viaje->reservas->sum('cantidad_puestos'),
-        'duracion_viaje' => $viaje->fecha_inicio_real ? 
-            \Carbon\Carbon::parse($viaje->fecha_inicio_real)->diffForHumans(now()) : 'No calculada'
-    ];
+        \Log::info('Viaje cargado exitosamente', [
+            'viaje_id' => $viajeId,
+            'reservas_count' => $viaje->reservas->count()
+        ]);
 
-    return view('conductor.viaje-finalizado', compact('viaje', 'estadisticas'));
+        // 🔍 PASO 2: Intentar cargar calificaciones manualmente
+        foreach ($viaje->reservas as $reserva) {
+            try {
+                // Verificar si la relación existe
+                if (method_exists($reserva, 'calificaciones')) {
+                    $calificaciones = $reserva->calificaciones;
+                    \Log::info('Calificaciones encontradas', [
+                        'reserva_id' => $reserva->id,
+                        'calificaciones_count' => $calificaciones->count()
+                    ]);
+                } else {
+                    \Log::error('Método calificaciones() no existe en modelo Reserva');
+                }
+            } catch (\Exception $e) {
+                \Log::error('Error al cargar calificaciones para reserva', [
+                    'reserva_id' => $reserva->id,
+                    'error' => $e->getMessage()
+                ]);
+            }
+        }
+
+        // 📊 Calcular estadísticas básicas (sin calificaciones por ahora)
+        $estadisticas = [
+            'total_pasajeros' => $viaje->reservas->count(),
+            'pasajeros_presentes' => $viaje->reservas->where('asistencia', 'presente')->count(),
+            'pasajeros_ausentes' => $viaje->reservas->where('asistencia', 'ausente')->count(),
+            'pasajeros_finalizados' => $viaje->reservas->where('estado', 'finalizado')->count(),
+            'ingresos_totales' => $viaje->reservas->sum(function($reserva) {
+                return $reserva->valor_pagado ?? ($reserva->precio_por_persona * $reserva->cantidad_puestos);
+            }),
+            'puestos_vendidos' => $viaje->reservas->sum('cantidad_puestos'),
+            'duracion_viaje' => $viaje->fecha_inicio_real ? 
+                \Carbon\Carbon::parse($viaje->fecha_inicio_real)->diffForHumans(now()) : 'No calculada',
+            'valor_por_persona' => $viaje->valor_persona ?? 0,
+            'total_esperado' => $viaje->reservas->sum('cantidad_puestos') * ($viaje->valor_persona ?? 0),
+            // 🚫 Temporalmente sin calificaciones
+            'total_calificaciones' => 0,
+            'promedio_calificaciones' => 0
+        ];
+
+        \Log::info('Estadísticas calculadas exitosamente', [
+            'viaje_id' => $viajeId,
+            'estadisticas' => $estadisticas
+        ]);
+
+        return view('conductor.viaje-finalizado', compact('viaje', 'estadisticas'));
+        
+    } catch (\Exception $e) {
+        \Log::error('Error completo al mostrar viaje finalizado', [
+            'viaje_id' => $viajeId,
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine(),
+            'archivo' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return redirect()
+            ->route('dashboard')
+            ->with('error', 'Error al cargar el viaje finalizado: ' . $e->getMessage());
+    }
 }
-
-public function calificar(Request $request, $reservaId)
+public function calificar(Request $request, $reservaId) 
 {
     try {
         // Validar datos
@@ -516,8 +591,31 @@ public function calificar(Request $request, $reservaId)
             $query->where('conductor_id', auth()->id());
         })->findOrFail($reservaId);
 
-        // Crear calificación
-        \App\Models\Calificacion::create([
+        // 🔒 VERIFICAR SI YA EXISTE UNA CALIFICACIÓN
+        $calificacionExistente = \App\Models\Calificacion::where([
+            'reserva_id' => $reservaId,
+            'usuario_id' => auth()->id(),
+            'tipo' => 'conductor_a_pasajero'
+        ])->first();
+
+        if ($calificacionExistente) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya has calificado a este pasajero anteriormente',
+                'codigo' => 'YA_CALIFICADO'
+            ], 400);
+        }
+
+        // ✅ Verificar que el pasajero esté finalizado (opcional)
+        if ($reserva->estado !== 'finalizado') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Solo puedes calificar pasajeros que hayan finalizado el viaje'
+            ], 400);
+        }
+
+        // 🆕 Crear nueva calificación
+        $calificacion = \App\Models\Calificacion::create([
             'reserva_id' => $reservaId,
             'usuario_id' => auth()->id(), // El conductor que califica
             'calificacion' => $request->calificacion,
@@ -525,19 +623,50 @@ public function calificar(Request $request, $reservaId)
             'tipo' => 'conductor_a_pasajero'
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Calificación enviada exitosamente'
+        // 📝 Log para seguimiento
+        \Log::info('Calificación creada exitosamente', [
+            'calificacion_id' => $calificacion->id,
+            'reserva_id' => $reservaId,
+            'conductor_id' => auth()->id(),
+            'calificacion' => $request->calificacion,
+            'pasajero_id' => $reserva->user_id
         ]);
 
-    } catch (\Exception $e) {
+        return response()->json([
+            'success' => true,
+            'message' => 'Calificación enviada exitosamente',
+            'data' => [
+                'calificacion_id' => $calificacion->id,
+                'calificacion' => $calificacion->calificacion,
+                'comentario' => $calificacion->comentario,
+                'fecha' => $calificacion->created_at->format('d/m/Y H:i')
+            ]
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
         return response()->json([
             'success' => false,
-            'message' => 'Error al enviar calificación'
+            'message' => 'Datos inválidos: ' . implode(', ', $e->validator->errors()->all())
+        ], 422);
+    } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Reserva no encontrada o no tienes permisos'
+        ], 404);
+    } catch (\Exception $e) {
+        \Log::error('Error al calificar pasajero', [
+            'reserva_id' => $reservaId,
+            'conductor_id' => auth()->id(),
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error interno del servidor'
         ], 500);
     }
 }
-
 
 
 // 🔥 MÉTODO ADICIONAL: Finalizar viaje

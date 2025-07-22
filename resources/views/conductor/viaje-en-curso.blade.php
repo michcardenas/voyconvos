@@ -11,7 +11,26 @@
         --vcv-warning: #ffc107;
         --vcv-info: #17a2b8;
     }
+.badge-finalizado {
+    background: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
 
+.badge-finalizado-sin-codigo {
+    background: #ffc107;
+    color: #212529;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    border: 2px solid #e0a800;
+}
     .en-curso-wrapper {
         background: linear-gradient(135deg, #e8f5e8 0%, #f0f8f0 50%, #e3f2fd 100%);
         min-height: 100vh;
@@ -136,59 +155,252 @@
     }
 
     .passenger-item {
-        background: #f8f9fa;
-        border-radius: 10px;
-        padding: 1rem;
-        display: flex;
-        align-items: center;
+    display: flex;
+    align-items: center;
+    padding: 1rem;
+    border-radius: 10px;
+    margin-bottom: 1rem;
+    background: #f8f9fa;
+    transition: all 0.3s ease;
+    border-left: 4px solid #007bff;
+}
+
+.passenger-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Pasajero finalizado */
+.passenger-item.finalizado {
+    background: #d4edda;
+    border-left-color: #28a745;
+}
+
+.passenger-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: #007bff;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.passenger-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.passenger-details {
+    flex: 1;
+    min-width: 0; /* Para que funcione el overflow */
+}
+
+.passenger-details h6 {
+    margin: 0 0 0.5rem 0;
+    font-weight: bold;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.passenger-meta {
+    color: #666;
+    font-size: 0.9rem;
+}
+
+.passenger-payment {
+    color: #28a745;
+    font-weight: bold;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* 🔥 ESTILOS PARA CONTROLES INLINE */
+.passenger-actions-inline {
+    display: flex;
+    align-items: center;
+    margin-left: 1rem;
+    flex-shrink: 0;
+}
+
+.finalizado-container {
+    display: flex;
+    align-items: center;
+}
+
+.badge-finalizado {
+    background: #28a745;
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.finalizacion-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 8px;
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.codigo-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.codigo-label-inline {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #495057;
+    white-space: nowrap;
+}
+
+.codigo-input-inline {
+    width: 70px;
+    padding: 0.4rem 0.6rem;
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9rem;
+    text-align: center;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+.codigo-input-inline:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.codigo-input-inline::placeholder {
+    color: #28a745;
+    font-weight: bold;
+}
+
+.btn-finalizar-inline {
+    background: linear-gradient(135deg, #ff6b6b, #ee5a52);
+    color: white;
+    border: none;
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    box-shadow: 0 2px 4px rgba(255, 107, 107, 0.3);
+}
+
+.btn-finalizar-inline:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.4);
+}
+
+.btn-finalizar-inline:disabled {
+    background: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+}
+
+/* 📱 RESPONSIVE DESIGN */
+@media (max-width: 768px) {
+    .passenger-item {
+        flex-direction: column;
+        align-items: flex-start;
         gap: 1rem;
-        border-left: 4px solid;
-        transition: all 0.3s ease;
-        justify-content: space-between;
     }
-
-    .passenger-item.presente {
-        border-left-color: var(--vcv-success);
-        background: rgba(40, 167, 69, 0.05);
-    }
-
-    .passenger-item.ausente {
-        border-left-color: var(--vcv-danger);
-        background: rgba(220, 53, 69, 0.05);
-        opacity: 0.7;
-    }
-
-    .passenger-avatar {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--vcv-primary), #4a90e2);
-        display: flex;
-        align-items: center;
+    
+    .passenger-actions-inline {
+        width: 100%;
         justify-content: center;
-        color: white;
-        font-weight: bold;
-        font-size: 1.2rem;
+        margin-left: 0;
     }
-
-    .passenger-avatar img {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        object-fit: cover;
+    
+    .finalizacion-controls {
+        flex-direction: column;
+        gap: 0.5rem;
+        width: 100%;
+        align-items: stretch;
     }
-
-    .passenger-details h6 {
-        margin: 0 0 0.25rem 0;
-        color: var(--vcv-primary);
-        font-weight: 600;
+    
+    .codigo-container {
+        justify-content: center;
     }
-
-    .passenger-meta {
-        color: #666;
-        font-size: 0.85rem;
+    
+    .codigo-input-inline {
+        width: 80px;
     }
+}
 
+@media (max-width: 480px) {
+    .finalizacion-controls {
+        padding: 0.75rem;
+    }
+    
+    .codigo-label-inline {
+        font-size: 0.9rem;
+    }
+    
+    .codigo-input-inline {
+        width: 90px;
+        padding: 0.5rem;
+        font-size: 1rem;
+    }
+    
+    .btn-finalizar-inline {
+        padding: 0.6rem 1rem;
+        font-size: 0.9rem;
+    }
+}
+
+/* 🎯 ANIMACIONES DE ESTADO */
+@keyframes finalizando {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+.passenger-item.finalizando {
+    animation: finalizando 1s infinite;
+}
+
+.passenger-item.finalizando .finalizacion-controls {
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+/* ✨ EFECTOS VISUALES MEJORADOS */
+.finalizacion-controls:hover {
+    border-color: #007bff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.codigo-input-inline.codigo-correcto {
+    border-color: #28a745;
+    background-color: #f8fff9;
+}
+
+.codigo-input-inline.codigo-incorrecto {
+    border-color: #dc3545;
+    background-color: #fff8f8;
+}
     .status-icon {
         margin-left: auto;
         font-size: 1.2rem;
@@ -654,13 +866,13 @@
             </div>
         </div>
 
-       <div class="passengers-section">
+  <div class="passengers-section">
     <h3 class="section-title">👥 Pasajeros en el Viaje</h3>
                      
     @if($viaje->reservas->count() > 0)
         <div class="passenger-list">
             @foreach($viaje->reservas as $reserva)
-                <div class="passenger-item {{ $reserva->asistencia }}">
+                <div class="passenger-item" id="pasajero-{{ $reserva->id }}">
                     <div class="passenger-avatar">
                         @if($reserva->user->foto)
                             <img src="{{ asset('storage/' . $reserva->user->foto) }}" alt="{{ $reserva->user->name }}">
@@ -677,26 +889,42 @@
                                 • {{ $reserva->user->celular }}
                             @endif
                         </div>
+                        <div class="passenger-payment">
+                            Pagó: ${{ number_format($reserva->valor_pagado ?? 0, 0) }}
+                        </div>
                     </div>
                                          
-                    <div class="passenger-actions">
-                        <div class="status-icon">
-                            @if($reserva->asistencia === 'presente')
-                                <span style="color: var(--vcv-success);">✅</span>
-                            @else
-                                <span style="color: var(--vcv-danger);">❌</span>
-                            @endif
-                        </div>
-                        
-                        <!-- 🔥 BOTÓN NUEVO para finalizar pasajero -->
-                        @if($reserva->asistencia === 'presente' && $reserva->estado !== 'finalizado')
-                            <button type="button" 
-                                    class="btn-finalizar-pasajero" 
-                                    onclick="abrirModalFinalizarPasajero({{ $reserva->id }}, '{{ $reserva->user->name }}', {{ $reserva->cantidad_puestos }})">
-                                🏁 Finalizar
-                            </button>
-                        @elseif($reserva->estado === 'finalizado')
-                            <span class="badge-finalizado">✅ Finalizado</span>
+                    <div class="passenger-actions-inline">
+                        @if($reserva->estado === 'finalizado')
+                            {{-- 🎯 PASAJERO YA FINALIZADO --}}
+                            <div class="finalizado-container">
+                                <span class="badge-finalizado">✅ Finalizado</span>
+                            </div>
+                        @else
+                            {{-- 🔥 CONTROLES INLINE PARA FINALIZAR --}}
+                            <div class="finalizacion-controls">
+                                <div class="codigo-container">
+                                    <label for="codigo-{{ $reserva->id }}" class="codigo-label-inline">
+                                         Código:
+                                    </label>
+                                    <input 
+                                        type="text" 
+                                        id="codigo-{{ $reserva->id }}" 
+                                        class="codigo-input-inline"
+                                        placeholder="{{ str_pad($reserva->id, 4, '0', STR_PAD_LEFT) }}"
+                                        maxlength="4"
+                                        autocomplete="off"
+                                        autocapitalize="characters"
+                                        title="Código esperado: {{ str_pad($reserva->id, 4, '0', STR_PAD_LEFT) }}">
+                                </div>
+                                
+                                <button type="button" 
+                                        class="btn-finalizar-inline" 
+                                        onclick="finalizarPasajeroDirecto({{ $reserva->id }}, '{{ $reserva->user->name }}')"
+                                        id="btn-finalizar-{{ $reserva->id }}">
+                                     Finalizar
+                                </button>
+                            </div>
                         @endif
                     </div>
                 </div>
@@ -704,75 +932,13 @@
         </div>
     @else
         <div class="text-center py-4">
-            <p class="text-muted">No hay pasajeros verificados en este viaje.</p>
+            <p class="text-muted">No hay pasajeros en este viaje.</p>
         </div>
     @endif
 </div>
-
-<!-- 🎯 MODAL PARA FINALIZAR PASAJERO -->
-<div id="modalFinalizarPasajero" class="modal-overlay">
-    <div class="modal-container">
-        <!-- Icono y título -->
-        <div class="modal-icon" style="background: linear-gradient(135deg, #ff6b6b, #ee5a52);">
-            <i class="fas fa-map-marker-alt"></i>
-        </div>
-                 
-        <h2 class="modal-title">¿Finalizar viaje del pasajero?</h2>
-                 
-        <!-- Información del pasajero -->
-        <div class="passenger-info-modal">
-            <div class="info-row">
-                <strong id="pasajeroNombre">Nombre del pasajero</strong>
-            </div>
-            <div class="info-row">
-                <span id="pasajeroPuestos">0</span> puesto(s) • Llegó a su destino
-            </div>
-        </div>
-                 
-        <!-- Mensaje -->
-        <div class="modal-message">
-            El pasajero ha llegado a su destino y se bajará del vehículo.
-            <br><br>
-            <span class="modal-highlight">Solicita el código de confirmación al pasajero:</span>
-        </div>
-
-        <!-- 🔥 NUEVO: Campo de código -->
-        <!-- 🔥 SECCIÓN DE CÓDIGO ACTUALIZADA -->
-<div class="codigo-section">
-    <label for="codigoConfirmacion" class="codigo-label">
-        🔐 Código de Confirmación (Opcional)
-    </label>
-    <input 
-        type="text" 
-        id="codigoConfirmacion" 
-        class="codigo-input"
-        placeholder="Ej: 0025"
-        maxlength="4"
-        autocomplete="off"
-        autocapitalize="characters">
-    <div class="codigo-help">
-        <small>
-            El código del pasajero aparecerá aquí<br>
-            <em style="color: #666;">Si no coincide, se mostrará advertencia pero se finalizará igual</em>
-        </small>
-    </div>
-</div>
-                 
-        <!-- Botones -->
-        <div class="modal-buttons">
-            <button class="modal-btn modal-btn-cancel" onclick="cerrarModalPasajero()">
-                <i class="fas fa-times"></i> Cancelar
-            </button>
-            <button class="modal-btn modal-btn-confirm-red" onclick="confirmarFinalizarPasajero()" id="btnConfirmarFinalizar">
-                <i class="fas fa-check"></i> Sí, finalizar
-            </button>
-        </div>
-    </div>
-</div>
-
         <!-- Acciones -->
         <div class="actions-section">
-            <h4 style="color: var(--vcv-primary); margin-bottom: 1rem;">🏁 Finalizar Viaje</h4>
+            <h4 style="color: var(--vcv-primary); margin-bottom: 1rem;"> Finalizar Viaje</h4>
             <p class="text-muted mb-3">
                 Cuando llegues al destino, finaliza el viaje para completar el proceso.
             </p>
@@ -780,7 +946,7 @@
             <button id="btnFinalizarViaje" 
                     class="btn-finalizar"
                     onclick="finalizarViaje({{ $viaje->id }})">
-                🏁 FINALIZAR VIAJE
+                 FINALIZAR VIAJE
             </button>
             
             <div class="mt-3">
@@ -795,11 +961,25 @@
 <script>
 // ⏱️ Contador de tiempo transcurrido
 document.addEventListener('DOMContentLoaded', function() {
-    const inicioViaje = new Date('{{ $estadisticas["hora_inicio"] }}');
+    // ✅ Verificar que existe la hora de inicio
+    const horaInicioElement = '{{ $estadisticas["hora_inicio"] ?? "" }}';
+    
+    if (!horaInicioElement) {
+        console.warn('No se encontró hora de inicio, usando hora actual');
+        document.getElementById('tiempoTranscurrido').innerHTML = '⏱️ Tiempo de viaje: --:--:--';
+        return;
+    }
+    
+    const inicioViaje = new Date(horaInicioElement);
     
     function actualizarTiempo() {
         const ahora = new Date();
         const diff = ahora - inicioViaje;
+        
+        if (diff < 0) {
+            document.getElementById('tiempoTranscurrido').innerHTML = '⏱️ Tiempo de viaje: 00:00:00';
+            return;
+        }
         
         const horas = Math.floor(diff / (1000 * 60 * 60));
         const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
@@ -809,178 +989,315 @@ document.addEventListener('DOMContentLoaded', function() {
             `⏱️ Tiempo de viaje: ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}`;
     }
     
-    // Actualizar cada segundo
+    // Actualizar inmediatamente y luego cada segundo
     actualizarTiempo();
     setInterval(actualizarTiempo, 1000);
+    
+    console.log('✅ Contador de tiempo iniciado desde:', inicioViaje);
 });
 
-// 🏁 Función para finalizar viaje
+// 🏁 Función para finalizar viaje completo
 function finalizarViaje(viajeId) {
-    if (confirm('¿Estás seguro de finalizar el viaje?\n\nEsta acción marcará el viaje como completado y no se puede deshacer.')) {
+    if (!viajeId) {
+        alert('Error: ID de viaje no válido');
+        return;
+    }
+    
+    const mensaje = '¿Estás seguro de finalizar el viaje?\n\n' +
+                   'Esta acción marcará el viaje como completado y no se puede deshacer.\n' +
+                   'Todos los pasajeros restantes también serán finalizados automáticamente.';
+    
+    if (confirm(mensaje)) {
         const btn = document.getElementById('btnFinalizarViaje');
+        
+        if (!btn) {
+            alert('Error: No se encontró el botón de finalizar');
+            return;
+        }
+        
         const originalText = btn.innerHTML;
         
-        // Mostrar loading
+        // 🎨 Mostrar loading
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalizando...';
         btn.disabled = true;
-
-        // ✅ URL CORREGIDA con doble conductor (basándome en tu patrón anterior)
+        
+        // 🌐 Realizar petición
         fetch(`/conductor/conductor/viaje/${viajeId}/finalizar`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                'X-CSRF-TOKEN': obtenerTokenCSRF()
             }
         })
-        .then(response => response.json())
+        .then(response => {
+            console.log('Finalizar viaje - Status:', response.status);
+            return response.json();
+        })
         .then(data => {
+            console.log('Finalizar viaje - Response:', data);
+            
             if (data.success) {
                 alert('¡Viaje finalizado exitosamente!');
-                window.location.href = data.redirect_url;
+                
+                // Redireccionar o recargar según la respuesta
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                } else {
+                    window.location.reload();
+                }
             } else {
-                alert('Error al finalizar viaje: ' + data.message);
-                // Restaurar botón
-                btn.innerHTML = originalText;
-                btn.disabled = false;
+                alert('Error al finalizar viaje: ' + (data.message || 'Error desconocido'));
+                restaurarBoton(btn, originalText);
             }
         })
         .catch(error => {
-            console.error('Error:', error);
-            alert('Error al conectar con el servidor');
-            // Restaurar botón
-            btn.innerHTML = originalText;
-            btn.disabled = false;
+            console.error('Error al finalizar viaje:', error);
+            alert('Error de conexión al finalizar el viaje');
+            restaurarBoton(btn, originalText);
         });
     }
 }
-let reservaIdActual = null;
 
-// Función para abrir el modal de finalizar pasajero
-function abrirModalFinalizarPasajero(reservaId, nombrePasajero, cantidadPuestos) {
-    reservaIdActual = reservaId;
+function finalizarPasajeroDirecto(reservaId, nombrePasajero) {
+    console.log('=== FINALIZANDO PASAJERO DIRECTO ===');
+    console.log('Reserva ID:', reservaId);
+    console.log('Pasajero:', nombrePasajero);
     
-    // 🎯 Generar código esperado (4 dígitos con ceros a la izquierda)
-    const codigoEsperado = reservaId.toString().padStart(4, '0');
+    // 🔍 Obtener elementos
+    const codigoInput = document.getElementById(`codigo-${reservaId}`);
+    const btnFinalizar = document.getElementById(`btn-finalizar-${reservaId}`);
+    const pasajeroItem = document.getElementById(`pasajero-${reservaId}`);
     
-    // Actualizar información en el modal
-    document.getElementById('pasajeroNombre').textContent = nombrePasajero;
-    document.getElementById('pasajeroPuestos').textContent = cantidadPuestos;
-    
-    // 🔥 ACTUALIZAR: Mostrar el código esperado en el modal
-    const codigoHelp = document.querySelector('.codigo-help small');
-    if (codigoHelp) {
-        codigoHelp.innerHTML = `El código del pasajero es: <strong>${codigoEsperado}</strong><br>
-                               <em>Nota: Si no coincide, se mostrará una advertencia pero se finalizará igual</em>`;
+    // ✅ Validar elementos
+    if (!codigoInput || !btnFinalizar || !pasajeroItem) {
+        alert('Error: No se encontraron los elementos necesarios');
+        console.error('Elementos faltantes:', { codigoInput, btnFinalizar, pasajeroItem });
+        return;
     }
     
-    // Limpiar el campo de código
-    document.getElementById('codigoConfirmacion').value = '';
+    // 📝 Obtener datos
+    const codigoIngresado = codigoInput.value.trim();
+    const codigoEsperado = reservaId.toString().padStart(4, '0');
     
-    // Mostrar modal
-    const modal = document.getElementById('modalFinalizarPasajero');
-    modal.classList.add('show');
+    console.log('Código ingresado:', codigoIngresado);
+    console.log('Código esperado:', codigoEsperado);
     
-    // Prevenir scroll del body
-    document.body.style.overflow = 'hidden';
+    // 🎨 Aplicar efectos visuales
+    const textoOriginal = btnFinalizar.innerHTML;
+    btnFinalizar.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btnFinalizar.disabled = true;
+    pasajeroItem.classList.add('finalizando');
     
-    console.log('Modal abierto para reserva:', reservaId, 'Código esperado:', codigoEsperado, 'Pasajero:', nombrePasajero);
-}
-// Función para cerrar el modal
-function cerrarModalPasajero() {
-    const modal = document.getElementById('modalFinalizarPasajero');
-    modal.classList.remove('show');
-    
-    // Restaurar scroll del body
-    document.body.style.overflow = '';
-    reservaIdActual = null;
-}
-
-// Función para confirmar finalización del pasajero
-function confirmarFinalizarPasajero() {
-    if (!reservaIdActual) return;
-    
-    console.log('=== INICIANDO FINALIZACIÓN ===');
-    console.log('Reserva ID:', reservaIdActual);
-    
-    const codigoConfirmacion = document.getElementById('codigoConfirmacion').value.trim();
-    console.log('Código ingresado:', codigoConfirmacion);
-    
-    const btnConfirmar = document.getElementById('btnConfirmarFinalizar');
-    const textoOriginal = btnConfirmar.innerHTML;
-    
-    // Mostrar loading
-    btnConfirmar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Finalizando...';
-    btnConfirmar.disabled = true;
-    
-    // 🌐 Nueva URL más simple
-const url = `/conductor/conductor/finalizar-pasajero/${reservaIdActual}`;
-    console.log('URL:', url);
+    // 🌐 URL CORREGIDA - sin doble conductor
+    const url = `/conductor/finalizar-pasajero/${reservaId}`;
     
     fetch(url, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+            'X-CSRF-TOKEN': obtenerTokenCSRF()
         },
         body: JSON.stringify({
-            codigo_confirmacion: codigoConfirmacion
+            codigo_confirmacion: codigoIngresado
         })
     })
     .then(response => {
-        console.log('Response status:', response.status);
-        console.log('Response headers:', response.headers);
+        console.log('Finalizar pasajero - Status:', response.status);
         
-        // 🔍 CAPTURAR EL TEXTO REAL que devuelve el servidor
         return response.text().then(text => {
             console.log('=== RESPUESTA DEL SERVIDOR ===');
-            console.log(text);
-            console.log('=== FIN RESPUESTA ===');
+            console.log(text.substring(0, 500) + (text.length > 500 ? '...' : ''));
             
-            // Si la respuesta parece JSON, parsearla
-            if (text.startsWith('{') || text.startsWith('[')) {
+            // 🔍 Intentar parsear como JSON
+            if (text.trim().startsWith('{') || text.trim().startsWith('[')) {
                 try {
                     return JSON.parse(text);
                 } catch (e) {
-                    throw new Error('JSON inválido: ' + text.substring(0, 100));
+                    throw new Error(`JSON inválido: ${e.message}`);
                 }
             } else {
-                // Si no es JSON, mostrar el HTML recibido
-                throw new Error('Servidor devolvió HTML: ' + text.substring(0, 200));
+                throw new Error(`Servidor devolvió HTML en lugar de JSON. Inicio: ${text.substring(0, 100)}`);
             }
         });
     })
     .then(data => {
-        console.log('Response data:', data);
+        console.log('Finalizar pasajero - Response:', data);
         
         if (data.success) {
-            alert(data.message);
-            cerrarModalPasajero();
-            window.location.reload();
+            // 🎉 Mostrar resultado según código
+            mostrarExitoPasajero(reservaId, nombrePasajero, data.data.codigo_correcto, data.message);
         } else {
-            alert('Error: ' + data.message);
-            btnConfirmar.innerHTML = textoOriginal;
-            btnConfirmar.disabled = false;
+            alert('Error: ' + (data.message || 'Error desconocido'));
+            restaurarEstadoPasajero(reservaId, textoOriginal);
         }
     })
     .catch(error => {
-        console.error('=== ERROR COMPLETO ===', error);
-        alert('Error al conectar: ' + error.message);
-        btnConfirmar.innerHTML = textoOriginal;
-        btnConfirmar.disabled = false;
+        console.error('Error al finalizar pasajero:', error);
+        alert('Error de conexión: ' + error.message);
+        restaurarEstadoPasajero(reservaId, textoOriginal);
     });
 }
-// Cerrar modal al hacer click fuera
-document.getElementById('modalFinalizarPasajero').addEventListener('click', function(e) {
-    if (e.target === this) {
-        cerrarModalPasajero();
-    }
-});
 
-// Cerrar modal con Escape
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        cerrarModalPasajero();
+// 🎉 Función para mostrar éxito al finalizar pasajero (ACTUALIZADA)
+function mostrarExitoPasajero(reservaId, nombrePasajero, codigoCorrecto, mensaje) {
+    const pasajeroItem = document.getElementById(`pasajero-${reservaId}`);
+    const actionsContainer = pasajeroItem.querySelector('.passenger-actions-inline');
+    
+    // 📢 Mostrar mensaje de éxito
+    alert(mensaje);
+    
+    // 🎨 Actualizar interfaz
+    const badgeClass = codigoCorrecto ? 'badge-finalizado' : 'badge-finalizado-sin-codigo';
+    const badgeText = codigoCorrecto ? '✅ Finalizado' : '✅ Finalizado (sin código)';
+    
+    actionsContainer.innerHTML = `
+        <div class="finalizado-container">
+            <span class="${badgeClass}">${badgeText}</span>
+        </div>
+    `;
+    
+    // 🏷️ Actualizar clases
+    pasajeroItem.classList.remove('finalizando');
+    pasajeroItem.classList.add('finalizado');
+    
+    console.log(`✅ Pasajero ${nombrePasajero} finalizado - Código correcto: ${codigoCorrecto}`);
+}
+
+// 🎉 Función para mostrar éxito al finalizar pasajero
+function mostrarExitoPasajero(reservaId, nombrePasajero, codigoIngresado, codigoEsperado, mensaje) {
+    const pasajeroItem = document.getElementById(`pasajero-${reservaId}`);
+    const actionsContainer = pasajeroItem.querySelector('.passenger-actions-inline');
+    
+    // 🔍 Verificar coincidencia de código
+    const codigoCoincide = codigoIngresado === codigoEsperado;
+    let mensajeCompleto = mensaje || `✅ ${nombrePasajero} ha sido finalizado`;
+    
+    if (codigoIngresado && !codigoCoincide) {
+        mensajeCompleto += `\n⚠️ Código no coincidía (esperado: ${codigoEsperado}, ingresado: ${codigoIngresado})`;
     }
+    
+    // 📢 Mostrar mensaje de éxito
+    alert(mensajeCompleto);
+    
+    // 🎨 Actualizar interfaz
+    actionsContainer.innerHTML = `
+        <div class="finalizado-container">
+            <span class="badge-finalizado">✅ Finalizado</span>
+        </div>
+    `;
+    
+    // 🏷️ Actualizar clases
+    pasajeroItem.classList.remove('finalizando');
+    pasajeroItem.classList.add('finalizado');
+    
+    console.log(`✅ Pasajero ${nombrePasajero} finalizado exitosamente`);
+}
+
+// 🔄 Función para restaurar estado del pasajero en caso de error
+function restaurarEstadoPasajero(reservaId, textoOriginal) {
+    const btnFinalizar = document.getElementById(`btn-finalizar-${reservaId}`);
+    const pasajeroItem = document.getElementById(`pasajero-${reservaId}`);
+    
+    if (btnFinalizar) {
+        btnFinalizar.innerHTML = textoOriginal;
+        btnFinalizar.disabled = false;
+    }
+    
+    if (pasajeroItem) {
+        pasajeroItem.classList.remove('finalizando');
+    }
+    
+    console.log(`🔄 Estado restaurado para pasajero ${reservaId}`);
+}
+
+// 🔄 Función para restaurar botón genérico
+function restaurarBoton(btn, textoOriginal) {
+    if (btn) {
+        btn.innerHTML = textoOriginal;
+        btn.disabled = false;
+    }
+}
+
+// 🛡️ Función helper para obtener token CSRF
+function obtenerTokenCSRF() {
+    const token = document.querySelector('meta[name="csrf-token"]');
+    
+    if (!token) {
+        console.error('❌ Token CSRF no encontrado en el meta tag');
+        throw new Error('Token de seguridad no encontrado');
+    }
+    
+    return token.getAttribute('content');
+}
+
+// 🎯 Validación en tiempo real del código (MEJORADA)
+document.addEventListener('DOMContentLoaded', function() {
+    const codigoInputs = document.querySelectorAll('.codigo-input-inline');
+    
+    console.log(`📝 Inicializando ${codigoInputs.length} inputs de código`);
+    
+    codigoInputs.forEach((input, index) => {
+        console.log(`Configurando input ${index + 1}:`, input.id);
+        
+        // 📝 Validación en tiempo real
+        input.addEventListener('input', function() {
+            // Solo números
+            let valor = this.value.replace(/\D/g, '');
+            
+            // Máximo 4 dígitos
+            if (valor.length > 4) {
+                valor = valor.slice(0, 4);
+            }
+            
+            this.value = valor;
+            
+            // 🎨 Validación visual
+            const reservaId = this.id.split('-')[1];
+            const codigoEsperado = reservaId.toString().padStart(4, '0');
+            
+            // Limpiar clases anteriores
+            this.classList.remove('codigo-correcto', 'codigo-incorrecto');
+            
+            if (valor.length === 4) {
+                if (valor === codigoEsperado) {
+                    this.classList.add('codigo-correcto');
+                } else {
+                    this.classList.add('codigo-incorrecto');
+                }
+            }
+        });
+        
+        // ⌨️ Enter para finalizar
+        input.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                
+                const reservaId = this.id.split('-')[1];
+                const btnFinalizar = document.getElementById(`btn-finalizar-${reservaId}`);
+                
+                if (btnFinalizar && !btnFinalizar.disabled) {
+                    btnFinalizar.click();
+                } else {
+                    console.log('Botón de finalizar no disponible o deshabilitado');
+                }
+            }
+        });
+        
+        // 🎯 Focus automático en mobile
+        input.addEventListener('focus', function() {
+            // En móviles, hacer scroll hacia el elemento
+            if (window.innerWidth <= 768) {
+                setTimeout(() => {
+                    this.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'center' 
+                    });
+                }, 300);
+            }
+        });
+    });
+    
+    console.log('✅ Validación de códigos configurada correctamente');
 });
 </script>
 @endsection

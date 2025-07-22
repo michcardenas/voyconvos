@@ -10,22 +10,31 @@ class Reserva extends Model
     use HasFactory;
 
     // ✅ ACTUALIZAR: Agregar todos los campos necesarios
-    protected $fillable = [
-        'viaje_id', 
-        'user_id',              // ✅ Tu campo actual
-        'estado', 
-        'cantidad_puestos', 
-        'precio_por_persona',   // ✅ Nuevo campo
-        'total',                // ✅ Nuevo campo
-        'fecha_reserva',        // ✅ Nuevo campo
-        'mp_preference_id',     // ✅ Nuevo campo para Mercado Pago
-        'mp_init_point',        // ✅ Nuevo campo para Mercado Pago
-        'mp_payment_id',        // ✅ Nuevo campo para Mercado Pago
-        'fecha_pago',           // ✅ Nuevo campo para Mercado Pago
-        'notificado',            // ✅ Tu campo actual
-        'verificado_por_conductor', // ✅ nuevo campo para verificación de asistencia
-        'fecha_verificacion',   // ✅ nuevo campo para fecha de verificación
-        'asistencia',           // ✅ nuevo campo para estado de asistencia
+  protected $fillable = [
+        'viaje_id',
+        'user_id',
+        'estado',
+        'verificado_por_conductor',
+        'fecha_verificacion',
+        'asistencia',
+        'notificado',
+        'cantidad_puestos',
+        'precio_por_persona',
+        'total',
+        'fecha_reserva',
+        'mp_preference_id',
+        'mp_init_point',
+        'uala_bis_uuid',
+        'mp_payment_id',
+        'fecha_pago',
+        'uala_bis_checkout_link',
+        'uala_bis_external_reference',
+        'uala_bis_webhook_response',
+        'uala_checkout_id',
+        'uala_payment_url',
+        'uala_external_reference',
+        'uala_payment_status',
+        'uala_payment_date'
     ];
 
     // ✅ AGREGAR: Campos de fecha para manejo automático
@@ -66,18 +75,32 @@ class Reserva extends Model
         return $this->belongsTo(Viaje::class);
     }
 
-    public function calificacionPasajero()
+    // public function calificacionPasajero()
+    // {
+    //     return $this->hasOne(Calificacion::class, 'reserva_id')->where('tipo', 'pasajero_a_conductor');
+    // }
+
+   public function calificacionConductor()
     {
-        return $this->hasOne(Calificacion::class, 'reserva_id')->where('tipo', 'pasajero_a_conductor');
+        return $this->hasOne(Calificacion::class, 'reserva_id', 'id')
+                    ->where('tipo', 'conductor_a_pasajero');
+    }
+        public function calificaciones()
+    {
+        return $this->hasMany(Calificacion::class, 'reserva_id', 'id');
+    }
+     public function calificacionPasajero()
+    {
+        return $this->hasOne(Calificacion::class, 'reserva_id', 'id')
+                    ->where('tipo', 'pasajero_a_conductor')
+                    ->where('usuario_id', $this->user_id);
     }
 
-    public function calificacionConductor()
+       public function yaCalificadoPorConductor($conductorId)
     {
-        return $this->hasOne(Calificacion::class, 'reserva_id')->where('tipo', 'conductor_a_pasajero');
-    }
-
-    public function calificacionEnviadaPorPasajero()
-    {
-        return $this->hasOne(Calificacion::class)->where('tipo', 'pasajero_a_conductor')->exists();
+        return $this->calificaciones()
+                    ->where('usuario_id', $conductorId)
+                    ->where('tipo', 'conductor_a_pasajero')
+                    ->exists();
     }
 }

@@ -23,29 +23,28 @@
 
         <!-- Resumen del viaje -->
         <div class="resumen-viaje">
-            <h3>📊 Resumen del Viaje</h3>
-            <div class="stats-grid">
-                <div class="stat-card success">
-                    <div class="stat-number">{{ $estadisticas['pasajeros_presentes'] }}</div>
-                    <div class="stat-label">Pasajeros que Viajaron</div>
-                </div>
-                
-                <div class="stat-card info">
-                    <div class="stat-number">{{ $estadisticas['pasajeros_finalizados'] }}</div>
-                    <div class="stat-label">Pasajeros Finalizados</div>
-                </div>
-                
-                <div class="stat-card warning">
-                    <div class="stat-number">${{ number_format($estadisticas['ingresos_totales'], 0) }}</div>
-                    <div class="stat-label">Ingresos Totales</div>
-                </div>
-                
-                <div class="stat-card primary">
-                    <div class="stat-number">{{ $viaje->distancia_km ?? '—' }} km</div>
-                    <div class="stat-label">Distancia Recorrida</div>
-                </div>
-            </div>
+    <h3>📊 Resumen del Viaje</h3>
+    <div class="stats-grid">
+        <div class="stat-card success">
+            <div class="stat-number">{{ $estadisticas['pasajeros_finalizados'] }}</div>
+            <div class="stat-label">Pasajeros Finalizados</div>
         </div>
+        
+        <div class="stat-card info">
+            <div class="stat-number">{{ $estadisticas['total_pasajeros'] }}</div>
+            <div class="stat-label">Total Pasajeros</div>
+        </div>
+        
+        <div class="stat-card warning">
+            <div class="stat-number">${{ number_format($estadisticas['ingresos_totales'], 0) }}</div>
+            <div class="stat-label">Ingresos Totales</div>
+        </div>
+        
+        <div class="stat-card primary">
+            <div class="stat-number">{{ $viaje->distancia_km ?? '—' }} km</div>
+            <div class="stat-label">Distancia Recorrida</div>
+        </div>
+    </div>
 
         <!-- Detalles del viaje -->
         <div class="detalles-viaje">
@@ -79,13 +78,24 @@
         </div>
 
         <!-- Lista de pasajeros -->
-      <div class="pasajeros-finalizados">
+   <!-- Lista de pasajeros CON CONTROL DE CALIFICACIONES -->
+<div class="pasajeros-finalizados">
     <h3>👥 Pasajeros del Viaje</h3>
     
     @if($viaje->reservas->count() > 0)
         <div class="passenger-list">
             @foreach($viaje->reservas as $reserva)
-                <div class="passenger-item-final {{ $reserva->asistencia }} {{ $reserva->estado }}">
+                {{-- 🔢 Calcular el valor pagado correctamente --}}
+                @php
+                    $valorPagado = $reserva->valor_pagado ?? ($reserva->precio_por_persona * $reserva->cantidad_puestos);
+                    $valorPorPersona = $reserva->precio_por_persona ?? $viaje->valor_persona ?? 0;
+                    
+                    // 🌟 Verificar si ya fue calificado por este conductor
+                    $calificacionExistente = $reserva->calificaciones->first();
+                    $yaCalificado = $calificacionExistente !== null;
+                @endphp
+                
+                <div class="passenger-item-final {{ $reserva->estado }} {{ $yaCalificado ? 'ya-calificado' : '' }}">
                     <div class="passenger-avatar">
                         @if($reserva->user->foto)
                             <img src="{{ asset('storage/' . $reserva->user->foto) }}" alt="{{ $reserva->user->name }}">
@@ -103,30 +113,120 @@
                             @endif
                         </div>
                         <div class="passenger-payment">
-                            Pagó: ${{ number_format($reserva->valor_pagado ?? 0, 0) }}
+                            @if($valorPagado > 0)
+                                Total pagado: ${{ number_format($valorPagado, 0) }}
+                                @if($reserva->cantidad_puestos > 1)
+                                    <small style="color: #666;">({{ $reserva->cantidad_puestos }} × ${{ number_format($valorPorPersona, 0) }})</small>
+                                @endif
+                            @else
+                                <span style="color: #dc3545;">Sin información de pago</span>
+                            @endif
                         </div>
+                        
+                        {{-- 🔍 Información de códigos --}}
+                        @if($reserva->notificado !== null)
+                            <div class="codigo-info" style="font-size: 0.8rem; color: #666; margin-top: 0.25rem;">
+                                Código: {{ $reserva->notificado ? 'Correcto ✅' : 'Incorrecto ⚠️' }}
+                            </div>
+                        @endif
+
+                        {{-- 🌟 MOSTRAR CALIFICACIÓN EXISTENTE --}}
+                        @if($yaCalificado)
+                            <div class="calificacion-existente" style="margin-top: 0.5rem; padding: 0.5rem; background: #fff3cd; border-radius: 5px;">
+                                <div class="estrellas-existente">
+                                    @for($i = 1; $i <= 5; $i++)
+                                        <span class="estrella-mostrar {{ $i <= $calificacionExistente->calificacion ? 'activa' : '' }}">⭐</span>
+                                    @endfor
+                                    <small style="margin-left: 0.5rem; color: #856404;">
+                                        ({{ $calificacionExistente->calificacion }}/5)
+                                    </small>
+                                </div>
+                                @if($calificacionExistente->comentario)
+                                    <div class="comentario-existente" style="font-size: 0.8rem; color: #856404; margin-top: 0.25rem; font-style: italic;">
+                                        "{{ $calificacionExistente->comentario }}"
+                                    </div>
+                                @endif
+                                <div class="fecha-calificacion" style="font-size: 0.7rem; color: #6c757d; margin-top: 0.25rem;">
+                                    Calificado el {{ $calificacionExistente->created_at->format('d/m/Y H:i') }}
+                                </div>
+                            </div>
+                        @endif
                     </div>
                     
                     <div class="passenger-status-final">
-                        @if($reserva->asistencia === 'presente')
-                            @if($reserva->estado === 'finalizado')
+                        @if($reserva->estado === 'finalizado')
+                            {{-- 🎯 Mostrar estado según código --}}
+                            @if($reserva->notificado === 1)
+                                <span class="badge-success">✅ Finalizado (código OK)</span>
+                            @elseif($reserva->notificado === 0)
+                                <span class="badge-warning">✅ Finalizado (sin código)</span>
+                            @else
                                 <span class="badge-success">✅ Finalizado</span>
-                                <!-- 🌟 BOTÓN CALIFICAR -->
+                            @endif
+                            
+                            {{-- 🌟 BOTÓN CALIFICAR (solo si NO está calificado) --}}
+                            @if(!$yaCalificado)
                                 <button type="button" 
                                         class="btn-calificar" 
-                                        onclick="abrirModalCalificar({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                                        onclick="abrirModalCalificar({{ $reserva->id }}, '{{ $reserva->user->name }}')"
+                                        id="btn-calificar-{{ $reserva->id }}">
                                     ⭐ Calificar
                                 </button>
                             @else
-                                <span class="badge-warning">⚠️ Presente pero no finalizado</span>
+                                <span class="badge-calificado">⭐ Ya Calificado</span>
                             @endif
                         @else
-                            <span class="badge-danger">❌ No asistió</span>
+                            <span class="badge-warning">⚠️ No finalizado</span>
                         @endif
                     </div>
                 </div>
             @endforeach
         </div>
+        
+        {{-- 📊 Resumen de calificaciones --}}
+        @if($estadisticas['total_calificaciones'] > 0)
+            <div class="resumen-calificaciones" style="margin-top: 2rem; padding: 1rem; background: #fff3cd; border-radius: 8px; border-left: 4px solid #ffc107;">
+                <h5 style="color: #856404; margin-bottom: 1rem;">⭐ Resumen de Calificaciones</h5>
+                <div class="row">
+                    <div class="col-md-4">
+                        <strong>Total calificaciones:</strong><br>
+                        {{ $estadisticas['total_calificaciones'] }} de {{ $estadisticas['pasajeros_finalizados'] }}
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Promedio:</strong><br>
+                        {{ number_format($estadisticas['promedio_calificaciones'], 1) }}/5 ⭐
+                    </div>
+                    <div class="col-md-4">
+                        <strong>Pendientes:</strong><br>
+                        {{ $estadisticas['pasajeros_finalizados'] - $estadisticas['total_calificaciones'] }} pasajeros
+                    </div>
+                </div>
+            </div>
+        @endif
+        
+        {{-- 📊 Resumen de pagos (mismo código anterior) --}}
+        <div class="resumen-pagos" style="margin-top: 2rem; padding: 1rem; background: #e8f5e8; border-radius: 8px; border-left: 4px solid #28a745;">
+            <h5 style="color: #155724; margin-bottom: 1rem;">💰 Resumen de Pagos</h5>
+            <div class="row">
+                <div class="col-md-3">
+                    <strong>Total recaudado:</strong><br>
+                    ${{ number_format($estadisticas['ingresos_totales'], 0) }}
+                </div>
+                <div class="col-md-3">
+                    <strong>Puestos vendidos:</strong><br>
+                    {{ $estadisticas['puestos_vendidos'] }}
+                </div>
+                <div class="col-md-3">
+                    <strong>Promedio por puesto:</strong><br>
+                    ${{ $estadisticas['puestos_vendidos'] > 0 ? number_format($estadisticas['ingresos_totales'] / $estadisticas['puestos_vendidos'], 0) : 0 }}
+                </div>
+                <div class="col-md-3">
+                    <strong>Valor esperado:</strong><br>
+                    ${{ number_format($estadisticas['total_esperado'], 0) }}
+                </div>
+            </div>
+        </div>
+        
     @else
         <div class="text-center py-4">
             <p class="text-muted">No hubo pasajeros en este viaje.</p>
@@ -221,6 +321,167 @@
 </div>
 
 <style>
+    /* 🌟 Estilos para calificaciones existentes */
+.calificacion-existente {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: #fff3cd;
+    border-radius: 5px;
+    border-left: 3px solid #ffc107;
+}
+
+.estrellas-existente {
+    display: flex;
+    align-items: center;
+    font-size: 0.9rem;
+}
+
+.estrella-mostrar {
+    font-size: 1rem;
+    margin-right: 2px;
+}
+
+.estrella-mostrar.activa {
+    filter: grayscale(0%);
+    opacity: 1;
+}
+
+.estrella-mostrar:not(.activa) {
+    filter: grayscale(100%);
+    opacity: 0.3;
+}
+
+.comentario-existente {
+    font-size: 0.8rem;
+    color: #856404;
+    margin-top: 0.25rem;
+    font-style: italic;
+    line-height: 1.3;
+}
+
+.fecha-calificacion {
+    font-size: 0.7rem;
+    color: #6c757d;
+    margin-top: 0.25rem;
+}
+
+/* 🏷️ Badge para "Ya Calificado" */
+.badge-calificado {
+    background: linear-gradient(135deg, #6f42c1, #5a2d91);
+    color: white;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    white-space: nowrap;
+    margin-top: 0.5rem;
+    display: inline-block;
+    box-shadow: 0 2px 4px rgba(111, 66, 193, 0.3);
+}
+
+/* 🎨 Estilo especial para pasajeros ya calificados */
+.passenger-item-final.ya-calificado {
+    background: #f8f9ff;
+    border-left-color: #6f42c1;
+}
+
+.passenger-item-final.ya-calificado .passenger-avatar {
+    background: linear-gradient(135deg, #6f42c1, #5a2d91);
+}
+
+/* 📊 Resumen de calificaciones */
+.resumen-calificaciones {
+    margin-top: 2rem;
+    padding: 1rem;
+    background: #fff3cd;
+    border-radius: 8px;
+    border-left: 4px solid #ffc107;
+}
+
+.resumen-calificaciones h5 {
+    color: #856404;
+    margin-bottom: 1rem;
+}
+
+.resumen-calificaciones .row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.resumen-calificaciones .col-md-4 {
+    flex: 1;
+    min-width: 200px;
+    margin-bottom: 0.5rem;
+    padding: 0.5rem;
+}
+
+/* 🔄 Animación para actualización en tiempo real */
+@keyframes nuevaCalificacion {
+    0% {
+        background: #d1ecf1;
+        transform: scale(1.02);
+    }
+    100% {
+        background: #fff3cd;
+        transform: scale(1);
+    }
+}
+
+.calificacion-existente.nueva {
+    animation: nuevaCalificacion 2s ease-out;
+}
+
+/* 📱 Responsive para calificaciones */
+@media (max-width: 768px) {
+    .resumen-calificaciones .row {
+        flex-direction: column;
+    }
+    
+    .resumen-calificaciones .col-md-4 {
+        min-width: 100%;
+        text-align: center;
+    }
+    
+    .estrellas-existente {
+        justify-content: center;
+    }
+    
+    .badge-calificado {
+        margin-top: 0.25rem;
+        font-size: 0.7rem;
+        padding: 0.3rem 0.6rem;
+    }
+}
+
+/* 🎯 Estados hover para elementos interactivos */
+.btn-calificar:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.badge-calificado:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 3px 10px rgba(111, 66, 193, 0.4);
+}
+
+/* 💫 Efectos visuales mejorados */
+.passenger-item-final {
+    transition: all 0.3s ease;
+}
+
+.passenger-item-final:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.calificacion-existente {
+    transition: all 0.3s ease;
+}
+
+.calificacion-existente:hover {
+    background: #fff5d3;
+    transform: translateX(2px);
+}
         .viaje-finalizado-wrapper {
             min-height: 100vh;
             padding: 2rem 0;
@@ -826,29 +1087,30 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 // 📝 Función para confirmar calificación (temporal)
+// 📝 Función para confirmar calificación (MEJORADA)
 function confirmarCalificacion() {
     if (calificacionSeleccionada === 0) {
         alert('Por favor selecciona una calificación');
         return;
     }
-    
+
     const comentario = document.getElementById('comentarioCalificacion').value.trim();
     const btn = document.getElementById('btnConfirmarCalificacion');
     const textoOriginal = btn.innerHTML;
-    
+
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
     btn.disabled = true;
-    
+
     // ✅ Obtener token del meta tag
     const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
-    
+
     if (!token) {
         alert('Error: Token de seguridad no encontrado');
         btn.innerHTML = textoOriginal;
         btn.disabled = false;
         return;
     }
-    
+
     fetch(`/conductor/calificar-pasajero/${reservaIdCalificar}`, {
         method: 'POST',
         headers: {
@@ -860,14 +1122,36 @@ function confirmarCalificacion() {
             comentario: comentario
         })
     })
-    .then(response => response.json())
-    .then(data => {
+    .then(response => {
+        // 🔍 Capturar tanto respuestas exitosas como errores
+        return response.json().then(data => {
+            return { data, status: response.status };
+        });
+    })
+    .then(({ data, status }) => {
+        console.log('Response data:', data, 'Status:', status);
+        
         if (data.success) {
+            // ✅ ÉXITO: Calificación enviada
             alert('¡Calificación enviada exitosamente!');
             cerrarModalCalificar();
+            
+            // 🎨 Actualizar visualmente el botón de calificar
+            actualizarVistaCalificacion(reservaIdCalificar, data.data);
+            
         } else {
-            alert('Error: ' + data.message);
+            // ❌ ERROR: Manejar diferentes tipos de errores
+            if (data.codigo === 'YA_CALIFICADO') {
+                alert('⚠️ Ya has calificado a este pasajero anteriormente');
+                cerrarModalCalificar();
+                
+                // 🔄 Recargar página para actualizar vista
+                location.reload();
+            } else {
+                alert('Error: ' + data.message);
+            }
         }
+        
         btn.innerHTML = textoOriginal;
         btn.disabled = false;
     })
@@ -879,6 +1163,81 @@ function confirmarCalificacion() {
     });
 }
 
+// 🎨 Función para actualizar vista después de calificar
+function actualizarVistaCalificacion(reservaId, calificacionData) {
+    const btnCalificar = document.getElementById(`btn-calificar-${reservaId}`);
+    
+    if (btnCalificar) {
+        // Reemplazar botón con badge de "Ya Calificado"
+        btnCalificar.outerHTML = '<span class="badge-calificado">⭐ Ya Calificado</span>';
+        
+        // Opcional: Agregar la calificación al DOM
+        const pasajeroItem = btnCalificar.closest('.passenger-item-final');
+        if (pasajeroItem && calificacionData) {
+            const pasajeroDetails = pasajeroItem.querySelector('.passenger-details');
+            if (pasajeroDetails) {
+                // Crear elemento de calificación
+                const estrellas = '⭐'.repeat(calificacionData.calificacion) + '☆'.repeat(5 - calificacionData.calificacion);
+                const calificacionHTML = `
+                    <div class="calificacion-existente" style="margin-top: 0.5rem; padding: 0.5rem; background: #d1ecf1; border-radius: 5px;">
+                        <div class="estrellas-existente">
+                            ${estrellas} (${calificacionData.calificacion}/5)
+                        </div>
+                        ${calificacionData.comentario ? `<div class="comentario-existente" style="font-size: 0.8rem; color: #0c5460; margin-top: 0.25rem; font-style: italic;">"${calificacionData.comentario}"</div>` : ''}
+                        <div class="fecha-calificacion" style="font-size: 0.7rem; color: #6c757d; margin-top: 0.25rem;">
+                            Recién calificado
+                        </div>
+                    </div>
+                `;
+                pasajeroDetails.insertAdjacentHTML('beforeend', calificacionHTML);
+            }
+        }
+    }
+    
+    console.log(`✅ Vista actualizada para reserva ${reservaId}`);
+}
+
+// 🌟 Función para abrir modal - verificar si ya está calificado
+function abrirModalCalificar(reservaId, nombrePasajero) {
+    // 🔍 Verificar si el botón aún existe (no fue calificado)
+    const btnCalificar = document.getElementById(`btn-calificar-${reservaId}`);
+    
+    if (!btnCalificar) {
+        alert('Este pasajero ya ha sido calificado anteriormente');
+        return;
+    }
+    
+    reservaIdCalificar = reservaId;
+    calificacionSeleccionada = 0;
+    
+    // Actualizar información en el modal
+    document.getElementById('nombrePasajeroCalificar').textContent = nombrePasajero;
+    
+    // Limpiar formulario
+    document.getElementById('comentarioCalificacion').value = '';
+    document.getElementById('contadorCaracteres').textContent = '0/500 caracteres';
+    
+    // Resetear estrellas
+    document.querySelectorAll('.star').forEach(star => {
+        star.classList.remove('active');
+    });
+    
+    // Resetear texto de calificación
+    document.getElementById('ratingText').textContent = 'Selecciona una calificación';
+    
+    // Deshabilitar botón de confirmar
+    const btnConfirmar = document.getElementById('btnConfirmarCalificacion');
+    btnConfirmar.classList.remove('enabled');
+    
+    // Mostrar modal
+    const modal = document.getElementById('modalCalificarPasajero');
+    modal.classList.add('show');
+    
+    // Prevenir scroll del body
+    document.body.style.overflow = 'hidden';
+    
+    console.log('Modal de calificación abierto para reserva:', reservaId, 'Pasajero:', nombrePasajero);
+}
 // Cerrar modal al hacer click fuera
 document.getElementById('modalCalificarPasajero').addEventListener('click', function(e) {
     if (e.target === this) {

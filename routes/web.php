@@ -77,6 +77,10 @@ Route::middleware('auth')->group(function () {
         return 'Vista: Configuración SEO';
     })->name('configuracion.seo');
 });
+Route::post('conductor/finalizar-pasajero/{reservaId}', [
+        App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 
+        'finalizarPasajero'
+    ])->name('conductor.finalizar-pasajero');
 
 // Zona administrativa
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
@@ -148,10 +152,10 @@ Route::prefix('conductor')->name('conductor.')->group(function () {
         ->name('viaje.iniciar');
         Route::post('/conductor/finalizar-pasajero/{reserva}', [App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 'finalizar'])
      ->name('conductor.finalizar.pasajero');
+     
      Route::post('/conductor/viaje/{viaje}/finalizar', [App\Http\Controllers\Conductor\ConductorController::class, 'finalizarViaje'])
     ->name('conductor.viaje.finalizar');
      Route::get('/conductor/test-finalizar', [App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 'test']);
-
 
     Route::get('/viaje/{viaje}/verificar-pasajeros', [App\Http\Controllers\Conductor\ConductorController::class, 'verificarPasajeros'])
         ->name('viaje.verificar-pasajeros');
