@@ -883,7 +883,7 @@
         </div>
 
         <!-- 🚀 BOTÓN INICIAR VIAJE - Solo visible 15 min antes de la hora -->
-        <div id="iniciarViajeContainer" style="display: none; margin: 1.5rem 0; text-align: center;">
+        <div id="iniciarViajeContainer" style=" margin: 1.5rem 0; text-align: center;">
                 <button id="btnIniciarViaje"
                     class="btn btn-success btn-lg px-5 py-3"
                     onclick="mostrarModalConfirmacion({{ $viaje->id }})">  <!-- ← Cambio aquí -->

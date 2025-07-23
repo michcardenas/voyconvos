@@ -718,5 +718,53 @@ public function finalizarViaje(Request $request, $viajeId)
 }
 
 
+public function calificarConductor(Request $request, $reservaId) 
+{
+    try {
+        // Validar datos
+        $request->validate([
+            'calificacion' => 'required|integer|min:1|max:5',
+            'comentario' => 'nullable|string|max:500'
+        ]);
+
+        // Buscar la reserva del pasajero autenticado
+        $reserva = \App\Models\Reserva::where('user_id', auth()->id())
+                                    ->findOrFail($reservaId);
+
+        // Verificar si ya calificó antes
+        $yaCalifico = \App\Models\Calificacion::where([
+            'reserva_id' => $reservaId,
+            'usuario_id' => auth()->id(),
+            'tipo' => 'pasajero_a_conductor'
+        ])->exists();
+
+        if ($yaCalifico) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Ya has calificado a este conductor'
+            ], 400);
+        }
+
+        // Crear la calificación
+        \App\Models\Calificacion::create([
+            'reserva_id' => $reservaId,
+            'usuario_id' => auth()->id(),
+            'calificacion' => $request->calificacion,
+            'comentario' => $request->comentario,
+            'tipo' => 'pasajero_a_conductor'
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => '¡Calificación enviada exitosamente!'
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al enviar la calificación'
+        ], 500);
+    }
+}
 
 }

@@ -627,70 +627,156 @@
     </div>
 @endif
         <!-- Calificaciones Section -->
-        <div class="section-header">
-            <h4><i class="fas fa-star me-2"></i>Tus calificaciones como pasajero</h4>
+    {-- Código para la vista con verificaciones de seguridad --}}
+<div class="section-header">
+    <h4><i class="fas fa-star me-2"></i>Tus calificaciones como pasajero</h4>
+</div>
+
+<div class="ratings-section">
+    @php
+        // 🛡️ VERIFICACIONES DE SEGURIDAD
+        $calificacionesUsuarios = $calificacionesUsuarios ?? collect();
+        $calificacionesDetalle = $calificacionesDetalle ?? collect();
+        $misCalificaciones = $misCalificaciones ?? collect();
+        
+        // Obtener calificaciones del usuario como pasajero
+        $misCalificacionesPasajero = isset($misCalificaciones['conductor_a_pasajero']) 
+            ? $misCalificaciones['conductor_a_pasajero'] 
+            : null;
+        
+        // Filtrar calificaciones detalle del usuario actual como pasajero
+        $calificacionesDetallePasajero = $calificacionesDetalle->filter(function($cal) {
+            return auth()->check() && 
+                   $cal->usuario_calificado_id == auth()->id() && 
+                   $cal->tipo == 'conductor_a_pasajero';
+        });
+        
+        // Calcular estadísticas
+        $promedioCalificacion = $misCalificacionesPasajero 
+            ? $misCalificacionesPasajero->promedio_calificacion 
+            : 0;
+            
+        $totalCalificaciones = $misCalificacionesPasajero 
+            ? $misCalificacionesPasajero->total_calificaciones 
+            : 0;
+    @endphp
+
+    @if($totalCalificaciones > 0)
+        {{-- Resumen de calificaciones --}}
+        <div class="rating-summary">
+            <p class="rating-average">{{ number_format($promedioCalificacion, 1) }}/5</p>
+            <p class="rating-count">
+                <i class="fas fa-star me-1"></i>
+                Basado en {{ $totalCalificaciones }} calificación{{ $totalCalificaciones > 1 ? 'es' : '' }}
+            </p>
         </div>
 
-        <div class="ratings-section">
-            @php
-                // Aquí deberías obtener las calificaciones del usuario desde el controlador
-                // Por ahora uso datos de ejemplo, reemplaza con tus datos reales
-                $calificaciones = collect([
-                    (object)[
-                        'calificacion' => 5,
-                        'comentario' => 'Excelente pasajero, muy puntual y respetuoso.',
-                        'fecha' => '2025-05-15',
-                        'conductor' => 'Carlos Rodríguez'
-                    ],
-                    (object)[
-                        'calificacion' => 4,
-                        'comentario' => 'Buen pasajero, recomendado.',
-                        'fecha' => '2025-05-10',
-                        'conductor' => 'María González'
-                    ]
-                ]);
-                
-                $promedioCalificacion = $calificaciones->avg('calificacion') ?? 0;
-                $totalCalificaciones = 0;
-            @endphp
-
-            @if($totalCalificaciones > 0)
-                <div class="rating-summary">
-                    <p class="rating-average">{{ number_format($promedioCalificacion, 1) }}/5</p>
-                    <p class="rating-count">
-                        <i class="fas fa-star me-1"></i>
-                        Basado en {{ $totalCalificaciones }} calificación{{ $totalCalificaciones > 1 ? 'es' : '' }}
-                    </p>
+        {{-- Lista de calificaciones detalladas --}}
+        @forelse($calificacionesDetallePasajero as $calificacion)
+            <div class="rating-item">
+                {{-- Estrellas --}}
+                <div class="rating-stars">
+                    @for($i = 1; $i <= 5; $i++)
+                        @if($i <= $calificacion->calificacion)
+                            <i class="fas fa-star"></i>
+                        @else
+                            <i class="far fa-star"></i>
+                        @endif
+                    @endfor
+                    <span class="rating-number">({{ $calificacion->calificacion }}/5)</span>
                 </div>
 
-                @foreach($calificaciones as $calificacion)
-                    <div class="rating-item">
-                        <div class="rating-stars">
-                            @for($i = 1; $i <= 5; $i++)
-                                @if($i <= $calificacion->calificacion)
-                                    <i class="fas fa-star"></i>
-                                @else
-                                    <i class="far fa-star"></i>
-                                @endif
-                            @endfor
-                        </div>
-                        <p class="rating-comment">"{{ $calificacion->comentario }}"</p>
-                        <div class="rating-meta">
-                            <i class="fas fa-user me-1"></i>{{ $calificacion->conductor }}
-                            <span class="ms-3">
-                                <i class="fas fa-calendar me-1"></i>{{ \Carbon\Carbon::parse($calificacion->fecha)->format('d/m/Y') }}
-                            </span>
-                        </div>
+                {{-- Comentario --}}
+                @if(isset($calificacion->comentario) && trim($calificacion->comentario) !== '')
+                    <p class="rating-comment">"{{ $calificacion->comentario }}"</p>
+                @else
+                    <p class="rating-comment text-muted">Sin comentario</p>
+                @endif
+
+                {{-- Información del viaje --}}
+                <div class="rating-meta">
+                    <div class="conductor-info">
+                        <i class="fas fa-user me-1"></i>
+                        <strong>{{ $calificacion->nombre_conductor ?? 'Conductor' }}</strong>
                     </div>
-                @endforeach
-            @else
-                <div class="empty-state">
-                    <i class="fas fa-star-half-alt"></i>
-                    <h5>Aún no tienes calificaciones</h5>
-                    <p>Completa algunos viajes para ver las calificaciones que te dejan los conductores</p>
+                    @if(isset($calificacion->origen_direccion) && isset($calificacion->destino_direccion))
+                        <div class="trip-info">
+                            <i class="fas fa-route me-1"></i>
+                            {{ Str::limit($calificacion->origen_direccion, 20) }} → 
+                            {{ Str::limit($calificacion->destino_direccion, 20) }}
+                        </div>
+                    @endif
+                    <div class="date-info">
+                        <i class="fas fa-calendar me-1"></i>
+                        {{ \Carbon\Carbon::parse($calificacion->fecha_calificacion)->format('d/m/Y') }}
+                    </div>
                 </div>
-            @endif
+
+                {{-- Estado del viaje --}}
+                @if(isset($calificacion->estado_reserva))
+                    <div class="trip-status">
+                        <span class="badge bg-{{ $calificacion->estado_reserva === 'finalizado' ? 'success' : 'secondary' }}">
+                            {{ ucfirst($calificacion->estado_reserva) }}
+                        </span>
+                        @if(isset($calificacion->cantidad_puestos) && $calificacion->cantidad_puestos > 1)
+                            <span class="badge bg-info ms-2">{{ $calificacion->cantidad_puestos }} puestos</span>
+                        @endif
+                        @if(isset($calificacion->total_pagado) && $calificacion->total_pagado)
+                            <span class="badge bg-warning text-dark ms-2">${{ number_format($calificacion->total_pagado, 0) }}</span>
+                        @endif
+                    </div>
+                @endif
+            </div>
+        @empty
+            {{-- Si hay promedio pero no detalles --}}
+            <div class="rating-item">
+                <div class="rating-stars">
+                    @for($i = 1; $i <= 5; $i++)
+                        @if($i <= round($promedioCalificacion))
+                            <i class="fas fa-star"></i>
+                        @else
+                            <i class="far fa-star"></i>
+                        @endif
+                    @endfor
+                </div>
+                <p class="rating-comment text-muted">
+                    Tienes {{ $totalCalificaciones }} calificación{{ $totalCalificaciones > 1 ? 'es' : '' }}, 
+                    pero los detalles no están disponibles.
+                </p>
+            </div>
+        @endforelse
+
+    @else
+        {{-- Estado vacío --}}
+        <div class="empty-state">
+            <i class="fas fa-star-half-alt"></i>
+            <h5>Aún no tienes calificaciones</h5>
+            <p>Completa algunos viajes para ver las calificaciones que te dejan los conductores</p>
+            
+            {{-- Calificación por defecto --}}
+            <div class="default-rating mt-3">
+                <div class="rating-stars">
+                    @for($i = 1; $i <= 3; $i++)
+                        <i class="fas fa-star text-warning"></i>
+                    @endfor
+                    @for($i = 4; $i <= 5; $i++)
+                        <i class="far fa-star text-muted"></i>
+                    @endfor
+                </div>
+                <p class="text-muted small">
+                    Calificación inicial: 3.0/5 (se actualizará con tus primeros viajes)
+                </p>
+            </div>
         </div>
+    @endif
+</div>
+ <div style="background: #f8f9fa; padding: 1rem; margin: 1rem 0; border-radius: 8px; font-family: monospace; font-size: 0.8rem;">
+        <strong>🔍 DEBUG - Variables disponibles:</strong><br>
+        - calificacionesUsuarios: {{ isset($calificacionesUsuarios) ? 'SÍ (' . $calificacionesUsuarios->count() . ')' : 'NO' }}<br>
+        - calificacionesDetalle: {{ isset($calificacionesDetalle) ? 'SÍ (' . $calificacionesDetalle->count() . ')' : 'NO' }}<br>
+        - misCalificaciones: {{ isset($misCalificaciones) ? 'SÍ' : 'NO' }}<br>
+        - Usuario autenticado: {{ auth()->check() ? 'SÍ (ID: ' . auth()->id() . ')' : 'NO' }}
+    </div>
 
         <!-- Action Buttons -->
       

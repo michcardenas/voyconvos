@@ -129,7 +129,7 @@
         /* Estilos adicionales para el demo */
         main {
             padding-top: 120px;
-            min-height: 500px;
+            /* min-height: 500px; */
             text-align: center;
         }
     </style>

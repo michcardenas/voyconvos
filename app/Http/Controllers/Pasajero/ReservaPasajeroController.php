@@ -445,17 +445,24 @@ public function confirmacionReserva(Reserva $reserva)
 
  
    
-    public function verDetalles(Reserva $reserva)
-    {
-        // Asegúrate de que la reserva pertenece al usuario logueado
-        if ($reserva->user_id !== Auth::id()) {
-            abort(403, 'No autorizado.');
-        }
-        
-        $reserva->load('viaje', 'viaje.conductor'); // Asegúrate de tener la relación `conductor` en Viaje
-
-        return view('pasajero.reserva-detalles', compact('reserva'));
+ public function verDetalles(Reserva $reserva)
+{
+    // Asegúrate de que la reserva pertenece al usuario logueado
+    if ($reserva->user_id !== Auth::id()) {
+        abort(403, 'No autorizado.');
     }
+    
+    $reserva->load('viaje', 'viaje.conductor');
+    
+    // 🌟 VERIFICAR SI YA CALIFICÓ AL CONDUCTOR
+    $calificadoPorPasajero = \App\Models\Calificacion::where([
+        'reserva_id' => $reserva->id,
+        'usuario_id' => Auth::id(),
+        'tipo' => 'pasajero_a_conductor'
+    ])->exists();
+    
+    return view('pasajero.reserva-detalles', compact('reserva', 'calificadoPorPasajero'));
+}
   public function mostrarViajesDisponibles(Request $request)
 {
     $usuarioId = auth()->id();

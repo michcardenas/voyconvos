@@ -45,7 +45,11 @@ Route::get('/', [InicioController::class, 'index'])->name('inicio');
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-
+Route::post('/conductor/calificar-conductor/{reserva}', [
+    \App\Http\Controllers\Conductor\ConductorController::class, 
+    'calificarConductor'
+])
+->name('conductor.calificar.conductor');
 // Rutas protegidas por autenticación
 Route::middleware('auth')->group(function () {
 
