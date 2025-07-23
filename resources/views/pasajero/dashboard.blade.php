@@ -339,6 +339,80 @@
         opacity: 0.9;
         margin: 0;
     }
+    .btn-custom {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9em;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.btn-custom.primary {
+    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+    color: white;
+    border-color: #007bff;
+}
+
+.btn-custom.primary:hover {
+    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
+}
+
+.btn-custom.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.8em;
+}
+.stats-container {
+    
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+/* Ajustes responsive */
+@media (max-width: 576px) {
+    .stats-container {
+        max-width: 100%;
+    }
+}
+@media (max-width: 768px) {
+    .d-flex.gap-2 {
+        gap: 5px !important;
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+    .btn-sm {
+        font-size: 0.7em;
+        padding: 4px 8px;
+        white-space: nowrap;
+    }
+    .btn-custom.btn-sm {
+        padding: 4px 8px;
+        font-size: 0.7em;
+    }
+    .d-flex.justify-content-between {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    /* En móvil, hacer los filtros más compactos */
+    .d-flex.gap-2.flex-wrap {
+        max-width: 100%;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+    }
+    .d-flex.gap-2.flex-wrap::-webkit-scrollbar {
+        display: none;
+    }
+}
 
     @media (max-width: 768px) {
         .welcome-section {
@@ -374,35 +448,38 @@
         </div>
 
         <!-- Stats Cards -->
-        <div class="row g-4 mb-4">
-            <div class="col-md-4">
-                <div class="stats-card primary">
-                    <div class="stats-icon primary">
-                        <i class="fas fa-route"></i>
-                    </div>
-                    <p class="stats-number">{{ $totalViajes ?? 0 }}</p>
-                    <p class="stats-label">Total de Viajes</p>
+       <!-- Stats Cards Centradas y Compactas -->
+<div class="stats-container">
+    <div class="row g-3 mb-4 justify-content-center">
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="stats-card primary">
+                <div class="stats-icon primary">
+                    <i class="fas fa-route"></i>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card success">
-                    <div class="stats-icon success">
-                        <i class="fas fa-clock"></i>
-                    </div>
-                    <p class="stats-number">{{ $viajesProximos ?? 0 }}</p>
-                    <p class="stats-label">Próximos Viajes</p>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="stats-card info">
-                    <div class="stats-icon info">
-                        <i class="fas fa-check-circle"></i>
-                    </div>
-                    <p class="stats-number">{{ $viajesRealizados ?? 0 }}</p>
-                    <p class="stats-label">Viajes Realizados</p>
-                </div>
+                <p class="stats-number">{{ $totalViajes ?? 0 }}</p>
+                <p class="stats-label">Total de Viajes</p>
             </div>
         </div>
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="stats-card success">
+                <div class="stats-icon success">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <p class="stats-number">{{ $viajesProximos ?? 0 }}</p>
+                <p class="stats-label">Próximos Viajes</p>
+            </div>
+        </div>
+        <div class="col-lg-4 col-md-4 col-sm-6">
+            <div class="stats-card info">
+                <div class="stats-icon info">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <p class="stats-number">{{ $viajesRealizados ?? 0 }}</p>
+                <p class="stats-label">Viajes Realizados</p>
+            </div>
+        </div>
+    </div>
+</div>
 
       <div class="section-header">
     <div class="d-flex justify-content-between align-items-center mb-4">
@@ -784,68 +861,6 @@
 </div>
 <style>
 /* Estilos para btn-custom (del diseño original) */
-.btn-custom {
-    display: inline-flex;
-    align-items: center;
-    padding: 8px 16px;
-    border-radius: 8px;
-    text-decoration: none;
-    font-weight: 500;
-    font-size: 0.9em;
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
 
-.btn-custom.primary {
-    background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-    color: white;
-    border-color: #007bff;
-}
-
-.btn-custom.primary:hover {
-    background: linear-gradient(135deg, #0056b3 0%, #004085 100%);
-    color: white;
-    text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 123, 255, 0.3);
-}
-
-.btn-custom.btn-sm {
-    padding: 6px 12px;
-    font-size: 0.8em;
-}
-
-@media (max-width: 768px) {
-    .d-flex.gap-2 {
-        gap: 5px !important;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
-    .btn-sm {
-        font-size: 0.7em;
-        padding: 4px 8px;
-        white-space: nowrap;
-    }
-    .btn-custom.btn-sm {
-        padding: 4px 8px;
-        font-size: 0.7em;
-    }
-    .d-flex.justify-content-between {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-    }
-    /* En móvil, hacer los filtros más compactos */
-    .d-flex.gap-2.flex-wrap {
-        max-width: 100%;
-        overflow-x: auto;
-        flex-wrap: nowrap;
-        scrollbar-width: none;
-        -ms-overflow-style: none;
-    }
-    .d-flex.gap-2.flex-wrap::-webkit-scrollbar {
-        display: none;
-    }
-}
 </style>
 @endsection

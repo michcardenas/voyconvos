@@ -135,18 +135,34 @@ public function misReservas(Request $request)
     ));
 }
     // GET: Mostrar página de confirmación
-   public function mostrarConfirmacion(Viaje $viaje)
+public function mostrarConfirmacion(Viaje $viaje) 
 {
+    $usuarioId = auth()->id();
+
     // Buscar información del vehículo manualmente
     $vehiculoInfo = RegistroConductor::where('user_id', $viaje->conductor_id)
         ->select('marca_vehiculo', 'modelo_vehiculo')
         ->first();
-    
+        
     // Agregar la información al objeto viaje temporalmente
     $viaje->vehiculo_info = $vehiculoInfo;
-    
-    
-    return view('pasajero.confirmar-reserva', compact('viaje'));
+
+    // Obtener calificaciones del usuario autenticado
+    $calificacionesUsuario = \DB::table('vista_calificaciones_usuarios')
+        ->where('usuario_id', $usuarioId)
+        ->first();
+
+    // Si no tiene calificaciones, crear objeto vacío con valores por defecto
+    if (!$calificacionesUsuario) {
+        $calificacionesUsuario = (object) [
+            'usuario_id' => $usuarioId,
+            'tipo' => null,
+            'total_calificaciones' => 0,
+            'promedio_calificacion' => 0
+        ];
+    }
+          
+    return view('pasajero.confirmar-reserva', compact('viaje', 'calificacionesUsuario'));
 }
     // POST: Procesar la reserva
 public function reservar(Request $request, Viaje $viaje)
@@ -463,7 +479,7 @@ public function confirmacionReserva(Reserva $reserva)
     
     return view('pasajero.reserva-detalles', compact('reserva', 'calificadoPorPasajero'));
 }
-  public function mostrarViajesDisponibles(Request $request)
+ public function mostrarViajesDisponibles(Request $request) 
 {
     $usuarioId = auth()->id();
 
@@ -473,10 +489,18 @@ public function confirmacionReserva(Reserva $reserva)
         ->toArray();
 
     // Query base
-    $query = Viaje::whereDate('fecha_salida', '>=', now())
-        ->where('puestos_disponibles', '>', 0)
-        ->whereNotIn('id', $viajesReservados)
-        ->with('conductor');
+  $query = Viaje::whereDate('fecha_salida', '>=', now())
+    ->where('puestos_disponibles', '>', 0)
+    ->whereNotIn('id', $viajesReservados)
+    ->with(['conductor' => function($query) {
+        $query->leftJoin('vista_calificaciones_usuarios', function($join) {
+            $join->on('users.id', '=', 'vista_calificaciones_usuarios.usuario_id')
+                 ->where('vista_calificaciones_usuarios.tipo', '=', 'conductor');
+        })
+        ->select('users.*', 
+                 'vista_calificaciones_usuarios.total_calificaciones',
+                 'vista_calificaciones_usuarios.promedio_calificacion as calificacion_promedio');
+    }]);
 
     // Filtro por número mínimo de puestos
     if ($request->filled('puestos_minimos')) {
@@ -531,9 +555,28 @@ public function confirmacionReserva(Reserva $reserva)
         ->sort()
         ->values();
 
-    return view('pasajero.viajesDisponibles', compact('viajesDisponibles', 'ciudadesOrigen', 'ciudadesDestino'));
-}
+    // Obtener calificaciones del usuario autenticado
+    $calificacionesUsuario = \DB::table('vista_calificaciones_usuarios')
+        ->where('usuario_id', $usuarioId)
+        ->first();
 
+    // Si no tiene calificaciones, crear objeto vacío con valores por defecto
+    if (!$calificacionesUsuario) {
+        $calificacionesUsuario = (object) [
+            'usuario_id' => $usuarioId,
+            'tipo' => null,
+            'total_calificaciones' => 0,
+            'promedio_calificacion' => 0
+        ];
+    }
+
+    return view('pasajero.viajesDisponibles', compact(
+        'viajesDisponibles', 
+        'ciudadesOrigen', 
+        'ciudadesDestino', 
+        'calificacionesUsuario'
+    ));
+}
 private function extraerCiudad($direccion)
 {
     if (!$direccion) return '';
@@ -569,43 +612,71 @@ private function formatearDireccion($direccion)
     
     return $direccion;
 }
-    public function mostrarResumen(Request $request, Viaje $viaje)
-    {
-        // Validación de entrada
-        $request->validate([
-            'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
-        ]);
+public function mostrarResumen(Request $request, Viaje $viaje)
+{
+    // Validación de entrada
+    $request->validate([
+        'cantidad_puestos' => 'required|integer|min:1|max:' . $viaje->puestos_disponibles,
+    ]);
 
-        // ✅ Obtener cantidad del request
-        $cantidad = $request->input('cantidad_puestos');
-        
-        // 🔍 Determinar el precio a usar (en orden de prioridad)
-        $precio = $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0;
-        
-        // Verificar que el viaje tenga precio configurado
-        if (!$precio || $precio <= 0) {
-            return back()->withErrors([
-                'error' => 'Este viaje no tiene un precio configurado correctamente.'
-            ])->withInput();
-        }
-        
-        // ✅ Calcular el total
-        $total = $precio * $cantidad;
-
-        // 📊 Log para seguimiento
-        \Log::info('Resumen de Reserva', [
-            'viaje_id' => $viaje->id,
-            'cantidad' => $cantidad,
-            'precio_unitario' => $precio,
-            'precio_campo_usado' => $viaje->valor_persona ? 'valor_persona' : 
-                                ($viaje->valor_cobrado ? 'valor_cobrado' : 'valor_estimado'),
-            'total' => $total,
-            'usuario_id' => auth()->id()
-        ]);
-
-        // ✅ Pasar el precio usado además de las otras variables
-        return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio'));
+    // ✅ Obtener cantidad del request
+    $cantidad = $request->input('cantidad_puestos');
+    
+    // 🔍 Determinar el precio a usar (en orden de prioridad)
+    $precio = $viaje->valor_persona ?? $viaje->valor_cobrado ?? $viaje->valor_estimado ?? 0;
+    
+    // Verificar que el viaje tenga precio configurado
+    if (!$precio || $precio <= 0) {
+        return back()->withErrors([
+            'error' => 'Este viaje no tiene un precio configurado correctamente.'
+        ])->withInput();
     }
+    
+    // ✅ Calcular el total
+    $total = $precio * $cantidad;
+
+    // 📊 Log para seguimiento
+    \Log::info('Resumen de Reserva', [
+        'viaje_id' => $viaje->id,
+        'cantidad' => $cantidad,
+        'precio_unitario' => $precio,
+        'precio_campo_usado' => $viaje->valor_persona ? 'valor_persona' : 
+                            ($viaje->valor_cobrado ? 'valor_cobrado' : 'valor_estimado'),
+        'total' => $total,
+        'usuario_id' => auth()->id()
+    ]);
+
+    // Cargar calificaciones del conductor si existe
+    if ($viaje->conductor) {
+        $calificacionesConductor = \DB::table('vista_calificaciones_usuarios')
+            ->where('usuario_id', $viaje->conductor_id)
+            ->where('tipo', 'conductor')
+            ->first();
+
+        // Asignar calificaciones al conductor
+        $viaje->conductor->total_calificaciones = $calificacionesConductor->total_calificaciones ?? 0;
+        $viaje->conductor->calificacion_promedio = $calificacionesConductor->promedio_calificacion ?? 0;
+    }
+
+    // Obtener calificaciones del usuario autenticado
+    $usuarioId = auth()->id();
+    $calificacionesUsuario = \DB::table('vista_calificaciones_usuarios')
+        ->where('usuario_id', $usuarioId)
+        ->first();
+
+    // Si no tiene calificaciones, crear objeto vacío con valores por defecto
+    if (!$calificacionesUsuario) {
+        $calificacionesUsuario = (object) [
+            'usuario_id' => $usuarioId,
+            'tipo' => null,
+            'total_calificaciones' => 0,
+            'promedio_calificacion' => 0
+        ];
+    }
+
+    // ✅ Pasar el precio usado además de las otras variables
+    return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio', 'calificacionesUsuario'));
+}
 
 
 }

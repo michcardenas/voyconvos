@@ -1266,20 +1266,7 @@ main {
                                 </div>
                             @else
                                 <!-- Mensaje informativo -->
-                                <div class="col-12">
-                                    <div class="conductor-pending-info">
-                                        <i class="fas fa-info-circle"></i>
-                                        <div class="pending-info-content">
-                                            <div class="pending-info-title">
-                                                Información de contacto disponible
-                                            </div>
-                                            <div class="pending-info-text">
-                                                Los datos de contacto del conductor se mostrarán una vez que tu reserva sea 
-                                                <strong>confirmada</strong>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                             
                             @endif
                         </div>
                     </div>

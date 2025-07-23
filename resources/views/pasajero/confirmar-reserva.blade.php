@@ -534,31 +534,38 @@
                 <div class="detail-grid">
                     <!-- Conductor -->
                     <div class="driver-section">
-                        <div class="driver-info">
-                            <div class="driver-avatar">
-                                @if($viaje->conductor?->foto)
-                                    <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                                @elseif($viaje->conductor?->avatar)
-                                    <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                                @else
-                                    <div class="driver-photo-placeholder">
-                                        <i class="fas fa-user"></i>
-                                    </div>
+                    <div class="driver-info">
+                        <div class="driver-avatar">
+                            @if($viaje->conductor?->foto)
+                                <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
+                            @elseif($viaje->conductor?->avatar)
+                                <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
+                            @else
+                                <div class="driver-photo-placeholder">
+                                    <i class="fas fa-user"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="driver-details">
+                            <h6>
+                                {{ $viaje->conductor->name ?? 'No disponible' }}
+                                @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
+                                    <span class="verified-badge">
+                                        <i class="fas fa-check-circle"></i>
+                                    </span>
                                 @endif
-                            </div>
-                            <div class="driver-details">
-                                <h6>
-                                    {{ $viaje->conductor->name ?? 'No disponible' }}
-                                    @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 4.2) >= 4.5))
-                                        <span class="verified-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                        </span>
-                                    @endif
-                                </h6>
-                                @if($viaje->conductor)
+                            </h6>
+                            
+                            @if($viaje->conductor)
+                                @php
+                                    // Verificar si el conductor tiene calificaciones reales
+                                    $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
+                                    $rating = $viaje->conductor->calificacion_promedio ?? 0;
+                                @endphp
+                                
+                                @if($tieneCalificaciones && $rating > 0)
                                     <div class="driver-rating">
                                         @php
-                                            $rating = $viaje->conductor->calificacion_promedio ?? $viaje->conductor->rating ?? 4.2;
                                             $fullStars = floor($rating);
                                             $hasHalfStar = ($rating - $fullStars) >= 0.5;
                                             $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
@@ -575,15 +582,21 @@
                                             @endfor
                                         </div>
                                         <span class="rating-value">{{ number_format($rating, 1) }}</span>
-                                        <span class="rating-count">({{ $viaje->conductor->total_calificaciones ?? rand(5, 47) }})</span>
+                                        <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
+                                    </div>
+                                @else
+                                    <div class="driver-no-rating">
+                                        <span class="no-rating-text"></span>
                                     </div>
                                 @endif
-                                <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
-                                    <i class="fas fa-steering-wheel me-1"></i>Tu conductor
-                                </p>
-                            </div>
+                            @endif
+                            
+                            <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
+                                <i class="fas fa-steering-wheel me-1"></i>Tu conductor
+                            </p>
                         </div>
                     </div>
+                </div>
                     <div class="detail-item">
                         <div class="detail-icon" style="background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary);">
                             <i class="fas fa-car"></i>

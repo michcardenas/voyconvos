@@ -550,6 +550,93 @@
             transform: translateY(-1px) scale(1.01);
         }
 
+        .ratings-summary {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.rating-overview {
+    display: flex;
+    gap: 30px;
+    align-items: center;
+}
+
+.rating-main {
+    text-align: center;
+    min-width: 120px;
+}
+
+.rating-score {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #ffc107;
+    display: block;
+}
+
+.rating-stars {
+    margin: 5px 0;
+}
+
+.rating-count {
+    margin: 5px 0 0 0;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+
+.rating-breakdown {
+    flex: 1;
+}
+
+.rating-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.rating-label {
+    width: 40px;
+    font-size: 0.9rem;
+}
+
+.progress {
+    flex: 1;
+    max-width: 200px;
+}
+
+.rating-count-small {
+    width: 30px;
+    text-align: right;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.rating-comment {
+    transition: all 0.2s ease;
+}
+
+.rating-comment:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.rating-text {
+    font-style: italic;
+    color: #495057;
+}
+
+@media (max-width: 768px) {
+    .rating-overview {
+        flex-direction: column;
+        gap: 20px;
+    }
+    
+    .rating-breakdown {
+        width: 100%;
+    }
+}
+
         @keyframes pulse-glow {
             0%, 100% {
                 box-shadow: 0 8px 25px rgba(31, 78, 121, 0.3);
@@ -935,41 +1022,41 @@
 @endrole
     @endauth
         <!-- Cards de estadísticas -->
-        <div class="row g-4 mb-4 stats-cards">
-            <div class="col-md-4">
-                <div class="card text-white bg-vcv-primary shadow-soft stats-card primary">
-                    <div class="card-body">
-                        <div class="stats-icon primary">
-                            <i class="fas fa-route"></i>
-                        </div>
-                        <p class="stats-number">{{ $totalViajes ?? 0 }}</p>
-                        <p class="stats-label">Total de Viajes</p>
-                    </div>
+     <div class="row justify-content-center g-3 mb-4 stats-cards">
+    <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+        <div class="card text-white bg-vcv-primary shadow-sm stats-card primary text-center p-2">
+            <div class="card-body">
+                <div class="stats-icon primary mb-2">
+                    <i class="fas fa-route fa-lg"></i>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-success shadow-soft stats-card success">
-                    <div class="card-body">
-                        <div class="stats-icon success">
-                            <i class="fas fa-clock"></i>
-                        </div>
-                        <p class="stats-number">{{ $viajesProximos ?? 0 }}</p>
-                        <p class="stats-label">Próximos Viajes</p>
-                    </div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card text-white bg-secondary shadow-soft stats-card info">
-                    <div class="card-body">
-                        <div class="stats-icon info">
-                            <i class="fas fa-check-circle"></i>
-                        </div>
-                        <p class="stats-number">{{ $viajesRealizados ?? 0 }}</p>
-                        <p class="stats-label">Viajes Realizados</p>
-                    </div>
-                </div>
+                <p class="stats-number h5 mb-1">{{ $totalViajes ?? 0 }}</p>
+                <p class="stats-label small">Total de Viajes</p>
             </div>
         </div>
+    </div>
+    <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+        <div class="card text-white bg-success shadow-sm stats-card success text-center p-2">
+            <div class="card-body">
+                <div class="stats-icon success mb-2">
+                    <i class="fas fa-clock fa-lg"></i>
+                </div>
+                <p class="stats-number h5 mb-1">{{ $viajesProximos ?? 0 }}</p>
+                <p class="stats-label small">Próximos Viajes</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-10 col-sm-6 col-md-4 col-lg-3">
+        <div class="card text-white bg-secondary shadow-sm stats-card info text-center p-2">
+            <div class="card-body">
+                <div class="stats-icon info mb-2">
+                    <i class="fas fa-check-circle fa-lg"></i>
+                </div>
+                <p class="stats-number h5 mb-1">{{ $viajesRealizados ?? 0 }}</p>
+                <p class="stats-label small">Viajes Realizados</p>
+            </div>
+        </div>
+    </div>
+</div>
 
         <!-- Sección de próximos viajes -->
         <div class="section-container">
@@ -1132,12 +1219,155 @@
             </div>
             @endif
         </div>
-
-        <!-- Nueva sección de calificaciones del conductor -->
-        <div class="ratings-section">
-            <h4 class="section-title">⭐ Calificaciones como Conductor</h4>
-            <!-- Contenido futuro de calificaciones -->
+<!-- Nueva sección de calificaciones del conductor -->
+<div class="ratings-section">
+    <h4 class="section-title">⭐ Calificaciones de Pasajeros</h4>
+    
+    @if($resumenCalificacionesUsuario->total_calificaciones > 0)
+        <!-- Resumen de calificaciones -->
+        <div class="ratings-summary">
+            <div class="rating-overview">
+                <div class="rating-main">
+                    <span class="rating-score">{{ number_format($resumenCalificacionesUsuario->promedio_calificacion, 1) }}</span>
+                    <div class="rating-stars">
+                        @php
+                            $promedio = $resumenCalificacionesUsuario->promedio_calificacion;
+                            $fullStars = floor($promedio);
+                            $hasHalfStar = ($promedio - $fullStars) >= 0.5;
+                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                        @endphp
+                        
+                        @for($i = 1; $i <= $fullStars; $i++)
+                            <i class="fas fa-star text-warning"></i>
+                        @endfor
+                        @if($hasHalfStar)
+                            <i class="fas fa-star-half-alt text-warning"></i>
+                        @endif
+                        @for($i = 1; $i <= $emptyStars; $i++)
+                            <i class="far fa-star text-warning"></i>
+                        @endfor
+                    </div>
+                    <p class="rating-count">{{ $resumenCalificacionesUsuario->total_calificaciones }} {{ $resumenCalificacionesUsuario->total_calificaciones == 1 ? 'calificación' : 'calificaciones' }}</p>
+                </div>
+                
+                <!-- Desglose por estrellas -->
+                <div class="rating-breakdown">
+                    @for($i = 5; $i >= 1; $i--)
+                        @php
+                            $count = $calificacionesDetalle->where('calificacion', $i)->count();
+                            $percentage = $resumenCalificacionesUsuario->total_calificaciones > 0 
+                                ? ($count / $resumenCalificacionesUsuario->total_calificaciones) * 100 
+                                : 0;
+                        @endphp
+                        <div class="rating-bar">
+                            <span class="rating-label">{{ $i }} ⭐</span>
+                            <div class="progress" style="height: 8px;">
+                                <div class="progress-bar bg-warning" style="width: {{ $percentage }}%"></div>
+                            </div>
+                            <span class="rating-count-small">{{ $count }}</span>
+                        </div>
+                    @endfor
+                </div>
+            </div>
         </div>
+
+        <!-- Comentarios recientes -->
+        <div class="recent-ratings mt-4">
+            <h5>Comentarios Recientes</h5>
+            
+            @forelse($calificacionesDetalle->take(5) as $calificacion)
+                <div class="rating-comment mb-3 p-3 border rounded">
+                    <div class="rating-header d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="rating-stars-small mb-1">
+                                @for($i = 1; $i <= 5; $i++)
+                                    @if($i <= $calificacion->calificacion)
+                                        <i class="fas fa-star text-warning small"></i>
+                                    @else
+                                        <i class="far fa-star text-muted small"></i>
+                                    @endif
+                                @endfor
+                                <span class="ms-2 fw-bold">{{ $calificacion->calificacion }}/5</span>
+                            </div>
+                            <small class="text-muted">
+                                Pasajero: <strong>{{ $calificacion->nombre_usuario_calificado ?? 'Usuario' }}</strong>
+                            </small>
+                        </div>
+                        <small class="text-muted">{{ \Carbon\Carbon::parse($calificacion->fecha_calificacion)->format('d/m/Y') }}</small>
+                    </div>
+                    
+                    @if($calificacion->comentario)
+                        <p class="rating-text mt-2 mb-1">{{ $calificacion->comentario }}</p>
+                    @endif
+                    
+                    @if($calificacion->origen_direccion && $calificacion->destino_direccion)
+                        <small class="text-muted">
+                            <i class="fas fa-route me-1"></i>
+                            Viaje: {{ Str::limit($calificacion->origen_direccion, 30) }} → {{ Str::limit($calificacion->destino_direccion, 30) }}
+                        </small>
+                    @endif
+                </div>
+            @empty
+                <p class="text-muted">No hay comentarios disponibles.</p>
+            @endforelse
+            
+            @if($calificacionesDetalle->count() > 5)
+                <div class="text-center mt-3">
+                    <button class="btn btn-outline-primary btn-sm" onclick="toggleAllRatings()">
+                        <span id="toggle-text">Ver todas las calificaciones</span>
+                        <i class="fas fa-chevron-down ms-1" id="toggle-icon"></i>
+                    </button>
+                </div>
+                
+                <!-- Todas las calificaciones (ocultas inicialmente) -->
+                <div id="all-ratings" style="display: none;" class="mt-3">
+                    @foreach($calificacionesDetalle->skip(5) as $calificacion)
+                        <div class="rating-comment mb-3 p-3 border rounded">
+                            <div class="rating-header d-flex justify-content-between align-items-start">
+                                <div>
+                                    <div class="rating-stars-small mb-1">
+                                        @for($i = 1; $i <= 5; $i++)
+                                            @if($i <= $calificacion->calificacion)
+                                                <i class="fas fa-star text-warning small"></i>
+                                            @else
+                                                <i class="far fa-star text-muted small"></i>
+                                            @endif
+                                        @endfor
+                                        <span class="ms-2 fw-bold">{{ $calificacion->calificacion }}/5</span>
+                                    </div>
+                                    <small class="text-muted">
+                                        Pasajero: <strong>{{ $calificacion->nombre_usuario_calificado ?? 'Usuario' }}</strong>
+                                    </small>
+                                </div>
+                                <small class="text-muted">{{ \Carbon\Carbon::parse($calificacion->fecha_calificacion)->format('d/m/Y') }}</small>
+                            </div>
+                            
+                            @if($calificacion->comentario)
+                                <p class="rating-text mt-2 mb-1">{{ $calificacion->comentario }}</p>
+                            @endif
+                            
+                            @if($calificacion->origen_direccion && $calificacion->destino_direccion)
+                                <small class="text-muted">
+                                    <i class="fas fa-route me-1"></i>
+                                    Viaje: {{ Str::limit($calificacion->origen_direccion, 30) }} → {{ Str::limit($calificacion->destino_direccion, 30) }}
+                                </small>
+                            @endif
+                        </div>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+
+    @else
+        <!-- Sin calificaciones -->
+        <div class="no-ratings text-center py-4">
+            <i class="fas fa-star-o fa-3x text-muted mb-3"></i>
+            <h5 class="text-muted">Sin calificaciones de pasajeros aún</h5>
+            <p class="text-muted">Completa tu primer viaje para recibir calificaciones de los pasajeros.</p>
+        </div>
+    @endif
+</div>
+
 
  
 
@@ -1187,5 +1417,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+function toggleAllRatings() {
+    const allRatings = document.getElementById('all-ratings');
+    const toggleText = document.getElementById('toggle-text');
+    const toggleIcon = document.getElementById('toggle-icon');
+    
+    if (allRatings.style.display === 'none' || allRatings.style.display === '') {
+        allRatings.style.display = 'block';
+        toggleText.textContent = 'Ocultar calificaciones';
+        toggleIcon.className = 'fas fa-chevron-up ms-1';
+    } else {
+        allRatings.style.display = 'none';
+        toggleText.textContent = 'Ver todas las calificaciones';
+        toggleIcon.className = 'fas fa-chevron-down ms-1';
+    }
+}
 </script>
 @endsection

@@ -868,44 +868,59 @@
                                 </div>
                             @endif
                         </div>
-                                                                <div class="detail-content">
-                                            <div class="detail-label">Conductor</div>
-                                            <div class="detail-value">
-                                                {{ $viaje->conductor?->name ?? 'No disponible' }}
-                                                @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 4.2) >= 4.5))
-                                                    <span class="verified-badge">
-                                                        <i class="fas fa-check-circle"></i>
-                                                    </span>
-                                                @endif
-                                            </div>
-                                            @if($viaje->conductor)
-                                                <div class="driver-rating">
-                                                    @php
-                                                        $rating = $viaje->conductor->calificacion_promedio ?? $viaje->conductor->rating ?? 4.2;
-                                                        $fullStars = floor($rating);
-                                                        $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                                        $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                                                    @endphp
-                                                    <div class="stars">
-                                                        @for($i = 1; $i <= $fullStars; $i++)
-                                                            <i class="fas fa-star"></i>
-                                                        @endfor
-                                                        @if($hasHalfStar)
-                                                            <i class="fas fa-star-half-alt"></i>
-                                                        @endif
-                                                        @for($i = 1; $i <= $emptyStars; $i++)
-                                                            <i class="far fa-star"></i>
-                                                        @endfor
-                                                    </div>
-                                                    <span class="rating-value">{{ number_format($rating, 1) }}</span>
-                                                    <span class="rating-count">({{ $viaje->conductor->total_calificaciones ?? rand(5, 47) }})</span>
-                                                    @if($viaje->conductor->experiencia_anos ?? false)
-                                                        <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
-                                                    @endif
-                                                </div>
-                                            @endif
-                                        </div>
+                                     <div class="detail-content">
+                        <div class="detail-label">Conductor</div>
+                        <div class="detail-value">
+                            {{ $viaje->conductor?->name ?? 'No disponible' }}
+                            @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
+                                <span class="verified-badge">
+                                    <i class="fas fa-check-circle"></i>
+                                </span>
+                            @endif
+                        </div>
+                        
+                        @if($viaje->conductor)
+                            @php
+                                // Verificar si el conductor tiene calificaciones reales
+                                $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
+                                $rating = $viaje->conductor->calificacion_promedio ?? 0;
+                            @endphp
+                            
+                            @if($tieneCalificaciones && $rating > 0)
+                                <div class="driver-rating">
+                                    @php
+                                        $fullStars = floor($rating);
+                                        $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                        $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                    @endphp
+                                    <div class="stars">
+                                        @for($i = 1; $i <= $fullStars; $i++)
+                                            <i class="fas fa-star"></i>
+                                        @endfor
+                                        @if($hasHalfStar)
+                                            <i class="fas fa-star-half-alt"></i>
+                                        @endif
+                                        @for($i = 1; $i <= $emptyStars; $i++)
+                                            <i class="far fa-star"></i>
+                                        @endfor
                                     </div>
+                                    <span class="rating-value">{{ number_format($rating, 1) }}</span>
+                                    <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
+                                    @if($viaje->conductor->experiencia_anos ?? false)
+                                        <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
+                                    @endif
+                                </div>
+                            @else
+                                <div class="driver-no-rating">
+                                    <span class="no-rating-text"></span>
+                                    @if($viaje->conductor->experiencia_anos ?? false)
+                                        <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
+                                    @endif
+                                </div>
+                            @endif
+                        @endif
+                    </div>
+                    </div>
 
                                     <!-- Available Seats -->
                                     <div class="detail-row">
