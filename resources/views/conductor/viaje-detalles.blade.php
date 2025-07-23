@@ -1524,7 +1524,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
         } else {
-            container.style.display = 'none';
+            container.style.display = '';
         }
         
         // 🔍 Debug detallado
