@@ -6,6 +6,9 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Viaje;
 use Illuminate\Support\Facades\DB;
+use App\Models\RegistroConductor;
+use App\Models\Reserva;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardPasajeroController extends Controller
 {
@@ -127,14 +130,13 @@ class DashboardPasajeroController extends Controller
     }
 
     // 🔍 DEBUG ESPECÍFICO PARA TU CASO
-    if (auth()->check() && auth()->id() == 14) {
         \Log::info('Debug específico usuario 14', [
             'todas_sus_calificaciones' => $calificacionesUsuarios->where('usuario_id', 14)->values(),
             'detalles_usuario_14' => $calificacionesDetalle->where('usuario_calificado_id', 14)->values(),
             'total_registros_vista_usuarios' => $calificacionesUsuarios->count(),
             'total_registros_vista_detalle' => $calificacionesDetalle->count()
         ]);
-    }
+    
 
     return view('pasajero.dashboard', compact(
         'viajesDisponibles',

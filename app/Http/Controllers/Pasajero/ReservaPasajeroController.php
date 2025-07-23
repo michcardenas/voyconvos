@@ -9,7 +9,7 @@ use App\Models\Reserva;
 use Illuminate\Support\Facades\Auth;
 use App\Services\UalaService;
 use App\Models\RegistroConductor; // Asegúrate de importar el modelo correcto
-
+use Illuminate\Support\Facades\DB;
 
 class ReservaPasajeroController extends Controller
 {
@@ -124,6 +124,73 @@ public function misReservas(Request $request)
             'cancelada_por_conductor'
         ])->count(),
     ];
+
+    // ⭐ CALIFICACIONES DEL USUARIO (NUEVAS)
+    try {
+        // 📊 Vista de promedios de usuarios
+        $calificacionesUsuarios = collect(DB::select("
+            SELECT usuario_id, tipo, total_calificaciones, promedio_calificacion
+            FROM voyconvos.vista_calificaciones_usuarios
+        "));
+
+        // 📝 Vista de detalles de calificaciones
+        $calificacionesDetalle = collect(DB::select("
+            SELECT 
+                calificacion_id, calificacion, comentario, tipo, fecha_calificacion, 
+                usuario_calificado_id, nombre_usuario_calificado, reserva_id, 
+                fecha_reserva, estado_reserva, cantidad_puestos, total_pagado, 
+                viaje_id, fecha_salida, hora_salida, origen_direccion, destino_direccion, 
+                conductor_id, nombre_conductor
+            FROM voyconvos.vista_calificaciones_detalle
+            ORDER BY fecha_calificacion DESC
+            LIMIT 20
+        "));
+
+        \Log::info('Calificaciones cargadas en misReservas', [
+            'usuarios_count' => $calificacionesUsuarios->count(),
+            'detalles_count' => $calificacionesDetalle->count(),
+            'usuario_id' => $usuario->id
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error al consultar calificaciones en misReservas: ' . $e->getMessage());
+        $calificacionesUsuarios = collect();
+        $calificacionesDetalle = collect();
+    }
+
+    // 👤 CALIFICACIONES DEL USUARIO ACTUAL
+    $misCalificaciones = null;
+    if ($usuario) {
+        $misCalificaciones = $calificacionesUsuarios
+            ->where('usuario_id', $usuario->id)
+            ->keyBy('tipo');
+    }
+
+    // 🎯 CALIFICACIONES COMO PASAJERO
+    $misCalificacionesComoPasajero = null;
+    $comentariosComoPasajero = collect();
+    
+    if ($usuario) {
+        // Obtener resumen de calificaciones como pasajero
+        $misCalificacionesComoPasajero = $calificacionesUsuarios
+            ->where('usuario_id', $usuario->id)
+            ->where('tipo', 'conductor_a_pasajero')
+            ->first();
+
+        // Obtener comentarios detallados como pasajero
+        $comentariosComoPasajero = $calificacionesDetalle
+            ->where('usuario_calificado_id', $usuario->id)
+            ->where('tipo', 'conductor_a_pasajero')
+            ->sortByDesc('fecha_calificacion');
+
+        // Debug para calificaciones
+        \Log::info('Debug calificaciones usuario en misReservas', [
+            'user_id' => $usuario->id,
+            'mis_calificaciones_count' => $misCalificaciones ? $misCalificaciones->count() : 0,
+            'calificaciones_como_pasajero' => $misCalificacionesComoPasajero,
+            'comentarios_como_pasajero_count' => $comentariosComoPasajero->count()
+        ]);
+    }
     
     return view('pasajero.dashboard', compact(
         'reservas',           // ← Ahora es paginado
@@ -131,7 +198,12 @@ public function misReservas(Request $request)
         'viajesProximos', 
         'viajesRealizados',
         'estadoFiltro',
-        'estadisticas'
+        'estadisticas',
+        'calificacionesUsuarios',
+        'calificacionesDetalle',
+        'misCalificaciones',
+        'misCalificacionesComoPasajero',
+        'comentariosComoPasajero'
     ));
 }
     // GET: Mostrar página de confirmación
