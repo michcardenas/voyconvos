@@ -72,15 +72,21 @@ Route::middleware('auth')->group(function () {
     // Configuración general
     Route::get('/configuracion', [ConfiguracionController::class, 'index'])->name('configuracion.index');
 
-    // Vista de páginas dinámicas (usando el controlador)
+    // Vista de páginas dinámicas (usando el controlador)s
     Route::get('/configuracion/paginas', [ConfiguracionController::class, 'index'])
         ->name('configuracion.paginas');
 
     // Vista SEO (ejemplo estático)
-    Route::get('/configuracion/seo', function () {
-        return 'Vista: Configuración SEO';
-    })->name('configuracion.seo');
-});
+    Route::get('/configuracion/seo',[ConfiguracionController::class, 'seo'])->name('configuracion.seo');});
+
+     // Página principal SEO
+    Route::get('/configuracion/seo', [ConfiguracionController::class, 'seo'])->name('configuracion.seo');
+    
+    // Operaciones AJAX SEO
+    Route::post('/configuracion/seo/obtener', [ConfiguracionController::class, 'obtenerMetadatos'])->name('configuracion.seo.obtener');
+    Route::post('/configuracion/seo/guardar', [ConfiguracionController::class, 'guardarMetadatos'])->name('configuracion.seo.guardar');
+    Route::delete('/configuracion/seo/eliminar', [ConfiguracionController::class, 'eliminarMetadatos'])->name('configuracion.seo.eliminar');
+    Route::post('/configuracion/seo/previsualizar', [ConfiguracionController::class, 'previsualizarMetadatos'])->name('configuracion.seo.previsualizar');
 Route::post('conductor/finalizar-pasajero/{reservaId}', [
         App\Http\Controllers\Conductor\FinalizarPasajeroController::class, 
         'finalizarPasajero'
