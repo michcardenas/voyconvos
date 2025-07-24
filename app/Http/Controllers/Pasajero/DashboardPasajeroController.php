@@ -27,7 +27,7 @@ class DashboardPasajeroController extends Controller
         // 📊 Vista de promedios de usuarios (la que SÍ funciona)
         $calificacionesUsuarios = collect(DB::select("
             SELECT usuario_id, tipo, total_calificaciones, promedio_calificacion
-            FROM voyconvos.vista_calificaciones_usuarios
+            FROM vista_calificaciones_usuarios
         "));
 
         // 📝 Vista de detalles de calificaciones (la que SÍ funciona)
@@ -38,7 +38,7 @@ class DashboardPasajeroController extends Controller
                 fecha_reserva, estado_reserva, cantidad_puestos, total_pagado, 
                 viaje_id, fecha_salida, hora_salida, origen_direccion, destino_direccion, 
                 conductor_id, nombre_conductor
-            FROM voyconvos.vista_calificaciones_detalle
+            FROM vista_calificaciones_detalle
             ORDER BY fecha_calificacion DESC
             LIMIT 20
         "));
