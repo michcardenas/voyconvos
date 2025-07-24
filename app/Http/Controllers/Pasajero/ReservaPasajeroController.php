@@ -139,7 +139,7 @@ public function misReservas(Request $request)
             HAVING COUNT(*) > 0
         "));
 
-        // 📝 REEMPLAZADO: Consulta directa en lugar de vista
+        // 📝 REEMPLAZADO: Consulta directa con nombres de columnas corregidos
         $calificacionesDetalle = collect(DB::select("
             SELECT 
                 c.id as calificacion_id,
@@ -153,7 +153,7 @@ public function misReservas(Request $request)
                 r.fecha_reserva,
                 r.estado as estado_reserva,
                 r.cantidad_puestos,
-                r.total_pagado,
+                r.total as total_pagado,
                 v.id as viaje_id,
                 v.fecha_salida,
                 v.hora_salida,
