@@ -125,28 +125,52 @@ public function misReservas(Request $request)
         ])->count(),
     ];
 
-    // ⭐ CALIFICACIONES DEL USUARIO (NUEVAS)
+    // ⭐ CALIFICACIONES DEL USUARIO (CORREGIDAS - SIN VISTAS)
     try {
-        // 📊 Vista de promedios de usuarios
+        // 📊 REEMPLAZADO: Consulta directa en lugar de vista
         $calificacionesUsuarios = collect(DB::select("
-            SELECT usuario_id, tipo, total_calificaciones, promedio_calificacion
-            FROM voyconvos.vista_calificaciones_usuarios
+            SELECT 
+                c.usuario_id,
+                c.tipo,
+                COUNT(*) as total_calificaciones,
+                ROUND(AVG(c.calificacion), 2) as promedio_calificacion
+            FROM calificacions c
+            GROUP BY c.usuario_id, c.tipo
+            HAVING COUNT(*) > 0
         "));
 
-        // 📝 Vista de detalles de calificaciones
+        // 📝 REEMPLAZADO: Consulta directa en lugar de vista
         $calificacionesDetalle = collect(DB::select("
             SELECT 
-                calificacion_id, calificacion, comentario, tipo, fecha_calificacion, 
-                usuario_calificado_id, nombre_usuario_calificado, reserva_id, 
-                fecha_reserva, estado_reserva, cantidad_puestos, total_pagado, 
-                viaje_id, fecha_salida, hora_salida, origen_direccion, destino_direccion, 
-                conductor_id, nombre_conductor
-            FROM voyconvos.vista_calificaciones_detalle
-            ORDER BY fecha_calificacion DESC
+                c.id as calificacion_id,
+                c.calificacion,
+                c.comentario,
+                c.tipo,
+                c.created_at as fecha_calificacion,
+                c.usuario_id as usuario_calificado_id,
+                u.name as nombre_usuario_calificado,
+                r.id as reserva_id,
+                r.fecha_reserva,
+                r.estado as estado_reserva,
+                r.cantidad_puestos,
+                r.total_pagado,
+                v.id as viaje_id,
+                v.fecha_salida,
+                v.hora_salida,
+                v.origen as origen_direccion,
+                v.destino as destino_direccion,
+                v.conductor_id,
+                uc.name as nombre_conductor
+            FROM calificacions c
+            INNER JOIN users u ON c.usuario_id = u.id
+            INNER JOIN reservas r ON c.reserva_id = r.id
+            INNER JOIN viajes v ON r.viaje_id = v.id
+            INNER JOIN users uc ON v.conductor_id = uc.id
+            ORDER BY c.created_at DESC
             LIMIT 20
         "));
 
-        \Log::info('Calificaciones cargadas en misReservas', [
+        \Log::info('✅ Calificaciones cargadas en misReservas (consulta directa)', [
             'usuarios_count' => $calificacionesUsuarios->count(),
             'detalles_count' => $calificacionesDetalle->count(),
             'usuario_id' => $usuario->id
