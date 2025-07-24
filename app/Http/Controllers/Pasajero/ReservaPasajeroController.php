@@ -125,9 +125,53 @@ public function misReservas(Request $request)
         ])->count(),
     ];
 
-    // ⭐ CALIFICACIONES DEL USUARIO (VERSIÓN SUPER SEGURA)
-    $calificacionesUsuarios = $this->obtenerCalificacionesUsuariosSeguro();
-    $calificacionesDetalle = $this->obtenerCalificacionesDetalleSeguro();
+    // ⭐ CALIFICACIONES DEL USUARIO (USANDO MODELOS ELOQUENT)
+    try {
+        // 📊 Vista de promedios de usuarios - usando modelo Eloquent
+        $calificacionesUsuarios = \App\Models\VistaCalificacionesUsuario::select([
+            'usuario_id', 
+            'tipo', 
+            'total_calificaciones', 
+            'promedio_calificacion'
+        ])->get();
+
+        // 📝 Vista de detalles de calificaciones - usando modelo Eloquent
+        $calificacionesDetalle = \App\Models\VistaCalificacionesDetalle::select([
+            'calificacion_id', 
+            'calificacion', 
+            'comentario', 
+            'tipo', 
+            'fecha_calificacion', 
+            'usuario_calificado_id', 
+            'nombre_usuario_calificado', 
+            'reserva_id', 
+            'fecha_reserva', 
+            'estado_reserva', 
+            'cantidad_puestos', 
+            'total_pagado', 
+            'viaje_id', 
+            'fecha_salida', 
+            'hora_salida', 
+            'origen_direccion', 
+            'destino_direccion', 
+            'conductor_id', 
+            'nombre_conductor'
+        ])
+        ->orderBy('fecha_calificacion', 'desc')
+        ->limit(20)
+        ->get();
+
+        \Log::info('Calificaciones cargadas en misReservas usando modelos Eloquent', [
+            'usuarios_count' => $calificacionesUsuarios->count(),
+            'detalles_count' => $calificacionesDetalle->count(),
+            'usuario_id' => $usuario->id
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error al consultar calificaciones en misReservas usando modelos: ' . $e->getMessage());
+        $calificacionesUsuarios = collect();
+        $calificacionesDetalle = collect();
+    }
 
     // 👤 CALIFICACIONES DEL USUARIO ACTUAL
     $misCalificaciones = null;
@@ -176,160 +220,6 @@ public function misReservas(Request $request)
         'misCalificacionesComoPasajero',
         'comentariosComoPasajero'
     ));
-}
-
-/**
- * 📊 Obtener calificaciones usuarios de forma SUPER SEGURA
- */
-private function obtenerCalificacionesUsuariosSeguro()
-{
-    try {
-        // Probar la consulta básica primero
-        $result = collect(DB::select("
-            SELECT 
-                c.usuario_id,
-                c.tipo,
-                COUNT(*) as total_calificaciones,
-                ROUND(AVG(c.calificacion), 2) as promedio_calificacion
-            FROM calificacions c
-            GROUP BY c.usuario_id, c.tipo
-            HAVING COUNT(*) > 0
-        "));
-
-        \Log::info('✅ Calificaciones usuarios obtenidas (consulta básica)', [
-            'count' => $result->count()
-        ]);
-
-        return $result;
-
-    } catch (\Exception $e) {
-        \Log::error('❌ Error en calificaciones usuarios', [
-            'error' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile()
-        ]);
-
-        // Retornar colección vacía como fallback
-        return collect();
-    }
-}
-
-/**
- * 📝 Obtener calificaciones detalle de forma SUPER SEGURA
- */
-private function obtenerCalificacionesDetalleSeguro()
-{
-    try {
-        // VERSIÓN COMPLETA CON NOMBRES DE COLUMNAS CORREGIDOS
-        $result = collect(DB::select("
-            SELECT 
-                c.id as calificacion_id,
-                c.calificacion,
-                c.comentario,
-                c.tipo,
-                c.created_at as fecha_calificacion,
-                c.usuario_id as usuario_calificado_id,
-                u.name as nombre_usuario_calificado,
-                r.id as reserva_id,
-                r.fecha_reserva,
-                r.estado as estado_reserva,
-                r.cantidad_puestos,
-                r.total as total_pagado,
-                v.id as viaje_id,
-                v.fecha_salida,
-                v.hora_salida,
-                v.origen_direccion,
-                v.destino_direccion,
-                v.conductor_id,
-                uc.name as nombre_conductor
-            FROM calificacions c
-            INNER JOIN users u ON c.usuario_id = u.id
-            INNER JOIN reservas r ON c.reserva_id = r.id
-            INNER JOIN viajes v ON r.viaje_id = v.id
-            INNER JOIN users uc ON v.conductor_id = uc.id
-            ORDER BY c.created_at DESC
-            LIMIT 20
-        "));
-
-        \Log::info('✅ Calificaciones detalle obtenidas (consulta completa)', [
-            'count' => $result->count()
-        ]);
-
-        return $result;
-
-    } catch (\Exception $e) {
-        \Log::error('❌ Error en calificaciones detalle completa', [
-            'error' => $e->getMessage(),
-            'line' => $e->getLine(),
-            'file' => $e->getFile()
-        ]);
-
-        // FALLBACK: Versión básica sin datos de viaje
-        try {
-            $result = collect(DB::select("
-                SELECT 
-                    c.id as calificacion_id,
-                    c.calificacion,
-                    c.comentario,
-                    c.tipo,
-                    c.created_at as fecha_calificacion,
-                    c.usuario_id as usuario_calificado_id,
-                    u.name as nombre_usuario_calificado,
-                    r.id as reserva_id,
-                    r.fecha_reserva,
-                    r.estado as estado_reserva,
-                    r.cantidad_puestos,
-                    r.total as total_pagado
-                FROM calificacions c
-                INNER JOIN users u ON c.usuario_id = u.id
-                INNER JOIN reservas r ON c.reserva_id = r.id
-                ORDER BY c.created_at DESC
-                LIMIT 20
-            "));
-
-            \Log::info('✅ Calificaciones detalle obtenidas (fallback sin viajes)', [
-                'count' => $result->count()
-            ]);
-
-            return $result;
-
-        } catch (\Exception $e2) {
-            \Log::error('❌ Error en fallback de calificaciones detalle', [
-                'error' => $e2->getMessage()
-            ]);
-
-            // FALLBACK FINAL: Solo calificacions básico
-            try {
-                $result = collect(DB::select("
-                    SELECT 
-                        c.id as calificacion_id,
-                        c.calificacion,
-                        c.comentario,
-                        c.tipo,
-                        c.created_at as fecha_calificacion,
-                        c.usuario_id as usuario_calificado_id,
-                        u.name as nombre_usuario_calificado
-                    FROM calificacions c
-                    INNER JOIN users u ON c.usuario_id = u.id
-                    ORDER BY c.created_at DESC
-                    LIMIT 20
-                "));
-
-                \Log::info('✅ Calificaciones detalle obtenidas (fallback básico)', [
-                    'count' => $result->count()
-                ]);
-
-                return $result;
-
-            } catch (\Exception $e3) {
-                \Log::error('❌ Error total en calificaciones detalle', [
-                    'error' => $e3->getMessage()
-                ]);
-
-                return collect();
-            }
-        }
-    }
 }
     // GET: Mostrar página de confirmación
 public function mostrarConfirmacion(Viaje $viaje) 
