@@ -22,55 +22,9 @@ class DashboardPasajeroController extends Controller
         ->orderBy('fecha_salida', 'asc')
         ->get();
 
-    // ⭐ USANDO TUS VISTAS SQL EXISTENTES
-    try {
-        // 📊 Vista de promedios de usuarios (la que SÍ funciona)
-        $calificacionesUsuarios = collect(DB::select("
-            SELECT usuario_id, tipo, total_calificaciones, promedio_calificacion
-            FROM vista_calificaciones_usuarios
-        "));
-
-        // 📝 Vista de detalles de calificaciones (la que SÍ funciona)
-        $calificacionesDetalle = collect(DB::select("
-            SELECT 
-                calificacion_id, calificacion, comentario, tipo, fecha_calificacion, 
-                usuario_calificado_id, nombre_usuario_calificado, reserva_id, 
-                fecha_reserva, estado_reserva, cantidad_puestos, total_pagado, 
-                viaje_id, fecha_salida, hora_salida, origen_direccion, destino_direccion, 
-                conductor_id, nombre_conductor
-            FROM vista_calificaciones_detalle
-            ORDER BY fecha_calificacion DESC
-            LIMIT 20
-        "));
-
-        \Log::info('Vistas SQL consultadas exitosamente', [
-            'usuarios_count' => $calificacionesUsuarios->count(),
-            'detalles_count' => $calificacionesDetalle->count(),
-            'sample_usuario' => $calificacionesUsuarios->first(),
-            'sample_detalle' => $calificacionesDetalle->first()
-        ]);
-
-    } catch (\Exception $e) {
-        \Log::error('Error al consultar vistas SQL: ' . $e->getMessage(), [
-            'file' => $e->getFile(),
-            'line' => $e->getLine(),
-            'sql_error' => $e->getMessage()
-        ]);
-        
-        // Si las vistas fallan, usar consultas directas como fallback
-        $calificacionesUsuarios = collect(DB::select("
-            SELECT 
-                c.usuario_id,
-                c.tipo,
-                COUNT(*) as total_calificaciones,
-                ROUND(AVG(c.calificacion), 2) as promedio_calificacion
-            FROM calificacions c
-            GROUP BY c.usuario_id, c.tipo
-            HAVING COUNT(*) > 0
-        "));
-
-        $calificacionesDetalle = collect();
-    }
+    // ⭐ OBTENER CALIFICACIONES DIRECTAMENTE (SIN VISTAS)
+    $calificacionesUsuarios = $this->obtenerCalificacionesUsuarios();
+    $calificacionesDetalle = $this->obtenerCalificacionesDetalle();
 
     // 🔄 ENRIQUECER VIAJES CON CALIFICACIONES DE CONDUCTORES
     $viajesDisponibles->each(function($viaje) use ($calificacionesUsuarios) {
@@ -129,14 +83,14 @@ class DashboardPasajeroController extends Controller
             ->keyBy('tipo');
     }
 
-    // 🔍 DEBUG ESPECÍFICO PARA TU CASO
-        \Log::info('Debug específico usuario 14', [
-            'todas_sus_calificaciones' => $calificacionesUsuarios->where('usuario_id', 14)->values(),
-            'detalles_usuario_14' => $calificacionesDetalle->where('usuario_calificado_id', 14)->values(),
-            'total_registros_vista_usuarios' => $calificacionesUsuarios->count(),
-            'total_registros_vista_detalle' => $calificacionesDetalle->count()
-        ]);
-    
+    \Log::info('Dashboard cargado exitosamente - PRODUCCIÓN', [
+        'viajes_count' => $viajesDisponibles->count(),
+        'calificaciones_usuarios_count' => $calificacionesUsuarios->count(),
+        'calificaciones_detalle_count' => $calificacionesDetalle->count(),
+        'user_id' => auth()->id(),
+        'environment' => config('app.env'),
+        'database' => config('database.connections.mysql.database')
+    ]);
 
     return view('pasajero.dashboard', compact(
         'viajesDisponibles',
@@ -147,6 +101,99 @@ class DashboardPasajeroController extends Controller
         'comentariosDestacados',
         'misCalificaciones'
     ));
+}
+
+/**
+ * 📊 Obtener calificaciones usuarios DIRECTAMENTE
+ */
+private function obtenerCalificacionesUsuarios()
+{
+    try {
+        $result = collect(DB::select("
+            SELECT 
+                c.usuario_id,
+                c.tipo,
+                COUNT(*) as total_calificaciones,
+                ROUND(AVG(c.calificacion), 2) as promedio_calificacion
+            FROM calificacions c
+            GROUP BY c.usuario_id, c.tipo
+            HAVING COUNT(*) > 0
+        "));
+
+        \Log::info('✅ Calificaciones usuarios obtenidas exitosamente', [
+            'method' => 'consulta_directa',
+            'count' => $result->count(),
+            'sample' => $result->first()
+        ]);
+
+        return $result;
+
+    } catch (\Exception $e) {
+        \Log::error('❌ Error al obtener calificaciones usuarios', [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+        
+        // Retornar colección vacía como fallback
+        return collect();
+    }
+}
+
+/**
+ * 📝 Obtener calificaciones detalle DIRECTAMENTE
+ */
+private function obtenerCalificacionesDetalle()
+{
+    try {
+        $result = collect(DB::select("
+            SELECT 
+                c.id as calificacion_id,
+                c.calificacion,
+                c.comentario,
+                c.tipo,
+                c.created_at as fecha_calificacion,
+                c.usuario_id as usuario_calificado_id,
+                u.name as nombre_usuario_calificado,
+                r.id as reserva_id,
+                r.fecha_reserva,
+                r.estado as estado_reserva,
+                r.cantidad_puestos,
+                r.total_pagado,
+                v.id as viaje_id,
+                v.fecha_salida,
+                v.hora_salida,
+                v.origen as origen_direccion,
+                v.destino as destino_direccion,
+                v.conductor_id,
+                uc.name as nombre_conductor
+            FROM calificacions c
+            INNER JOIN users u ON c.usuario_id = u.id
+            INNER JOIN reservas r ON c.reserva_id = r.id
+            INNER JOIN viajes v ON r.viaje_id = v.id
+            INNER JOIN users uc ON v.conductor_id = uc.id
+            ORDER BY c.created_at DESC
+            LIMIT 20
+        "));
+
+        \Log::info('✅ Calificaciones detalle obtenidas exitosamente', [
+            'method' => 'consulta_directa',
+            'count' => $result->count(),
+            'sample' => $result->first()
+        ]);
+
+        return $result;
+
+    } catch (\Exception $e) {
+        \Log::error('❌ Error al obtener calificaciones detalle', [
+            'error' => $e->getMessage(),
+            'file' => $e->getFile(),
+            'line' => $e->getLine()
+        ]);
+        
+        // Retornar colección vacía como fallback
+        return collect();
+    }
 }
 
     public function verViajesDisponibles()
