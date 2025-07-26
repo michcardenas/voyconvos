@@ -25,7 +25,7 @@
                     
                     <!-- Name -->
                     <div class="form-group">
-                        <x-input-label for="name" :value="__('Nombre')" class="form-label" />
+                        <x-input-label for="name" :value="__('Nombre y apellido')" class="form-label" />
                         <x-text-input id="name" class="form-input" type="text" name="name" :value="old('name')" required autofocus autocomplete="name" />
                         <x-input-error :messages="$errors->get('name')" class="mt-2" />
                     </div>

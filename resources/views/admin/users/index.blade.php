@@ -3,6 +3,7 @@
 @section('title', 'Usuarios')
 
 @section('content')
+{{-- resources/views/admin/users/index.blade.php --}}
 <div class="container py-5">
     <h1 class="fw-bold mb-4">Lista de Usuarios</h1>
     @if(session('success'))
@@ -35,8 +36,8 @@
                             <label for="filtro-verificado" class="form-label mb-1 small">Verificación:</label>
                             <select id="filtro-verificado" class="form-select form-select-sm">
                                 <option value="">Todos</option>
-                                <option value="verificado">Verificados</option>
-                                <option value="no-verificado">No Verificados</option>
+                                <option value="1">Verificados</option>
+                                <option value="0">No Verificados</option>
                             </select>
                         </div>
                         <div class="col-sm-2">
@@ -69,7 +70,7 @@
                     </thead>
                     <tbody>
                         @foreach($users as $user)
-                        <tr>
+                        <tr data-rol="{{ $user->getRoleNames()->first() }}" data-verificado="{{ $user->verificado ? '1' : '0' }}">
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
@@ -86,7 +87,17 @@
                                     {{ ucfirst($rol) }}
                                 </span>
                             </td>
-                         
+                            <td>
+                                @if($user->verificado)
+                                    <span class="badge bg-success">
+                                        <i class="fas fa-check me-1"></i>Verificado
+                                    </span>
+                                @else
+                                    <span class="badge bg-secondary">
+                                        <i class="fas fa-clock me-1"></i>Pendiente
+                                    </span>
+                                @endif
+                            </td>
                             <td>
                                 <small class="text-muted">
                                     {{ $user->created_at->format('d/m/Y') }}<br>
@@ -123,7 +134,7 @@
         <div class="card-footer bg-light">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <small class="text-muted">
+                    <small class="text-muted" id="info-resultados">
                         Mostrando {{ $users->firstItem() }} - {{ $users->lastItem() }} de {{ $users->total() }} usuarios
                     </small>
                 </div>
@@ -142,7 +153,7 @@
         <div class="col-md-4">
             <div class="small text-muted">
                 <i class="fas fa-info-circle me-1"></i>
-                Total de usuarios: <strong>{{ $users->total() }}</strong>
+                Total de usuarios: <strong id="total-usuarios">{{ $users->total() }}</strong>
             </div>
         </div>
     </div>
@@ -227,93 +238,68 @@
 
 @push('scripts')
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        // Auto-hide alert
-        const alert = document.querySelector('.alert-success');
-        if (alert) {
-            setTimeout(() => {
-                alert.style.transition = "opacity 0.5s ease";
-                alert.style.opacity = 0;
-                setTimeout(() => alert.remove(), 500);
-            }, 2000);
-        }
+document.addEventListener('DOMContentLoaded', function() {
+    const filtroRol = document.getElementById('filtro-rol');
+    const filtroVerificado = document.getElementById('filtro-verificado');
+    const limpiarFiltros = document.getElementById('limpiar-filtros');
+    const tabla = document.getElementById('tabla-usuarios');
+    const tbody = tabla.querySelector('tbody');
+    const infoResultados = document.getElementById('info-resultados');
+    const totalUsuarios = document.getElementById('total-usuarios');
 
-        // Filtros
-        const filtroRol = document.getElementById('filtro-rol');
-        const filtroVerificado = document.getElementById('filtro-verificado');
-        const limpiarFiltros = document.getElementById('limpiar-filtros');
-        const tabla = document.getElementById('tabla-usuarios');
-        const filas = tabla.querySelectorAll('tbody tr');
+    let todasLasFilas = Array.from(tbody.querySelectorAll('tr'));
+    const totalOriginal = todasLasFilas.length;
 
-        function aplicarFiltros() {
-            const rolSeleccionado = filtroRol.value.toLowerCase();
-            const verificadoSeleccionado = filtroVerificado.value;
-
-            filas.forEach(fila => {
-                // Obtener el texto de los badges
-                const rolTexto = fila.querySelector('td:nth-child(4) .badge').textContent.toLowerCase();
-                const verificadoBadge = fila.querySelector('td:nth-child(5) .badge');
-                const esVerificado = verificadoBadge.classList.contains('bg-success'); // Verde = verificado, Rojo = no verificado
-                
-                let mostrarPorRol = true;
-                let mostrarPorVerificado = true;
-
-                // Filtro por rol
-                if (rolSeleccionado && !rolTexto.includes(rolSeleccionado)) {
-                    mostrarPorRol = false;
-                }
-
-                // Filtro por verificación - corregido para trabajar con clases CSS
-                if (verificadoSeleccionado === 'verificado' && !esVerificado) {
-                    mostrarPorVerificado = false;
-                } else if (verificadoSeleccionado === 'no-verificado' && esVerificado) {
-                    mostrarPorVerificado = false;
-                }
-
-                // Mostrar u ocultar fila
-                if (mostrarPorRol && mostrarPorVerificado) {
-                    fila.style.display = '';
-                } else {
-                    fila.style.display = 'none';
-                }
-            });
-
-            // Mostrar mensaje si no hay resultados
-            actualizarMensajeVacio();
-        }
-
-        function actualizarMensajeVacio() {
-            const filasVisibles = Array.from(filas).filter(fila => fila.style.display !== 'none');
-            let mensajeVacio = tabla.querySelector('.mensaje-vacio');
-
-            if (filasVisibles.length === 0) {
-                if (!mensajeVacio) {
-                    mensajeVacio = document.createElement('tr');
-                    mensajeVacio.className = 'mensaje-vacio';
-                    mensajeVacio.innerHTML = '<td colspan="7" class="text-center py-4 text-muted">No se encontraron usuarios con los filtros aplicados</td>';
-                    tabla.querySelector('tbody').appendChild(mensajeVacio);
-                }
-                mensajeVacio.style.display = '';
+    function aplicarFiltros() {
+        const valorRol = filtroRol.value.toLowerCase();
+        const valorVerificado = filtroVerificado.value;
+        
+        let filasVisibles = 0;
+        
+        todasLasFilas.forEach(fila => {
+            const rolFila = fila.getAttribute('data-rol');
+            const verificadoFila = fila.getAttribute('data-verificado');
+            
+            let mostrarPorRol = !valorRol || (rolFila && rolFila.toLowerCase() === valorRol);
+            let mostrarPorVerificado = !valorVerificado || verificadoFila === valorVerificado;
+            
+            if (mostrarPorRol && mostrarPorVerificado) {
+                fila.style.display = '';
+                filasVisibles++;
             } else {
-                if (mensajeVacio) {
-                    mensajeVacio.style.display = 'none';
-                }
+                fila.style.display = 'none';
             }
+        });
+        
+        // Actualizar información de resultados
+        actualizarInfoResultados(filasVisibles);
+    }
+
+    function actualizarInfoResultados(visibles) {
+        if (visibles === totalOriginal) {
+            // Restaurar texto original si no hay filtros activos
+            const textoOriginal = infoResultados.getAttribute('data-original') || infoResultados.textContent;
+            infoResultados.textContent = textoOriginal;
+        } else {
+            // Guardar texto original la primera vez
+            if (!infoResultados.getAttribute('data-original')) {
+                infoResultados.setAttribute('data-original', infoResultados.textContent);
+            }
+            infoResultados.textContent = `Mostrando ${visibles} de ${totalOriginal} usuarios (filtrado)`;
         }
+        totalUsuarios.textContent = visibles;
+    }
 
-        function limpiarTodosFiltros() {
-            filtroRol.value = '';
-            filtroVerificado.value = '';
-            aplicarFiltros();
-        }
+    function limpiarTodosFiltros() {
+        filtroRol.value = '';
+        filtroVerificado.value = '';
+        aplicarFiltros();
+    }
 
-        // Event listeners
-        filtroRol.addEventListener('change', aplicarFiltros);
-        filtroVerificado.addEventListener('change', aplicarFiltros);
-        limpiarFiltros.addEventListener('click', limpiarTodosFiltros);
-
-        // Debug para verificar el funcionamiento
-        console.log('Filtros inicializados correctamente');
-    });
+    // Event listeners
+    filtroRol.addEventListener('change', aplicarFiltros);
+    filtroVerificado.addEventListener('change', aplicarFiltros);
+    limpiarFiltros.addEventListener('click', limpiarTodosFiltros);
+});
 </script>
 @endpush
