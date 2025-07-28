@@ -75,100 +75,126 @@
                             </div>
                         @endforeach
 
-                        <div class="col-sm-6">
-                            <div class="input-group-custom">
-                                <label class="custom-label">
-                                    <i class="fas fa-camera me-1"></i>
-                                    Foto de perfil
-                                </label>
-                                <div class="file-upload-area">
-                                    <input type="file" name="foto" class="custom-file-input" accept="image/*" id="foto-upload">
-                                    <label for="foto-upload" class="file-upload-label">
-                                        <i class="fas fa-cloud-upload-alt"></i>
-                                        <span>Seleccionar imagen</span>
-                                    </label>
-                                </div>
-          
-                                @if ($user->foto)
-                                    <div class="current-media">
-                                        <img src="{{ asset('storage/' . $user->foto) }}" 
-                                             class="current-photo" 
-                                             alt="Foto actual">
-                                        <div class="media-info">
-                                            <small class="text-muted">Foto actual</small>
-                                            <i class="fas fa-check-circle text-success"></i>
-                                        </div>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <div class="input-group-custom">
-                                <label class="custom-label">
-                                    <i class="fas fa-id-card-alt me-1"></i>
-                                    Documento DNI (foto frente)
-                                </label>
-                                <div class="file-upload-area">
-                                    <input type="file" name="dni_foto" class="custom-file-input" accept="image/*" id="dni-foto-upload">
-                                    <label for="dni-foto-upload" class="file-upload-label">
-                                        <i class="fas fa-upload"></i>
-                                        <span>Subir foto del DNI</span>
-                                    </label>
-                                </div>
-                                @if ($user->dni_foto)
-                                    <div class="current-media">
-                                        <img src="{{ asset('storage/' . $user->dni_foto) }}" 
-                                             class="current-photo" 
-                                             alt="DNI actual">
-                                        <div class="media-info">
-                                            <small class="text-muted">DNI actual</small>
-                                            <i class="fas fa-check-circle text-success"></i>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="upload-hint">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        <small class="text-muted">Sube una foto clara de tu documento (frente)</small>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div class="col-sm-6">
-                            <div class="input-group-custom">
-                                <label class="custom-label">
-                                    <i class="fas fa-id-card me-1"></i>
-                                    Documento DNI (foto reverso)
-                                </label>
-                                <div class="file-upload-area">
-                                    <input type="file" name="dni_foto_atras" class="custom-file-input" accept="image/*" id="dni-foto-reverso-upload">
-                                    <label for="dni-foto-reverso-upload" class="file-upload-label">
-                                        <i class="fas fa-upload"></i>
-                                        <span>Subir reverso del DNI</span>
-                                    </label>
-                                </div>
-                                @if ($user->dni_foto_atras)
-                                    <div class="current-media">
-                                        <img src="{{ asset('storage/' . $user->dni_foto_atras) }}" 
-                                            class="current-photo" 
-                                            alt="DNI reverso actual">
-                                        <div class="media-info">
-                                            <small class="text-muted">DNI reverso actual</small>
-                                            <i class="fas fa-check-circle text-success"></i>
-                                        </div>
-                                    </div>
-                                @else
-                                    <div class="upload-hint">
-                                        <i class="fas fa-info-circle me-1"></i>
-                                        <small class="text-muted">Sube una foto clara del reverso de tu documento</small>
-                                    </div>
-                                @endif
-                            </div>
-                        </div>
+                        <!-- FOTO DE PERFIL -->
+<div class="col-sm-6">
+    <div class="input-group-custom">
+        <label class="custom-label">
+            <i class="fas fa-camera me-1"></i>
+            Foto de perfil
+        </label>
+        <div class="file-upload-area">
+            <input type="file" 
+                   name="foto" 
+                   class="custom-file-input" 
+                   accept="image/*" 
+                   id="foto-upload"
+                   onchange="previewImage(this, 'foto-preview-container')">
+            <label for="foto-upload" class="file-upload-label">
+                <i class="fas fa-cloud-upload-alt"></i>
+                <span>Seleccionar imagen</span>
+            </label>
+        </div>
+        
+        <!-- Contenedor para preview -->
+        <div id="foto-preview-container">
+            @if ($user->foto)
+                <div class="current-media">
+                    <img src="{{ asset('storage/' . $user->foto) }}" 
+                         class="current-photo" 
+                         alt="Foto actual">
+                    <div class="media-info">
+                        <small class="text-muted">Foto actual</small>
+                        <i class="fas fa-check-circle text-success"></i>
                     </div>
                 </div>
-            </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- DNI FRENTE -->
+<div class="col-sm-6">
+    <div class="input-group-custom">
+        <label class="custom-label">
+            <i class="fas fa-id-card-alt me-1"></i>
+            Documento DNI (foto frente)
+        </label>
+        <div class="file-upload-area">
+            <input type="file" 
+                   name="dni_foto" 
+                   class="custom-file-input" 
+                   accept="image/*" 
+                   id="dni-foto-upload"
+                   onchange="previewImage(this, 'dni-foto-preview-container')">
+            <label for="dni-foto-upload" class="file-upload-label">
+                <i class="fas fa-upload"></i>
+                <span>Subir foto del DNI</span>
+            </label>
+        </div>
+        
+        <!-- Contenedor para preview -->
+        <div id="dni-foto-preview-container">
+            @if ($user->dni_foto)
+                <div class="current-media">
+                    <img src="{{ asset('storage/' . $user->dni_foto) }}" 
+                         class="current-photo" 
+                         alt="DNI actual">
+                    <div class="media-info">
+                        <small class="text-muted">DNI actual</small>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </div>
+            @else
+                <div class="upload-hint">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <small class="text-muted">Sube una foto clara de tu documento (frente)</small>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
+
+<!-- DNI REVERSO -->
+<div class="col-sm-6">
+    <div class="input-group-custom">
+        <label class="custom-label">
+            <i class="fas fa-id-card me-1"></i>
+            Documento DNI (foto reverso)
+        </label>
+        <div class="file-upload-area">
+            <input type="file" 
+                   name="dni_foto_atras" 
+                   class="custom-file-input" 
+                   accept="image/*" 
+                   id="dni-foto-reverso-upload"
+                   onchange="previewImage(this, 'dni-reverso-preview-container')">
+            <label for="dni-foto-reverso-upload" class="file-upload-label">
+                <i class="fas fa-upload"></i>
+                <span>Subir reverso del DNI</span>
+            </label>
+        </div>
+        
+        <!-- Contenedor para preview -->
+        <div id="dni-reverso-preview-container">
+            @if ($user->dni_foto_atras)
+                <div class="current-media">
+                    <img src="{{ asset('storage/' . $user->dni_foto_atras) }}" 
+                        class="current-photo" 
+                        alt="DNI reverso actual">
+                    <div class="media-info">
+                        <small class="text-muted">DNI reverso actual</small>
+                        <i class="fas fa-check-circle text-success"></i>
+                    </div>
+                </div>
+            @else
+                <div class="upload-hint">
+                    <i class="fas fa-info-circle me-1"></i>
+                    <small class="text-muted">Sube una foto clara del reverso de tu documento</small>
+                </div>
+            @endif
+        </div>
+    </div>
+</div>
 
             {{-- CONFIGURACIÓN DE VIAJES --}}
             <div class="custom-card mb-4" data-aos="fade-up" data-aos-delay="50">
@@ -259,55 +285,59 @@
                         </div>
                     </div>
 
-                    <div class="documents-section">
-                        <h5 class="section-subtitle mb-4">
-                            <i class="fas fa-file-alt me-2"></i>
-                            Documentos requeridos
-                        </h5>
-                        <div class="row g-4">
-                            @foreach([
-                                'licencia' => ['Licencia de conducir', 'fas fa-id-badge'],
-                                'cedula' => ['Cédula de identidad', 'fas fa-address-card'],
-                                'cedula_verde' => ['Cédula verde del vehículo', 'fas fa-file-contract'],
-                            ] as $campo => [$label, $icono])
-                                <div class="col-sm-6">
-                                    <div class="input-group-custom">
-                                        <label class="custom-label">
-                                            <i class="{{ $icono }} me-1"></i>
-                                            {{ $label }}
-                                        </label>
-                                        <div class="file-upload-area">
-                                            <input type="file" 
-                                                   name="{{ $campo }}" 
-                                                   class="custom-file-input @error($campo) is-invalid @enderror" 
-                                                   accept=".pdf,.jpg,.jpeg,.png"
-                                                   id="{{ $campo }}-upload">
-                                            <label for="{{ $campo }}-upload" class="file-upload-label">
-                                                <i class="fas fa-upload"></i>
-                                                <span>Subir archivo</span>
-                                            </label>
-                                        </div>
-                                        @if ($registro->$campo ?? false)
-                                            <div class="file-current">
-                                                <i class="fas fa-file-check text-success me-2"></i>
-                                                <a href="{{ asset('storage/' . $registro->$campo) }}" 
-                                                   target="_blank" 
-                                                   class="file-link">
-                                                    Ver {{ $label }} actual
-                                                </a>
-                                                <span class="file-status">✓ Subido</span>
-                                            </div>
-                                        @endif
-                                        @error($campo)
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                   <div class="documents-section">
+    <h5 class="section-subtitle mb-4">
+        <i class="fas fa-file-alt me-2"></i>
+        Documentos requeridos
+    </h5>
+    <div class="row g-4">
+        @foreach([
+            'licencia' => ['Licencia de conducir', 'fas fa-id-badge'],
+            'cedula' => ['Cédula de identidad', 'fas fa-address-card'],
+            'cedula_verde' => ['Cédula verde del vehículo', 'fas fa-file-contract'],
+        ] as $campo => [$label, $icono])
+            <div class="col-sm-6">
+                <div class="input-group-custom">
+                    <label class="custom-label">
+                        <i class="{{ $icono }} me-1"></i>
+                        {{ $label }}
+                    </label>
+                    <div class="file-upload-area">
+                        <input type="file" 
+                               name="{{ $campo }}" 
+                               class="custom-file-input @error($campo) is-invalid @enderror" 
+                               accept=".pdf,.jpg,.jpeg,.png"
+                               id="{{ $campo }}-upload"
+                               onchange="previewDocument(this, '{{ $campo }}-preview-container')">
+                        <label for="{{ $campo }}-upload" class="file-upload-label">
+                            <i class="fas fa-upload"></i>
+                            <span>Subir archivo</span>
+                        </label>
                     </div>
+                    
+                    <!-- Contenedor para preview -->
+                    <div id="{{ $campo }}-preview-container">
+                        @if ($registro->$campo ?? false)
+                            <div class="file-current">
+                                <i class="fas fa-file-check text-success me-2"></i>
+                                <a href="{{ asset('storage/' . $registro->$campo) }}" 
+                                   target="_blank" 
+                                   class="file-link">
+                                    Ver {{ $label }} actual
+                                </a>
+                                <span class="file-status">✓ Subido</span>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    @error($campo)
+                        <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
                 </div>
             </div>
+        @endforeach
+    </div>
+</div>
 
             {{-- BOTÓN GUARDAR --}}
             <div class="text-center" data-aos="fade-up" data-aos-delay="200">
@@ -907,5 +937,161 @@ document.addEventListener('DOMContentLoaded', function() {
         statusText.textContent = this.checked ? 'Activado' : 'Desactivado';
     });
 });
+function previewImage(input, previewContainerId) {
+    const file = input.files[0];
+    const previewContainer = document.getElementById(previewContainerId);
+    
+    if (file) {
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            // Crear o actualizar el preview
+            let previewDiv = previewContainer.querySelector('.image-preview');
+            
+            if (!previewDiv) {
+                previewDiv = document.createElement('div');
+                previewDiv.className = 'image-preview mt-2';
+                previewContainer.appendChild(previewDiv);
+            }
+            
+            previewDiv.innerHTML = `
+                <div class="preview-wrapper">
+                    <img src="${e.target.result}" 
+                         class="preview-image" 
+                         alt="Vista previa"
+                         style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #e3f2fd; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <div class="preview-info mt-1 d-flex align-items-center justify-content-between">
+                        <small class="text-success">
+                            <i class="fas fa-image me-1"></i>
+                            Nueva imagen seleccionada
+                        </small>
+                        <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearPreview('${input.id}', '${previewContainerId}')">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        };
+        
+        reader.readAsDataURL(file);
+    }
+}
+
+// Función para mostrar preview de documentos (imágenes y PDFs)
+function previewDocument(input, previewContainerId) {
+    const file = input.files[0];
+    const previewContainer = document.getElementById(previewContainerId);
+    
+    if (file) {
+        // Limpiar preview anterior
+        const existingPreview = previewContainer.querySelector('.document-preview');
+        if (existingPreview) {
+            existingPreview.remove();
+        }
+        
+        const fileType = file.type;
+        const fileName = file.name;
+        const fileSize = (file.size / 1024 / 1024).toFixed(2); // Tamaño en MB
+        
+        // Crear contenedor del preview
+        const previewDiv = document.createElement('div');
+        previewDiv.className = 'document-preview mt-2';
+        
+        if (fileType.startsWith('image/')) {
+            // Es una imagen - mostrar preview visual
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewDiv.innerHTML = `
+                    <div class="preview-wrapper">
+                        <img src="${e.target.result}" 
+                             class="preview-image" 
+                             alt="Vista previa del documento"
+                             style="max-width: 150px; max-height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #e8f5e8; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                        <div class="preview-info mt-1">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-success">
+                                    <i class="fas fa-file-image me-1"></i>
+                                    ${fileName} (${fileSize} MB)
+                                </small>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearDocumentPreview('${input.id}', '${previewContainerId}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else if (fileType === 'application/pdf') {
+            // Es un PDF - mostrar indicador
+            previewDiv.innerHTML = `
+                <div class="preview-wrapper">
+                    <div class="pdf-preview" style="padding: 15px; border: 2px solid #ffe8e8; border-radius: 8px; background: #fafafa;">
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-file-pdf text-danger me-3" style="font-size: 2rem;"></i>
+                            <div class="flex-grow-1">
+                                <div class="fw-bold text-dark">${fileName}</div>
+                                <small class="text-muted">Documento PDF • ${fileSize} MB</small>
+                            </div>
+                        </div>
+                        <div class="preview-info mt-2">
+                            <div class="d-flex align-items-center justify-content-between">
+                                <small class="text-success">
+                                    <i class="fas fa-check-circle me-1"></i>
+                                    Archivo PDF seleccionado
+                                </small>
+                                <button type="button" class="btn btn-sm btn-outline-danger" onclick="clearDocumentPreview('${input.id}', '${previewContainerId}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        previewContainer.appendChild(previewDiv);
+    }
+}
+
+// Función para limpiar preview de imágenes
+function clearPreview(inputId, previewContainerId) {
+    const input = document.getElementById(inputId);
+    const previewContainer = document.getElementById(previewContainerId);
+    const previewDiv = previewContainer.querySelector('.image-preview');
+    
+    input.value = '';
+    if (previewDiv) {
+        previewDiv.remove();
+    }
+}
+
+// Función para limpiar preview de documentos
+function clearDocumentPreview(inputId, previewContainerId) {
+    const input = document.getElementById(inputId);
+    const previewContainer = document.getElementById(previewContainerId);
+    const previewDiv = previewContainer.querySelector('.document-preview');
+    
+    input.value = '';
+    if (previewDiv) {
+        previewDiv.remove();
+    }
+}
+
+// Función para toggle de contraseñas
+function togglePassword(fieldId) {
+    const field = document.getElementById(fieldId);
+    const toggle = field.nextElementSibling.querySelector('i');
+    
+    if (field.type === 'password') {
+        field.type = 'text';
+        toggle.classList.remove('fa-eye');
+        toggle.classList.add('fa-eye-slash');
+    } else {
+        field.type = 'password';
+        toggle.classList.remove('fa-eye-slash');
+        toggle.classList.add('fa-eye');
+    }
+}
 </script>
 @endsection
