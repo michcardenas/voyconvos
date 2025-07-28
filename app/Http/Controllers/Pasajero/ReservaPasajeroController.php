@@ -566,9 +566,10 @@ public function confirmacionReserva(Reserva $reserva)
     
     return view('pasajero.reserva-detalles', compact('reserva', 'calificadoPorPasajero'));
 }
- public function mostrarViajesDisponibles(Request $request) 
+public function mostrarViajesDisponibles(Request $request)
 {
     $usuarioId = auth()->id();
+    $usuario = auth()->user(); // Obtener el usuario completo
 
     $viajesReservados = \DB::table('reservas')
         ->where('user_id', $usuarioId)
@@ -576,18 +577,18 @@ public function confirmacionReserva(Reserva $reserva)
         ->toArray();
 
     // Query base
-  $query = Viaje::whereDate('fecha_salida', '>=', now())
-    ->where('puestos_disponibles', '>', 0)
-    ->whereNotIn('id', $viajesReservados)
-    ->with(['conductor' => function($query) {
-        $query->leftJoin('vista_calificaciones_usuarios', function($join) {
-            $join->on('users.id', '=', 'vista_calificaciones_usuarios.usuario_id')
-                 ->where('vista_calificaciones_usuarios.tipo', '=', 'conductor');
-        })
-        ->select('users.*', 
-                 'vista_calificaciones_usuarios.total_calificaciones',
-                 'vista_calificaciones_usuarios.promedio_calificacion as calificacion_promedio');
-    }]);
+    $query = Viaje::whereDate('fecha_salida', '>=', now())
+        ->where('puestos_disponibles', '>', 0)
+        ->whereNotIn('id', $viajesReservados)
+        ->with(['conductor' => function($query) {
+            $query->leftJoin('vista_calificaciones_usuarios', function($join) {
+                $join->on('users.id', '=', 'vista_calificaciones_usuarios.usuario_id')
+                     ->where('vista_calificaciones_usuarios.tipo', '=', 'conductor');
+            })
+            ->select('users.*',
+                      'vista_calificaciones_usuarios.total_calificaciones',
+                     'vista_calificaciones_usuarios.promedio_calificacion as calificacion_promedio');
+        }]);
 
     // Filtro por número mínimo de puestos
     if ($request->filled('puestos_minimos')) {
@@ -657,12 +658,74 @@ public function confirmacionReserva(Reserva $reserva)
         ];
     }
 
+    // Verificar estado del perfil del usuario
+    $estadoVerificacion = $this->verificarEstadoPerfil($usuario);
+
     return view('pasajero.viajesDisponibles', compact(
         'viajesDisponibles', 
         'ciudadesOrigen', 
         'ciudadesDestino', 
-        'calificacionesUsuario'
+        'calificacionesUsuario',
+        'estadoVerificacion'
     ));
+}
+
+/**
+ * Verificar el estado del perfil del usuario para determinar si puede acceder a funcionalidades
+ */
+private function verificarEstadoPerfil($usuario)
+{
+    // Campos requeridos para verificación
+    $camposRequeridos = ['name', 'email', 'pais', 'ciudad', 'dni', 'celular', 'foto', 'dni_foto', 'dni_foto_atras'];
+    
+    // Verificar si todos los campos están completos
+    $perfilCompleto = true;
+    $camposFaltantes = [];
+    
+    foreach ($camposRequeridos as $campo) {
+        if (empty($usuario->$campo)) {
+            $perfilCompleto = false;
+            $camposFaltantes[] = $campo;
+        }
+    }
+    
+    return [
+        'verificado' => $usuario->verificado,
+        'perfil_completo' => $perfilCompleto,
+        'campos_faltantes' => $camposFaltantes,
+        'puede_acceder' => $usuario->verificado, // Solo puede acceder si está verificado
+        'mensaje' => $this->obtenerMensajeVerificacion($usuario->verificado, $perfilCompleto)
+    ];
+}
+
+/**
+ * Obtener el mensaje apropiado según el estado de verificación
+ */
+private function obtenerMensajeVerificacion($verificado, $perfilCompleto)
+{
+    if ($verificado) {
+        return null; // Usuario verificado, no necesita mensaje
+    }
+    
+    if ($perfilCompleto) {
+        return [
+            'tipo' => 'pendiente',
+            'titulo' => 'Verificación Pendiente',
+            'texto' => 'Tu perfil está siendo revisado. Pronto podrás acceder a todas las funcionalidades.',
+            'icono' => 'fas fa-clock'
+        ];
+    }
+    
+    return [
+        'tipo' => 'incompleto',
+        'titulo' => 'Perfil Incompleto',
+        'texto' => 'Completa tu perfil para acceder a los detalles y chat de los viajes.',
+        'icono' => 'fas fa-user-edit',
+        'boton' => [
+            'texto' => 'Actualizar Perfil',
+            'ruta' => 'pasajero.perfil.edit' // Ajusta esta ruta según tu aplicación
+        ]
+    ];
 }
 private function extraerCiudad($direccion)
 {

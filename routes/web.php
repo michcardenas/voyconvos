@@ -52,7 +52,8 @@ Route::post('/conductor/calificar-conductor/{reserva}', [
 ->name('conductor.calificar.conductor');
 // Rutas protegidas por autenticación
 Route::middleware('auth')->group(function () {
-
+     Route::get('/pasajero/registro', [ProfileController::class, 'registroForm'])->name('pasajero.registro.form');
+    Route::post('/pasajero/registro', [ProfileController::class, 'registroStore'])->name('pasajero.registro.store');
     // Perfil
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

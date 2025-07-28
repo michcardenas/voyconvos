@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
 
 
+
 class ProfileController extends Controller
 {
     /**
@@ -326,39 +327,115 @@ public function editConductor()
     /**
      * Update the user's profile information.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
-    {
-        $user = $request->user();
+public function update(ProfileUpdateRequest $request): RedirectResponse 
+{
+    $user = $request->user();
 
-        // Actualiza datos validados
-        $user->fill($request->validated());
+    // Actualiza datos validados (mantiene tu lógica original)
+    $user->fill($request->validated());
 
-        // Si cambia el email, lo desverifica
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
-
-        $user->save();
-
-        // 🔄 Actualiza el rol
-        if ($request->has('role')) {
-            $user->syncRoles([$request->input('role')]);
-        }
-
-        // Redirige si el nuevo rol es conductor
-        if ($request->input('role') === 'conductor') {
-            return redirect()->route('conductor.registro.form');
-        }
-
-        // ✅ Redirige al dashboard del pasajero si es pasajero
-        if ($request->input('role') === 'pasajero') {
-            return redirect()->route('pasajero.dashboard');
-        }
-
-        // Por defecto vuelve al perfil
-        return redirect()->route('profile.edit')->with('status', 'profile-updated');
+    // ➕ AGREGADO: Manejo específico de campos adicionales
+    // Actualizar campos que pueden no estar en la validación
+    if ($request->has('ciudad')) {
+        $user->ciudad = $request->input('ciudad');
+    }
+    
+    if ($request->has('dni')) {
+        $user->dni = $request->input('dni');
+    }
+    
+    if ($request->has('celular')) {
+        $user->celular = $request->input('celular');
+    }
+    
+    if ($request->has('pais')) {
+        $user->pais = $request->input('pais');
     }
 
+    // ➕ AGREGADO: Manejo específico de la foto
+    if ($request->hasFile('foto')) {
+        // Eliminar foto anterior si existe
+        if ($user->foto) {
+            \Storage::disk('public')->delete($user->foto);
+        }
+        
+        // Guardar nueva foto
+        $fotoPath = $request->file('foto')->store('fotos_perfil', 'public');
+        $user->foto = $fotoPath;
+    }
+
+    // Si cambia el email, lo desverifica (mantiene tu lógica original)
+    if ($user->isDirty('email')) {
+        $user->email_verified_at = null;
+    }
+
+    $user->save();
+
+    // 🔄 Actualiza el rol (mantiene tu lógica original)
+    if ($request->has('role')) {
+        $user->syncRoles([$request->input('role')]);
+    }
+
+    // Redirige si el nuevo rol es conductor (mantiene tu lógica original)
+    if ($request->input('role') === 'conductor') {
+        return redirect()->route('conductor.registro.form');
+    }
+
+    // ✅ Redirige al dashboard del pasajero si es pasajero (mantiene tu lógica original)
+      if ($request->input('role') === 'pasajero') {
+        return redirect()->route('pasajero.registro.form');
+    }
+
+    // Por defecto vuelve al perfil (mantiene tu lógica original)
+    return redirect()->route('profile.edit')->with('status', 'profile-updated');
+}
+public function registroForm()
+{
+    $user = auth()->user();
+    
+    return view('pasajero.registro.form', compact('user'));
+}
+
+public function registroStore(Request $request)
+{
+    $user = auth()->user();
+    
+    // Validación simple
+    $request->validate([
+        'dni' => 'required|string|max:20',
+        'dni_foto' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+        'dni_foto_atras' => 'required|image|mimes:jpeg,png,jpg|max:2048',
+    ], [
+        'dni.required' => 'El DNI es obligatorio.',
+        'dni_foto.required' => 'La foto del frente del DNI es obligatoria.',
+        'dni_foto_atras.required' => 'La foto del reverso del DNI es obligatoria.',
+        'dni_foto.image' => 'El archivo debe ser una imagen.',
+        'dni_foto_atras.image' => 'El archivo debe ser una imagen.',
+    ]);
+
+    // Subir fotos del DNI
+    $dniFotoPath = null;
+    $dniFotoAtrasPath = null;
+
+    if ($request->hasFile('dni_foto')) {
+        $dniFotoPath = $request->file('dni_foto')->store('dni_fotos', 'public');
+    }
+
+    if ($request->hasFile('dni_foto_atras')) {
+        $dniFotoAtrasPath = $request->file('dni_foto_atras')->store('dni_fotos', 'public');
+    }
+
+    // Actualizar usuario
+    $user->update([
+        'dni' => $request->dni,
+        'dni_foto' => $dniFotoPath,
+        'dni_foto_atras' => $dniFotoAtrasPath,
+        'verificado' => false, // Marcar como no verificado hasta que admin revise
+    ]);
+
+    return redirect()->route('pasajero.dashboard')
+        ->with('success', 'Datos de DNI enviados correctamente. Tu cuenta será verificada pronto.');
+}
     /**
      * Delete the user's account.
      */

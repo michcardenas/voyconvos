@@ -62,10 +62,10 @@
             <input type="text" id="ciudad" name="ciudad" value="{{ old('ciudad') }}" required>
         </div>
 
-        <div class="form-group_profile">
-            <label for="dni">DNI</label>
-            <input type="text" id="dni" name="dni" value="{{ old('dni') }}">
-        </div>
+     <div class="form-group_profile">
+    <label for="dni">DNI</label>
+    <input type="text" id="dni" name="dni" value="{{ old('dni', $user->dni) }}" required>
+</div>
 
         <div class="form-group_profile">
             <label for="celular">Celular</label>

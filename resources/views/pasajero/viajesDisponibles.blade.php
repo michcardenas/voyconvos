@@ -561,7 +561,141 @@
     color: #17a2b8;
     font-weight: 700;
 }
+/* Estilos para mensajes de verificación */
+.verification-message {
+    margin-bottom: 15px;
+}
 
+.verification-alert {
+    display: flex;
+    align-items: flex-start;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.verification-alert.pending {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    color: #856404;
+}
+
+.verification-alert.incomplete {
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    color: #721c24;
+}
+
+.verification-alert .alert-icon {
+    margin-right: 10px;
+    font-size: 16px;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.verification-alert .alert-content {
+    flex: 1;
+}
+
+.verification-alert .alert-title {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+}
+
+.verification-alert .alert-text {
+    font-size: 13px;
+    margin: 0 0 8px 0;
+    opacity: 0.9;
+}
+
+/* Botones deshabilitados */
+.disabled-actions {
+    display: flex;
+    gap: 10px;
+    opacity: 0.6;
+}
+
+.btn-custom.disabled {
+    background-color: #e9ecef !important;
+    color: #6c757d !important;
+    border-color: #dee2e6 !important;
+    cursor: not-allowed !important;
+    pointer-events: none;
+}
+
+.btn-custom.outline.disabled {
+    background-color: transparent !important;
+    color: #6c757d !important;
+    border-color: #dee2e6 !important;
+}
+
+.btn-custom.small {
+    padding: 6px 12px;
+    font-size: 12px;
+    margin-top: 5px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .verification-alert {
+        padding: 10px;
+        font-size: 13px;
+    }
+    
+    .verification-alert .alert-title {
+        font-size: 13px;
+    }
+    
+    .verification-alert .alert-text {
+        font-size: 12px;
+    }
+    
+    .disabled-actions {
+        flex-direction: column;
+    }
+}
+
+/* Estados hover para botones habilitados */
+.trip-actions .btn-custom:not(.disabled):hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+    transition: all 0.2s ease;
+}
+
+/* Tooltip para botones deshabilitados */
+.btn-custom.disabled[title] {
+    position: relative;
+}
+
+.btn-custom.disabled[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #333;
+    color: white;
+    padding: 5px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    white-space: nowrap;
+    z-index: 1000;
+    margin-bottom: 5px;
+}
+
+.btn-custom.disabled[title]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 4px solid transparent;
+    border-top-color: #333;
+    z-index: 1000;
+}
 /* Responsive */
 @media (max-width: 768px) {
     .filters-row {
@@ -944,20 +1078,69 @@
                             </div>
 
                             <!-- Trip Actions -->
+                          <!-- Trip Actions -->
                             <div class="trip-actions">
+                            @if($estadoVerificacion['puede_acceder'])
+                                <!-- Usuario verificado: mostrar botones normales -->
                                 <a href="{{ route('pasajero.confirmar.mostrar', $viaje->id) }}" class="btn-custom primary">
                                     <i class="fas fa-info-circle"></i>
                                     Detalles
                                 </a>
 
-                               
-
                                 <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" class="btn-custom outline">
                                     <i class="fas fa-comments"></i>
                                     Chat
                                 </a>
-                            </div>
+                            @else
+                                <!-- Usuario no verificado: mostrar mensaje apropiado -->
+                                <div class="verification-message">
+                                    @if($estadoVerificacion['mensaje']['tipo'] === 'pendiente')
+                                        <!-- Perfil completo pero pendiente de verificación -->
+                                        <div class="verification-alert pending">
+                                            <div class="alert-icon">
+                                                <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
+                                            </div>
+                                            <div class="alert-content">
+                                                <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
+                                                <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
+                                            </div>
+                                        </div>
+                                    @else
+                                        <!-- Perfil incompleto -->
+                                        <div class="verification-alert incomplete">
+                                            <div class="alert-icon">
+                                                <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
+                                            </div>
+                                            <div class="alert-content">
+                                                <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
+                                                <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
+                                                @if(isset($estadoVerificacion['mensaje']['boton']))
+                                                    <a href="{{ route($estadoVerificacion['mensaje']['boton']['ruta']) }}" 
+                                                    class="btn-custom primary small">
+                                                        <i class="fas fa-edit"></i>
+                                                        {{ $estadoVerificacion['mensaje']['boton']['texto'] }}
+                                                    </a>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+
+                                <!-- Botones deshabilitados para mostrar lo que estará disponible -->
+                                <div class="disabled-actions">
+                                    <button class="btn-custom primary disabled" disabled title="Completa tu verificación para acceder">
+                                        <i class="fas fa-info-circle"></i>
+                                        Detalles
+                                    </button>
+
+                                    <button class="btn-custom outline disabled" disabled title="Completa tu verificación para acceder">
+                                        <i class="fas fa-comments"></i>
+                                        Chat
+                                    </button>
+                                </div>
+                            @endif
                         </div>
+                                                </div>
                     </div>
                 @endforeach
             </div>
