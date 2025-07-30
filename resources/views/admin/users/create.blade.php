@@ -18,16 +18,15 @@
             <label for="email">Correo</label>
             <input id="email" type="email" name="email" value="{{ old('email') }}" required>
         </div>
-        <div class="form-group_profile">
+   <div class="form-group_profile">
     <label for="password">Contraseña</label>
-    <input id="password" type="password" name="password" class="input_profile" required>
+    <input id="password" type="password" name="password" class="form-control" required>
 </div>
 
 <div class="form-group_profile">
     <label for="password_confirmation">Confirmar Contraseña</label>
-    <input id="password_confirmation" type="password" name="password_confirmation" class="input_profile" required>
+    <input id="password_confirmation" type="password" name="password_confirmation" class="form-control" required>
 </div>
-
         <div class="form-group_profile">
             <label for="role">Rol</label>
             <select name="role" id="role" required>
@@ -62,9 +61,9 @@
             <input type="text" id="ciudad" name="ciudad" value="{{ old('ciudad') }}" required>
         </div>
 
-     <div class="form-group_profile">
+    <div class="form-group_profile">
     <label for="dni">DNI</label>
-    <input type="text" id="dni" name="dni" value="{{ old('dni', $user->dni) }}" required>
+    <input type="text" id="dni" name="dni" value="{{ old('dni') }}" required>
 </div>
 
         <div class="form-group_profile">
