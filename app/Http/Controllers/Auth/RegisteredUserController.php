@@ -14,6 +14,7 @@ use Illuminate\View\View;
 use App\Services\EmailService;
 use App\Mail\BienvenidaUserMail;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\UniversalMail;
 
 class RegisteredUserController extends Controller
 {
