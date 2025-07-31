@@ -123,45 +123,88 @@
 
         <div class="carousel-container">
             <div class="viajes-carousel" id="viajesCarousel">
-                @for ($i = 1; $i <= 4; $i++)
-                <div class="viaje-card">
-                    <div class="route">
-                        <div class="cities">
-                            <span class="from">{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}</span>
-                            <i class="fas fa-arrow-right"></i>
-                            <span class="to">{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}</span>
+                @if($viajesDestacados->count() > 0)
+                    @foreach($viajesDestacados as $viaje)
+                    <div class="viaje-card">
+                        <div class="route">
+                            <div class="cities">
+                                <span class="from">{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}</span>
+                                <i class="fas fa-arrow-right"></i>
+                                <span class="to">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</span>
+                            </div>
+                            <div class="time">{{ $viaje->hora_salida ?? 'Hora por definir' }}</div>
                         </div>
-                        <div class="time">{{ \App\Models\Contenido::getValor('viajes', 'tiempo_' . $i) }}</div>
-                    </div>
-                    <div class="driver">
-                        <img src="{{ \App\Models\Contenido::getValor('viajes', 'img_' . $i) }}" alt="Viaje">
-                        <div class="info">
-                            <h4>{{ \App\Models\Contenido::getValor('viajes', 'conductor_' . $i) }}</h4>
-                            <div class="rating">
-                                <i class="fas fa-star"></i>
-                                <span>{{ \App\Models\Contenido::getValor('viajes', 'rating_' . $i) }}</span>
+                        <div class="driver">
+                            <img src="{{ $viaje->conductor && $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" alt="Conductor">
+                            <div class="info">
+                                <h4>{{ $viaje->conductor?->name ?? 'Conductor' }}</h4>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{ $viaje->conductor && $viaje->conductor->calificacion_promedio ? number_format($viaje->conductor->calificacion_promedio, 1) : 'Nuevo' }}</span>
+                                </div>
                             </div>
                         </div>
+                        <div class="details">
+                            <div class="item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</span>
+                            </div>
+                            <div class="item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ $viaje->puestos_disponibles }} {{ $viaje->puestos_disponibles == 1 ? 'lugar' : 'lugares' }}</span>
+                            </div>
+                            <div class="price">
+                                <span class="amount">${{ number_format($viaje->valor_persona ?? 5200, 0, ',', '.') }}</span>
+                                <small>por persona</small>
+                            </div>
+                        </div>
+                        <button class="reserve-btn" onclick="goToLogin('{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}', '{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}')">
+                            {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
+                        </button>
                     </div>
-                    <div class="details">
-                        <div class="item">
-                            <i class="fas fa-calendar"></i>
-                            <span>{{ \App\Models\Contenido::getValor('viajes', 'fecha_' . $i) }}</span>
+                    @endforeach
+                @else
+                    {{-- Fallback: Si no hay viajes reales, mostrar los del seeder --}}
+                    @for ($i = 1; $i <= 4; $i++)
+                    <div class="viaje-card">
+                        <div class="route">
+                            <div class="cities">
+                                <span class="from">{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}</span>
+                                <i class="fas fa-arrow-right"></i>
+                                <span class="to">{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}</span>
+                            </div>
+                            <div class="time">{{ \App\Models\Contenido::getValor('viajes', 'tiempo_' . $i) }}</div>
                         </div>
-                        <div class="item">
-                            <i class="fas fa-users"></i>
-                            <span>{{ \App\Models\Contenido::getValor('viajes', 'lugares_' . $i) }}</span>
+                        <div class="driver">
+                            <img src="{{ \App\Models\Contenido::getValor('viajes', 'img_' . $i) }}" alt="Viaje">
+                            <div class="info">
+                                <h4>{{ \App\Models\Contenido::getValor('viajes', 'conductor_' . $i) }}</h4>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <span>{{ \App\Models\Contenido::getValor('viajes', 'rating_' . $i) }}</span>
+                                </div>
+                            </div>
                         </div>
-                        <div class="price">
-                            <span class="amount">{{ \App\Models\Contenido::getValor('viajes', 'precio_' . $i) }}</span>
-                            <small>por persona</small>
+                        <div class="details">
+                            <div class="item">
+                                <i class="fas fa-calendar"></i>
+                                <span>{{ \App\Models\Contenido::getValor('viajes', 'fecha_' . $i) }}</span>
+                            </div>
+                            <div class="item">
+                                <i class="fas fa-users"></i>
+                                <span>{{ \App\Models\Contenido::getValor('viajes', 'lugares_' . $i) }}</span>
+                            </div>
+                            <div class="price">
+                                <span class="amount">{{ \App\Models\Contenido::getValor('viajes', 'precio_' . $i) }}</span>
+                                <small>por persona</small>
+                            </div>
                         </div>
+                        <button class="reserve-btn" onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}')">
+                            {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
+                        </button>
                     </div>
-                    <button class="reserve-btn" onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}')">
-                        {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
-                    </button>
-                </div>
-                @endfor
+                    @endfor
+                @endif
             </div>
             <div class="carousel-controls">
                 <button class="carousel-btn" id="prevBtn"><i class="fas fa-chevron-left"></i></button>

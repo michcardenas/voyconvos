@@ -4,25 +4,41 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Contenido;
+use App\Models\Viaje;
 
 class InicioController extends Controller
 {
-   public function index()
+public function index() 
 {
     // Obtener metadatos de la página inicio
     $metadatos = \App\Models\MetadatoPagina::where('pagina', 'inicio')->first();
     
+    // Obtener viajes para mostrar en la home (simplificado para que muestre todos)
+    $viajesDestacados = Viaje::with(['conductor'])
+        ->orderBy('created_at', 'desc') // Los más recientes primero
+        ->limit(6)
+        ->get();
+
+    // Formatear direcciones solo si existen los métodos
+    if (method_exists($this, 'formatearDireccion')) {
+        $viajesDestacados->each(function ($viaje) {
+            $viaje->origen_direccion = $this->formatearDireccion($viaje->origen_direccion);
+            $viaje->destino_direccion = $this->formatearDireccion($viaje->destino_direccion);
+        });
+    }
+        
     // Obtener datos de formularios desde el seeder
     $origenes = $this->getOrigenes();
     $destinos = $this->getDestinos();
     $asuntos = $this->getAsuntos();
 
     return view('welcome', [
-        'metadatos' => $metadatos, // Agregar metadatos aquí
+        'metadatos' => $metadatos,
+        'viajesDestacados' => $viajesDestacados,
         'origenes' => $origenes,
         'destinos' => $destinos,
         'asuntos' => $asuntos,
-        
+                
         // Variables del formulario de contacto
         'titulo' => $this->getContenido('contacto_form', 'titulo', 'Envíanos un mensaje'),
         'subtitulo' => $this->getContenido('contacto_form', 'subtitulo', 'Estamos aquí para ayudarte'),
