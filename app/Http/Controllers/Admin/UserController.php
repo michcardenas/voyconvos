@@ -9,7 +9,9 @@ use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Hash;
 use App\Models\RegistroConductor; // Añadir este import
 use Illuminate\Support\Facades\Storage; // Añadir este import
-
+use App\Mail\UniversalMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
@@ -68,7 +70,7 @@ public function edit(User $user)
     
     return view('admin.users.edit', compact('user', 'roles', 'registroConductor'));
 }
-public function update(Request $request, User $user)
+public function update(Request $request, User $user) 
 {
     $request->validate([
         'name' => 'required|string|max:255',
@@ -83,6 +85,11 @@ public function update(Request $request, User $user)
         'dni_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'dni_foto_atras' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
     ]);
+
+    // VERIFICAR SI EL USUARIO SERÁ VERIFICADO (cambio de false a true)
+    $eraNoVerificado = !$user->verificado; // Estado anterior
+    $seraVerificado = $request->verificado; // Estado nuevo
+    $acabaDeSerVerificado = $eraNoVerificado && $seraVerificado;
 
     // Datos básicos del usuario
     $data = $request->only([
@@ -122,7 +129,26 @@ public function update(Request $request, User $user)
     // Actualizar rol
     $user->syncRoles([$request->role]);
 
-    return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente');
+    // ENVIAR CORREO SI ACABA DE SER VERIFICADO
+    if ($acabaDeSerVerificado) {
+        try {
+            Mail::to($user->email)->send(new UniversalMail(
+                $user,
+                '¡Cuenta verificada exitosamente! - VoyConvos',
+                "¡Excelentes noticias! Tu cuenta ha sido verificada exitosamente.\n\nYa puedes empezar a utilizar todos nuestros servicios sin restricciones:\n\n\n• Conectar con otros viajeros\n• Acceder a todas las funcionalidades de la plataforma\n• Disfrutar de la experiencia completa de VoyConvos\n\n¡Bienvenido oficialmente a nuestra comunidad de viajeros!\n\nGracias por tu paciencia durante el proceso de verificación.",
+                'notificacion'
+            ));
+            
+            // Log para confirmar el envío
+            Log::info("Email de verificación enviado a: {$user->email}");
+            
+        } catch (Exception $e) {
+            // Si falla el email, registrar el error pero continuar
+            Log::error('Error enviando email de verificación exitosa: ' . $e->getMessage());
+        }
+    }
+
+    return redirect()->route('admin.users.index')->with('success', 'Usuario actualizado correctamente' . ($acabaDeSerVerificado ? '. Se ha notificado al usuario sobre su verificación.' : ''));
 }
 
     

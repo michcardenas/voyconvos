@@ -12,7 +12,8 @@ use App\Models\User;
 use App\Models\RegistroConductor;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Hash;
-
+use App\Mail\UniversalMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ProfileController extends Controller
@@ -432,6 +433,16 @@ public function registroStore(Request $request)
         'dni_foto_atras' => $dniFotoAtrasPath,
         'verificado' => false, // Marcar como no verificado hasta que admin revise
     ]);
+      try {
+        Mail::to($user->email)->send(new UniversalMail(
+            $user,
+            'Documentos recibidos - Verificación en proceso',
+            "Hemos recibido correctamente tus documentos de identificación.\n\nNuestro equipo de VoyConvos está revisando tu información para completar la verificación de tu cuenta.\n\nTe contactaremos en las próximas 24 a 48 horas con el resultado de la verificación.\n\nMientras tanto, puedes explorar la plataforma y familiarizarte con nuestros servicios.\n\n¡Gracias por confiar en VoyConvos!",
+            'notificacion'
+        ));
+    } catch (Exception $e) {
+        Log::error('Error enviando email de verificación: ' . $e->getMessage());
+    }
 
     return redirect()->route('pasajero.dashboard')
         ->with('success', 'Datos de DNI enviados correctamente. Tu cuenta será verificada pronto.');

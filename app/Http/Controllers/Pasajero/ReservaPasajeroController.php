@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use App\Services\UalaService;
 use App\Models\RegistroConductor; // Asegúrate de importar el modelo correcto
 use Illuminate\Support\Facades\DB;
+use App\Mail\UniversalMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ReservaPasajeroController extends Controller
 {
@@ -261,6 +264,7 @@ public function reservar(Request $request, Viaje $viaje)
     }
     
     $userId = auth()->id();
+    $usuario = auth()->user(); // Agregar esta línea para obtener el usuario completo
     
     // DEBUG AL INICIO
     \Log::info('=== INICIO RESERVAR ===', [
@@ -383,11 +387,35 @@ public function reservar(Request $request, Viaje $viaje)
 
             \DB::commit();
 
-            return redirect()->route('pasajero.dashboard')->with('success', '✅ Se ha creado su reserva y está esperando la confirmación del conductor. Una vez confirmada, podrá proceder al pago.');
+            // ENVIAR EMAIL AL PASAJERO - RESERVA PENDIENTE DE CONFIRMACIÓN
+            try {
+                $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+                $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+                $conductor = \App\Models\User::find($viaje->conductor_id);
+                
+                Mail::to($usuario->email)->send(new UniversalMail(
+                    $usuario,
+                    'Reserva creada - Esperando confirmación del conductor',
+                    "Tu reserva ha sido creada exitosamente y está esperando la confirmación del conductor.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos reservados: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nEl conductor revisará tu solicitud y te notificaremos cuando sea confirmada. Una vez confirmada, podrás proceder al pago.\n\nTe mantendremos informado sobre el estado de tu reserva.",
+                    'notificacion'
+                ));
+                
+                // EMAIL AL CONDUCTOR - NUEVA RESERVA PARA CONFIRMAR
+                Mail::to($conductor->email)->send(new UniversalMail(
+                    $conductor,
+                    'Nueva reserva para confirmar - VoyConvos',
+                    "Tienes una nueva reserva esperando tu confirmación.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Pasajero: {$usuario->name}\n• Puestos solicitados: {$reserva->cantidad_puestos}\n• Valor: $" . number_format($reserva->total, 0, ',', '.') . "\n\nPor favor, ingresa a tu panel de conductor para revisar y confirmar esta reserva.\n\nUna vez que confirmes, el pasajero podrá proceder al pago.",
+                    'notificacion'
+                ));
+                
+            } catch (\Exception $e) {
+                \Log::error('Error enviando emails de reserva pendiente: ' . $e->getMessage());
+            }
+
+            return redirect()->route('pasajero.dashboard')->with('success', '✅ Se ha creado su reserva y está esperando la confirmación del conductor. Te hemos enviado un correo con los detalles. Una vez confirmada, podrás proceder al pago.');
         }
 
         // 🏷️ ETIQUETA PARA SALTO DIRECTO A UALA
-// 🏷️ ETIQUETA PARA SALTO DIRECTO A UALA
         uala_setup:
 
         // Configurar Uala
@@ -482,7 +510,7 @@ private function verificarViajeCompleto($viaje)
 }
     // Callbacks de Mercado Pago
    // Actualizar tu método pagoSuccess existente
-public function pagoSuccess(Request $request, Reserva $reserva)
+public function pagoSuccess(Request $request, Reserva $reserva) 
 {
     // Logging para Uala
     \Log::info('=== UALA PAGO SUCCESS ===', [
@@ -497,13 +525,41 @@ public function pagoSuccess(Request $request, Reserva $reserva)
     $reserva->uala_payment_date = now();
     $reserva->save();
     
+    // ENVIAR EMAIL DE PAGO EXITOSO
+    try {
+        $viaje = $reserva->viaje;
+        $pasajero = $reserva->user;
+        $conductor = \App\Models\User::find($viaje->conductor_id);
+        $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+        $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+        
+        // EMAIL AL PASAJERO
+        Mail::to($pasajero->email)->send(new UniversalMail(
+            $pasajero,
+            '¡Pago confirmado! - Reserva asegurada',
+            "¡Excelente! Tu pago ha sido procesado exitosamente.\n\n📍 Detalles de tu viaje confirmado:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total pagado: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nTu reserva está 100% confirmada. Te contactaremos pronto con más detalles del viaje.\n\n¡Buen viaje!",
+            'notificacion'
+        ));
+        
+        // EMAIL AL CONDUCTOR
+        Mail::to($conductor->email)->send(new UniversalMail(
+            $conductor,
+            'Pago recibido - Reserva confirmada',
+            "¡Buenas noticias! Se ha confirmado el pago de una reserva.\n\n📍 Detalles:\n• Viaje: {$viaje->origen} → {$viaje->destino}\n• Fecha: {$fechaViaje} a las {$horaViaje}\n• Pasajero: {$pasajero->name}\n• Puestos: {$reserva->cantidad_puestos}\n• Monto: $" . number_format($reserva->total, 0, ',', '.') . "\n\nLa reserva está completamente confirmada. Te contactaremos pronto para coordinar detalles del viaje.",
+            'notificacion'
+        ));
+        
+    } catch (Exception $e) {
+        \Log::error('Error enviando email de pago exitoso: ' . $e->getMessage());
+    }
+
     // Verificar si el viaje está completo (tu lógica existente)
     $this->verificarViajeCompleto($reserva->viaje);
-    
+        
     return view('pasajero.pago-exitoso', compact('reserva'));
 }
 
-public function pagoFailure(Request $request, Reserva $reserva)
+public function pagoFailure(Request $request, Reserva $reserva) 
 {
     // Logging para Uala
     \Log::info('=== UALA PAGO FAILURE ===', [
@@ -517,10 +573,28 @@ public function pagoFailure(Request $request, Reserva $reserva)
     $reserva->uala_payment_status = 'rejected';
     $reserva->save();
     
+    // ENVIAR EMAIL DE PAGO FALLIDO
+    try {
+        $viaje = $reserva->viaje;
+        $pasajero = $reserva->user;
+        $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+        $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+        
+        Mail::to($pasajero->email)->send(new UniversalMail(
+            $pasajero,
+            'Problema con el pago - VoyConvos',
+            "Lamentamos informarte que hubo un problema con tu pago.\n\n📍 Detalles de la reserva:\n• Viaje: {$viaje->origen} → {$viaje->destino}\n• Fecha: {$fechaViaje} a las {$horaViaje}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n\nNo te preocupes, puedes intentar realizar el pago nuevamente o buscar otros viajes disponibles.\n\nSi tienes alguna duda, contáctanos.\n\nGracias por usar VoyConvos.",
+            'general'
+        ));
+        
+    } catch (Exception $e) {
+        \Log::error('Error enviando email de pago fallido: ' . $e->getMessage());
+    }
+        
     return view('pasajero.pago-fallido', compact('reserva'));
 }
 
-public function pagoPending(Request $request, Reserva $reserva)
+public function pagoPending(Request $request, Reserva $reserva) 
 {
     // Logging para Uala
     \Log::info('=== UALA PAGO PENDING ===', [
@@ -534,6 +608,24 @@ public function pagoPending(Request $request, Reserva $reserva)
     $reserva->uala_payment_status = 'pending';
     $reserva->save();
     
+    // ENVIAR EMAIL DE PAGO PENDIENTE
+    try {
+        $viaje = $reserva->viaje;
+        $pasajero = $reserva->user;
+        $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+        $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+        
+        Mail::to($pasajero->email)->send(new UniversalMail(
+            $pasajero,
+            'Pago en proceso - VoyConvos',
+            "Tu pago está siendo procesado.\n\n📍 Detalles de la reserva:\n• Viaje: {$viaje->origen} → {$viaje->destino}\n• Fecha: {$fechaViaje} a las {$horaViaje}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n\nTe notificaremos tan pronto se confirme el pago.\n\nEsto puede tomar unos minutos. Si tienes alguna duda, contáctanos.\n\nGracias por tu paciencia.",
+            'general'
+        ));
+        
+    } catch (Exception $e) {
+        \Log::error('Error enviando email de pago pendiente: ' . $e->getMessage());
+    }
+        
     return view('pasajero.pago-pendiente', compact('reserva'));
 }
 public function confirmacionReserva(Reserva $reserva)

@@ -8,6 +8,9 @@ use App\Models\Reserva;  // ← ESTO FALTA
 use App\Models\Viaje; 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use App\Mail\UniversalMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class ConductorController extends Controller
 {
@@ -44,53 +47,78 @@ public function gestion()
         'config_comision' => $configuracionComision,
     ]);
 }
-public function verificarPasajero(Request $request, Reserva $reserva)
+public function verificarPasajero(Request $request, Reserva $reserva) 
 {
     $request->validate([
         'accion' => 'required|in:verificar,rechazar'
     ]);
-    
+        
     // Verificar que el usuario actual sea el conductor del viaje
     if ($reserva->viaje->conductor_id !== auth()->id()) {
         abort(403, 'No tienes permiso para realizar esta acción.');
     }
-    
+        
     // Verificar que la reserva esté en un estado válido para ser modificada
     if (!in_array($reserva->estado, ['pendiente_confirmacion', 'pendiente_pago'])) {
         return redirect()->back()->with('error', 'No se puede modificar esta reserva en su estado actual.');
     }
-    
+        
     $viaje = $reserva->viaje;
-    
+    $pasajero = $reserva->user; // Obtener el pasajero
+    $conductor = auth()->user(); // Obtener el conductor
+        
     if ($request->accion === 'verificar') {
         $reserva->update([
             'estado' => 'pendiente_pago',
             'updated_at' => now()
         ]);
-        
+                
+        // ENVIAR EMAIL AL PASAJERO - APROBADO
+        try {
+            Mail::to($pasajero->email)->send(new UniversalMail(
+                $pasajero,
+                '¡Reserva aprobada! - Procede al pago',
+                "¡Excelentes noticias! El conductor {$conductor->name} ha aprobado tu reserva.\n\nViaje: {$viaje->origen} → {$viaje->destino}\nTotal a pagar: $" . number_format($reserva->total, 0, ',', '.') . "\n\nAhora puedes proceder al pago para asegurar tu lugar en el viaje.\n\nIngresa a tu panel de pasajero para completar el pago.",
+                'notificacion'
+            ));
+        } catch (Exception $e) {
+            // Si falla el email, solo registrar pero continuar
+            \Log::error('Error enviando email de aprobación: ' . $e->getMessage());
+        }
+                
         $mensaje = 'Pasajero aprobado. Estado cambiado a pendiente de pago.';
         $tipo = 'success';
-        
+            
     } elseif ($request->accion === 'rechazar') {
         // Actualizar el estado a cancelado por conductor
         $reserva->update([
             'estado' => 'cancelar_por_conductor',
             'updated_at' => now()
         ]);
-        
+                
         // Devolver los puestos al viaje (incrementar puestos disponibles)
         $viaje->increment('puestos_disponibles', $reserva->cantidad_puestos);
         
+        // ENVIAR EMAIL AL PASAJERO - RECHAZADO
+        try {
+            Mail::to($pasajero->email)->send(new UniversalMail(
+                $pasajero,
+                'Reserva no aprobada - VoyConvos',
+                "Lamentamos informarte que el conductor no pudo aprobar tu reserva.\n\nViaje: {$viaje->origen} → {$viaje->destino}\n\nNo te preocupes, puedes buscar otros viajes disponibles en nuestra plataforma.\n\nNo se realizó ningún cobro por esta reserva.\n\nGracias por usar VoyConvos.",
+                'general'
+            ));
+        } catch (Exception $e) {
+            // Si falla el email, solo registrar pero continuar
+            \Log::error('Error enviando email de rechazo: ' . $e->getMessage());
+        }
+                
         $mensaje = 'Pasajero rechazado exitosamente. Los puestos han sido liberados.';
         $tipo = 'success';
-        
-        // Opcional: Enviar notificación al pasajero
-        // $this->notificarRechazoAlPasajero($reserva);
     }
-    
+        
     // Verificar y actualizar el estado del viaje
     $this->actualizarEstadoViaje($viaje);
-    
+        
     return redirect()->back()->with($tipo, $mensaje);
 }
 
@@ -199,6 +227,47 @@ public function iniciarViaje(Viaje $viaje)
             'estado_nuevo' => $viaje->estado
         ]);
 
+        // 📧 ENVIAR EMAILS - VIAJE INICIADO
+        try {
+            $conductor = auth()->user();
+            $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+            $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+            
+            // EMAIL AL CONDUCTOR
+            Mail::to($conductor->email)->send(new UniversalMail(
+                $conductor,
+                'Viaje iniciado exitosamente - VoyConvos',
+                "¡Tu viaje ha sido iniciado exitosamente!\n\n📍 Detalles del viaje:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Reservas confirmadas: {$reservasConfirmadas}\n\nAhora puedes proceder a verificar a los pasajeros en el punto de encuentro.\n\n¡Buen viaje y maneja con seguridad!",
+                'notificacion'
+            ));
+            
+            // EMAILS A LOS PASAJEROS CON RESERVAS CONFIRMADAS
+            $pasajerosConfirmados = $viaje->reservas()
+                ->whereIn('estado', ['confirmada', 'confirmado', 'pendiente'])
+                ->with('user')
+                ->get();
+            
+            foreach ($pasajerosConfirmados as $reserva) {
+                if ($reserva->user && $reserva->user->email) {
+                    Mail::to($reserva->user->email)->send(new UniversalMail(
+                        $reserva->user,
+                        '¡Tu viaje ha comenzado! - VoyConvos',
+                        "¡Tu viaje con VoyConvos ha comenzado!\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Conductor: {$conductor->name}\n• Puestos reservados: {$reserva->cantidad_puestos}\n\nEl conductor está en camino al punto de encuentro. Te recomendamos estar listo.\n\n¡Disfruta tu viaje!",
+                        'notificacion'
+                    ));
+                }
+            }
+            
+            \Log::info('Emails de viaje iniciado enviados', [
+                'viaje_id' => $viaje->id,
+                'pasajeros_notificados' => $pasajerosConfirmados->count()
+            ]);
+            
+        } catch (\Exception $emailError) {
+            // Si fallan los emails, solo registrar pero continuar
+            \Log::error('Error enviando emails de viaje iniciado: ' . $emailError->getMessage());
+        }
+
         // 🔄 Generar URL de verificación
         try {
             $redirectUrl = route('conductor.viaje.verificar-pasajeros', $viaje->id);
@@ -246,7 +315,6 @@ public function iniciarViaje(Viaje $viaje)
         ], 500);
     }
 }
-
 // 🔍 MÉTODO ADICIONAL PARA DEBUG (temporal)
 public function debugViaje(Viaje $viaje)
 {
@@ -577,7 +645,7 @@ public function verViajeFinalizados($viajeId)
             ->with('error', 'Error al cargar el viaje finalizado: ' . $e->getMessage());
     }
 }
-public function calificar(Request $request, $reservaId) 
+public function calificar(Request $request, $reservaId)  
 {
     try {
         // Validar datos
@@ -623,6 +691,36 @@ public function calificar(Request $request, $reservaId)
             'tipo' => 'conductor_a_pasajero'
         ]);
 
+        // 📧 ENVIAR EMAIL AL PASAJERO
+        try {
+            $viaje = $reserva->viaje;
+            $pasajero = $reserva->user;
+            $conductor = auth()->user();
+            
+            if ($pasajero && $pasajero->email && $viaje) {
+                $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+                $estrellas = str_repeat('⭐', $request->calificacion);
+                $comentarioTexto = $request->comentario ? "\n\nComentario del conductor:\n\"{$request->comentario}\"" : '';
+                
+                Mail::to($pasajero->email)->send(new UniversalMail(
+                    $pasajero,
+                    'Has recibido una calificación - VoyConvos',
+                    "¡El conductor {$conductor->name} te ha calificado!\n\n📍 Detalles del viaje:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n\n⭐ Calificación recibida: {$estrellas} ({$request->calificacion}/5){$comentarioTexto}\n\nGracias por viajar con VoyConvos. Tu buena conducta como pasajero es muy valorada.\n\n¡Esperamos verte en futuros viajes!",
+                    'notificacion'
+                ));
+                
+                \Log::info('Email de calificación enviado', [
+                    'calificacion_id' => $calificacion->id,
+                    'pasajero_email' => $pasajero->email,
+                    'calificacion' => $request->calificacion
+                ]);
+            }
+            
+        } catch (\Exception $emailError) {
+            // Si falla el email, solo registrar pero continuar
+            \Log::error('Error enviando email de calificación: ' . $emailError->getMessage());
+        }
+
         // 📝 Log para seguimiento
         \Log::info('Calificación creada exitosamente', [
             'calificacion_id' => $calificacion->id,
@@ -667,7 +765,6 @@ public function calificar(Request $request, $reservaId)
         ], 500);
     }
 }
-
 
 // 🔥 MÉTODO ADICIONAL: Finalizar viaje
 public function finalizarViaje(Request $request, $viajeId)
@@ -718,7 +815,7 @@ public function finalizarViaje(Request $request, $viajeId)
 }
 
 
-public function calificarConductor(Request $request, $reservaId) 
+public function calificarConductor(Request $request, $reservaId)  
 {
     try {
         // Validar datos
@@ -729,7 +826,7 @@ public function calificarConductor(Request $request, $reservaId)
 
         // Buscar la reserva del pasajero autenticado
         $reserva = \App\Models\Reserva::where('user_id', auth()->id())
-                                    ->findOrFail($reservaId);
+                                  ->findOrFail($reservaId);
 
         // Verificar si ya calificó antes
         $yaCalifico = \App\Models\Calificacion::where([
@@ -746,13 +843,44 @@ public function calificarConductor(Request $request, $reservaId)
         }
 
         // Crear la calificación
-        \App\Models\Calificacion::create([
+        $calificacion = \App\Models\Calificacion::create([
             'reserva_id' => $reservaId,
             'usuario_id' => auth()->id(),
             'calificacion' => $request->calificacion,
             'comentario' => $request->comentario,
             'tipo' => 'pasajero_a_conductor'
         ]);
+
+        // 📧 ENVIAR EMAIL AL CONDUCTOR
+        try {
+            $viaje = $reserva->viaje;
+            $pasajero = auth()->user();
+            $conductor = \App\Models\User::find($viaje->conductor_id);
+            
+            if ($conductor && $conductor->email && $viaje) {
+                $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+                $estrellas = str_repeat('⭐', $request->calificacion);
+                $comentarioTexto = $request->comentario ? "\n\nComentario del pasajero:\n\"{$request->comentario}\"" : '';
+                
+                Mail::to($conductor->email)->send(new UniversalMail(
+                    $conductor,
+                    'Has recibido una calificación - VoyConvos',
+                    "¡El pasajero {$pasajero->name} te ha calificado!\n\n📍 Detalles del viaje:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n\n⭐ Calificación recibida: {$estrellas} ({$request->calificacion}/5){$comentarioTexto}\n\nGracias por brindar un excelente servicio como conductor en VoyConvos. Tu dedicación es muy valorada.\n\n¡Sigue así y tendrás más pasajeros satisfechos!",
+                    'notificacion'
+                ));
+                
+                \Log::info('Email de calificación a conductor enviado', [
+                    'calificacion_id' => $calificacion->id,
+                    'conductor_email' => $conductor->email,
+                    'calificacion' => $request->calificacion,
+                    'pasajero_id' => $pasajero->id
+                ]);
+            }
+            
+        } catch (\Exception $emailError) {
+            // Si falla el email, solo registrar pero continuar
+            \Log::error('Error enviando email de calificación a conductor: ' . $emailError->getMessage());
+        }
 
         return response()->json([
             'success' => true,
