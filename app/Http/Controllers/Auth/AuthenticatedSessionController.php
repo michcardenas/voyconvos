@@ -22,25 +22,49 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
-public function store(LoginRequest $request): RedirectResponse
+public function store(LoginRequest $request): RedirectResponse 
 {
     $request->authenticate();
-    
     $request->session()->regenerate();
     
     $user = Auth::user();
     
-    // Redirigir según el rol del usuario
-    if ($user->hasRole('conductor')) {
-        return redirect()->intended(route('dashboard', absolute: false));
-    } elseif ($user->hasRole('pasajero')) {
-        return redirect()->intended('/pasajero/dashboard');
+    // Si no tiene ningún rol asignado aún, redirige a editar perfil
+    if ($user->roles->isEmpty()) {
+        return redirect()->route('profile.edit');
     }
     
-    // Redirección por defecto si no tiene ninguno de esos roles
-    return redirect()->intended(route('dashboard', absolute: false));
+    // Asignar rol por defecto si aún no tiene uno de los definidos
+    if (! $user->hasAnyRole(['admin', 'conductor', 'pasajero'])) {
+        $user->assignRole('pasajero');
+    }
+    
+    // ✅ CONDUCTOR - Dashboard principal
+    if ($user->hasRole('conductor')) {
+        if (empty($user->pais) || empty($user->celular) || empty($user->foto)) {
+            return redirect()->route('profile.edit');
+        }
+        
+        return redirect()->route('dashboard'); // 🚗 Solo para conductores
+    }
+    
+    // ✅ PASAJERO - Mini panel específico
+    if ($user->hasRole('pasajero')) {
+        if (empty($user->pais) || empty($user->celular) || empty($user->foto)) {
+            return redirect()->route('profile.edit');
+        }
+        
+        return redirect()->route('pasajero.dashboard'); // 👤 Solo para pasajeros
+    }
+    
+    // ✅ ADMIN - Panel administrativo
+    if ($user->hasRole('admin')) {
+        return redirect()->route('admin.dashboard'); // 👑 Solo para admin
+    }
+    
+    // Fallback - por si acaso (no debería llegar aquí)
+    return redirect()->route('profile.edit');
 }
-
     /**
      * Destroy an authenticated session.
      */
