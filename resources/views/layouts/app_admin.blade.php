@@ -42,7 +42,12 @@
                             Configuración
                         </a>
                 @endrole
-
+                        <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+                    <button type="submit" class="dropdown-item">
+                        <i class="fas fa-sign-out-alt"></i> Cerrar sesión
+                    </button>
+                </form>
                 </li>
                 {{-- Agrega más enlaces aquí si quieres --}}
             </ul>
