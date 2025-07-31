@@ -6,10 +6,15 @@ use Illuminate\Http\Request;
 
 class ContactoController extends Controller
 {
-     public function mostrarFormulario()
-    {
-        return view('contacto'); 
-    }
+   public function mostrarFormulario()
+{
+    // Obtener metadatos de la página contactanos
+    $metadatos = \App\Models\MetadatoPagina::where('pagina', 'contactanos')->first();
+    
+    return view('contacto', [
+        'metadatos' => $metadatos
+    ]);
+}
 
     public function enviarFormulario(Request $request)
     {

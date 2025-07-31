@@ -3,7 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'VoyConVos - Viajes Compartidos')</title>
+{{-- Título dinámico --}}
+@if(isset($metadatos) && $metadatos)
+    <title>{{ $metadatos->meta_title }}</title>
+@else
+    <title>VoyConVos - Viajes Compartidos Seguros</title>
+@endif
+
+{{-- Meta Description --}}
+@if(isset($metadatos) && $metadatos)
+    <meta name="description" content="{{ $metadatos->meta_description }}">
+@else
+    <meta name="description" content="Encuentra viajes compartidos seguros y económicos en Colombia. Conecta con conductores y pasajeros de confianza.">
+@endif
+
+{{-- Meta Keywords --}}
+@if(isset($metadatos) && $metadatos && $metadatos->meta_keywords)
+    <meta name="keywords" content="{{ $metadatos->meta_keywords }}">
+@else
+    <meta name="keywords" content="viajes compartidos, carpooling, transporte Colombia, VoyConVos">
+@endif
+
+{{-- Canonical URL --}}
+@if(isset($metadatos) && $metadatos && $metadatos->canonical_url)
+    <link rel="canonical" href="{{ $metadatos->canonical_url }}">
+@else
+    <link rel="canonical" href="{{ url()->current() }}">
+@endif
+
+{{-- Meta Robots --}}
+@if(isset($metadatos) && $metadatos && $metadatos->meta_robots)
+    <meta name="robots" content="{{ $metadatos->meta_robots }}">
+@else
+    <meta name="robots" content="index, follow">
+@endif
+
+{{-- Meta tags extra (Open Graph, Twitter, etc.) --}}
+@if(isset($metadatos) && $metadatos && $metadatos->extra_meta)
+    {!! $metadatos->extra_meta !!}
+@else
+    <meta property="og:title" content="VoyConVos - Viajes Compartidos">
+    <meta property="og:description" content="Encuentra viajes compartidos seguros y económicos en Colombia">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="https://voyconvos.com/images/og-home.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="VoyConVos - Viajes Compartidos">
+@endif    
     
     <!-- CSS en orden correcto -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -119,46 +164,70 @@
 
     {{-- HEADER --}}
     <header id="navbar" class="navbar">
-        <div class="container header-container">
-            <!-- Logo -->
-            <div class="logo">
-                <a href="{{ url('/') }}">
-                    <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image">
-                    <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text">
-                </a>
-            </div>
+    <div class="container header-container">
+        <!-- Logo -->
+        <div class="logo">
+            <a href="{{ url('/') }}">
+                <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image">
+                <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text">
+            </a>
+        </div>
 
-            <!-- Navegación Desktop -->
-            <nav class="desktop-nav">
-                <ul>
-                    <li><a href="{{ url('/') }}">Inicio</a></li>
-                    <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
-                    <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
-                    <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
-                </ul>
-            </nav>
+        <!-- Navegación Desktop -->
+        <nav class="desktop-nav">
+            <ul>
+                <li><a href="{{ url('/') }}">Inicio</a></li>
+                <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
+                <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
+                <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
+            </ul>
+        </nav>
 
-            <!-- Usuario Desktop -->
-            <div class="desktop-user">
-                <div class="dropdown">
-                    <a href="#" class="profile-icon" id="userDropdown">
-                        <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-                    </a>
-                    <div class="dropdown-menu" id="userMenu">
+        <!-- Usuario Desktop -->
+        <div class="desktop-user">
+            <div class="dropdown">
+                 <a href="#" class="profile-icon" id="userDropdown">
+            @auth
+                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+            @else
+                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+            @endauth
+        </a>
+                
+                <div class="dropdown-menu" id="userMenu">
+                    @auth
+                        <!-- Dashboard según el rol -->
+                        @if(Auth::user()->hasRole('admin'))
+                            <a href="{{ route('admin.dashboard') }}" class="dropdown-item">Dashboard Admin</a>
+                        @elseif(Auth::user()->hasRole('conductor'))
+                            <a href="{{ route('dashboard') }}" class="dropdown-item">Mi Dashboard</a>
+                        @elseif(Auth::user()->hasRole('pasajero'))
+                            <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">Mi Panel</a>
+                        @endif
+                        
+                        
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
+                                Cerrar Sesión
+                            </button>
+                        </form>
+                    @else
                         <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>
                         <a href="{{ route('register') }}" class="dropdown-item">Registrarse</a>
-                    </div>
+                    @endauth
                 </div>
             </div>
-
-            <!-- Botón Hamburguesa (Solo Móvil) -->
-            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-                <span class="hamburger-line"></span>
-            </button>
         </div>
-    </header>
+
+        <!-- Botón Hamburguesa (Solo Móvil) -->
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+            <span class="hamburger-line"></span>
+        </button>
+    </div>
+</header>
 
     {{-- OVERLAY MÓVIL --}}
     <div class="mobile-overlay" id="mobileOverlay"></div>

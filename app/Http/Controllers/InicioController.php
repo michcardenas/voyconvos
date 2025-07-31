@@ -7,27 +7,30 @@ use App\Models\Contenido;
 
 class InicioController extends Controller
 {
-    public function index()
-    {
-        // Obtener datos de formularios desde el seeder
-        $origenes = $this->getOrigenes();
-        $destinos = $this->getDestinos();
-        $asuntos = $this->getAsuntos();
+   public function index()
+{
+    // Obtener metadatos de la página inicio
+    $metadatos = \App\Models\MetadatoPagina::where('pagina', 'inicio')->first();
+    
+    // Obtener datos de formularios desde el seeder
+    $origenes = $this->getOrigenes();
+    $destinos = $this->getDestinos();
+    $asuntos = $this->getAsuntos();
 
-        return view('welcome', [
-            'origenes' => $origenes,
-            'destinos' => $destinos,
-            'asuntos' => $asuntos,
-            
-            // Variables del formulario de contacto
-            'titulo' => $this->getContenido('contacto_form', 'titulo', 'Envíanos un mensaje'),
-            'subtitulo' => $this->getContenido('contacto_form', 'subtitulo', 'Estamos aquí para ayudarte'),
-            'acepto' => $this->getContenido('contacto_form', 'acepto_terminos', 'Acepto los términos y condiciones'),
-            'boton' => $this->getContenido('contacto_form', 'btn_enviar', 'Enviar mensaje'),
-            'msg_ok' => $this->getContenido('contacto_form', 'msg_exito', 'Mensaje enviado correctamente'),
-        ]);
-    }
-
+    return view('welcome', [
+        'metadatos' => $metadatos, // Agregar metadatos aquí
+        'origenes' => $origenes,
+        'destinos' => $destinos,
+        'asuntos' => $asuntos,
+        
+        // Variables del formulario de contacto
+        'titulo' => $this->getContenido('contacto_form', 'titulo', 'Envíanos un mensaje'),
+        'subtitulo' => $this->getContenido('contacto_form', 'subtitulo', 'Estamos aquí para ayudarte'),
+        'acepto' => $this->getContenido('contacto_form', 'acepto_terminos', 'Acepto los términos y condiciones'),
+        'boton' => $this->getContenido('contacto_form', 'btn_enviar', 'Enviar mensaje'),
+        'msg_ok' => $this->getContenido('contacto_form', 'msg_exito', 'Mensaje enviado correctamente'),
+    ]);
+}
     /**
      * Obtener contenido con valor por defecto
      */
