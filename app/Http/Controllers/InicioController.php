@@ -12,9 +12,10 @@ public function index()
 {
     // Obtener metadatos de la página inicio
     $metadatos = \App\Models\MetadatoPagina::where('pagina', 'inicio')->first();
-    
+        
     // Obtener viajes para mostrar en la home (simplificado para que muestre todos)
     $viajesDestacados = Viaje::with(['conductor'])
+        ->where('estado', '!=', 'cancelado') // Excluir viajes cancelados
         ->orderBy('created_at', 'desc') // Los más recientes primero
         ->limit(6)
         ->get();
@@ -26,7 +27,7 @@ public function index()
             $viaje->destino_direccion = $this->formatearDireccion($viaje->destino_direccion);
         });
     }
-        
+            
     // Obtener datos de formularios desde el seeder
     $origenes = $this->getOrigenes();
     $destinos = $this->getDestinos();
@@ -38,7 +39,7 @@ public function index()
         'origenes' => $origenes,
         'destinos' => $destinos,
         'asuntos' => $asuntos,
-                
+                        
         // Variables del formulario de contacto
         'titulo' => $this->getContenido('contacto_form', 'titulo', 'Envíanos un mensaje'),
         'subtitulo' => $this->getContenido('contacto_form', 'subtitulo', 'Estamos aquí para ayudarte'),

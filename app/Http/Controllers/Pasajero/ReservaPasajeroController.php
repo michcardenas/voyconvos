@@ -658,8 +658,7 @@ public function confirmacionReserva(Reserva $reserva)
     
     return view('pasajero.reserva-detalles', compact('reserva', 'calificadoPorPasajero'));
 }
-public function mostrarViajesDisponibles(Request $request)
-{
+public function mostrarViajesDisponibles(Request $request) {
     $usuarioId = auth()->id();
     $usuario = auth()->user(); // Obtener el usuario completo
 
@@ -668,9 +667,11 @@ public function mostrarViajesDisponibles(Request $request)
         ->pluck('viaje_id')
         ->toArray();
 
-    // Query base
+    // Query base - AGREGADO FILTRO POR ESTADO
     $query = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
+        ->where('estado', '!=', 'cancelado') // Excluir viajes cancelados
+        // O si prefieres ser más específico: ->where('estado', 'pendiente')
         ->whereNotIn('id', $viajesReservados)
         ->with(['conductor' => function($query) {
             $query->leftJoin('vista_calificaciones_usuarios', function($join) {
@@ -704,15 +705,12 @@ public function mostrarViajesDisponibles(Request $request)
 
     $viajesDisponibles = $query->orderBy('fecha_salida', 'asc')->get();
 
-    // Formatear direcciones
-    $viajesDisponibles->each(function ($viaje) {
-        $viaje->origen_direccion = $this->formatearDireccion($viaje->origen_direccion);
-        $viaje->destino_direccion = $this->formatearDireccion($viaje->destino_direccion);
-    });
+    // Formatear direcciones 
 
-    // Obtener ciudades únicas para los filtros
+    // Obtener ciudades únicas para los filtros - TAMBIÉN AGREGAR FILTRO AQUÍ
     $ciudadesOrigen = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
+        ->where('estado', '!=', 'cancelado') // Filtro agregado
         ->distinct()
         ->pluck('origen_direccion')
         ->map(function($direccion) {
@@ -725,6 +723,7 @@ public function mostrarViajesDisponibles(Request $request)
 
     $ciudadesDestino = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
+        ->where('estado', '!=', 'cancelado') // Filtro agregado
         ->distinct()
         ->pluck('destino_direccion')
         ->map(function($direccion) {
