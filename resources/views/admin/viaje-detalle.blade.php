@@ -195,11 +195,7 @@
                             @endif
                         </table>
 
-                        <div class="mt-3">
-                            <a href="#" class="btn btn-outline-primary btn-block btn-sm">
-                                <i class="fas fa-envelope"></i> Contactar Conductor
-                            </a>
-                        </div>
+                    
                     @else
                         <div class="alert alert-warning">
                             <i class="fas fa-exclamation-triangle"></i>
