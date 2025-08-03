@@ -177,7 +177,11 @@
         </a>
     </div>
 </div>
-
+<div class="center-button mt-3">
+    <a href="{{ route('admin.gestor-pagos') }}" class="btn btn-primary btn-lg">
+        💳 Gestor de Pagos
+    </a>
+</div>
 
 <!-- Tarjetas de viajes -->
 <h2 class="text-center mt-5 mb-4" style="color: #00304b;">🚌 Estadísticas de Viajes</h2>

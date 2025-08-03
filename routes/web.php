@@ -129,7 +129,9 @@ Route::post('/contacto', [ContactoController::class, 'enviarFormulario'])->name(
 Route::get('/admin/gestion', [ConfiguracionAdminController::class, 'index'])->name('admin.gestion');
 Route::get('/admin/gestion/create', [ConfiguracionAdminController::class, 'create'])->name('admin.gestion.create');
 Route::post('/admin/gestion', [ConfiguracionAdminController::class, 'store'])->name('admin.gestion.store');
-
+Route::get('/admin/gestor-pagos', [ConfiguracionAdminController::class, 'gestorPagos'])
+    ->name('admin.gestor-pagos')
+    ->middleware(['auth']); 
 // Rutas conductores
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
