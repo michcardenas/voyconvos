@@ -571,9 +571,7 @@ h4 {
                                         <a href="{{ route('admin.viajes.detalle', $viaje->id) }}" class="btn btn-sm btn-info" title="Ver Detalle">
                                             <i class="fas fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.viajes.editar', $viaje->id) }}" class="btn btn-sm btn-warning" title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </a>
+                                      
                                     </div>
                                 </td>
                             </tr>
