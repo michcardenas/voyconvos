@@ -123,7 +123,6 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><strong><i class="fas fa-power-off text-{{ $viaje->activo ? 'success' : 'danger' }}"></i> Activo:</strong></td>
                                     <td>
                                         <span class="badge badge-{{ $viaje->activo ? 'success' : 'danger' }}">
                                             {{ $viaje->activo ? 'SÍ' : 'NO' }}
