@@ -171,11 +171,17 @@
                             </tr>
                             <tr>
                                 <td><strong>Verificado:</strong></td>
-                                <td>
-                                    <span class="badge badge-{{ $viaje->conductor->verificado ? 'success' : 'warning' }}">
-                                        {{ $viaje->conductor->verificado ? 'SÍ' : 'NO' }}
-                                    </span>
-                                </td>
+                          <td>
+                            @if($viaje->conductor->verificado)
+                                <span class="badge" style="background-color: #4CAF50; color: white; font-weight: 600;">
+                                    <i class="fas fa-check-circle"></i> VERIFICADO
+                                </span>
+                            @else
+                                <span class="badge" style="background-color: #FBBC05; color: #3A3A3A; font-weight: 600;">
+                                    <i class="fas fa-exclamation-triangle"></i> SIN VERIFICAR
+                                </span>
+                            @endif
+                        </td>
                             </tr>
                             @if($viaje->registroConductor)
                             <tr>
