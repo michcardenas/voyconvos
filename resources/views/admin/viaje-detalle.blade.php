@@ -487,7 +487,22 @@
 .border-left-primary {
     border-left: 0.25rem solid var(--color-principal) !important;
 }
+.conductor-image {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid rgba(31, 78, 121, 0.3);
+    box-shadow: 0 4px 15px rgba(31, 78, 121, 0.1);
+    transition: all 0.3s ease;
+    background-color: var(--color-fondo-base);
+}
 
+.conductor-image:hover {
+    border-color: var(--color-principal);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(31, 78, 121, 0.2);
+}s
 /* Responsive */
 @media (max-width: 768px) {
     .origen-destino {
