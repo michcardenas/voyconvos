@@ -157,8 +157,16 @@
                 <div class="card-body">
                     @if($viaje->conductor)
                         <div class="text-center mb-3">
-                            <div class="conductor-avatar">
-                                <i class="fas fa-user-circle fa-4x text-primary"></i>
+                           <div class="conductor-avatar">
+                                @if($viaje->conductor && $viaje->conductor->foto)
+                                    <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" 
+                                        alt="Avatar de {{ $viaje->conductor->name }}" 
+                                        class="conductor-image">
+                                @else
+                                    <img src="{{ asset('img/usuario.png') }}" 
+                                        alt="Avatar por defecto" 
+                                        class="conductor-image">
+                                @endif
                             </div>
                             <h5 class="mt-2">{{ $viaje->conductor->name }}</h5>
                             <p class="text-muted">{{ $viaje->conductor->email }}</p>
