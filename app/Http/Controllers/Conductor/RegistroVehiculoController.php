@@ -51,9 +51,9 @@ class RegistroVehiculoController extends Controller
             'numero_puestos' => $request->numero_puestos, // Nuevo campo agregado
             'patente' => $request->patente,
             'consumo_por_galon' => $request->consumo_por_galon,
-            'licencia' => $request->file('licencia')->store('documentos'),
-            'cedula' => $request->file('cedula')->store('documentos'),
-            'cedula_verde' => $request->file('cedula_verde')->store('documentos'),
+                'licencia' => $request->file('licencia')->store('documentos', 'public'),
+                'cedula' => $request->file('cedula')->store('documentos', 'public'),
+                'cedula_verde' => $request->file('cedula_verde')->store('documentos', 'public'),
             // 'seguro' => $request->file('seguro')->store('documentos'),
             // 'rto' => $request->hasFile('rto') ? $request->file('rto')->store('documentos') : null,
             // 'antecedentes' => $request->hasFile('antecedentes') ? $request->file('antecedentes')->store('documentos') : null,

@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\ConfiguracionAdmin;
 use Illuminate\Http\Request;
 use App\Models\Reserva;
+use App\Models\Viaje;
+use App\Models\User;
 
 
 class ConfiguracionAdminController extends Controller
@@ -96,5 +98,33 @@ public function store(Request $request)
 
         return view('admin.gestor-pagos', compact('pagos', 'estadisticas'));
     }
+public function detalleViaje(Viaje $viaje)
+{
+    $viaje->load(['conductor', 'reservas.user', 'registroConductor']);
+    
+    return view('admin.viaje-detalle', compact('viaje'));
+}
 
+public function editarViaje(Viaje $viaje)
+{
+    return view('admin.viaje-editar', compact('viaje'));
+}
+
+public function todosLosViajes(Request $request)
+{
+    $query = Viaje::with(['conductor', 'reservas']);
+    
+    // Filtros opcionales
+    if ($request->filled('estado')) {
+        $query->where('estado', $request->estado);
+    }
+    
+    if ($request->filled('fecha_desde')) {
+        $query->whereDate('fecha_salida', '>=', $request->fecha_desde);
+    }
+    
+    $viajes = $query->orderBy('fecha_salida', 'desc')->paginate(20);
+    
+    return view('admin.todos-viajes', compact('viajes'));
+}
 }

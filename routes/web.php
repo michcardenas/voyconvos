@@ -97,7 +97,17 @@ Route::post('conductor/finalizar-pasajero/{reservaId}', [
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
 
   Route::get('/dashboard', [PaginaController::class, 'dashboard'])->name('dashboard');
-
+       // Ruta para ver detalle del viaje
+    Route::get('/viajes/{viaje}/detalle', [ConfiguracionAdminController::class, 'detalleViaje'])
+        ->name('viajes.detalle');
+    
+    // Ruta para editar viaje (opcional)
+    Route::get('/viajes/{viaje}/editar', [ConfiguracionAdminController::class, 'editarViaje'])
+        ->name('viajes.editar');
+    
+    // Ruta para ver todos los viajes
+    Route::get('/viajes/todos', [ConfiguracionAdminController::class, 'todosLosViajes'])
+        ->name('viajes.todos');
 
     Route::resource('users', UserController::class);
     Route::resource('paginas', PaginaController::class);

@@ -115,7 +115,270 @@
     font-size: 0.75rem;
     border-radius: 0.5rem;
 }
+<style>
+/* Cursor y hover effects */
+.cursor-pointer {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
 
+.cursor-pointer:hover {
+    background-color: var(--color-azul-claro) !important;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(31, 78, 121, 0.15);
+}
+
+/* Bordes izquierdos personalizados */
+.border-left-primary {
+    border-left: 0.25rem solid var(--color-principal) !important;
+}
+
+.border-left-success {
+    border-left: 0.25rem solid var(--color-complementario) !important;
+}
+
+.border-left-info {
+    border-left: 0.25rem solid var(--color-google-blue) !important;
+}
+
+.border-left-warning {
+    border-left: 0.25rem solid var(--color-google-yellow) !important;
+}
+
+.border-left-danger {
+    border-left: 0.25rem solid var(--color-google-red) !important;
+}
+
+.border-left-secondary {
+    border-left: 0.25rem solid var(--color-neutro-oscuro) !important;
+}
+
+/* Mejoras para las tarjetas de estadísticas */
+.card {
+    border-radius: 12px;
+    border: none;
+    transition: all 0.3s ease;
+    background-color: var(--color-fondo-base);
+}
+
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(31, 78, 121, 0.15);
+}
+
+.card-header {
+    background-color: var(--color-azul-claro) !important;
+    border-bottom: 2px solid var(--color-principal);
+    border-radius: 12px 12px 0 0 !important;
+    color: var(--color-principal);
+    font-weight: 600;
+}
+
+/* Badges personalizados */
+.badge-primary {
+    background-color: var(--color-principal) !important;
+    color: white;
+}
+
+.badge-success {
+    background-color: var(--color-complementario) !important;
+    color: white;
+}
+
+.badge-info {
+    background-color: var(--color-google-blue) !important;
+    color: white;
+}
+
+.badge-warning {
+    background-color: var(--color-google-yellow) !important;
+    color: var(--color-neutro-oscuro);
+    font-weight: 600;
+}
+
+.badge-danger {
+    background-color: var(--color-google-red) !important;
+    color: white;
+}
+
+.badge-secondary {
+    background-color: var(--color-neutro-oscuro) !important;
+    color: white;
+}
+
+.badge-outline-primary {
+    border: 2px solid var(--color-principal);
+    color: var(--color-principal);
+    background-color: transparent;
+    font-weight: 600;
+}
+
+/* Colores de texto personalizados */
+.text-primary {
+    color: var(--color-principal) !important;
+}
+
+.text-success {
+    color: var(--color-complementario) !important;
+}
+
+.text-info {
+    color: var(--color-google-blue) !important;
+}
+
+.text-warning {
+    color: var(--color-google-yellow) !important;
+}
+
+.text-danger {
+    color: var(--color-google-red) !important;
+}
+
+/* Botones mejorados */
+.btn-primary {
+    background-color: var(--color-principal);
+    border-color: var(--color-principal);
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+    background-color: #1a4268;
+    border-color: #1a4268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(31, 78, 121, 0.3);
+}
+
+.btn-success {
+    background-color: var(--color-complementario);
+    border-color: var(--color-complementario);
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+.btn-info {
+    background-color: var(--color-google-blue);
+    border-color: var(--color-google-blue);
+    border-radius: 8px;
+}
+
+.btn-warning {
+    background-color: var(--color-google-yellow);
+    border-color: var(--color-google-yellow);
+    color: var(--color-neutro-oscuro);
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* Tabla mejorada */
+.table {
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(31, 78, 121, 0.1);
+}
+
+.table-primary th {
+    background-color: var(--color-principal) !important;
+    color: white !important;
+    border: none;
+    font-weight: 600;
+    padding: 15px 12px;
+}
+
+.table-hover tbody tr:hover {
+    background-color: var(--color-azul-claro);
+    color: var(--color-principal);
+}
+
+/* Títulos mejorados */
+h4 {
+    color: var(--color-principal) !important;
+    font-weight: 700;
+    text-shadow: 1px 1px 2px rgba(31, 78, 121, 0.1);
+}
+
+/* Estadísticas cards mejoradas */
+.stat-value {
+    color: var(--color-principal);
+    font-weight: 700;
+    font-size: 1.8rem;
+}
+
+.stat-label {
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.85rem;
+}
+.badge-puestos {
+    background-color: var(--color-complementario) !important;
+    color: var(--color-complementario) !important;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+}
+/* Efectos de animación */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease-out;
+}
+
+/* Responsive mejoras */
+@media (max-width: 768px) {
+    .cursor-pointer:hover {
+        transform: none;
+    }
+    
+    .card:hover {
+        transform: none;
+    }
+}
+
+/* Sombras personalizadas */
+.shadow {
+    box-shadow: 0 4px 15px rgba(31, 78, 121, 0.12) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 2px 8px rgba(31, 78, 121, 0.08) !important;
+}
+
+/* Bordes redondeados consistentes */
+.rounded {
+    border-radius: 12px !important;
+}
+
+/* Texto muted mejorado */
+.text-muted {
+    color: #6c757d !important;
+    font-size: 0.9rem;
+}
+
+/* Badge mejorado con animación */
+.badge {
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: scale(1.05);
+}
+</style>
 </style>
 
 <div class="dashboard-container">
@@ -213,6 +476,122 @@
                 <div class="stat-value">{{ $viajesInactivos }}</div>
             </div>
             <i class="fas fa-times-circle fa-2x stat-icon text-danger"></i>
+        </div>
+    </div>
+</div>
+
+  <!-- Tabla de Viajes -->
+    <div class="card shadow">
+        <div class="card-header py-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Viajes Recientes</h6>
+            <a href="{{ route('admin.viajes.todos') }}" class="btn btn-primary btn-sm">
+                <i class="fas fa-list"></i> Ver Todos los Viajes
+            </a>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-hover">
+                    <thead class="table-primary text-center">
+                        <tr>
+                            <th>Conductor</th>
+                            <th>Ruta</th>
+                            <th>Fecha/Hora</th>
+                            <th>Puestos</th>
+                            <th>Valor</th>
+                            <th>Estado</th>
+                            <th>Reservas</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse ($viajes as $viaje)
+                            <tr class="align-middle text-center cursor-pointer" onclick="window.location='{{ route('admin.viajes.detalle', $viaje->id) }}'">
+                                <td>
+                                    <strong>{{ $viaje->conductor->name ?? 'N/A' }}</strong><br>
+                                    <small class="text-muted">{{ $viaje->conductor->email ?? 'N/A' }}</small>
+                                </td>
+                                <td>
+                                    <div class="text-left">
+                                        <strong>🅰️ {{ Str::limit($viaje->origen_direccion ?? 'N/A', 25) }}</strong><br>
+                                        <small class="text-muted">⬇️</small><br>
+                                        <strong>🅱️ {{ Str::limit($viaje->destino_direccion ?? 'N/A', 25) }}</strong>
+                                    </div>
+                                </td>
+                              <td>
+                                @if($viaje->fecha_salida)
+                                    <strong>{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</strong><br>
+                                @else
+                                    <strong>N/A</strong><br>
+                                @endif
+                                
+                                @if($viaje->hora_salida)
+                                    <small class="text-muted">{{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}</small>
+                                @else
+                                    <small class="text-muted">N/A</small>
+                                @endif
+                            </td>
+                              <td>
+                                    <span class="badge badge-puestos">{{ $viaje->puestos_disponibles ?? 0 }}/{{ $viaje->puestos_totales ?? 0 }}</span>
+                                </td>
+                                <td>
+                                    <strong>${{ number_format($viaje->valor_cobrado ?? 0, 0, ',', '.') }}</strong><br>
+                                    <small class="text-muted">por persona</small>
+                                </td>
+                                <td>
+                                    @switch($viaje->estado)
+                                        @case('pendiente')
+                                            <span class="badge badge-warning">⏳ Pendiente</span>
+                                            @break
+                                        @case('confirmado')
+                                        @case('activo')
+                                            <span class="badge badge-success">✅ Confirmado</span>
+                                            @break
+                                        @case('en_curso')
+                                            <span class="badge badge-primary">🚌 En Curso</span>
+                                            @break
+                                        @case('completado')
+                                            <span class="badge badge-secondary">✔️ Completado</span>
+                                            @break
+                                        @case('cancelado')
+                                        @case('inactivo')
+                                            <span class="badge badge-danger">❌ Cancelado</span>
+                                            @break
+                                        @case('listo_para_iniciar')
+                                            <span class="badge badge-info">🚀 Listo</span>
+                                            @break
+                                        @default
+                                            <span class="badge badge-light">{{ ucfirst($viaje->estado ?? 'N/A') }}</span>
+                                    @endswitch
+                                </td>
+                                <td>
+                                    <span class="badge badge-outline-primary">{{ $viaje->reservas->count() }} reserva(s)</span>
+                                </td>
+                                <td onclick="event.stopPropagation();">
+                                    <div class="btn-group" role="group">
+                                        <a href="{{ route('admin.viajes.detalle', $viaje->id) }}" class="btn btn-sm btn-info" title="Ver Detalle">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.viajes.editar', $viaje->id) }}" class="btn btn-sm btn-warning" title="Editar">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="9" class="text-center text-muted">No hay viajes registrados.</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            @if($viajes->hasPages())
+            <div class="d-flex justify-content-center mt-3">
+                {{ $viajes->links() }}
+            </div>
+            @endif
         </div>
     </div>
 </div>
