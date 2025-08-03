@@ -13,9 +13,7 @@
             <a href="{{ url()->previous() }}" class="btn btn-secondary btn-sm">
                 <i class="fas fa-arrow-left"></i> Volver
             </a>
-            <a href="{{ route('admin.viajes.editar', $viaje->id) }}" class="btn btn-warning btn-sm">
-                <i class="fas fa-edit"></i> Editar
-            </a>
+      
         </div>
     </div>
 
