@@ -15,11 +15,20 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
-  public function index() {
-    $users = User::latest()->paginate(10); // 10 usuarios por página, ordenados por más reciente
+ public function index(Request $request) 
+{
+    $ordenar = $request->get('ordenar', 'created_at'); // Por defecto ordenar por created_at
+    
+    $users = User::when($ordenar === 'updated_at', function($query) {
+            return $query->latest('updated_at');
+        }, function($query) {
+            return $query->latest('created_at');
+        })
+        ->paginate(10)
+        ->withQueryString(); // Mantener parámetros en la paginación
+    
     return view('admin.users.index', compact('users'));
 }
-
     public function create()
     {
         $roles = Role::all();

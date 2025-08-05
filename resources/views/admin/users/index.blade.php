@@ -5,7 +5,14 @@
 @section('content')
 {{-- resources/views/admin/users/index.blade.php --}}
 <div class="container py-5">
-    <h1 class="fw-bold mb-4">Lista de Usuarios</h1>
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="fw-bold mb-0">Lista de Usuarios</h1>
+        <div class="text-end">
+            <small class="text-muted d-block">Hora actual:</small>
+            <span class="fw-bold text-primary" id="hora-actual"></span>
+        </div>
+    </div>
+    
     @if(session('success'))
     <div class="alert alert-success mb-4">
         {{ session('success') }}
@@ -23,7 +30,14 @@
                 </div>
                 <div class="col-md-6">
                     <div class="row g-2">
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
+                            <label for="filtro-ordenar" class="form-label mb-1 small">Ordenar:</label>
+                            <select id="filtro-ordenar" class="form-select form-select-sm">
+                                <option value="created_at" {{ request('ordenar') == 'created_at' || !request('ordenar') ? 'selected' : '' }}>Más recientes</option>
+                                <option value="updated_at" {{ request('ordenar') == 'updated_at' ? 'selected' : '' }}>Últimas actualizaciones</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
                             <label for="filtro-rol" class="form-label mb-1 small">Rol:</label>
                             <select id="filtro-rol" class="form-select form-select-sm">
                                 <option value="">Todos</option>
@@ -32,7 +46,7 @@
                                 <option value="pasajero">Pasajero</option>
                             </select>
                         </div>
-                        <div class="col-sm-5">
+                        <div class="col-sm-3">
                             <label for="filtro-verificado" class="form-label mb-1 small">Verificación:</label>
                             <select id="filtro-verificado" class="form-select form-select-sm">
                                 <option value="">Todos</option>
@@ -40,7 +54,7 @@
                                 <option value="0">No Verificados</option>
                             </select>
                         </div>
-                        <div class="col-sm-2">
+                        <div class="col-sm-3">
                             <label class="form-label mb-1 small">&nbsp;</label>
                             <button id="limpiar-filtros" class="btn btn-outline-secondary btn-sm d-block w-100" title="Limpiar filtros">
                                 <i class="fas fa-times"></i>
@@ -59,19 +73,18 @@
                 <table class="table table-hover table-striped mb-0" id="tabla-usuarios">
                     <thead>
                         <tr>
-                            <th>ID</th>
                             <th>Nombre</th>
                             <th>Email</th>
                             <th>Rol</th>
                             <th>Verificado</th>
                             <th>Fecha Registro</th>
+                            <th>Última Actualización</th>
                             <th>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @foreach($users as $user)
                         <tr data-rol="{{ $user->getRoleNames()->first() }}" data-verificado="{{ $user->verificado ? '1' : '0' }}">
-                            <td>{{ $user->id }}</td>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
                             <td>
@@ -102,6 +115,20 @@
                                 <small class="text-muted">
                                     {{ $user->created_at->format('d/m/Y') }}<br>
                                     <span class="text-xs">{{ $user->created_at->format('H:i') }}</span>
+                                </small>
+                            </td>
+                            <td>
+                                <small class="text-muted">
+                                    @if($user->updated_at->diffInMinutes($user->created_at) > 5)
+                                        <span class="badge bg-warning text-dark mb-1" title="Usuario actualizado recientemente">
+                                            <i class="fas fa-sync-alt me-1"></i>Actualizado
+                                        </span><br>
+                                    @endif
+                                    {{ $user->updated_at->format('d/m/Y') }}<br>
+                                    <span class="text-xs">{{ $user->updated_at->format('H:i') }}</span>
+                                    @if($user->updated_at->isToday())
+                                        <br><span class="text-xs text-success">Hoy</span>
+                                    @endif
                                 </small>
                             </td>
                             <td>
@@ -154,6 +181,18 @@
             <div class="small text-muted">
                 <i class="fas fa-info-circle me-1"></i>
                 Total de usuarios: <strong id="total-usuarios">{{ $users->total() }}</strong>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="small text-muted">
+                <i class="fas fa-sort me-1"></i>
+                Ordenado por: <strong>{{ request('ordenar') == 'updated_at' ? 'Últimas actualizaciones' : 'Más recientes' }}</strong>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="small text-muted">
+                <i class="fas fa-clock me-1"></i>
+                Última actualización de página: <strong id="ultima-carga"></strong>
             </div>
         </div>
     </div>
@@ -217,8 +256,13 @@
     border-radius: 0 0.375rem 0.375rem 0;
 }
 
+#hora-actual {
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+}
+
 @media (max-width: 768px) {
-    .row.g-2 > .col-sm-5, .row.g-2 > .col-sm-2 {
+    .row.g-2 > .col-sm-3 {
         margin-bottom: 0.5rem;
     }
     
@@ -232,6 +276,10 @@
         border-radius: 0.375rem !important;
         margin-bottom: 2px;
     }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
 }
 </style>
 @endsection
@@ -241,6 +289,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const filtroRol = document.getElementById('filtro-rol');
     const filtroVerificado = document.getElementById('filtro-verificado');
+    const filtroOrdenar = document.getElementById('filtro-ordenar');
     const limpiarFiltros = document.getElementById('limpiar-filtros');
     const tabla = document.getElementById('tabla-usuarios');
     const tbody = tabla.querySelector('tbody');
@@ -249,6 +298,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
     let todasLasFilas = Array.from(tbody.querySelectorAll('tr'));
     const totalOriginal = todasLasFilas.length;
+
+    // Función para actualizar la hora actual
+    function actualizarHora() {
+        const ahora = new Date();
+        const opciones = { 
+            timeZone: 'America/Argentina/Buenos_Aires',
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit', 
+            minute: '2-digit', 
+            second: '2-digit',
+            hour12: false 
+        };
+        const horaFormateada = ahora.toLocaleString('es-AR', opciones);
+        document.getElementById('hora-actual').textContent = horaFormateada;
+        
+        // Actualizar última carga
+        document.getElementById('ultima-carga').textContent = ahora.toLocaleTimeString('es-AR', {
+            timeZone: 'America/Argentina/Buenos_Aires',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+    }
+
+    // Actualizar hora cada segundo
+    actualizarHora();
+    setInterval(actualizarHora, 1000);
+
+    // Función para manejar el cambio de ordenamiento
+    function cambiarOrdenamiento() {
+        const ordenar = filtroOrdenar.value;
+        const url = new URL(window.location);
+        url.searchParams.set('ordenar', ordenar);
+        window.location.href = url.toString();
+    }
 
     function aplicarFiltros() {
         const valorRol = filtroRol.value.toLowerCase();
@@ -293,12 +379,14 @@ document.addEventListener('DOMContentLoaded', function() {
     function limpiarTodosFiltros() {
         filtroRol.value = '';
         filtroVerificado.value = '';
+        // No limpiar el filtro de ordenamiento ya que afecta la URL
         aplicarFiltros();
     }
 
     // Event listeners
     filtroRol.addEventListener('change', aplicarFiltros);
     filtroVerificado.addEventListener('change', aplicarFiltros);
+    filtroOrdenar.addEventListener('change', cambiarOrdenamiento);
     limpiarFiltros.addEventListener('click', limpiarTodosFiltros);
 });
 </script>
