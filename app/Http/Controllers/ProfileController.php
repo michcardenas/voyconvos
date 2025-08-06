@@ -397,10 +397,9 @@ public function registroForm()
     return view('pasajero.registro.form', compact('user'));
 }
 
-public function registroStore(Request $request)
-{
+public function registroStore(Request $request) {
     $user = auth()->user();
-    
+         
     // Validación simple
     $request->validate([
         'dni' => 'required|string|max:20',
@@ -433,11 +432,12 @@ public function registroStore(Request $request)
         'dni_foto_atras' => $dniFotoAtrasPath,
         'verificado' => false, // Marcar como no verificado hasta que admin revise
     ]);
-      try {
+
+    try {
         Mail::to($user->email)->send(new UniversalMail(
             $user,
             'Documentos recibidos - Verificación en proceso',
-            "Hemos recibido correctamente tus documentos de identificación.\n\nNuestro equipo de VoyConvos está revisando tu información para completar la verificación de tu cuenta.\n\nTe contactaremos en las próximas 24 a 48 horas con el resultado de la verificación.\n\nMientras tanto, puedes explorar la plataforma y familiarizarte con nuestros servicios.\n\n¡Gracias por confiar en VoyConvos!",
+            "¡Hola {$user->name}! 👋\n\n¡Gracias por enviar tu documentación! Ya la recibimos correctamente y ahora nuestro equipo de VoyConVos está revisando todo para validar tu perfil y asegurarnos de que seas parte de esta comunidad segura y real.\n\n🕐 En las próximas 24 a 48 hs te vamos a estar escribiendo con el resultado de la verificación.\n\nMientras tanto, te invitamos a que explores la plataforma, mires los viajes disponibles y te familiarices con cómo funciona todo 🚗✨\n\n¿Por qué verificar tu perfil?\n✔ Te da más seguridad\n✔ Genera confianza entre usuarios\n✔ Te habilita a cargar viajes o reservar traslados sin trabas\n\nGracias por sumarte a VoyConVos, la app que conecta personas reales para viajar mejor.\n\n¡Nos encanta tenerte a bordo!\n\nAbrazo,\nEquipo VoyConVos",
             'notificacion'
         ));
     } catch (Exception $e) {
