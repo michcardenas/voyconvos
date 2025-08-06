@@ -200,194 +200,287 @@
 
 {{-- CSS personalizado --}}
 <style>
-.card {
-    border: none;
-    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    border-radius: 0.5rem;
-}
+        .card {
+            border: none;
+            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+            border-radius: 0.5rem;
+        }
 
-.table-hover tbody tr:hover {
-    background-color: rgba(0, 123, 255, 0.05);
-}
+        .table-hover tbody tr:hover {
+            background-color: rgba(0, 123, 255, 0.05);
+        }
 
-.pagination {
-    margin-bottom: 0;
-}
+        .pagination {
+            margin-bottom: 0;
+        }
 
-.pagination .page-link {
-    border-radius: 0.375rem;
-    margin: 0 2px;
-    border: 1px solid #dee2e6;
-}
+        .pagination .page-link {
+            border-radius: 0.375rem;
+            margin: 0 2px;
+            border: 1px solid #dee2e6;
+        }
 
-.pagination .page-item.active .page-link {
-    background-color: #0d6efd;
-    border-color: #0d6efd;
-}
+        .pagination .page-item.active .page-link {
+            background-color: #0d6efd;
+            border-color: #0d6efd;
+        }
 
-.badge {
-    font-size: 0.75rem;
-    padding: 0.375rem 0.75rem;
-}
+        .badge {
+            font-size: 0.75rem;
+            padding: 0.375rem 0.75rem;
+        }
 
-.btn-sm {
-    padding: 0.25rem 0.75rem;
-    font-size: 0.875rem;
-}
+        .btn-sm {
+            padding: 0.25rem 0.75rem;
+            font-size: 0.875rem;
+        }
 
-.form-select-sm {
-    padding: 0.25rem 0.5rem;
-    font-size: 0.875rem;
-}
+        .form-select-sm {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.875rem;
+        }
 
-.text-xs {
-    font-size: 0.65rem;
-}
+        .text-xs {
+            font-size: 0.65rem;
+        }
 
-.btn-group .btn {
-    border-radius: 0;
-}
+        .btn-group .btn {
+            border-radius: 0;
+        }
 
-.btn-group .btn:first-child {
-    border-radius: 0.375rem 0 0 0.375rem;
-}
+        .btn-group .btn:first-child {
+            border-radius: 0.375rem 0 0 0.375rem;
+        }
 
-.btn-group .btn:last-child {
-    border-radius: 0 0.375rem 0.375rem 0;
-}
+        .btn-group .btn:last-child {
+            border-radius: 0 0.375rem 0.375rem 0;
+        }
 
-#hora-actual {
-    font-size: 1.1rem;
-    letter-spacing: 0.5px;
-}
+        #hora-actual {
+            font-size: 1.1rem;
+            letter-spacing: 0.5px;
+        }
 
-@media (max-width: 768px) {
-    .row.g-2 > .col-sm-3 {
-        margin-bottom: 0.5rem;
-    }
-    
-    .btn-group {
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-    }
-    
-    .btn-group .btn {
-        border-radius: 0.375rem !important;
-        margin-bottom: 2px;
-    }
-    
-    .table-responsive {
-        font-size: 0.875rem;
-    }
-}
+        @media (max-width: 768px) {
+            .row.g-2 > .col-sm-3 {
+                margin-bottom: 0.5rem;
+            }
+            
+            .btn-group {
+                display: flex;
+                flex-direction: column;
+                width: 100%;
+            }
+            
+            .btn-group .btn {
+                border-radius: 0.375rem !important;
+                margin-bottom: 2px;
+            }
+            
+            .table-responsive {
+                font-size: 0.875rem;
+            }
+        }
 </style>
 @endsection
 
 @push('scripts')
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const filtroRol = document.getElementById('filtro-rol');
-    const filtroVerificado = document.getElementById('filtro-verificado');
-    const filtroOrdenar = document.getElementById('filtro-ordenar');
-    const limpiarFiltros = document.getElementById('limpiar-filtros');
-    const tabla = document.getElementById('tabla-usuarios');
-    const tbody = tabla.querySelector('tbody');
-    const infoResultados = document.getElementById('info-resultados');
-    const totalUsuarios = document.getElementById('total-usuarios');
+    document.addEventListener('DOMContentLoaded', function() {
+        const filtroRol = document.getElementById('filtro-rol');
+        const filtroVerificado = document.getElementById('filtro-verificado');
+        const filtroOrdenar = document.getElementById('filtro-ordenar');
+        const limpiarFiltros = document.getElementById('limpiar-filtros');
+        const tabla = document.getElementById('tabla-usuarios');
+        const tbody = tabla.querySelector('tbody');
+        const infoResultados = document.getElementById('info-resultados');
+        const totalUsuarios = document.getElementById('total-usuarios');
 
-    let todasLasFilas = Array.from(tbody.querySelectorAll('tr'));
-    const totalOriginal = todasLasFilas.length;
-
-    // Función para actualizar la hora actual
-    function actualizarHora() {
-        const ahora = new Date();
-        const opciones = { 
-            timeZone: 'America/Argentina/Buenos_Aires',
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit', 
-            minute: '2-digit', 
-            second: '2-digit',
-            hour12: false 
-        };
-        const horaFormateada = ahora.toLocaleString('es-AR', opciones);
-        document.getElementById('hora-actual').textContent = horaFormateada;
-        
-        // Actualizar última carga
-        document.getElementById('ultima-carga').textContent = ahora.toLocaleTimeString('es-AR', {
-            timeZone: 'America/Argentina/Buenos_Aires',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-    }
-
-    // Actualizar hora cada segundo
-    actualizarHora();
-    setInterval(actualizarHora, 1000);
-
-    // Función para manejar el cambio de ordenamiento
-    function cambiarOrdenamiento() {
-        const ordenar = filtroOrdenar.value;
-        const url = new URL(window.location);
-        url.searchParams.set('ordenar', ordenar);
-        window.location.href = url.toString();
-    }
-
-    function aplicarFiltros() {
-        const valorRol = filtroRol.value.toLowerCase();
-        const valorVerificado = filtroVerificado.value;
-        
-        let filasVisibles = 0;
-        
-        todasLasFilas.forEach(fila => {
-            const rolFila = fila.getAttribute('data-rol');
-            const verificadoFila = fila.getAttribute('data-verificado');
+        // ===============================================
+        // FUNCIONALIDAD DE HORA (mantener como está)
+        // ===============================================
+        function actualizarHora() {
+            const ahora = new Date();
+            const opciones = { 
+                timeZone: 'America/Argentina/Buenos_Aires',
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit', 
+                minute: '2-digit', 
+                second: '2-digit',
+                hour12: false 
+            };
+            const horaFormateada = ahora.toLocaleString('es-AR', opciones);
+            document.getElementById('hora-actual').textContent = horaFormateada;
             
-            let mostrarPorRol = !valorRol || (rolFila && rolFila.toLowerCase() === valorRol);
-            let mostrarPorVerificado = !valorVerificado || verificadoFila === valorVerificado;
-            
-            if (mostrarPorRol && mostrarPorVerificado) {
-                fila.style.display = '';
-                filasVisibles++;
-            } else {
-                fila.style.display = 'none';
-            }
-        });
-        
-        // Actualizar información de resultados
-        actualizarInfoResultados(filasVisibles);
-    }
-
-    function actualizarInfoResultados(visibles) {
-        if (visibles === totalOriginal) {
-            // Restaurar texto original si no hay filtros activos
-            const textoOriginal = infoResultados.getAttribute('data-original') || infoResultados.textContent;
-            infoResultados.textContent = textoOriginal;
-        } else {
-            // Guardar texto original la primera vez
-            if (!infoResultados.getAttribute('data-original')) {
-                infoResultados.setAttribute('data-original', infoResultados.textContent);
-            }
-            infoResultados.textContent = `Mostrando ${visibles} de ${totalOriginal} usuarios (filtrado)`;
+            // Actualizar última carga
+            document.getElementById('ultima-carga').textContent = ahora.toLocaleTimeString('es-AR', {
+                timeZone: 'America/Argentina/Buenos_Aires',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
         }
-        totalUsuarios.textContent = visibles;
-    }
 
-    function limpiarTodosFiltros() {
-        filtroRol.value = '';
-        filtroVerificado.value = '';
-        // No limpiar el filtro de ordenamiento ya que afecta la URL
-        aplicarFiltros();
-    }
+        // Actualizar hora cada segundo
+        actualizarHora();
+        setInterval(actualizarHora, 1000);
 
-    // Event listeners
-    filtroRol.addEventListener('change', aplicarFiltros);
-    filtroVerificado.addEventListener('change', aplicarFiltros);
-    filtroOrdenar.addEventListener('change', cambiarOrdenamiento);
-    limpiarFiltros.addEventListener('click', limpiarTodosFiltros);
-});
+        // ===============================================
+        // ESTABLECER VALORES ACTUALES DE FILTROS
+        // ===============================================
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Establecer valores desde la URL en los selectores
+        if (urlParams.get('ordenar')) {
+            filtroOrdenar.value = urlParams.get('ordenar');
+        }
+        if (urlParams.get('rol')) {
+            filtroRol.value = urlParams.get('rol');
+        }
+        if (urlParams.get('verificado') !== null) {
+            filtroVerificado.value = urlParams.get('verificado');
+        }
+
+        // ===============================================
+        // FUNCIÓN PRINCIPAL PARA APLICAR FILTROS
+        // ===============================================
+        function aplicarFiltros() {
+            const url = new URL(window.location);
+            
+            // Limpiar parámetros existentes de filtros
+            url.searchParams.delete('rol');
+            url.searchParams.delete('verificado');
+            url.searchParams.delete('page'); // Resetear a página 1 cuando se aplican filtros
+            
+            // Mantener el ordenamiento actual
+            const ordenar = filtroOrdenar.value;
+            if (ordenar && ordenar !== 'created_at') {
+                url.searchParams.set('ordenar', ordenar);
+            } else {
+                url.searchParams.delete('ordenar');
+            }
+            
+            // Agregar filtro de rol si está seleccionado
+            const valorRol = filtroRol.value;
+            if (valorRol) {
+                url.searchParams.set('rol', valorRol);
+            }
+            
+            // Agregar filtro de verificado si está seleccionado
+            const valorVerificado = filtroVerificado.value;
+            if (valorVerificado !== '') {
+                url.searchParams.set('verificado', valorVerificado);
+            }
+            
+            // Redirigir con los nuevos parámetros
+            window.location.href = url.toString();
+        }
+
+        // ===============================================
+        // FUNCIÓN PARA CAMBIAR ORDENAMIENTO
+        // ===============================================
+        function cambiarOrdenamiento() {
+            aplicarFiltros(); // Usar la misma función para mantener todos los filtros
+        }
+
+        // ===============================================
+        // FUNCIÓN PARA LIMPIAR TODOS LOS FILTROS
+        // ===============================================
+        function limpiarTodosFiltros() {
+            const url = new URL(window.location);
+            
+            // Eliminar todos los parámetros de filtro
+            url.searchParams.delete('rol');
+            url.searchParams.delete('verificado');
+            url.searchParams.delete('ordenar');
+            url.searchParams.delete('page');
+            
+            // Redirigir a la URL limpia
+            window.location.href = url.toString();
+        }
+
+        // ===============================================
+        // EVENT LISTENERS
+        // ===============================================
+        filtroRol.addEventListener('change', aplicarFiltros);
+        filtroVerificado.addEventListener('change', aplicarFiltros);
+        filtroOrdenar.addEventListener('change', cambiarOrdenamiento);
+        limpiarFiltros.addEventListener('click', function(e) {
+            e.preventDefault();
+            limpiarTodosFiltros();
+        });
+
+        // ===============================================
+        // RESALTAR FILAS ACTUALIZADAS RECIENTEMENTE
+        // ===============================================
+        const filas = tbody.querySelectorAll('tr');
+        filas.forEach(function(fila) {
+            // Buscar si tiene el badge de "Actualizado"
+            const celdaActualizacion = fila.cells[5]; // Columna de última actualización
+            if (celdaActualizacion) {
+                const badgeActualizado = celdaActualizacion.querySelector('.badge.bg-warning');
+                if (badgeActualizado && badgeActualizado.textContent.includes('Actualizado')) {
+                    fila.style.backgroundColor = 'rgba(255, 193, 7, 0.08)';
+                }
+            }
+        });
+
+        // ===============================================
+        // MOSTRAR INDICADOR DE FILTROS ACTIVOS
+        // ===============================================
+        function mostrarFiltrosActivos() {
+            const filtrosActivos = [];
+            
+            if (urlParams.get('rol')) {
+                filtrosActivos.push(`Rol: ${urlParams.get('rol')}`);
+            }
+            if (urlParams.get('verificado') !== null && urlParams.get('verificado') !== '') {
+                const estado = urlParams.get('verificado') === '1' ? 'Verificados' : 'No verificados';
+                filtrosActivos.push(`Estado: ${estado}`);
+            }
+            if (urlParams.get('ordenar') === 'updated_at') {
+                filtrosActivos.push('Ordenado por: Últimas actualizaciones');
+            }
+            
+            // Si hay filtros activos, mostrar un indicador visual
+            if (filtrosActivos.length > 0) {
+                // Puedes agregar un elemento para mostrar los filtros activos
+                const indicadorFiltros = document.createElement('div');
+                indicadorFiltros.className = 'alert alert-info alert-sm mt-2';
+                indicadorFiltros.innerHTML = `
+                    <i class="fas fa-filter me-2"></i>
+                    <strong>Filtros activos:</strong> ${filtrosActivos.join(' | ')}
+                `;
+                
+                // Insertar después de la barra de filtros si no existe ya
+                const cardBody = document.querySelector('.card.mb-4 .card-body');
+                const indicadorExistente = cardBody.querySelector('.alert.alert-info');
+                if (!indicadorExistente && filtrosActivos.length > 0) {
+                    cardBody.appendChild(indicadorFiltros);
+                }
+            }
+        }
+        
+        mostrarFiltrosActivos();
+
+        // ===============================================
+        // CONFIRMACIÓN AL ELIMINAR USUARIO
+        // ===============================================
+        const botonesEliminar = document.querySelectorAll('button[onclick*="confirm"]');
+        botonesEliminar.forEach(boton => {
+            boton.onclick = function(e) {
+                e.preventDefault();
+                const form = this.closest('form');
+                const fila = this.closest('tr');
+                const nombreUsuario = fila.cells[0].textContent.trim();
+                
+                if (confirm(`¿Estás seguro de eliminar al usuario "${nombreUsuario}"?\n\nEsta acción no se puede deshacer.`)) {
+                    form.submit();
+                }
+            };
+        });
+    });
 </script>
 @endpush

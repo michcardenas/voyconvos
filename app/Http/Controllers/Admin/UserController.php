@@ -15,17 +15,37 @@ use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
- public function index(Request $request) 
+public function index(Request $request)
 {
-    $ordenar = $request->get('ordenar', 'created_at'); // Por defecto ordenar por created_at
+    // Obtener parámetros de filtro
+    $ordenar = $request->get('ordenar', 'created_at');
+    $rol = $request->get('rol');
+    $verificado = $request->get('verificado');
     
-    $users = User::when($ordenar === 'updated_at', function($query) {
-            return $query->latest('updated_at');
-        }, function($query) {
-            return $query->latest('created_at');
-        })
-        ->paginate(10)
-        ->withQueryString(); // Mantener parámetros en la paginación
+    // Construir la consulta con filtros
+    $query = User::query();
+    
+    // Filtro por rol
+    if ($rol) {
+        $query->whereHas('roles', function($q) use ($rol) {
+            $q->where('name', $rol);
+        });
+    }
+    
+    // Filtro por estado de verificación
+    if ($verificado !== null && $verificado !== '') {
+        $query->where('verificado', $verificado);
+    }
+    
+    // Aplicar ordenamiento
+    if ($ordenar === 'updated_at') {
+        $query->latest('updated_at');
+    } else {
+        $query->latest('created_at');
+    }
+    
+    // Paginar manteniendo los parámetros de consulta
+    $users = $query->paginate(10)->withQueryString();
     
     return view('admin.users.index', compact('users'));
 }
