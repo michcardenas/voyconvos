@@ -259,7 +259,13 @@ Route::middleware(['auth'])->group(function () {
 
 
 
-
+Route::get('/test-time', function() {
+    return [
+        'timezone' => config('app.timezone'),
+        'hora_actual' => now()->toString(),
+        'hora_formato' => now()->format('d/m/Y H:i:s')
+    ];
+});
 
 // // Panel de usuario
 // Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
