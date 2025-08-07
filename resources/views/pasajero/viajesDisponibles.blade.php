@@ -959,8 +959,11 @@
                                     </div>
                                     <div class="route-city">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</div>
                                 </div>
-                                <div class="trip-duration">
-                                    {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('M d') }} • {{ $viaje->hora_salida ?? 'Hora por definir' }}
+                                   <div class="trip-duration">
+                                    {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('M d, Y') }}
+                                    @if($viaje->hora_salida)
+                                        • {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                                    @endif
                                 </div>
                             </div>
 
