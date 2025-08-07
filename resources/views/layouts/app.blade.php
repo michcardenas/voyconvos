@@ -344,14 +344,13 @@
 " target="_blank">
                             <i class="fab fa-facebook"></i>
                         </a>
-                        <a href="https://www.threads.com/@voyconvos.arg?igshid=NTc4MTIwNjQ2YQ==" target="_blank">
+                        <a href="https://www.threads.com/@voyconvos.app" target="_blank">
                             <img src="{{ asset('img/threads-foo.png') }}"
                                 alt="Threads"
                                 title="Threads"
                                 style="width: 35px; height: 35px; vertical-align: middle;">
                         </a>
-                        <a href="https://www.instagram.com/voyconvos.arg?igsh=dXl0NmJxMTk3Mndx&utm_source=qr
-" target="_blank">
+                        <a href="https://www.instagram.com/voyconvos.app?igsh=MWRjemFtaG04bzY4Yg==" target="_blank">
                             <i class="fab fa-instagram"></i>
                         </a>
                     </div>
