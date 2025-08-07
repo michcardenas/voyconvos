@@ -446,7 +446,7 @@ h4 {
     </a>
 </div>
 
-<!-- Tarjetas de viajes -->
+<!-- Tarjetas de viajes ACTUALIZADAS -->
 <h2 class="text-center mt-5 mb-4" style="color: #00304b;">🚌 Estadísticas de Viajes</h2>
 <div class="cards-row">
     <div class="card card-stats border-left-primary shadow p-3">
@@ -464,8 +464,21 @@ h4 {
             <div>
                 <div class="stat-label text-success">Viajes Activos</div>
                 <div class="stat-value">{{ $viajesActivos }}</div>
+                <div class="stat-subtext">En curso o por realizar</div>
             </div>
             <i class="fas fa-check-circle fa-2x stat-icon text-success"></i>
+        </div>
+    </div>
+
+    {{-- ✨ NUEVA TARJETA: Viajes Finalizados Automáticamente --}}
+    <div class="card card-stats border-left-warning shadow p-3">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <div class="stat-label text-warning">Finalizados sin realizar viaje </div>
+                <div class="stat-value">{{ $viajesFinalizadosAutomaticamente }}</div>
+                <div class="stat-subtext">Pasaron +24h de la fecha</div>
+            </div>
+            <i class="fas fa-clock fa-2x stat-icon text-warning"></i>
         </div>
     </div>
 
@@ -474,50 +487,90 @@ h4 {
             <div>
                 <div class="stat-label text-danger">Viajes Inactivos</div>
                 <div class="stat-value">{{ $viajesInactivos }}</div>
+                <div class="stat-subtext">Cancelados por el conductor</div>
             </div>
             <i class="fas fa-times-circle fa-2x stat-icon text-danger"></i>
         </div>
     </div>
 </div>
 
-  <!-- Tabla de Viajes -->
-    <div class="card shadow">
-        <div class="card-header py-3 d-flex justify-content-between align-items-center">
-            <h6 class="m-0 font-weight-bold text-primary">Lista de Viajes Recientes</h6>
-            <a href="{{ route('admin.viajes.todos') }}" class="btn btn-primary btn-sm">
-                <i class="fas fa-list"></i> Ver Todos los Viajes
-            </a>
-        </div>
-        <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead class="table-primary text-center">
-                        <tr>
-                            <th>Conductor</th>
-                            <th>Ruta</th>
-                            <th>Fecha/Hora</th>
-                            <th>Puestos</th>
-                            <th>Valor</th>
-                            <th>Estado</th>
-                            <th>Reservas</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @forelse ($viajes as $viaje)
-                            <tr class="align-middle text-center cursor-pointer" onclick="window.location='{{ route('admin.viajes.detalle', $viaje->id) }}'">
-                                <td>
-                                    <strong>{{ $viaje->conductor->name ?? 'N/A' }}</strong><br>
-                                    <small class="text-muted">{{ $viaje->conductor->email ?? 'N/A' }}</small>
-                                </td>
-                                <td>
-                                    <div class="text-left">
-                                        <strong>🅰️ {{ Str::limit($viaje->origen_direccion ?? 'N/A', 25) }}</strong><br>
-                                        <small class="text-muted">⬇️</small><br>
-                                        <strong>🅱️ {{ Str::limit($viaje->destino_direccion ?? 'N/A', 25) }}</strong>
-                                    </div>
-                                </td>
-                              <td>
+{{-- ✨ NUEVA SECCIÓN: Tabla de viajes finalizados automáticamente (opcional) --}}
+@if($viajesFinalizadosAutomaticamente > 0)
+
+    
+    {{-- Mostrar algunos ejemplos --}}
+    @if(isset($viajesFinalizadosDetalles) && $viajesFinalizadosDetalles->count() > 0)
+  
+    
+    @if($viajesFinalizadosDetalles->count() > 5)
+    <small class="text-muted">
+        Y {{ $viajesFinalizadosDetalles->count() - 5 }} viajes más...
+    </small>
+    @endif
+    @endif
+</div>
+@endif
+
+{{-- Continúa con el resto de la vista... --}}
+<!-- Tabla de Viajes -->
+<div class="card shadow">
+    <div class="card-header py-3 d-flex justify-content-between align-items-center">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Viajes Recientes</h6>
+        <a href="{{ route('admin.viajes.todos') }}" class="btn btn-primary btn-sm">
+            <i class="fas fa-list"></i> Ver Todos los Viajes
+        </a>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-hover">
+                <thead class="table-primary text-center">
+                    <tr>
+                        <th>Conductor</th>
+                        <th>Ruta</th>
+                        <th>Fecha/Hora</th>
+                        <th>Puestos</th>
+                        <th>Valor</th>
+                        <th>Estado</th>
+                        <th>Reservas</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse ($viajes as $viaje)
+                        @php
+                            // ✨ NUEVO: Verificar si el viaje debe mostrarse como finalizado
+                            $fechaLimite = \Carbon\Carbon::now()->subHours(24);
+                            
+                            try {
+                                // Obtener solo la fecha (sin hora) de fecha_salida
+                                $fechaSoloFecha = \Carbon\Carbon::parse($viaje->fecha_salida)->format('Y-m-d');
+                                
+                                $fechaViaje = $viaje->hora_salida 
+                                    ? \Carbon\Carbon::parse($fechaSoloFecha . ' ' . $viaje->hora_salida)
+                                    : \Carbon\Carbon::parse($fechaSoloFecha)->endOfDay();
+                                    
+                                $estaFinalizado = $fechaViaje->addHours(24)->isPast() && 
+                                                 in_array($viaje->estado, ['pendiente', 'confirmado', 'en_proceso', 'completado']);
+                            } catch (\Exception $e) {
+                                $estaFinalizado = false;
+                            }
+                        @endphp
+                        
+                        <tr class="align-middle text-center cursor-pointer {{ $estaFinalizado ? 'table-warning' : '' }}" 
+                            onclick="window.location='{{ route('admin.viajes.detalle', $viaje->id) }}'"
+                            @if($estaFinalizado) title="Viaje finalizado automáticamente - Pasaron más de 24h" @endif>
+                            <td>
+                                <strong>{{ $viaje->conductor->name ?? 'N/A' }}</strong><br>
+                                <small class="text-muted">{{ $viaje->conductor->email ?? 'N/A' }}</small>
+                            </td>
+                            <td>
+                                <div class="text-left">
+                                    <strong>🅰️ {{ Str::limit($viaje->origen_direccion ?? 'N/A', 25) }}</strong><br>
+                                    <small class="text-muted">⬇️</small><br>
+                                    <strong>🅱️ {{ Str::limit($viaje->destino_direccion ?? 'N/A', 25) }}</strong>
+                                </div>
+                            </td>
+                            <td>
                                 @if($viaje->fecha_salida)
                                     <strong>{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</strong><br>
                                 @else
@@ -529,15 +582,28 @@ h4 {
                                 @else
                                     <small class="text-muted">N/A</small>
                                 @endif
+                                
+                                {{-- ✨ NUEVO: Indicador de finalización automática --}}
+                                @if($estaFinalizado)
+                                    <br><small class="text-danger">
+                                        <i class="fas fa-clock"></i> Finalizado auto
+                                    </small>
+                                @endif
                             </td>
-                              <td>
-                                    <span class="badge badge-puestos">{{ $viaje->puestos_disponibles ?? 0 }}/{{ $viaje->puestos_totales ?? 0 }}</span>
-                                </td>
-                                <td>
-                                    <strong>${{ number_format($viaje->valor_cobrado ?? 0, 0, ',', '.') }}</strong><br>
-                                    <small class="text-muted">por persona</small>
-                                </td>
-                                <td>
+                            <td>
+                                <span class="badge badge-puestos">{{ $viaje->puestos_disponibles ?? 0 }}/{{ $viaje->puestos_totales ?? 0 }}</span>
+                            </td>
+                            <td>
+                                <strong>${{ number_format($viaje->valor_cobrado ?? 0, 0, ',', '.') }}</strong><br>
+                                <small class="text-muted">total del viaje</small>
+                            </td>
+                            <td>
+                                @if($estaFinalizado)
+                                    {{-- ✨ NUEVO: Mostrar estado finalizado --}}
+                                    <span class="badge badge-success">✅ Finalizado</span>
+                                    <br><small class="text-muted">({{ ucfirst($viaje->estado) }})</small>
+                                @else
+                                    {{-- Estado original --}}
                                     @switch($viaje->estado)
                                         @case('pendiente')
                                             <span class="badge badge-warning">⏳ Pendiente</span>
@@ -562,37 +628,38 @@ h4 {
                                         @default
                                             <span class="badge badge-light">{{ ucfirst($viaje->estado ?? 'N/A') }}</span>
                                     @endswitch
-                                </td>
-                                <td>
-                                    <span class="badge badge-outline-primary">{{ $viaje->reservas->count() }} reserva(s)</span>
-                                </td>
-                                <td onclick="event.stopPropagation();">
-                                    <div class="btn-group" role="group">
-                                        <a href="{{ route('admin.viajes.detalle', $viaje->id) }}" class="btn btn-sm btn-info" title="Ver Detalle">
-                                            <i class="fas fa-eye"></i>
-                                        </a>
-                                      
-                                    </div>
-                                </td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">No hay viajes registrados.</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- Paginación -->
-            @if($viajes->hasPages())
-            <div class="d-flex justify-content-center mt-3">
-                {{ $viajes->links() }}
-            </div>
-            @endif
+                                @endif
+                            </td>
+                            <td>
+                                <span class="badge badge-outline-primary">{{ $viaje->reservas->count() }} reserva(s)</span>
+                            </td>
+                            <td onclick="event.stopPropagation();">
+                                <div class="btn-group" role="group">
+                                    <a href="{{ route('admin.viajes.detalle', $viaje->id) }}" class="btn btn-sm btn-info" title="Ver Detalle">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="9" class="text-center text-muted">No hay viajes registrados.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
+
+        <!-- Paginación -->
+        @if($viajes->hasPages())
+        <div class="d-flex justify-content-center mt-3">
+            {{ $viajes->links() }}
+        </div>
+        @endif
     </div>
 </div>
+
+
 <div class="mt-5">
     <h4 class="text-center mb-4" style="color: #00304b;">🧾 Últimas Reservas Realizadas</h4>
     

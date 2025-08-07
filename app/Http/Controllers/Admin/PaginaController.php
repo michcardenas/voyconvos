@@ -37,7 +37,7 @@ class PaginaController extends Controller
         return redirect()->route('configuracion.paginas')->with('success', 'Página actualizada correctamente');
     }
 
- public function dashboard()
+public function dashboard() 
 {
     // Datos generales (mantener igual)
     $totalUsuarios = User::count();
@@ -56,13 +56,39 @@ class PaginaController extends Controller
     $conductoresVerificados = User::role('conductor')->where('verificado', true)->count();
     $pasajerosVerificados = User::role('pasajero')->where('verificado', true)->count();
     
-    // Viajes (mantener lo existente)
+    // ✨ NUEVO: Calcular viajes finalizados automáticamente
+    $fechaLimite = \Carbon\Carbon::now()->subHours(24);
+    
+    $viajesFinalizadosAutomaticamente = Viaje::where('activo', 1)
+        ->whereIn('estado', ['pendiente', 'confirmado', 'en_proceso', 'completado'])
+        ->where(function ($query) use ($fechaLimite) {
+            // Si tiene fecha_salida y hora_salida, combinarlas
+            $query->whereRaw("CONCAT(DATE(fecha_salida), ' ', COALESCE(hora_salida, '00:00:00')) <= ?", [$fechaLimite])
+                  // Si solo tiene fecha_salida, asumir que termina al final del día
+                  ->orWhere(function ($q) use ($fechaLimite) {
+                      $q->whereNull('hora_salida')
+                        ->where('fecha_salida', '<=', $fechaLimite->format('Y-m-d'));
+                  });
+        })
+        ->count();
+
+    // Viajes (actualizados con nueva lógica)
     $viajesTotales = Viaje::count();
-    $viajesActivos = Viaje::where('activo', true)->count();
+    $viajesActivos = Viaje::where('activo', true)
+        ->where(function ($query) use ($fechaLimite) {
+            // Viajes que AÚN NO han pasado 24h después de su fecha
+            $query->whereRaw("CONCAT(DATE(fecha_salida), ' ', COALESCE(hora_salida, '00:00:00')) > ?", [$fechaLimite])
+                  ->orWhere(function ($q) use ($fechaLimite) {
+                      $q->whereNull('hora_salida')
+                        ->where('fecha_salida', '>', $fechaLimite->format('Y-m-d'));
+                  });
+        })
+        ->count();
+        
     $viajesInactivos = Viaje::where('activo', false)->count();
     $viajesRecientes = Viaje::with('conductor')->latest()->take(5)->get();
     
-    // ✨ AGREGAR: Estadísticas adicionales por estado para la nueva tabla
+    // ✨ ACTUALIZADO: Estadísticas adicionales por estado para la nueva tabla
     $estadisticasViajes = [
         'pendiente' => Viaje::where('estado', 'pendiente')->count(),
         'confirmado' => Viaje::where('estado', 'confirmado')->count(),
@@ -71,9 +97,25 @@ class PaginaController extends Controller
         'completado' => Viaje::where('estado', 'completado')->count(),
         'cancelado' => Viaje::where('estado', 'cancelado')->count(),
         'listo_para_iniciar' => Viaje::where('estado', 'listo_para_iniciar')->count(),
+        'finalizados_automaticamente' => $viajesFinalizadosAutomaticamente, // ✨ NUEVO
     ];
 
-    // ✨ AGREGAR: Lista de viajes con paginación para la tabla
+    // ✨ NUEVO: Obtener detalles de viajes finalizados automáticamente para debugging
+    $viajesFinalizadosDetalles = Viaje::with(['conductor'])
+        ->where('activo', 1)
+        ->whereIn('estado', ['pendiente', 'confirmado', 'en_proceso', 'completado'])
+        ->where(function ($query) use ($fechaLimite) {
+            $query->whereRaw("CONCAT(DATE(fecha_salida), ' ', COALESCE(hora_salida, '00:00:00')) <= ?", [$fechaLimite])
+                  ->orWhere(function ($q) use ($fechaLimite) {
+                      $q->whereNull('hora_salida')
+                        ->where('fecha_salida', '<=', $fechaLimite->format('Y-m-d'));
+                  });
+        })
+        ->orderBy('fecha_salida', 'desc')
+        ->take(10)
+        ->get();
+
+    // Lista de viajes con paginación para la tabla
     $viajes = Viaje::with(['conductor', 'reservas'])
         ->orderBy('fecha_salida', 'desc')
         ->paginate(10);
@@ -84,6 +126,16 @@ class PaginaController extends Controller
     $reservasPendientes = Reserva::whereIn('estado', ['pendiente', 'pendiente_pago'])->count();
     $reservasCanceladas = Reserva::whereIn('estado', ['cancelada', 'fallida'])->count();
     $reservasRecientes = Reserva::with(['pasajero', 'viaje.conductor'])->latest()->take(5)->get();
+    
+    // ✨ Log para debugging (opcional)
+    \Log::info('Dashboard Admin - Estadísticas de Viajes', [
+        'total_viajes' => $viajesTotales,
+        'viajes_activos' => $viajesActivos,
+        'viajes_inactivos' => $viajesInactivos,
+        'viajes_finalizados_automaticamente' => $viajesFinalizadosAutomaticamente,
+        'fecha_limite_calculo' => $fechaLimite->format('Y-m-d H:i:s'),
+        'viajes_finalizados_ejemplos' => $viajesFinalizadosDetalles->take(3)->pluck('id', 'fecha_salida')
+    ]);
     
     return view('admin.dashboard', compact(
         // Variables existentes (mantener todas)
@@ -105,9 +157,12 @@ class PaginaController extends Controller
         'reservasPendientes',
         'reservasCanceladas',
         'reservasRecientes',
-        // ✨ NUEVAS variables agregadas
+        // Variables agregadas anteriormente
         'estadisticasViajes',
-        'viajes'
+        'viajes',
+        // ✨ NUEVAS variables
+        'viajesFinalizadosAutomaticamente',
+        'viajesFinalizadosDetalles'
     ));
 }
 }
