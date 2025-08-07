@@ -164,7 +164,7 @@ public function update(Request $request, User $user)
             Mail::to($user->email)->send(new UniversalMail(
                 $user,
                 '¡Cuenta verificada exitosamente! - VoyConvos',
-                "¡Excelentes noticias! Tu cuenta ha sido verificada exitosamente.\n\nYa puedes empezar a utilizar todos nuestros servicios sin restricciones:\n\n\n• Conectar con otros viajeros\n• Acceder a todas las funcionalidades de la plataforma\n• Disfrutar de la experiencia completa de VoyConvos\n\n¡Bienvenido oficialmente a nuestra comunidad de viajeros!\n\nGracias por tu paciencia durante el proceso de verificación.",
+                "Hola {$user->name}! 👋\n\n¡Buenísimas noticias! ✅\n\nTu cuenta ya está verificada y lista para usar sin restricciones.\n\nA partir de ahora podés:\n\t•\tConectarte con otros viajeros reales\n\t•\tUsar todas las funciones de la app sin límites\n\t•\tVivir la experiencia completa de VoyConVos\n\n🚗 ¡Bienvenida oficialmente a esta comunidad que viaja distinto!\nGracias por tu paciencia en el proceso de verificación.\n\nNos encanta tenerte a bordo.\nEl equipo de VoyConVos",
                 'notificacion'
             ));
             
