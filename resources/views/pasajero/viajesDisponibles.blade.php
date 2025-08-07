@@ -986,10 +986,16 @@
                                         <div class="detail-icon time">
                                             <i class="fas fa-clock"></i>
                                         </div>
-                                        <div class="detail-content">
-                                            <div class="detail-label">Hora de salida</div>
-                                            <div class="detail-value">{{ $viaje->hora_salida ?? 'Por definir' }}</div>
-                                        </div>
+                                      <div class="detail-content">
+                                    <div class="detail-label">Hora de salida</div>
+                                    <div class="detail-value">
+                                        @if($viaje->hora_salida)
+                                            {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                                        @else
+                                            Por definir
+                                        @endif
+                                    </div>
+                                </div>
                                     </div>
 
                                     <!-- Driver -->
