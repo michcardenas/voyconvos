@@ -74,10 +74,10 @@
                                 <tr>
                                     <td><strong><i class="fas fa-users text-primary"></i> Puestos:</strong></td>
                                     <td>
-                                        <span class="badge badge-info">
-                                            {{ $viaje->puestos_disponibles ?? 0 }}/{{ $viaje->puestos_totales ?? 0 }}
+                                        <span class="badge badge-success">
+                                           
                                         </span>
-                                        disponibles
+                                       {{ $viaje->puestos_disponibles ?? 0 }}/{{ $viaje->puestos_totales ?? 0 }}   disponibles
                                     </td>
                                 </tr>
                             </table>
@@ -123,11 +123,7 @@
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td>
-                                        <span class="badge badge-{{ $viaje->activo ? 'success' : 'danger' }}">
-                                            {{ $viaje->activo ? 'SÍ' : 'NO' }}
-                                        </span>
-                                    </td>
+                                
                                 </tr>
                             </table>
                         </div>
@@ -269,13 +265,13 @@
                                                     <span class="badge badge-warning">⏳ Pendiente</span>
                                                     @break
                                                 @case('pendiente_pago')
-                                                    <span class="badge badge-info">💳 Pendiente Pago</span>
+                                                    <span class="">💳 Pendiente Pago</span>
                                                     @break
                                                 @case('cancelada')
                                                     <span class="badge badge-danger">❌ Cancelada</span>
                                                     @break
                                                 @default
-                                                    <span class="badge badge-secondary">{{ ucfirst($reserva->estado) }}</span>
+                                                    <span class="">{{ ucfirst($reserva->estado) }}</span>
                                             @endswitch
                                         </td>
                                         <td>
@@ -469,6 +465,7 @@
     border-radius: 6px;
     padding: 6px 12px;
     font-weight: 600;
+    color: black;
 }
 
 .border-left-success {
