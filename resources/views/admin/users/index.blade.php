@@ -19,45 +19,72 @@
     </div>
     @endif
 
-    {{-- Barra de acciones y filtros --}}
+    {{-- Barra de acciones y filtros MEJORADA --}}
     <div class="card mb-4">
         <div class="card-body py-3">
             <div class="row align-items-end">
-                <div class="col-md-6">
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-success">
+                <div class="col-md-4">
+                    <a href="{{ route('admin.users.create') }}" class="btn btn-success mb-2">
                         <i class="fas fa-plus me-1"></i>Nuevo Usuario
                     </a>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-8">
+                    {{-- 🔥 NUEVA FILA PARA BÚSQUEDA --}}
                     <div class="row g-2">
-                        <div class="col-sm-3">
-                            <label for="filtro-ordenar" class="form-label mb-1 small">Ordenar:</label>
-                            <select id="filtro-ordenar" class="form-select form-select-sm">
-                                <option value="created_at" {{ request('ordenar') == 'created_at' || !request('ordenar') ? 'selected' : '' }}>Más recientes</option>
-                                <option value="updated_at" {{ request('ordenar') == 'updated_at' ? 'selected' : '' }}>Últimas actualizaciones</option>
-                            </select>
+                        <div class="col-md-6">
+                            <label for="busqueda" class="form-label mb-1 small">🔍 Buscar por nombre o correo:</label>
+                            <div class="input-group input-group-sm">
+                                <input type="text" 
+                                       id="busqueda" 
+                                       class="form-control" 
+                                       placeholder="Escribe nombre o email..."
+                                       value="{{ request('buscar') }}"
+                                       maxlength="50">
+                                <button class="btn btn-outline-secondary" type="button" id="btn-buscar" title="Buscar">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                                @if(request('buscar'))
+                                    <button class="btn btn-outline-danger" type="button" id="btn-limpiar-busqueda" title="Limpiar búsqueda">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                @endif
+                            </div>
                         </div>
-                        <div class="col-sm-3">
-                            <label for="filtro-rol" class="form-label mb-1 small">Rol:</label>
-                            <select id="filtro-rol" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="admin">Admin</option>
-                                <option value="conductor">Conductor</option>
-                                <option value="pasajero">Pasajero</option>
-                            </select>
+                        <div class="col-md-6">
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <label for="filtro-ordenar" class="form-label mb-1 small">Ordenar:</label>
+                                    <select id="filtro-ordenar" class="form-select form-select-sm">
+                                        <option value="created_at" {{ request('ordenar') == 'created_at' || !request('ordenar') ? 'selected' : '' }}>Más recientes</option>
+                                        <option value="updated_at" {{ request('ordenar') == 'updated_at' ? 'selected' : '' }}>Últimas actualizaciones</option>
+                                        <option value="name" {{ request('ordenar') == 'name' ? 'selected' : '' }}>Por nombre</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="filtro-rol" class="form-label mb-1 small">Rol:</label>
+                                    <select id="filtro-rol" class="form-select form-select-sm">
+                                        <option value="">Todos</option>
+                                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                        <option value="conductor" {{ request('rol') == 'conductor' ? 'selected' : '' }}>Conductor</option>
+                                        <option value="pasajero" {{ request('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
+                                    </select>
+                                </div>
+                                <div class="col-4">
+                                    <label for="filtro-verificado" class="form-label mb-1 small">Estado:</label>
+                                    <select id="filtro-verificado" class="form-select form-select-sm">
+                                        <option value="">Todos</option>
+                                        <option value="1" {{ request('verificado') == '1' ? 'selected' : '' }}>Verificados</option>
+                                        <option value="0" {{ request('verificado') == '0' ? 'selected' : '' }}>No Verificados</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-sm-3">
-                            <label for="filtro-verificado" class="form-label mb-1 small">Verificación:</label>
-                            <select id="filtro-verificado" class="form-select form-select-sm">
-                                <option value="">Todos</option>
-                                <option value="1">Verificados</option>
-                                <option value="0">No Verificados</option>
-                            </select>
-                        </div>
-                        <div class="col-sm-3">
-                            <label class="form-label mb-1 small">&nbsp;</label>
-                            <button id="limpiar-filtros" class="btn btn-outline-secondary btn-sm d-block w-100" title="Limpiar filtros">
-                                <i class="fas fa-times"></i>
+                    </div>
+                    {{-- BOTÓN LIMPIAR FILTROS --}}
+                    <div class="row mt-2">
+                        <div class="col-12 text-end">
+                            <button id="limpiar-filtros" class="btn btn-outline-secondary btn-sm" title="Limpiar todos los filtros">
+                                <i class="fas fa-broom me-1"></i>Limpiar Filtros
                             </button>
                         </div>
                     </div>
@@ -65,6 +92,30 @@
             </div>
         </div>
     </div>
+
+    {{-- 🔥 MOSTRAR FILTROS ACTIVOS --}}
+    @if(request('buscar') || request('rol') || request('verificado') !== null || request('ordenar'))
+    <div class="alert alert-info alert-sm mb-3">
+        <i class="fas fa-filter me-2"></i>
+        <strong>Filtros activos:</strong>
+        @if(request('buscar'))
+            <span class="badge bg-primary me-1">Búsqueda: "{{ request('buscar') }}"</span>
+        @endif
+        @if(request('rol'))
+            <span class="badge bg-warning text-dark me-1">Rol: {{ ucfirst(request('rol')) }}</span>
+        @endif
+        @if(request('verificado') !== null)
+            <span class="badge bg-info me-1">
+                Estado: {{ request('verificado') == '1' ? 'Verificados' : 'No Verificados' }}
+            </span>
+        @endif
+        @if(request('ordenar') && request('ordenar') !== 'created_at')
+            <span class="badge bg-secondary me-1">
+                Orden: {{ request('ordenar') == 'updated_at' ? 'Últimas actualizaciones' : 'Por nombre' }}
+            </span>
+        @endif
+    </div>
+    @endif
 
     {{-- Tabla --}}
     <div class="card">
@@ -83,10 +134,24 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach($users as $user)
+                        @forelse($users as $user)
                         <tr data-rol="{{ $user->getRoleNames()->first() }}" data-verificado="{{ $user->verificado ? '1' : '0' }}">
-                            <td>{{ $user->name }}</td>
-                            <td>{{ $user->email }}</td>
+                            <td>
+                                <strong>{{ $user->name }}</strong>
+                                @if(request('buscar') && stripos($user->name, request('buscar')) !== false)
+                                    <small class="text-success d-block">
+                                        <i class="fas fa-search"></i> Coincidencia en nombre
+                                    </small>
+                                @endif
+                            </td>
+                            <td>
+                                {{ $user->email }}
+                                @if(request('buscar') && stripos($user->email, request('buscar')) !== false)
+                                    <small class="text-success d-block">
+                                        <i class="fas fa-search"></i> Coincidencia en email
+                                    </small>
+                                @endif
+                            </td>
                             <td>
                                 @php
                                     $rol = $user->getRoleNames()->first();
@@ -151,7 +216,19 @@
                                 </div>
                             </td>
                         </tr>
-                        @endforeach
+                        @empty
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">
+                                    <i class="fas fa-search fa-2x mb-2"></i>
+                                    <p class="mb-0">No se encontraron usuarios</p>
+                                    @if(request('buscar'))
+                                        <small>con la búsqueda "{{ request('buscar') }}"</small>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -163,11 +240,14 @@
                 <div class="col-md-6">
                     <small class="text-muted" id="info-resultados">
                         Mostrando {{ $users->firstItem() }} - {{ $users->lastItem() }} de {{ $users->total() }} usuarios
+                        @if(request('buscar'))
+                            (filtrados por "{{ request('buscar') }}")
+                        @endif
                     </small>
                 </div>
                 <div class="col-md-6">
                     <div class="d-flex justify-content-end">
-                        {{ $users->links('pagination::bootstrap-4') }}
+                        {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
@@ -186,7 +266,13 @@
         <div class="col-md-4">
             <div class="small text-muted">
                 <i class="fas fa-sort me-1"></i>
-                Ordenado por: <strong>{{ request('ordenar') == 'updated_at' ? 'Últimas actualizaciones' : 'Más recientes' }}</strong>
+                Ordenado por: <strong>
+                    @switch(request('ordenar'))
+                        @case('updated_at') Últimas actualizaciones @break
+                        @case('name') Nombre @break
+                        @default Más recientes
+                    @endswitch
+                </strong>
             </div>
         </div>
         <div class="col-md-4">
@@ -261,8 +347,32 @@
             letter-spacing: 0.5px;
         }
 
+        /* 🔥 ESTILOS PARA LA BÚSQUEDA */
+        #busqueda {
+            transition: all 0.3s ease;
+        }
+
+        #busqueda:focus {
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+            border-color: #0d6efd;
+        }
+
+        .alert-sm {
+            padding: 0.5rem 1rem;
+            font-size: 0.875rem;
+        }
+
+        .input-group .btn {
+            border-left: none;
+        }
+
+        .input-group .form-control:focus + .btn {
+            border-color: #0d6efd;
+        }
+
         @media (max-width: 768px) {
-            .row.g-2 > .col-sm-3 {
+            .row.g-2 > .col-md-6,
+            .row.g-2 > .col-4 {
                 margin-bottom: 0.5rem;
             }
             
@@ -293,8 +403,11 @@
         const limpiarFiltros = document.getElementById('limpiar-filtros');
         const tabla = document.getElementById('tabla-usuarios');
         const tbody = tabla.querySelector('tbody');
-        const infoResultados = document.getElementById('info-resultados');
-        const totalUsuarios = document.getElementById('total-usuarios');
+        
+        // 🔥 NUEVOS ELEMENTOS PARA BÚSQUEDA
+        const campoBusqueda = document.getElementById('busqueda');
+        const btnBuscar = document.getElementById('btn-buscar');
+        const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
 
         // ===============================================
         // FUNCIONALIDAD DE HORA (mantener como está)
@@ -328,30 +441,15 @@
         setInterval(actualizarHora, 1000);
 
         // ===============================================
-        // ESTABLECER VALORES ACTUALES DE FILTROS
-        // ===============================================
-        const urlParams = new URLSearchParams(window.location.search);
-        
-        // Establecer valores desde la URL en los selectores
-        if (urlParams.get('ordenar')) {
-            filtroOrdenar.value = urlParams.get('ordenar');
-        }
-        if (urlParams.get('rol')) {
-            filtroRol.value = urlParams.get('rol');
-        }
-        if (urlParams.get('verificado') !== null) {
-            filtroVerificado.value = urlParams.get('verificado');
-        }
-
-        // ===============================================
-        // FUNCIÓN PRINCIPAL PARA APLICAR FILTROS
+        // FUNCIÓN PRINCIPAL PARA APLICAR FILTROS CON BÚSQUEDA
         // ===============================================
         function aplicarFiltros() {
             const url = new URL(window.location);
             
-            // Limpiar parámetros existentes de filtros
+            // Limpiar parámetros existentes
             url.searchParams.delete('rol');
             url.searchParams.delete('verificado');
+            url.searchParams.delete('buscar');
             url.searchParams.delete('page'); // Resetear a página 1 cuando se aplican filtros
             
             // Mantener el ordenamiento actual
@@ -360,6 +458,12 @@
                 url.searchParams.set('ordenar', ordenar);
             } else {
                 url.searchParams.delete('ordenar');
+            }
+            
+            // 🔥 AGREGAR BÚSQUEDA
+            const terminoBusqueda = campoBusqueda.value.trim();
+            if (terminoBusqueda) {
+                url.searchParams.set('buscar', terminoBusqueda);
             }
             
             // Agregar filtro de rol si está seleccionado
@@ -379,13 +483,6 @@
         }
 
         // ===============================================
-        // FUNCIÓN PARA CAMBIAR ORDENAMIENTO
-        // ===============================================
-        function cambiarOrdenamiento() {
-            aplicarFiltros(); // Usar la misma función para mantener todos los filtros
-        }
-
-        // ===============================================
         // FUNCIÓN PARA LIMPIAR TODOS LOS FILTROS
         // ===============================================
         function limpiarTodosFiltros() {
@@ -395,10 +492,17 @@
             url.searchParams.delete('rol');
             url.searchParams.delete('verificado');
             url.searchParams.delete('ordenar');
+            url.searchParams.delete('buscar');
             url.searchParams.delete('page');
             
             // Redirigir a la URL limpia
             window.location.href = url.toString();
+        }
+
+        // 🔥 FUNCIÓN PARA LIMPIAR SOLO LA BÚSQUEDA
+        function limpiarBusqueda() {
+            campoBusqueda.value = '';
+            aplicarFiltros();
         }
 
         // ===============================================
@@ -406,7 +510,33 @@
         // ===============================================
         filtroRol.addEventListener('change', aplicarFiltros);
         filtroVerificado.addEventListener('change', aplicarFiltros);
-        filtroOrdenar.addEventListener('change', cambiarOrdenamiento);
+        filtroOrdenar.addEventListener('change', aplicarFiltros);
+        
+        // 🔥 EVENTOS PARA BÚSQUEDA
+        btnBuscar.addEventListener('click', aplicarFiltros);
+        if (btnLimpiarBusqueda) {
+            btnLimpiarBusqueda.addEventListener('click', limpiarBusqueda);
+        }
+        
+        // Buscar al presionar Enter
+        campoBusqueda.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                aplicarFiltros();
+            }
+        });
+        
+        // Buscar en tiempo real (opcional - con debounce)
+        let timeoutBusqueda;
+        campoBusqueda.addEventListener('input', function() {
+            clearTimeout(timeoutBusqueda);
+            timeoutBusqueda = setTimeout(() => {
+                if (this.value.length >= 2 || this.value.length === 0) {
+                    aplicarFiltros();
+                }
+            }, 500); // Esperar 500ms después de que el usuario deje de escribir
+        });
+        
         limpiarFiltros.addEventListener('click', function(e) {
             e.preventDefault();
             limpiarTodosFiltros();
@@ -417,8 +547,7 @@
         // ===============================================
         const filas = tbody.querySelectorAll('tr');
         filas.forEach(function(fila) {
-            // Buscar si tiene el badge de "Actualizado"
-            const celdaActualizacion = fila.cells[5]; // Columna de última actualización
+            const celdaActualizacion = fila.cells[5];
             if (celdaActualizacion) {
                 const badgeActualizado = celdaActualizacion.querySelector('.badge.bg-warning');
                 if (badgeActualizado && badgeActualizado.textContent.includes('Actualizado')) {
@@ -426,44 +555,6 @@
                 }
             }
         });
-
-        // ===============================================
-        // MOSTRAR INDICADOR DE FILTROS ACTIVOS
-        // ===============================================
-        function mostrarFiltrosActivos() {
-            const filtrosActivos = [];
-            
-            if (urlParams.get('rol')) {
-                filtrosActivos.push(`Rol: ${urlParams.get('rol')}`);
-            }
-            if (urlParams.get('verificado') !== null && urlParams.get('verificado') !== '') {
-                const estado = urlParams.get('verificado') === '1' ? 'Verificados' : 'No verificados';
-                filtrosActivos.push(`Estado: ${estado}`);
-            }
-            if (urlParams.get('ordenar') === 'updated_at') {
-                filtrosActivos.push('Ordenado por: Últimas actualizaciones');
-            }
-            
-            // Si hay filtros activos, mostrar un indicador visual
-            if (filtrosActivos.length > 0) {
-                // Puedes agregar un elemento para mostrar los filtros activos
-                const indicadorFiltros = document.createElement('div');
-                indicadorFiltros.className = 'alert alert-info alert-sm mt-2';
-                indicadorFiltros.innerHTML = `
-                    <i class="fas fa-filter me-2"></i>
-                    <strong>Filtros activos:</strong> ${filtrosActivos.join(' | ')}
-                `;
-                
-                // Insertar después de la barra de filtros si no existe ya
-                const cardBody = document.querySelector('.card.mb-4 .card-body');
-                const indicadorExistente = cardBody.querySelector('.alert.alert-info');
-                if (!indicadorExistente && filtrosActivos.length > 0) {
-                    cardBody.appendChild(indicadorFiltros);
-                }
-            }
-        }
-        
-        mostrarFiltrosActivos();
 
         // ===============================================
         // CONFIRMACIÓN AL ELIMINAR USUARIO
@@ -481,6 +572,11 @@
                 }
             };
         });
+
+        // 🔥 FOCUS AUTOMÁTICO EN EL CAMPO DE BÚSQUEDA AL CARGAR
+        if (!campoBusqueda.value) {
+            campoBusqueda.focus();
+        }
     });
 </script>
 @endpush

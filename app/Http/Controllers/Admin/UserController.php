@@ -17,36 +17,53 @@ class UserController extends Controller
 {
 public function index(Request $request)
 {
-    // Obtener parámetros de filtro
+    // Obtener parámetros de filtro (existentes + nuevo)
     $ordenar = $request->get('ordenar', 'created_at');
     $rol = $request->get('rol');
     $verificado = $request->get('verificado');
-    
+    $buscar = $request->get('buscar'); // 🔥 NUEVO PARÁMETRO
+
     // Construir la consulta con filtros
     $query = User::query();
-    
-    // Filtro por rol
+
+    // 🔥 NUEVA FUNCIONALIDAD: Búsqueda por nombre o email
+    if ($buscar) {
+        $terminoBusqueda = trim($buscar);
+        $query->where(function ($q) use ($terminoBusqueda) {
+            $q->where('name', 'like', '%' . $terminoBusqueda . '%')
+              ->orWhere('email', 'like', '%' . $terminoBusqueda . '%');
+        });
+    }
+
+    // Filtro por rol (existente)
     if ($rol) {
         $query->whereHas('roles', function($q) use ($rol) {
             $q->where('name', $rol);
         });
     }
-    
-    // Filtro por estado de verificación
+
+    // Filtro por estado de verificación (existente)
     if ($verificado !== null && $verificado !== '') {
         $query->where('verificado', $verificado);
     }
-    
-    // Aplicar ordenamiento
-    if ($ordenar === 'updated_at') {
-        $query->latest('updated_at');
-    } else {
-        $query->latest('created_at');
+
+    // 🔥 APLICAR ORDENAMIENTO MEJORADO
+    switch ($ordenar) {
+        case 'updated_at':
+            $query->latest('updated_at');
+            break;
+        case 'name':
+            $query->orderBy('name', 'asc');
+            break;
+        case 'created_at':
+        default:
+            $query->latest('created_at');
+            break;
     }
-    
+
     // Paginar manteniendo los parámetros de consulta
     $users = $query->paginate(10)->withQueryString();
-    
+
     return view('admin.users.index', compact('users'));
 }
     public function create()
