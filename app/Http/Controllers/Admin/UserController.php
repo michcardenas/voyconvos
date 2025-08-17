@@ -57,35 +57,104 @@ public function index(Request $request)
     
 
     public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|string|min:6|confirmed',
-            'role' => 'required|exists:roles,name',
-            'pais' => 'required|string|max:100',
-            'ciudad' => 'required|string|max:100',
-            'dni' => 'nullable|string|max:20',
-            'celular' => 'required|string|max:20',
-            'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+{
+    // Validaciones básicas
+    $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'email' => 'required|email|unique:users',
+        'password' => 'required|string|min:6|confirmed',
+        'role' => 'required|exists:roles,name',
+        'pais' => 'required|string|max:100',
+        'ciudad' => 'required|string|max:100',
+        'dni' => 'nullable|string|max:20',
+        'celular' => 'required|string|max:20',
+        'foto' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+    ]);
+
+    // Validaciones adicionales si es conductor
+    if ($request->role === 'conductor') {
+        $conductorData = $request->validate([
+            'marca_vehiculo' => 'required|string|max:255',
+            'modelo_vehiculo' => 'required|string|max:255',
+            'anio_vehiculo' => 'required|integer|min:1990|max:' . (date('Y') + 1),
+            'patente' => 'required|string|max:20',
+            'numero_puestos' => 'required|integer|min:1|max:50',
+            'consumo_por_galon' => 'nullable|numeric|min:0',
+            'verificar_pasajeros' => 'nullable|boolean',
+            'estado_verificacion' => 'nullable|in:pendiente,en_revision,aprobado,rechazado',
+            'estado_registro' => 'nullable|in:activo,inactivo,suspendido',
+            // Documentos
+            'licencia' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'cedula' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'cedula_verde' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'seguro' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'rto' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'antecedentes' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
-    
-        // Guardar imagen si fue cargada
-        if ($request->hasFile('foto')) {
-            $data['foto'] = $request->file('foto')->store('usuarios', 'public');
-        }
-    
-        // Encriptar contraseña
-        $data['password'] = Hash::make($data['password']);
-    
-        // Crear usuario
-        $user = User::create($data);
-    
-        // Asignar rol
-        $user->assignRole($data['role']);
-    
-        return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
     }
+
+    // Guardar imagen del usuario si fue cargada
+    if ($request->hasFile('foto')) {
+        $data['foto'] = $request->file('foto')->store('usuarios', 'public');
+    }
+
+    // Encriptar contraseña
+    $data['password'] = Hash::make($data['password']);
+
+    // Crear usuario
+    $user = User::create($data);
+
+    // Asignar rol
+    $user->assignRole($data['role']);
+
+    // Si es conductor, crear registro adicional
+    if ($request->role === 'conductor') {
+        $registroConductor = new \App\Models\RegistroConductor();
+        $registroConductor->user_id = $user->id;
+        
+        // Datos del vehículo
+        $registroConductor->marca_vehiculo = $request->marca_vehiculo;
+        $registroConductor->modelo_vehiculo = $request->modelo_vehiculo;
+        $registroConductor->anio_vehiculo = $request->anio_vehiculo;
+        $registroConductor->patente = $request->patente;
+        $registroConductor->numero_puestos = $request->numero_puestos;
+        $registroConductor->consumo_por_galon = $request->consumo_por_galon;
+        $registroConductor->verificar_pasajeros = $request->has('verificar_pasajeros') ? 1 : 0;
+        
+        // Estados
+        $registroConductor->estado_verificacion = $request->estado_verificacion ?? 'pendiente';
+        $registroConductor->estado_registro = $request->estado_registro ?? 'activo';
+
+        // Guardar documentos
+        if ($request->hasFile('licencia')) {
+            $registroConductor->licencia = $request->file('licencia')->store('conductores/licencias', 'public');
+        }
+        
+        if ($request->hasFile('cedula')) {
+            $registroConductor->cedula = $request->file('cedula')->store('conductores/cedulas', 'public');
+        }
+        
+        if ($request->hasFile('cedula_verde')) {
+            $registroConductor->cedula_verde = $request->file('cedula_verde')->store('conductores/cedulas_verdes', 'public');
+        }
+        
+        if ($request->hasFile('seguro')) {
+            $registroConductor->seguro = $request->file('seguro')->store('conductores/seguros', 'public');
+        }
+        
+        if ($request->hasFile('rto')) {
+            $registroConductor->rto = $request->file('rto')->store('conductores/rto', 'public');
+        }
+        
+        if ($request->hasFile('antecedentes')) {
+            $registroConductor->antecedentes = $request->file('antecedentes')->store('conductores/antecedentes', 'public');
+        }
+
+        $registroConductor->save();
+    }
+
+    return redirect()->route('admin.users.index')->with('success', 'Usuario creado correctamente.');
+}
 
 public function edit(User $user)
 {
