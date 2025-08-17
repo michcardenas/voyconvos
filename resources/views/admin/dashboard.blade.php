@@ -771,11 +771,31 @@ h4 {
             </table>
         </div>
 
-        <!-- 🔥 PAGINACIÓN CORREGIDA -->
+        <!-- 🔥 PAGINACIÓN CORREGIDA CON ESTILOS FORZADOS -->
         @if($viajes->hasPages())
         <div class="d-flex justify-content-center mt-4">
             <nav aria-label="Page navigation">
-                {{ $viajes->links() }}
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    @if ($viajes->onFirstPage())
+                        <span style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #ddd; border-radius: 4px; color: #ccc; font-size: 12px; background: #f8f9fa;">‹</span>
+                    @else
+                        <a href="{{ $viajes->previousPageUrl() }}" style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #00304b; border-radius: 4px; color: #00304b; text-decoration: none; font-size: 12px; background: #fff; transition: all 0.2s;" onmouseover="this.style.background='#00304b'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#00304b';">‹</a>
+                    @endif
+
+                    @foreach ($viajes->getUrlRange(1, $viajes->lastPage()) as $page => $url)
+                        @if ($page == $viajes->currentPage())
+                            <span style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #00304b; border-radius: 4px; color: #fff; font-size: 12px; background: #00304b; font-weight: 600;">{{ $page }}</span>
+                        @else
+                            <a href="{{ $url }}" style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #dee2e6; border-radius: 4px; color: #00304b; text-decoration: none; font-size: 12px; background: #fff; transition: all 0.2s;" onmouseover="this.style.background='#f8f9fa'; this.style.borderColor='#00304b';" onmouseout="this.style.background='#fff'; this.style.borderColor='#dee2e6';">{{ $page }}</a>
+                        @endif
+                    @endforeach
+
+                    @if ($viajes->hasMorePages())
+                        <a href="{{ $viajes->nextPageUrl() }}" style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #00304b; border-radius: 4px; color: #00304b; text-decoration: none; font-size: 12px; background: #fff; transition: all 0.2s;" onmouseover="this.style.background='#00304b'; this.style.color='#fff';" onmouseout="this.style.background='#fff'; this.style.color='#00304b';">›</a>
+                    @else
+                        <span style="display: inline-block; width: 32px; height: 32px; line-height: 30px; text-align: center; border: 1px solid #ddd; border-radius: 4px; color: #ccc; font-size: 12px; background: #f8f9fa;">›</span>
+                    @endif
+                </div>
             </nav>
         </div>
         @endif
