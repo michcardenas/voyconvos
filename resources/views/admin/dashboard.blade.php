@@ -163,40 +163,65 @@
     cursor: not-allowed;
 }
 
-/* 🔥 FLECHAS DE NAVEGACIÓN CORREGIDAS */
+/* 🔥 FLECHAS DE NAVEGACIÓN MÁS PEQUEÑAS */
 .pagination .page-item:first-child .page-link,
 .pagination .page-item:last-child .page-link {
-    font-size: 0.8rem !important;
-    font-weight: 600;
-    padding: 0.5rem 0.6rem !important;
+    font-size: 0.7rem !important;
+    padding: 0.5rem !important;
+    width: 40px !important;
+    height: 40px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
 }
 
-.pagination .page-item:first-child .page-link::before {
-    content: "‹";
-    font-size: 1.2rem;
-    font-weight: bold;
+/* Ocultar el texto original completamente */
+.pagination .page-item:first-child .page-link *,
+.pagination .page-item:last-child .page-link * {
+    display: none !important;
 }
 
-.pagination .page-item:last-child .page-link::before {
-    content: "›";
-    font-size: 1.2rem;
-    font-weight: bold;
+/* Reemplazar con flechas pequeñas */
+.pagination .page-item:first-child .page-link {
+    font-family: Arial, sans-serif !important;
 }
 
-/* Ocultar texto original de las flechas */
+.pagination .page-item:first-child .page-link::after {
+    content: "◀" !important;
+    font-size: 0.7rem !important;
+    display: block !important;
+}
+
+.pagination .page-item:last-child .page-link::after {
+    content: "▶" !important;
+    font-size: 0.7rem !important;
+    display: block !important;
+}
+
+/* Asegurar que el texto original no aparezca */
 .pagination .page-item:first-child .page-link,
 .pagination .page-item:last-child .page-link {
-    text-indent: -9999px;
-    position: relative;
+    color: transparent !important;
+    overflow: hidden !important;
 }
 
-.pagination .page-item:first-child .page-link::before,
-.pagination .page-item:last-child .page-link::before {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-indent: 0;
+.pagination .page-item:first-child .page-link::after,
+.pagination .page-item:last-child .page-link::after {
+    color: #00304b !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: 50% !important;
+    transform: translate(-50%, -50%) !important;
+}
+
+.pagination .page-item:first-child .page-link:hover::after,
+.pagination .page-item:last-child .page-link:hover::after {
+    color: #00304b !important;
+}
+
+.pagination .page-item.active:first-child .page-link::after,
+.pagination .page-item.active:last-child .page-link::after {
+    color: #fff !important;
 }
 
 /* 🔥 RESPONSIVE PARA MÓVILES */
