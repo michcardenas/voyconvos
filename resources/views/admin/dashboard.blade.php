@@ -115,7 +115,104 @@
     font-size: 0.75rem;
     border-radius: 0.5rem;
 }
-<style>
+
+/* 🔥 ESTILOS CORREGIDOS PARA PAGINACIÓN */
+.pagination {
+    margin: 0;
+    padding: 0;
+    justify-content: center !important;
+    align-items: center;
+}
+
+.pagination .page-item {
+    margin: 0 2px;
+}
+
+.pagination .page-link {
+    font-size: 0.875rem !important;
+    padding: 0.5rem 0.75rem !important;
+    border: 1px solid #dee2e6;
+    border-radius: 6px !important;
+    color: #00304b !important;
+    background-color: #fff;
+    transition: all 0.3s ease;
+    min-width: 40px;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.pagination .page-link:hover {
+    background-color: #f8f9fa;
+    border-color: #00304b;
+    color: #00304b !important;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 48, 75, 0.1);
+}
+
+.pagination .page-item.active .page-link {
+    background-color: #00304b !important;
+    border-color: #00304b !important;
+    color: #fff !important;
+    font-weight: 600;
+}
+
+.pagination .page-item.disabled .page-link {
+    color: #6c757d !important;
+    background-color: #f8f9fa;
+    border-color: #dee2e6;
+    cursor: not-allowed;
+}
+
+/* 🔥 FLECHAS DE NAVEGACIÓN CORREGIDAS */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    font-size: 0.8rem !important;
+    font-weight: 600;
+    padding: 0.5rem 0.6rem !important;
+}
+
+.pagination .page-item:first-child .page-link::before {
+    content: "‹";
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+.pagination .page-item:last-child .page-link::before {
+    content: "›";
+    font-size: 1.2rem;
+    font-weight: bold;
+}
+
+/* Ocultar texto original de las flechas */
+.pagination .page-item:first-child .page-link,
+.pagination .page-item:last-child .page-link {
+    text-indent: -9999px;
+    position: relative;
+}
+
+.pagination .page-item:first-child .page-link::before,
+.pagination .page-item:last-child .page-link::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-indent: 0;
+}
+
+/* 🔥 RESPONSIVE PARA MÓVILES */
+@media (max-width: 768px) {
+    .pagination {
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .pagination .page-link {
+        padding: 0.4rem 0.6rem !important;
+        font-size: 0.8rem !important;
+        min-width: 35px;
+    }
+}
+
 /* Cursor y hover effects */
 .cursor-pointer {
     cursor: pointer;
@@ -378,7 +475,6 @@ h4 {
 .badge:hover {
     transform: scale(1.05);
 }
-</style>
 </style>
 
 <div class="dashboard-container">
@@ -650,10 +746,12 @@ h4 {
             </table>
         </div>
 
-        <!-- Paginación -->
+        <!-- 🔥 PAGINACIÓN CORREGIDA -->
         @if($viajes->hasPages())
-        <div class="d-flex justify-content-center mt-3">
-            {{ $viajes->links() }}
+        <div class="d-flex justify-content-center mt-4">
+            <nav aria-label="Page navigation">
+                {{ $viajes->links() }}
+            </nav>
         </div>
         @endif
     </div>
