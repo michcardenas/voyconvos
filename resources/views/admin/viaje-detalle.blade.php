@@ -86,7 +86,7 @@
                         <div class="col-md-6">
                             <table class="table table-borderless">
                                 <tr>
-                                    <td><strong><i class="fas fa-dollar-sign text-success"></i> Valor por persona:</strong></td>
+                                    <td><strong><i class="fas fa-dollar-sign text-success"></i> Valor:</strong></td>
                                     <td class="money-text">${{ number_format($viaje->valor_cobrado ?? 0, 0, ',', '.') }}</td>
                                 </tr>
                                 <tr>

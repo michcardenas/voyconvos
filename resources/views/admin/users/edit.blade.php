@@ -285,59 +285,7 @@
         </div>
         @endif
 
-        {{-- RTO --}}
-        @if($registroConductor->rto)
-        <div class="form-group_profile">
-            <label>RTO (Revisión Técnica Obligatoria)</label>
-            <div style="margin-top: 10px;">
-                <p style="color: #666; margin-bottom: 5px;">Documento actual:</p>
-                @php
-                    $extension = pathinfo($registroConductor->rto, PATHINFO_EXTENSION);
-                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-                @endphp
-                
-                @if($isImage)
-                    <img src="{{ asset('storage/' . $registroConductor->rto) }}" 
-                         alt="RTO" 
-                         style="max-width: 200px; border: 1px solid #ddd; cursor: pointer;" 
-                         onclick="window.open(this.src, '_blank')">
-                @else
-                    <a href="{{ asset('storage/' . $registroConductor->rto) }}" target="_blank" 
-                       style="display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-                        📄 Ver Documento ({{ strtoupper($extension) }})
-                    </a>
-                @endif
-            </div>
-        </div>
-        @endif
-
-        {{-- Antecedentes --}}
-        @if($registroConductor->antecedentes)
-        <div class="form-group_profile">
-            <label>Antecedentes Penales</label>
-            <div style="margin-top: 10px;">
-                <p style="color: #666; margin-bottom: 5px;">Documento actual:</p>
-                @php
-                    $extension = pathinfo($registroConductor->antecedentes, PATHINFO_EXTENSION);
-                    $isImage = in_array(strtolower($extension), ['jpg', 'jpeg', 'png', 'gif']);
-                @endphp
-                
-                @if($isImage)
-                    <img src="{{ asset('storage/' . $registroConductor->antecedentes) }}" 
-                         alt="Antecedentes" 
-                         style="max-width: 200px; border: 1px solid #ddd; cursor: pointer;" 
-                         onclick="window.open(this.src, '_blank')">
-                @else
-                    <a href="{{ asset('storage/' . $registroConductor->antecedentes) }}" target="_blank" 
-                       style="display: inline-block; padding: 8px 12px; background-color: #007bff; color: white; text-decoration: none; border-radius: 4px;">
-                        📄 Ver Documento ({{ strtoupper($extension) }})
-                    </a>
-                @endif
-            </div>
-        </div>
-        @endif
-
-        @endif
+      
 
         {{-- Botón --}}
         <button type="submit" class="btn_profile btn-success_profile" style="margin-top: 30px;">Guardar cambios</button>
