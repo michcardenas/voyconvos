@@ -1098,7 +1098,7 @@
             <h4 class="section-title">🚍 Tus próximos viajes</h4>
 
             <!-- Filtros simples mejorados -->
-            <div class="filtros-container">
+            <!-- <div class="filtros-container">
                 <form method="GET" action="{{ route('dashboard') }}" class="row g-3">
                     <div class="col-lg-3 col-md-6">
                         <label for="estado" class="form-label text-muted small">Estado del viaje</label>
@@ -1134,10 +1134,10 @@
                         @endif
                     </div>
                 </form>
-            </div>
+            </div> -->
 
             <!-- Mostrar filtros activos -->
-            @if(array_filter($filtros))
+            <!-- @if(array_filter($filtros))
             <div class="filtros-activos">
                 <small class="text-muted fw-bold">Filtros aplicados: </small>
                 @if($filtros['estado'] != 'todos')
@@ -1153,7 +1153,7 @@
                     <span class="badge bg-warning text-dark">"{{ $filtros['buscar'] }}"</span>
                 @endif
             </div>
-            @endif
+            @endif -->
 
             <!-- <div class="d-flex align-items-center mb-3">
                 <p class="trips-counter me-3">
