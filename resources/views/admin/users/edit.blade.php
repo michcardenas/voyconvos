@@ -326,6 +326,8 @@
                 @endif
 
       
+           </div>
+        </div>
 
         <button type="submit" class="btn_profile btn-success_profile" style="margin-top: 30px;">Guardar cambios</button>
     </form>
