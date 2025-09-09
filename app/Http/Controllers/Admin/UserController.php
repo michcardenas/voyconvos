@@ -13,6 +13,8 @@ use App\Mail\UniversalMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
+use Exception;
+
 class UserController extends Controller
 {
 public function index(Request $request)
@@ -187,6 +189,7 @@ public function edit(User $user)
 }
 public function update(Request $request, User $user) 
 {
+    // Validación básica
     $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
@@ -199,52 +202,104 @@ public function update(Request $request, User $user)
         'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'dni_foto' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         'dni_foto_atras' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+        // Validaciones para conductor
+        'licencia' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
+        'cedula' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
+        'cedula_verde' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
+        'seguro' => 'nullable|file|mimes:jpeg,png,jpg,gif,pdf|max:5120',
     ]);
 
-    // VERIFICAR SI EL USUARIO SERÁ VERIFICADO (cambio de false a true)
-    $eraNoVerificado = !$user->verificado; // Estado anterior
-    $seraVerificado = $request->verificado; // Estado nuevo
+    // Verificar estado de verificación para email
+    $eraNoVerificado = !$user->verificado;
+    $seraVerificado = $request->verificado;
     $acabaDeSerVerificado = $eraNoVerificado && $seraVerificado;
 
-    // Datos básicos del usuario
-    $data = $request->only([
-        'name', 'email', 'pais', 'ciudad', 'dni', 'celular', 'verificado'
-    ]);
+    // ===== ACTUALIZAR DATOS BÁSICOS DEL USUARIO =====
+    $userData = $request->only(['name', 'email', 'pais', 'ciudad', 'dni', 'celular', 'verificado']);
 
-    // Manejar foto de perfil
+    // Manejar archivos del usuario
     if ($request->hasFile('foto')) {
-        // Eliminar foto anterior si existe
         if ($user->foto) {
             Storage::disk('public')->delete($user->foto);
         }
-        $data['foto'] = $request->file('foto')->store('fotos', 'public');
+        $userData['foto'] = $request->file('foto')->store('fotos', 'public');
     }
 
-    // Manejar DNI frente
     if ($request->hasFile('dni_foto')) {
-        // Eliminar foto anterior si existe
         if ($user->dni_foto) {
             Storage::disk('public')->delete($user->dni_foto);
         }
-        $data['dni_foto'] = $request->file('dni_foto')->store('dni_fotos', 'public');
+        $userData['dni_foto'] = $request->file('dni_foto')->store('dni_fotos', 'public');
     }
 
-    // Manejar DNI atrás
     if ($request->hasFile('dni_foto_atras')) {
-        // Eliminar foto anterior si existe
         if ($user->dni_foto_atras) {
             Storage::disk('public')->delete($user->dni_foto_atras);
         }
-        $data['dni_foto_atras'] = $request->file('dni_foto_atras')->store('dni_fotos', 'public');
+        $userData['dni_foto_atras'] = $request->file('dni_foto_atras')->store('dni_fotos', 'public');
     }
 
     // Actualizar usuario
-    $user->update($data);
+    $user->update($userData);
 
     // Actualizar rol
     $user->syncRoles([$request->role]);
 
-    // ENVIAR CORREO SI ACABA DE SER VERIFICADO
+    // ===== MANEJAR INFORMACIÓN DEL CONDUCTOR =====
+    if ($request->role === 'conductor' || $request->role === 'driver') {
+        
+        // Buscar registro existente o crear nuevo
+        $registroConductor = RegistroConductor::where('user_id', $user->id)->first();
+        if (!$registroConductor) {
+            $registroConductor = new RegistroConductor();
+            $registroConductor->user_id = $user->id;
+        }
+
+        // Actualizar datos del vehículo
+        $registroConductor->marca_vehiculo = $request->marca_vehiculo;
+        $registroConductor->modelo_vehiculo = $request->modelo_vehiculo;
+        $registroConductor->anio_vehiculo = $request->anio_vehiculo;
+        $registroConductor->patente = $request->patente;
+        $registroConductor->numero_puestos = $request->numero_puestos;
+        $registroConductor->consumo_por_galon = $request->consumo_por_galon;
+        $registroConductor->verificar_pasajeros = $request->verificar_pasajeros ?? 0;
+        $registroConductor->estado_verificacion = $request->estado_verificacion ?? 'pendiente';
+        $registroConductor->estado_registro = $request->estado_registro ?? 'activo';
+
+        // Manejar documentos del conductor
+        if ($request->hasFile('licencia')) {
+            if ($registroConductor->licencia) {
+                Storage::disk('public')->delete($registroConductor->licencia);
+            }
+            $registroConductor->licencia = $request->file('licencia')->store('documentos_conductor', 'public');
+        }
+
+        if ($request->hasFile('cedula')) {
+            if ($registroConductor->cedula) {
+                Storage::disk('public')->delete($registroConductor->cedula);
+            }
+            $registroConductor->cedula = $request->file('cedula')->store('documentos_conductor', 'public');
+        }
+
+        if ($request->hasFile('cedula_verde')) {
+            if ($registroConductor->cedula_verde) {
+                Storage::disk('public')->delete($registroConductor->cedula_verde);
+            }
+            $registroConductor->cedula_verde = $request->file('cedula_verde')->store('documentos_conductor', 'public');
+        }
+
+        if ($request->hasFile('seguro')) {
+            if ($registroConductor->seguro) {
+                Storage::disk('public')->delete($registroConductor->seguro);
+            }
+            $registroConductor->seguro = $request->file('seguro')->store('documentos_conductor', 'public');
+        }
+
+        // Guardar registro del conductor
+        $registroConductor->save();
+    }
+
+    // ===== ENVIAR EMAIL DE VERIFICACIÓN =====
     if ($acabaDeSerVerificado) {
         try {
             Mail::to($user->email)->send(new UniversalMail(
@@ -254,11 +309,9 @@ public function update(Request $request, User $user)
                 'notificacion'
             ));
             
-            // Log para confirmar el envío
             Log::info("Email de verificación enviado a: {$user->email}");
             
         } catch (Exception $e) {
-            // Si falla el email, registrar el error pero continuar
             Log::error('Error enviando email de verificación exitosa: ' . $e->getMessage());
         }
     }
