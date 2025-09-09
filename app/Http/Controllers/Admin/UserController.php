@@ -13,8 +13,6 @@ use App\Mail\UniversalMail;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 
-use Exception;
-
 class UserController extends Controller
 {
 public function index(Request $request)
@@ -248,25 +246,58 @@ public function update(Request $request, User $user)
     // ===== MANEJAR INFORMACIÓN DEL CONDUCTOR =====
     if ($request->role === 'conductor' || $request->role === 'driver') {
         
-        // Buscar registro existente o crear nuevo
+        // Buscar registro existente
         $registroConductor = RegistroConductor::where('user_id', $user->id)->first();
+        
         if (!$registroConductor) {
+            // Crear nuevo registro con valores por defecto para campos obligatorios
             $registroConductor = new RegistroConductor();
             $registroConductor->user_id = $user->id;
+            $registroConductor->marca_vehiculo = $request->marca_vehiculo ?: 'Por definir';
+            $registroConductor->modelo_vehiculo = $request->modelo_vehiculo ?: 'Por definir';
+            $registroConductor->anio_vehiculo = $request->anio_vehiculo ?: date('Y');
+            $registroConductor->patente = $request->patente ?: 'Por definir';
+            $registroConductor->numero_puestos = $request->numero_puestos ?: 4;
+        } else {
+            // Actualizar registro existente
+            if ($request->filled('marca_vehiculo')) {
+                $registroConductor->marca_vehiculo = $request->marca_vehiculo;
+            }
+            if ($request->filled('modelo_vehiculo')) {
+                $registroConductor->modelo_vehiculo = $request->modelo_vehiculo;
+            }
+            if ($request->filled('anio_vehiculo')) {
+                $registroConductor->anio_vehiculo = $request->anio_vehiculo;
+            }
+            if ($request->filled('patente')) {
+                $registroConductor->patente = $request->patente;
+            }
+            if ($request->filled('numero_puestos')) {
+                $registroConductor->numero_puestos = $request->numero_puestos;
+            }
+        }
+        
+        // Campos opcionales (permiten NULL)
+        if ($request->filled('consumo_por_galon')) {
+            $registroConductor->consumo_por_galon = $request->consumo_por_galon;
+        }
+        if ($request->has('verificar_pasajeros')) {
+            $registroConductor->verificar_pasajeros = $request->verificar_pasajeros ? 1 : 0;
+        }
+        
+        // Enums con valores correctos
+        $registroConductor->estado_verificacion = $request->estado_verificacion ?: 'pendiente';
+        
+        // Usar valores correctos del enum: 'incompleto' o 'completo'
+        if ($request->estado_registro === 'activo') {
+            $registroConductor->estado_registro = 'completo';
+        } elseif ($request->estado_registro === 'inactivo') {
+            $registroConductor->estado_registro = 'incompleto';
+        } else {
+            $registroConductor->estado_registro = $request->estado_registro ?: 'incompleto';
         }
 
-        // Actualizar datos del vehículo
-        $registroConductor->marca_vehiculo = $request->marca_vehiculo;
-        $registroConductor->modelo_vehiculo = $request->modelo_vehiculo;
-        $registroConductor->anio_vehiculo = $request->anio_vehiculo;
-        $registroConductor->patente = $request->patente;
-        $registroConductor->numero_puestos = $request->numero_puestos;
-        $registroConductor->consumo_por_galon = $request->consumo_por_galon;
-        $registroConductor->verificar_pasajeros = $request->verificar_pasajeros ?? 0;
-        $registroConductor->estado_verificacion = $request->estado_verificacion ?? 'pendiente';
-        $registroConductor->estado_registro = $request->estado_registro ?? 'activo';
-
-        // Manejar documentos del conductor
+        // Manejar documentos del conductor (todos permiten NULL)
         if ($request->hasFile('licencia')) {
             if ($registroConductor->licencia) {
                 Storage::disk('public')->delete($registroConductor->licencia);
