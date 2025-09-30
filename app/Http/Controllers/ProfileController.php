@@ -80,6 +80,7 @@ public function actualizarPerfil(Request $request)
     $validated = $request->validate([
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
+        'fecha_nacimiento' => 'nullable|date|before:today',
         'dni' => 'nullable|string|max:20',
         'celular' => 'nullable|string|max:20',
         'pais' => 'nullable|string|max:100',
@@ -110,6 +111,7 @@ public function actualizarPerfil(Request $request)
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'fecha_nacimiento' => $validated['fecha_nacimiento'],
             'dni' => $validated['dni'],
             'celular' => $validated['celular'],
             'pais' => $validated['pais'],
@@ -203,6 +205,7 @@ public function actualizarPerfilPasajero(Request $request)
     $rules = [
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
+        'fecha_nacimiento' => 'nullable|date|before:today',
         'dni' => 'nullable|string|max:20',
         'celular' => 'nullable|string|max:20',
         'pais' => 'nullable|string|max:100',
@@ -246,6 +249,7 @@ public function actualizarPerfilPasajero(Request $request)
         $userData = [
             'name' => $validated['name'],
             'email' => $validated['email'],
+            'fecha_nacimiento' => $validated['fecha_nacimiento'],
             'dni' => $validated['dni'],
             'celular' => $validated['celular'],
             'pais' => $validated['pais'],
@@ -337,18 +341,22 @@ public function update(ProfileUpdateRequest $request): RedirectResponse
 
     // ➕ AGREGADO: Manejo específico de campos adicionales
     // Actualizar campos que pueden no estar en la validación
+    if ($request->has('fecha_nacimiento')) {
+        $user->fecha_nacimiento = $request->input('fecha_nacimiento');
+    }
+
     if ($request->has('ciudad')) {
         $user->ciudad = $request->input('ciudad');
     }
-    
+
     if ($request->has('dni')) {
         $user->dni = $request->input('dni');
     }
-    
+
     if ($request->has('celular')) {
         $user->celular = $request->input('celular');
     }
-    
+
     if ($request->has('pais')) {
         $user->pais = $request->input('pais');
     }

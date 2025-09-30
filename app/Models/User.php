@@ -22,6 +22,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'fecha_nacimiento',
         'pais',
         'ciudad',
         'dni',
@@ -52,6 +53,7 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'fecha_nacimiento' => 'date',
             'verificado' => 'boolean', // Añadido el cast para verificado
         ];
     }

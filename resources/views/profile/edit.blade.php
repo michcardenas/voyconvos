@@ -20,6 +20,12 @@
         <input id="email" type="email" name="email" value="{{ old('email', $user->email) }}" required>
     </div>
 
+    <div class="form-group_profile">
+        <label for="fecha_nacimiento">Fecha de Nacimiento</label>
+        <input id="fecha_nacimiento" type="date" name="fecha_nacimiento"
+               value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : '') }}">
+    </div>
+
     <select name="role" class="form-control" required style="margin-bottom: 23px;">
         <option value="pasajero" {{ $user->hasRole('pasajero') ? 'selected' : '' }}>Pasajero</option>
         <option value="conductor" {{ $user->hasRole('conductor') ? 'selected' : '' }}>Conductor</option>
