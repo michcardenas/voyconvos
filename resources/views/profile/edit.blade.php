@@ -32,7 +32,6 @@
                    value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? $user->fecha_nacimiento->format('Y-m-d') : '') }}"
                    placeholder="Selecciona tu fecha de nacimiento">
             <div class="date-helper-text">
-                <small>Opcional - Nos ayuda a personalizar tu experiencia</small>
             </div>
         </div>
     </div>

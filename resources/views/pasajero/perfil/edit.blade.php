@@ -50,6 +50,7 @@
                         @foreach([
                             ['name', 'Nombre completo', 'text', 'fas fa-signature'],
                             ['email', 'Correo electrónico', 'email', 'fas fa-envelope'],
+                            ['fecha_nacimiento', 'Fecha de nacimiento', 'date', 'fas fa-birthday-cake'],
                             ['dni', 'Documento (DNI)', 'text', 'fas fa-id-card'],
                             ['celular', 'Celular', 'text', 'fas fa-phone'],
                             ['pais', 'País', 'text', 'fas fa-globe'],
@@ -61,12 +62,29 @@
                                         <i class="{{ $icono }} me-1"></i>
                                         {{ $etiqueta }}
                                     </label>
-                                    <input type="{{ $tipo }}" 
-                                           name="{{ $campo }}" 
-                                           id="{{ $campo }}"
-                                           value="{{ old($campo, $user->$campo) }}" 
-                                           class="custom-input @error($campo) is-invalid @enderror" 
-                                           placeholder="Ingresa tu {{ strtolower($etiqueta) }}">
+                                    @if($campo === 'fecha_nacimiento')
+                                        <input type="{{ $tipo }}"
+                                               name="{{ $campo }}"
+                                               id="{{ $campo }}"
+                                               value="{{ old($campo, $user->$campo ? $user->$campo->format('Y-m-d') : '') }}"
+                                               class="custom-input date-input-enhanced @error($campo) is-invalid @enderror"
+                                               placeholder="Selecciona tu {{ strtolower($etiqueta) }}"
+                                               max="{{ date('Y-m-d') }}"
+                                               min="{{ date('Y-m-d', strtotime('-100 years')) }}">
+                                        <div class="date-helper-text mt-2">
+                                            <small class="text-muted">
+                                                <i class="fas fa-info-circle me-1"></i>
+                                                Opcional - Nos ayuda a personalizar tu experiencia de viaje
+                                            </small>
+                                        </div>
+                                    @else
+                                        <input type="{{ $tipo }}"
+                                               name="{{ $campo }}"
+                                               id="{{ $campo }}"
+                                               value="{{ old($campo, $user->$campo) }}"
+                                               class="custom-input @error($campo) is-invalid @enderror"
+                                               placeholder="Ingresa tu {{ strtolower($etiqueta) }}">
+                                    @endif
                                     @error($campo)
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -424,7 +442,7 @@ function clearPreview(inputId, previewContainerId) {
 function togglePassword(fieldId) {
     const field = document.getElementById(fieldId);
     const toggle = field.nextElementSibling.querySelector('i');
-    
+
     if (field.type === 'password') {
         field.type = 'text';
         toggle.classList.remove('fa-eye');
@@ -435,6 +453,56 @@ function togglePassword(fieldId) {
         toggle.classList.add('fa-eye');
     }
 }
+
+// Funcionalidad mejorada para el campo de fecha de nacimiento
+document.addEventListener('DOMContentLoaded', function() {
+    const dateInput = document.getElementById('fecha_nacimiento');
+
+    if (dateInput) {
+        // Efecto visual al seleccionar fecha
+        dateInput.addEventListener('change', function() {
+            if (this.value) {
+                // Agregar clase de selección exitosa
+                this.classList.add('date-selected');
+
+                // Mostrar mensaje temporal de éxito
+                const helperText = this.parentElement.querySelector('.date-helper-text small');
+                const originalText = helperText.innerHTML;
+
+                helperText.innerHTML = '<i class="fas fa-check-circle text-success me-1"></i>¡Fecha seleccionada correctamente!';
+                helperText.classList.remove('text-muted');
+                helperText.classList.add('text-success');
+
+                // Restaurar texto original después de 2 segundos
+                setTimeout(() => {
+                    this.classList.remove('date-selected');
+                    helperText.innerHTML = originalText;
+                    helperText.classList.remove('text-success');
+                    helperText.classList.add('text-muted');
+                }, 2000);
+            }
+        });
+
+        // Validación en tiempo real
+        dateInput.addEventListener('input', function() {
+            const selectedDate = new Date(this.value);
+            const today = new Date();
+            const hundredYearsAgo = new Date();
+            hundredYearsAgo.setFullYear(hundredYearsAgo.getFullYear() - 100);
+
+            if (selectedDate > today) {
+                this.setCustomValidity('La fecha no puede ser en el futuro');
+                this.classList.add('is-invalid');
+            } else if (selectedDate < hundredYearsAgo) {
+                this.setCustomValidity('La fecha no puede ser hace más de 100 años');
+                this.classList.add('is-invalid');
+            } else {
+                this.setCustomValidity('');
+                this.classList.remove('is-invalid');
+            }
+        });
+    }
+});
 </script>
 
 <style>
@@ -937,6 +1005,52 @@ function togglePassword(fieldId) {
 
 .custom-card:nth-child(4) {
     animation-delay: 0.3s;
+}
+
+/* Estilos específicos para fecha de nacimiento */
+.date-input-enhanced {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%231F4E79' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='4' width='18' height='18' rx='2' ry='2'%3E%3C/rect%3E%3Cline x1='16' y1='2' x2='16' y2='6'%3E%3C/line%3E%3Cline x1='8' y1='2' x2='8' y2='6'%3E%3C/line%3E%3Cline x1='3' y1='10' x2='21' y2='10'%3E%3C/line%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 18px;
+    position: relative;
+}
+
+.date-input-enhanced::-webkit-calendar-picker-indicator {
+    opacity: 0;
+    position: absolute;
+    right: 1rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+}
+
+.date-input-enhanced:hover {
+    background-color: var(--color-azul-claro);
+    border-color: var(--color-principal);
+}
+
+.date-input-enhanced:focus {
+    background-color: var(--color-blanco);
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 4px rgba(31, 78, 121, 0.1), 0 8px 25px rgba(31, 78, 121, 0.15);
+}
+
+.date-helper-text {
+    background: var(--color-azul-claro);
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--color-principal);
+}
+
+.date-helper-text i {
+    color: var(--color-principal);
+}
+
+/* Animación al seleccionar fecha */
+.date-input-enhanced.date-selected {
+    border-color: var(--color-complementario) !important;
+    box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1) !important;
 }
 
 /* Mejoras de accesibilidad */
