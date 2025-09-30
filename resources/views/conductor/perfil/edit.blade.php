@@ -73,10 +73,7 @@
                                                max="{{ date('Y-m-d') }}"
                                                min="{{ date('Y-m-d', strtotime('-100 years')) }}">
                                         <div class="date-helper-text mt-2">
-                                            <small class="text-muted">
-                                                <i class="fas fa-info-circle me-1"></i>
-                                                Opcional - Nos ayuda a mejorar la experiencia de conductor
-                                            </small>
+                                           
                                         </div>
                                     @else
                                         <input type="{{ $tipo }}"
