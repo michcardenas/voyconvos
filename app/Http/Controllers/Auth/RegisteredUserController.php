@@ -39,31 +39,47 @@ class RegisteredUserController extends Controller
      *
      * @throws \Illuminate\Validation\ValidationException
      */
-public function store(Request $request): RedirectResponse 
+public function store(Request $request): RedirectResponse
 {
     $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+        'fecha_nacimiento' => ['required', 'date', 'before:-18 years'],
+        'pais' => ['required', 'string', 'max:100'],
+        'ciudad' => ['required', 'string', 'max:100'],
+        'celular' => ['required', 'string', 'max:20'],
         'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        'foto' => ['nullable', 'image', 'max:2048'],
     ]);
+
+    $fotoPath = null;
+    if ($request->hasFile('foto')) {
+        $fotoPath = $request->file('foto')->store('fotos-perfil', 'public');
+    }
 
     $user = User::create([
         'name' => $request->name,
         'email' => $request->email,
+        'fecha_nacimiento' => $request->fecha_nacimiento,
+        'pais' => $request->pais,
+        'ciudad' => $request->ciudad,
+        'celular' => $request->celular,
+        'foto' => $fotoPath,
         'password' => Hash::make($request->password),
     ]);
 
     event(new Registered($user));
-
-        Mail::to($user->email)->send(new UniversalMail(
+    
+    Mail::to($user->email)->send(new UniversalMail(
         $user, 
         'Bienvenido a ' . config('app.name'),
-        "Te damos la bienvenida a VoyConvos.\n\nEstamos felices de tenerte con nosotros. 🎉\n\n¡Gracias por registrarte en nuestra plataforma!",
+        "Te damos la bienvenida a VoyConVos.\n\nEstamos felices de tenerte con nosotros. 🎉",
         'bienvenida'
     ));
 
     Auth::login($user);
 
-    return redirect(route('perfil.editar.usuario', absolute: false));
+    // CAMBIO IMPORTANTE: Redirigir a verificación
+    return redirect()->route('verificacion.create');
 }
 }

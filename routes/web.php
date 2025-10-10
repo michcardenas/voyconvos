@@ -28,12 +28,25 @@ use App\Http\Controllers\ComoFuncionaPublicoController;
 use MercadoPago\SDK;
 use App\Http\Controllers\Admin\ConfiguracionAdminController;
 use App\Http\Controllers\InicioController;
+use App\Http\Controllers\VerificacionController;
+use App\Http\Controllers\DashboardHibridoController;
 
 
 // Login con Google
 Route::get('/login/google', [GoogleController::class, 'redirectToGoogle'])->name('login.google');
 Route::get('/login/google/callback', [GoogleController::class, 'handleGoogleCallback']);
+// Ruta para mostrar el formulario de verificación
+Route::get('/verificacion-cuenta', [VerificacionController::class, 'create'])
+    ->middleware(['auth'])
+    ->name('verificacion.create');
+    Route::get('/dashboard-hibrido', [DashboardHibridoController::class, 'index'])
+    ->middleware(['auth'])
+    ->name('hibrido.dashboard');
 
+// Ruta para procesar el formulario
+Route::post('/verificacion-cuenta', [VerificacionController::class, 'store'])
+    ->middleware(['auth'])
+    ->name('verificacion.store');
 // Página principal
 Route::get('/', function () {
     return view('welcome');

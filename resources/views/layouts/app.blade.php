@@ -3,75 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-{{-- Título dinámico --}}
-@if(isset($metadatos) && $metadatos)
-    <title>{{ $metadatos->meta_title }}</title>
-@else
-    <title>VoyConVos - Viajes Compartidos Seguros</title>
-@endif
-
-{{-- Meta Description --}}
-@if(isset($metadatos) && $metadatos)
-    <meta name="description" content="{{ $metadatos->meta_description }}">
-@else
-    <meta name="description" content="Encuentra viajes compartidos seguros y económicos en Colombia. Conecta con conductores y pasajeros de confianza.">
-@endif
-
-{{-- Meta Keywords --}}
-@if(isset($metadatos) && $metadatos && $metadatos->meta_keywords)
-    <meta name="keywords" content="{{ $metadatos->meta_keywords }}">
-@else
-    <meta name="keywords" content="viajes compartidos, carpooling, transporte Colombia, VoyConVos">
-@endif
-
-{{-- Canonical URL --}}
-@if(isset($metadatos) && $metadatos && $metadatos->canonical_url)
-    <link rel="canonical" href="{{ $metadatos->canonical_url }}">
-@else
-    <link rel="canonical" href="{{ url()->current() }}">
-@endif
-
-{{-- Meta Robots --}}
-@if(isset($metadatos) && $metadatos && $metadatos->meta_robots)
-    <meta name="robots" content="{{ $metadatos->meta_robots }}">
-@else
-    <meta name="robots" content="index, follow">
-@endif
-
-{{-- Meta tags extra (Open Graph, Twitter, etc.) --}}
-@if(isset($metadatos) && $metadatos && $metadatos->extra_meta)
-    {!! $metadatos->extra_meta !!}
-@else
-    <meta property="og:title" content="VoyConVos - Viajes Compartidos">
-    <meta property="og:description" content="Encuentra viajes compartidos seguros y económicos en Colombia">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="https://voyconvos.com/images/og-home.jpg">
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="VoyConVos - Viajes Compartidos">
-@endif    
     
-    <!-- CSS en orden correcto -->
+    {{-- Título dinámico --}}
+    @if(isset($metadatos) && $metadatos)
+        <title>{{ $metadatos->meta_title }}</title>
+    @else
+        <title>VoyConVos - Viajes Compartidos Seguros</title>
+    @endif
+
+    {{-- Meta Description --}}
+    @if(isset($metadatos) && $metadatos)
+        <meta name="description" content="{{ $metadatos->meta_description }}">
+    @else
+        <meta name="description" content="Encuentra viajes compartidos seguros y económicos en Colombia.">
+    @endif
+
+    {{-- Meta Keywords --}}
+    @if(isset($metadatos) && $metadatos && $metadatos->meta_keywords)
+        <meta name="keywords" content="{{ $metadatos->meta_keywords }}">
+    @else
+        <meta name="keywords" content="viajes compartidos, carpooling, transporte Colombia, VoyConVos">
+    @endif
+
+    {{-- Canonical URL --}}
+    @if(isset($metadatos) && $metadatos && $metadatos->canonical_url)
+        <link rel="canonical" href="{{ $metadatos->canonical_url }}">
+    @else
+        <link rel="canonical" href="{{ url()->current() }}">
+    @endif
+
+    {{-- Meta Robots --}}
+    @if(isset($metadatos) && $metadatos && $metadatos->meta_robots)
+        <meta name="robots" content="{{ $metadatos->meta_robots }}">
+    @else
+        <meta name="robots" content="index, follow">
+    @endif
+
+    {{-- Meta tags extra --}}
+    @if(isset($metadatos) && $metadatos && $metadatos->extra_meta)
+        {!! $metadatos->extra_meta !!}
+    @else
+        <meta property="og:title" content="VoyConVos - Viajes Compartidos">
+        <meta property="og:description" content="Encuentra viajes compartidos seguros y económicos">
+        <meta property="og:type" content="website">
+        <meta name="twitter:card" content="summary_large_image">
+    @endif    
+    
+    <!-- CSS -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    
-    <!-- Tus CSS existentes -->
     <link rel="stylesheet" href="{{ asset('css/styles.css') }}">
     <link rel="stylesheet" href="{{ asset('css/contacto.css') }}">
     
-    <!-- CSS adicional por página -->
     @stack('styles')
     
-    <!-- CSS del header y footer (DEBE IR AL FINAL) -->
     <link href="{{ asset('css/header-footer.css') }}" rel="stylesheet">
-     <style>
-        /* Reset básico */
+    
+    <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        /* User Dropdown Styles */
         .desktop-user {
             display: flex;
             align-items: center;
@@ -81,46 +75,58 @@
             position: relative;
         }
 
+        /* Foto grande con BORDE DE COLOR */
         .profile-icon {
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 44px;
-            height: 44px;
+            width: 60px;
+            height: 60px;
             border-radius: 50%;
-            background: linear-gradient(135deg, #1f4e79 0%, #4CAF50 100%);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: transform 0.2s;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            overflow: hidden;
         }
 
-        .profile-icon img {
-            width: 24px;
-            height: 24px;
-            filter: brightness(0) invert(1);
+        /* BORDE VERDE - VERIFICADO */
+        .profile-icon.verified {
+            border: 4px solid #10b981;
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
+        }
+
+        /* BORDE NARANJA - SIN VERIFICAR */
+        .profile-icon.unverified {
+            border: 4px solid #f59e0b;
+            box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.2);
         }
 
         .profile-icon:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 25px rgba(102, 126, 234, 0.4);
+            transform: scale(1.05);
         }
 
+        .profile-icon img {
+            width: 100%;
+            height: 100%;
+            object-fit: scale-down;
+            border-radius: 50%;
+        }
+
+        /* Dropdown simple */
         .dropdown-menu {
             position: absolute;
             top: 100%;
             right: 0;
             background: white;
-            border-radius: 12px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
             padding: 8px 0;
             min-width: 200px;
             opacity: 0;
             visibility: hidden;
             transform: translateY(-10px);
-            transition: all 0.3s ease;
+            transition: all 0.2s;
             margin-top: 8px;
-            border: 1px solid #e2e8f0;
             z-index: 1000;
         }
 
@@ -130,33 +136,115 @@
             transform: translateY(0);
         }
 
+        .user-info {
+            padding: 12px 16px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .user-name {
+            font-weight: 600;
+            color: #1f4e79;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .user-status {
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .user-status.verified {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .user-status.unverified {
+            background: #fef3c7;
+            color: #d97706;
+        }
+
         .dropdown-item {
-            display: block;
-            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            padding: 10px 16px;
             color: #334155;
             text-decoration: none;
-            font-weight: 500;
             font-size: 14px;
-            transition: all 0.2s ease;
-            border-left: 3px solid transparent;
+            transition: background 0.2s;
         }
 
         .dropdown-item:hover {
-            background: linear-gradient(135deg, #667eea10, #764ba210);
-            color: #667eea;
-            border-left-color: #667eea;
+            background: #f8fafc;
         }
 
-        /* Demo styles */
-        .demo-container {
-            max-width: 400px;
-            margin: 50px auto;
+        .dropdown-item i {
+            width: 18px;
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
+        /* Móvil - BORDE DE COLOR */
+        .mobile-user-avatar {
             text-align: center;
+            margin-bottom: 20px;
         }
 
-        .demo-title {
-            margin-bottom: 30px;
-            color: #334155;
+        .mobile-avatar-wrapper {
+            display: inline-block;
+            border-radius: 50%;
+            padding: 4px;
+        }
+
+        /* Borde verde - verificado móvil */
+        .mobile-avatar-wrapper.verified {
+            background: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2);
+        }
+
+        /* Borde naranja - sin verificar móvil */
+        .mobile-avatar-wrapper.unverified {
+            background: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .mobile-user-avatar img {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .mobile-user-name {
+            margin-top: 8px;
+            font-weight: 600;
+            color: #1f4e79;
+        }
+
+        .mobile-user-status {
+            font-size: 13px;
+            margin-top: 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .mobile-user-status.verified {
+            background: #d1fae5;
+            color: #059669;
+        }
+
+        .mobile-user-status.unverified {
+            background: #fef3c7;
+            color: #d97706;
         }
     </style>
 </head>
@@ -164,77 +252,116 @@
 
     {{-- HEADER --}}
     <header id="navbar" class="navbar">
-    <div class="container header-container">
-        <!-- Logo -->
-        <div class="logo">
-            <a href="{{ url('/') }}">
-                <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image">
-                <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text">
-            </a>
-        </div>
+        <div class="container header-container">
+            <!-- Logo -->
+            <div class="logo">
+                <a href="{{ url('/') }}">
+                    <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image">
+                    <img src="{{ asset('img/letras-logo.png') }}" alt="VoyConVos" class="logo-text">
+                </a>
+            </div>
 
-        <!-- Navegación Desktop -->
-        <nav class="desktop-nav">
-            <ul>
-                <li><a href="{{ url('/') }}">Inicio</a></li>
-                <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
-                <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
-                <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
-            </ul>
-        </nav>
+            <!-- Navegación Desktop -->
+            <nav class="desktop-nav">
+                <ul>
+                    <li><a href="{{ url('/') }}">Inicio</a></li>
+                    <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
+                    <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
+                    <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
+                </ul>
+            </nav>
 
-        <!-- Usuario Desktop -->
-        <div class="desktop-user">
-            <div class="dropdown">
-                 <a href="#" class="profile-icon" id="userDropdown">
-            @auth
-                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-            @else
-                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-            @endauth
-        </a>
-                
-                <div class="dropdown-menu" id="userMenu">
+            <!-- Usuario Desktop con BORDE DE COLOR -->
+            <div class="desktop-user">
+                <div class="dropdown">
                     @auth
-                        <!-- Dashboard según el rol -->
-                        @if(Auth::user()->hasRole('admin'))
-                            <a href="{{ route('admin.dashboard') }}" class="dropdown-item">Dashboard Admin</a>
-                        @elseif(Auth::user()->hasRole('conductor'))
-                            <a href="{{ route('dashboard') }}" class="dropdown-item">Mi Dashboard</a>
-                        @elseif(Auth::user()->hasRole('pasajero'))
-                            <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">Mi Panel</a>
-                        @endif
-                        
-                        
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer;">
-                                Cerrar Sesión
-                            </button>
-                        </form>
+                        <a href="#" class="profile-icon {{ Auth::user()->verificado ? 'verified' : 'unverified' }}" id="userDropdown">
+                            @if(Auth::user()->foto)
+                                <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="{{ Auth::user()->name }}">
+                            @else
+                                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                            @endif
+                        </a>
                     @else
-                        <a href="{{ route('login') }}" class="dropdown-item">Iniciar sesión</a>
-                        <a href="{{ route('register') }}" class="dropdown-item">Registrarse</a>
+                        <a href="#" class="profile-icon" id="userDropdown" style="border: 3px solid #e2e8f0;">
+                            <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                        </a>
                     @endauth
+                    
+                    <div class="dropdown-menu" id="userMenu">
+                        @auth
+                            <div class="user-info">
+                                <div class="user-name">{{ Auth::user()->name }}</div>
+                                @if(Auth::user()->verificado)
+                                    <span class="user-status verified">
+                                        <i class="fas fa-check-circle"></i> Verificado
+                                    </span>
+                                @else
+                                    <span class="user-status unverified">
+                                        <i class="fas fa-exclamation-circle"></i> Sin verificar
+                                    </span>
+                                @endif
+                            </div>
+                            
+                            @if(Auth::user()->hasRole('admin'))
+                                <a href="{{ route('admin.dashboard') }}" class="dropdown-item">
+                                    <i class="fas fa-tachometer-alt"></i>
+                                    Dashboard Admin
+                                </a>
+                            @else
+                                <a href="{{ route('hibrido.dashboard') }}" class="dropdown-item">
+                                    <i class="fas fa-th-large"></i>
+                                    Mi Dashboard
+                                </a>
+                            @endif
+                            
+                            <a href="" class="dropdown-item">
+                                <i class="fas fa-user-edit"></i>
+                                Mi Perfil
+                            </a>
+                            
+                            @if(!Auth::user()->verificado)
+                                <a href="{{ route('verificacion.create') }}" class="dropdown-item" style="color: #f59e0b;">
+                                    <i class="fas fa-shield-alt"></i>
+                                    Verificar Cuenta
+                                </a>
+                            @endif
+                            
+                            <form method="POST" action="{{ route('logout') }}">
+                                @csrf
+                                <button type="submit" class="dropdown-item" style="background: none; border: none; width: 100%; text-align: left; cursor: pointer; color: #ef4444;">
+                                    <i class="fas fa-sign-out-alt"></i>
+                                    Cerrar Sesión
+                                </button>
+                            </form>
+                        @else
+                            <a href="{{ route('login') }}" class="dropdown-item">
+                                <i class="fas fa-sign-in-alt"></i>
+                                Iniciar sesión
+                            </a>
+                            <a href="{{ route('register') }}" class="dropdown-item">
+                                <i class="fas fa-user-plus"></i>
+                                Registrarse
+                            </a>
+                        @endauth
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Botón Hamburguesa (Solo Móvil) -->
-        <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú" aria-expanded="false">
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-            <span class="hamburger-line"></span>
-        </button>
-    </div>
-</header>
+            <!-- Botón Hamburguesa -->
+            <button class="hamburger-btn" id="hamburgerBtn" aria-label="Menú">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </div>
+    </header>
 
     {{-- OVERLAY MÓVIL --}}
     <div class="mobile-overlay" id="mobileOverlay"></div>
 
     {{-- MENÚ MÓVIL --}}
-    <nav class="mobile-menu" id="mobileMenu" aria-hidden="true">
-        <!-- Header del menú móvil -->
+    <nav class="mobile-menu" id="mobileMenu">
         <div class="mobile-menu-header">
             <div class="logo-mobile">
                 <img src="{{ asset('img/logo.png') }}" alt="VoyConVos" class="logo-image-mobile">
@@ -245,7 +372,6 @@
             </button>
         </div>
 
-        <!-- Navegación móvil -->
         <div class="mobile-nav">
             <ul class="mobile-nav-list">
                 <li class="mobile-nav-item">
@@ -281,20 +407,74 @@
             </ul>
         </div>
 
-        <!-- Sección de usuario móvil -->
+        <!-- Usuario móvil con BORDE DE COLOR -->
         <div class="mobile-user-section">
             <div class="mobile-user-avatar">
-                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                @auth
+                    <div class="mobile-avatar-wrapper {{ Auth::user()->verificado ? 'verified' : 'unverified' }}">
+                        @if(Auth::user()->foto)
+                            <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="{{ Auth::user()->name }}">
+                        @else
+                            <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                        @endif
+                    </div>
+                    
+                    <p class="mobile-user-name">{{ Auth::user()->name }}</p>
+                    
+                    @if(Auth::user()->verificado)
+                        <span class="mobile-user-status verified">
+                            <i class="fas fa-check-circle"></i> Verificado
+                        </span>
+                    @else
+                        <span class="mobile-user-status unverified">
+                            <i class="fas fa-exclamation-circle"></i> Sin verificar
+                        </span>
+                    @endif
+                @else
+                    <div class="mobile-avatar-wrapper" style="background: #e2e8f0;">
+                        <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                    </div>
+                @endauth
             </div>
+            
             <div class="mobile-user-actions">
-                <a href="{{ route('login') }}" class="mobile-auth-btn login-btn">
-                    <i class="fas fa-sign-in-alt"></i>
-                    <span>Iniciar sesión</span>
-                </a>
-                <a href="{{ route('register') }}" class="mobile-auth-btn register-btn">
-                    <i class="fas fa-user-plus"></i>
-                    <span>Registrarse</span>
-                </a>
+                @auth
+                    @if(Auth::user()->hasRole('admin'))
+                        <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn login-btn">
+                            <i class="fas fa-tachometer-alt"></i>
+                            <span>Dashboard Admin</span>
+                        </a>
+                    @else
+                        <a href="{{ route('hibrido.dashboard') }}" class="mobile-auth-btn login-btn">
+                            <i class="fas fa-th-large"></i>
+                            <span>Mi Dashboard</span>
+                        </a>
+                    @endif
+                    
+                    @if(!Auth::user()->verificado)
+                        <a href="{{ route('verificacion.create') }}" class="mobile-auth-btn" style="background: #f59e0b; color: white; border: none;">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Verificar Cuenta</span>
+                        </a>
+                    @endif
+                    
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit" class="mobile-auth-btn register-btn" style="background: #ef4444; border: none;">
+                            <i class="fas fa-sign-out-alt"></i>
+                            <span>Cerrar Sesión</span>
+                        </button>
+                    </form>
+                @else
+                    <a href="{{ route('login') }}" class="mobile-auth-btn login-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        <span>Iniciar sesión</span>
+                    </a>
+                    <a href="{{ route('register') }}" class="mobile-auth-btn register-btn">
+                        <i class="fas fa-user-plus"></i>
+                        <span>Registrarse</span>
+                    </a>
+                @endauth
             </div>
         </div>
     </nav>
@@ -308,15 +488,15 @@
     <footer>
         <div class="container">
             <div class="footer-contact" style="display: flex; justify-content: space-between; align-items: center; background-color: #245c7d; padding: 58px; border-radius: 32px; color: white; flex-wrap: wrap; gap: 20px;">
-            <div class="footer-contact-text" style="flex: 1; min-width: 200px;">
-                <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">¿Necesitas ayuda con algo?</h2>
-                <p style="margin: 0; font-size: 16px;">Estamos aquí para responder tus dudas y ayudarte en todo lo que necesites</p>
+                <div class="footer-contact-text" style="flex: 1; min-width: 200px;">
+                    <h2 style="margin: 0 0 10px 0; font-size: 24px; font-weight: 600;">¿Necesitas ayuda con algo?</h2>
+                    <p style="margin: 0; font-size: 16px;">Estamos aquí para responder tus dudas</p>
+                </div>
+                <a href="{{ url('/contacto') }}" class="footer-contact-btn" style="text-decoration: none; background-color: #3399ff; color: white; padding: 12px 20px; border-radius: 30px; font-weight: bold; display: flex; align-items: center; gap: 10px;">
+                    <span>Contactar ahora</span>
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <a href="{{ url('/contacto') }}" class="footer-contact-btn" style="text-decoration: none; background-color: #3399ff; color: white; padding: 12px 20px; border-radius: 30px; font-weight: bold; display: flex; align-items: center; gap: 10px; white-space: nowrap;">
-                <span>Contactar ahora</span>
-                <i class="fas fa-arrow-right"></i>
-            </a>
-        </div>
 
             <div class="footer-divider"></div>
 
@@ -340,15 +520,11 @@
                 <div class="footer-column">
                     <h3>Síguenos</h3>
                     <div class="social-icons">
-                        <a href="https://www.facebook.com/share/1EyRxy45Wy/?mibextid=wwXIfr
-" target="_blank">
+                        <a href="https://www.facebook.com/share/1EyRxy45Wy/?mibextid=wwXIfr" target="_blank">
                             <i class="fab fa-facebook"></i>
                         </a>
                         <a href="https://www.threads.com/@voyconvos.app" target="_blank">
-                            <img src="{{ asset('img/threads-foo.png') }}"
-                                alt="Threads"
-                                title="Threads"
-                                style="width: 35px; height: 35px; vertical-align: middle;">
+                            <img src="{{ asset('img/threads-foo.png') }}" alt="Threads" style="width: 35px; height: 35px;">
                         </a>
                         <a href="https://www.instagram.com/voyconvos.app?igsh=MWRjemFtaG04bzY4Yg==" target="_blank">
                             <i class="fab fa-instagram"></i>
@@ -363,53 +539,22 @@
         </div>
     </footer>
 
-    {{-- JS: Archivo externo --}}
     <script src="{{ asset('js/header-footer.js') }}"></script>
- <script>
-        // Elementos del DOM
+    <script>
         const userDropdown = document.getElementById('userDropdown');
         const userMenu = document.getElementById('userMenu');
 
-        // Toggle dropdown de usuario
         userDropdown.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
-            
-            const isVisible = userMenu.classList.contains('show');
-            
-            // Cerrar dropdown si está abierto, abrirlo si está cerrado
-            if (isVisible) {
-                userMenu.classList.remove('show');
-                userDropdown.setAttribute('aria-expanded', 'false');
-            } else {
-                userMenu.classList.add('show');
-                userDropdown.setAttribute('aria-expanded', 'true');
-            }
+            userMenu.classList.toggle('show');
         });
 
-        // Cerrar dropdown cuando se hace clic fuera
         document.addEventListener('click', function(e) {
             if (!userDropdown.contains(e.target) && !userMenu.contains(e.target)) {
                 userMenu.classList.remove('show');
-                userDropdown.setAttribute('aria-expanded', 'false');
-            }
-        });
-
-        // Soporte para teclado (accesibilidad)
-        userDropdown.addEventListener('keydown', function(e) {
-            if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                this.click();
-            }
-        });
-
-        // Cerrar con tecla Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                userMenu.classList.remove('show');
-                userDropdown.setAttribute('aria-expanded', 'false');
             }
         });
     </script>
 </body>
-</html>   
+</html>
