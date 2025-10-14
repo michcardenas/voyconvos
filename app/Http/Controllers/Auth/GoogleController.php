@@ -14,55 +14,32 @@ class GoogleController extends Controller
     {
         return Socialite::driver('google')->redirect();
     }
-public function handleGoogleCallback()
-{
-    $googleUser = Socialite::driver('google')->stateless()->user();
 
-    $user = User::firstOrCreate(
-        ['email' => $googleUser->getEmail()],
-        [
-            'name' => $googleUser->getName(),
-            'password' => bcrypt(Str::random(16)),
-        ]
-    );
+    public function handleGoogleCallback()
+    {
+        $googleUser = Socialite::driver('google')->stateless()->user();
 
-    // Si no tiene ningún rol asignado aún, redirige a editar perfil
-    if ($user->roles->isEmpty()) {
+        $user = User::firstOrCreate(
+            ['email' => $googleUser->getEmail()],
+            [
+                'name' => $googleUser->getName(),
+                'password' => bcrypt(Str::random(16)),
+            ]
+        );
+
+        // Asignar rol por defecto si aún no tiene uno
+        if ($user->roles->isEmpty()) {
+            $user->assignRole('pasajero');
+        }
+
         Auth::login($user);
-        return redirect()->route('profile.edit');
-    }
 
-    // Asignar rol por defecto si aún no tiene uno de los definidos
-    if (! $user->hasAnyRole(['admin', 'conductor', 'pasajero'])) {
-        $user->assignRole('pasajero');
-    }
-
-    Auth::login($user);
-
-    // Si es conductor y su perfil está incompleto
-    if ($user->hasRole('conductor')) {
-        if (empty($user->pais) || empty($user->celular) || empty($user->foto)) {
-            return redirect()->route('profile.edit');
+        // ✅ Redirigir según el rol
+        if ($user->hasRole('admin')) {
+            return redirect()->route('admin.dashboard');
         }
 
-        return redirect()->route('dashboard'); // ✅ dashboard general
+        // ✅ Todos los demás (conductor, pasajero, etc.) van a hibrido.dashboard
+        return redirect()->route('hibrido.dashboard');
     }
-
-    // Si es pasajero y su perfil está incompleto
-    if ($user->hasRole('pasajero')) {
-        if (empty($user->pais) || empty($user->celular) || empty($user->foto)) {
-            return redirect()->route('profile.edit');
-        }
-
-        return redirect()->route('pasajero.dashboard'); // ✅ mini panel pasajero
-    }
-
-    // Si es admin u otro rol
-return redirect()->route('admin.dashboard');
-}
-
-
-
-
-    
 }

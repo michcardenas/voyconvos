@@ -45,7 +45,7 @@ public function store(LoginRequest $request): RedirectResponse
             return redirect()->route('profile.edit');
         }
         
-        return redirect()->route('dashboard'); // 🚗 Solo para conductores
+        return redirect()->route('hibrido.dashboard'); // 🚗 Solo para conductores
     }
     
     // ✅ PASAJERO - Mini panel específico
@@ -54,7 +54,7 @@ public function store(LoginRequest $request): RedirectResponse
             return redirect()->route('profile.edit');
         }
         
-        return redirect()->route('pasajero.dashboard'); // 👤 Solo para pasajeros
+        return redirect()->route('hibrido.dashboard'); // 👤 Solo para pasajeros
     }
     
     // ✅ ADMIN - Panel administrativo
