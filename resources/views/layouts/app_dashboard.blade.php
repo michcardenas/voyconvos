@@ -177,26 +177,15 @@
         
         <div class="dropdown-menu" id="userMenu">
             @auth
-
-                @role('conductor')
-                    <a href="{{ route('conductor.perfil.edit') }}" class="dropdown-item">Editar perfil</a>
-                @endrole
-                @role('pasajero')
-                    <a href="{{ route('pasajero.perfil.edit') }}" class="dropdown-item">Editar perfil</a>
-                @endrole
-
+                {{-- Editar perfil unificado --}}
+                <a href="{{ route('perfil.editar.usuario') }}" class="dropdown-item">
+                    <i class="fas fa-user-edit"></i> Editar perfil
+                </a>
 
                 {{-- Dashboard --}}
-                @role('conductor')
-                    <a href="{{ route('dashboard') }}" class="dropdown-item">
-                         Dashboard Conductor
-                    </a>
-                @endrole
-                @role('pasajero')
-                    <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">
-                         Dashboard Pasajero
-                    </a>
-                @endrole
+                <a href="{{ route('hibrido.dashboard') }}" class="dropdown-item">
+                    <i class="fas fa-home"></i> Dashboard
+                </a>
 
                 {{-- Cerrar sesión --}}
                 <form method="POST" action="{{ route('logout') }}">

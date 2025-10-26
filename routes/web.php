@@ -71,15 +71,16 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
-    //EDITAR USUARIOS
+    //EDITAR USUARIOS - Rutas unificadas
     Route::get('/perfil/editar', [ProfileController::class, 'editarUsuario'])->name('perfil.editar.usuario');
     Route::get('/perfil/conductor', [ProfileController::class, 'editarUsuario'])->name('conductor.perfil.edit');
-    Route::put('/conductor', [ProfileController::class, 'update'])->name('conductor.perfil.update');
-
     Route::get('/perfil/pasajero', [ProfileController::class, 'editarUsuario'])->name('pasajero.perfil.edit');
 
-    Route::put('/conductor/perfil/actualizar', [ProfileController::class, 'actualizarPerfil'])->name('conductor.perfil.update');
-    Route::put('/pasajero/perfil/actualizar', [ProfileController::class, 'actualizarPerfilPasajero'])->name('pasajero.perfil.update');
+    // Actualización del perfil unificado
+    Route::put('/conductor/perfil/actualizar', [ProfileController::class, 'actualizarPerfil'])->name('conductor.perfil.actualizar');
+
+    // Mantener rutas antiguas para compatibilidad
+    Route::put('/pasajero/perfil/actualizar', [ProfileController::class, 'actualizarPerfil'])->name('pasajero.perfil.actualizar');
 
 
 
@@ -159,7 +160,7 @@ Route::get('/admin/gestor-pagos', [ConfiguracionAdminController::class, 'gestorP
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
 Route::get('/conductor/estimar-ruta', [\App\Http\Controllers\Conductor\RutaController::class, 'estimar']);
 Route::get('/conductor/detalle-viaje', [RutaController::class, 'detalle'])->name('detalle.viaje');
-Route::post('/conductor/guardar-viaje', [RutaController::class, 'store'])->name('conductor.viaje.store');
+Route::post('/conductor/guardar-viaje', [ConductorController::class, 'guardarViaje'])->name('conductor.guardar-viaje');
 Route::get('/conductor/gestion', [ConductorController::class, 'gestion'])->name('conductor.gestion');
 
 // editar datos del conductor

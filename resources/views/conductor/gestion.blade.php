@@ -532,12 +532,62 @@
     .results-grid {
         grid-template-columns: 1fr;
     }
-    
+
+    .result-item.suggested {
+        grid-column: span 1 !important;
+    }
+
     .result-item.final {
         grid-column: span 1;
     }
 }
-    
+   .result-item.suggested {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-color: #fcd34d;
+}
+
+.result-item.max-allowed {
+    background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+    border-color: #fca5a5;
+}
+
+/* Input de valor manual */
+#valor_viaje_manual {
+    transition: all 0.3s ease;
+}
+
+#valor_viaje_manual:focus {
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(252, 211, 77, 0.3);
+    transform: scale(1.02);
+}
+
+#mensaje-validacion {
+    animation: slideIn 0.3s ease;
+}
+
+.calculation-note ul {
+    list-style-type: none;
+    padding-left: 0;
+}
+
+.calculation-note ul li {
+    padding-left: 1.5rem;
+    position: relative;
+}
+
+.calculation-note ul li:before {
+    content: "✓";
+    position: absolute;
+    left: 0;
+    color: #00BFFF;
+    font-weight: bold;
+}
+
+.ganancia-info {
+    margin-top: 1rem;
+    animation: slideIn 0.3s ease;
+} 
 </style>
 
 <div class="container-mapa">
@@ -649,59 +699,200 @@
     <input type="hidden" id="hora_regreso_programada">
 </div>
 <!-- Sección de Resultados del Cálculo -->
+<!-- Sección de Resultados del Cálculo -->
 <div class="calculation-results" id="calculation-results" style="display: none;">
     <div class="results-header">
-        <h3>📊 Resultados del Cálculo</h3>
+        <h3>📊 Cálculo Automático de Tarifa</h3>
     </div>
-    
+
     <div class="results-grid">
         <div class="result-item">
             <div class="result-label">📏 Distancia total</div>
             <div class="result-value" id="calc-distancia">-- km</div>
         </div>
-        
+
         <div class="result-item">
             <div class="result-label">⏱️ Tiempo estimado</div>
             <div class="result-value" id="calc-tiempo">-- min</div>
         </div>
-        
-        <div class="result-item tarifa-input-item">
-            <div class="result-label">💵 Tarifa base del viaje</div>
-            <input type="number" id="tarifa_base" class="result-input" placeholder="0.00" min="0" step="0.01" oninput="recalcularTotales()">
+
+        <div class="result-item suggested">
+            <div class="result-label">💡 Tarifa mínima sugerida</div>
+            <div class="result-value" id="calc-minimo" style="font-size: 2rem;">$--</div>
+            <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                (Costo operativo + Comisión {{ $comision_plataforma ?? 0 }}%)
+            </small>
         </div>
-        
-        <div class="result-item commission">
-            <div class="result-label">🔧 Costo de mantenimiento ({{ $comision_plataforma ?? 0 }}%)</div>
-            <div class="result-value" id="calc-mantenimiento">$--</div>
-        </div>
-        
-        <div class="result-item final">
-            <div class="result-label">🎯 TOTAL A COBRAR AL PASAJERO</div>
-            <div class="result-value-final" id="calc-total-final">$--</div>
+
+        <div class="result-item max-allowed">
+            <div class="result-label">⚠️ Tarifa máxima permitida</div>
+            <div class="result-value" id="calc-maximo" style="font-size: 2rem;">$--</div>
+            <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 0.5rem;">
+                (Tarifa mínima + {{ $maximo_ganancia ?? 30 }}%)
+            </small>
         </div>
     </div>
-    
+
+    <!-- Input para establecer el valor del viaje -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%); border-radius: 16px; border: 2px solid #fcd34d;">
+        <h4 style="color: #92400e; margin-bottom: 1rem; text-align: center; font-size: 1.1rem;">💰 Establece el valor total del viaje</h4>
+
+        <div style="max-width: 400px; margin: 0 auto;">
+            <label style="display: block; font-weight: 600; color: #92400e; margin-bottom: 0.5rem; font-size: 0.95rem; text-align: center;">
+                Ingresa el precio que cobrarás
+            </label>
+            <input type="number"
+                   id="valor_viaje_manual"
+                   step="0.01"
+                   min="0"
+                   class="result-input"
+                   placeholder="$0.00"
+                   oninput="validarValorViaje()"
+                   style="font-size: 2rem; padding: 1rem; text-align: center; border: 3px solid #fcd34d;">
+
+            <div id="mensaje-validacion" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: 600; display: none;"></div>
+
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; font-size: 0.85rem;">
+                <span style="color: #64748b;">
+                    Rango válido:
+                    <strong style="color: #059669;" id="rango-minimo">$--</strong> -
+                    <strong style="color: #dc2626;" id="rango-maximo">$--</strong>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sección de puestos y cálculo por pasajero -->
+    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; border: 2px solid #bae6fd;">
+        <h4 style="color: var(--primary); margin-bottom: 1.5rem; text-align: center; font-size: 1.1rem;">👥 Distribución de puestos</h4>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="background: white; padding: 1rem; border-radius: 12px; text-align: center;">
+                <label style="display: block; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; font-size: 0.9rem;">🚗 Puestos totales del vehículo</label>
+                <input type="number"
+                       id="puestos_totales"
+                       value="{{ $numero_puestos ?? 0 }}"
+                       readonly
+                       style="width: 100%; padding: 0.75rem; font-size: 1.5rem; font-weight: 700; color: var(--primary); text-align: center; border: 2px solid #cbd5e1; border-radius: 8px; background: #f8fafc; cursor: not-allowed;">
+            </div>
+
+            <div style="background: white; padding: 1rem; border-radius: 12px; text-align: center;">
+                <label style="display: block; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; font-size: 0.9rem;">✅ Puestos disponibles en este viaje</label>
+                <input type="number"
+                       id="puestos_disponibles"
+                       min="1"
+                       max="{{ $numero_puestos ?? 0 }}"
+                       value="{{ $numero_puestos ?? 0 }}"
+                       oninput="calcularPorPasajero()"
+                       style="width: 100%; padding: 0.75rem; font-size: 1.5rem; font-weight: 700; color: #0066CC; text-align: center; border: 2px solid #00BFFF; border-radius: 8px; background: white;">
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.25rem; border-radius: 12px; text-align: center; border: 2px solid #fcd34d;">
+                <div style="color: #92400e; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">💰 TOTAL DEL VIAJE</div>
+                <div style="color: #92400e; font-size: 2rem; font-weight: 700;" id="total-viaje">$--</div>
+            </div>
+
+            <div style="background: linear-gradient(135deg, #00C853 0%, #69F0AE 100%); padding: 1.25rem; border-radius: 12px; text-align: center; border: 2px solid #00E676;">
+                <div style="color: white; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">💵 PRECIO POR PASAJERO</div>
+                <div style="color: white; font-size: 2rem; font-weight: 700;" id="precio-por-pasajero">$--</div>
+            </div>
+        </div>
+    </div>
+
     <div class="calculation-note">
-        <p><strong>ℹ️ Nota:</strong> El costo de mantenimiento es la comisión de la plataforma para cubrir servicios, soporte y mantenimiento del sistema.</p>
+        <p><strong>ℹ️ Cómo funciona el sistema de tarifas:</strong></p>
+        <ul style="margin: 0.5rem 0 0 1.5rem; line-height: 1.8;">
+            <li><strong>Paso 1:</strong> El sistema calcula el costo operativo (Distancia × $0.30/km)</li>
+            <li><strong>Paso 2:</strong> Se suma la comisión de plataforma ({{ $comision_plataforma ?? 0 }}%)</li>
+            <li><strong>Paso 3:</strong> Se establece la <strong>tarifa mínima</strong> (costo + comisión)</li>
+            <li><strong>Paso 4:</strong> Se calcula la <strong>tarifa máxima permitida</strong> (+{{ $maximo_ganancia ?? 30 }}%)</li>
+            <li><strong>Paso 5:</strong> Tú decides el precio final dentro del rango permitido</li>
+            <li><strong>Paso 6:</strong> El sistema divide automáticamente entre los puestos disponibles</li>
+        </ul>
+        <p style="margin-top: 1rem; padding-top: 1rem; border-top: 2px solid #bae6fd;">
+            <strong>💡 Recomendación:</strong> Puedes ajustar el precio según la demanda, condiciones del viaje, o gastos adicionales (peajes, estacionamiento, etc.),
+            siempre dentro del rango establecido para garantizar precios justos tanto para ti como para los pasajeros.
+        </p>
+    </div>
+
+    <!-- Botón para guardar el viaje -->
+    <div style="margin-top: 2rem; text-align: center;">
+        <button type="button"
+                id="btn-guardar-viaje"
+                onclick="guardarViaje()"
+                style="background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+                       color: white;
+                       border: none;
+                       padding: 1.25rem 3rem;
+                       font-size: 1.2rem;
+                       font-weight: 700;
+                       border-radius: 16px;
+                       cursor: pointer;
+                       box-shadow: 0 8px 24px rgba(0, 51, 102, 0.3);
+                       transition: all 0.3s ease;
+                       display: inline-flex;
+                       align-items: center;
+                       gap: 0.75rem;">
+            <span style="font-size: 1.5rem;">🚀</span>
+            PUBLICAR VIAJE
+        </button>
+        <p style="margin-top: 1rem; color: #64748b; font-size: 0.9rem;">
+            Al publicar, tu viaje estará disponible para que los pasajeros reserven
+        </p>
     </div>
 </div>
+
+<style>
+#btn-guardar-viaje:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 32px rgba(0, 51, 102, 0.4);
+}
+
+#btn-guardar-viaje:active {
+    transform: translateY(-1px);
+}
+
+#btn-guardar-viaje:disabled {
+    background: linear-gradient(135deg, #94a3b8 0%, #cbd5e1 100%);
+    cursor: not-allowed;
+    box-shadow: none;
+    transform: none;
+}
+</style>
 <script>
+// ========================================
+// VARIABLES GLOBALES
+// ========================================
 let map;
 let directionsService;
 let directionsRenderer;
 let geocoder;
 let origenMarker = null;
 let destinoMarker = null;
-let paradasMarkers = [];
 let paradas = [];
 let paso = 'origen';
 let iconoVerde, iconoRojo, iconoAmarillo;
 let paradaCounter = 0;
-let paradaEnEspera = null; // Nueva variable para la parada que espera ser colocada
+let paradaEnEspera = null;
 
+// Variables de configuración del servidor
+const comisionPlataforma = {{ $comision_plataforma ?? 0 }};
+const precioGasolina = {{ $precio_gasolina ?? 0 }};
+const consumoPorGalon = {{ $consumo_por_galon ?? 1 }};
+const maximoGanancia = {{ $maximo_ganancia ?? 0 }};
+
+let tarifaMinima = 0;
+let tarifaMaxima = 0;
+
+// ========================================
+// INICIALIZACIÓN DEL MAPA
+// ========================================
 function initMap() {
     console.log('🗺️ Iniciando mapa...');
     
+    // Definir iconos personalizados
     iconoVerde = {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: '#00C853',
@@ -729,7 +920,7 @@ function initMap() {
         scale: 10
     };
     
-    const centro = { lat: -34.6037, lng: -58.3816 };
+    const centro = { lat: -34.6037, lng: -58.3816 }; // Buenos Aires
     
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
@@ -750,6 +941,7 @@ function initMap() {
 
     geocoder = new google.maps.Geocoder();
 
+    // Configurar autocompletado para origen y destino
     const origenAuto = new google.maps.places.Autocomplete(
         document.getElementById('origen_input'),
         { componentRestrictions: { country: 'ar' } }
@@ -774,6 +966,7 @@ function initMap() {
         }
     });
 
+    // Listener para clicks en el mapa
     map.addListener('click', function(e) {
         console.log('🖱️ Click en mapa, paso:', paso);
         
@@ -782,7 +975,6 @@ function initMap() {
         } else if (paso === 'destino') {
             ponerDestino(e.latLng);
         } else if (paradaEnEspera) {
-            // Si hay una parada esperando, colocarla en el mapa
             colocarParadaEnMapa(e.latLng, paradaEnEspera);
         }
     });
@@ -790,7 +982,9 @@ function initMap() {
     console.log('✅ Mapa listo');
 }
 
-// Configurar fecha mínima (hoy)
+// ========================================
+// CONFIGURACIÓN DE FECHA Y HORA
+// ========================================
 document.addEventListener('DOMContentLoaded', function() {
     const hoy = new Date().toISOString().split('T')[0];
     document.getElementById('fecha_viaje').setAttribute('min', hoy);
@@ -802,25 +996,20 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('hora_salida').value = horaActual;
     
     // Listeners para actualizar info cuando cambien los campos
-    document.getElementById('fecha_viaje').addEventListener('change', function() {
-        if (document.getElementById('route-info').classList.contains('show')) {
-            mostrarInfoProgramacion();
-        }
-    });
-    
-    document.getElementById('hora_salida').addEventListener('change', function() {
-        if (document.getElementById('route-info').classList.contains('show')) {
-            mostrarInfoProgramacion();
-        }
-    });
-    
-    document.getElementById('hora_regreso').addEventListener('change', function() {
-        if (document.getElementById('route-info').classList.contains('show')) {
-            mostrarInfoProgramacion();
-        }
-    });
+    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
 });
 
+function actualizarInfoFecha() {
+    if (document.getElementById('route-info').classList.contains('show')) {
+        mostrarInfoProgramacion();
+    }
+}
+
+// ========================================
+// FUNCIONES DE IDA Y VUELTA
+// ========================================
 function toggleIdaVuelta() {
     const checkbox = document.getElementById('ida_vuelta');
     const returnSection = document.getElementById('return-section');
@@ -853,38 +1042,9 @@ function toggleIdaVuelta() {
     }
 }
 
-function mostrarInfoProgramacion() {
-    const fechaViaje = document.getElementById('fecha_viaje').value;
-    const horaSalida = document.getElementById('hora_salida').value;
-    const idaVuelta = document.getElementById('ida_vuelta').checked;
-    const horaRegreso = document.getElementById('hora_regreso').value;
-    
-    // Guardar en campos hidden
-    document.getElementById('es_ida_vuelta').value = idaVuelta ? '1' : '0';
-    document.getElementById('fecha_programada').value = fechaViaje;
-    document.getElementById('hora_salida_programada').value = horaSalida;
-    document.getElementById('hora_regreso_programada').value = horaRegreso;
-    
-    if (fechaViaje && horaSalida) {
-        const fechaCard = document.getElementById('fecha-programada-card');
-        const fechaTexto = document.getElementById('fecha-programada');
-        
-        // Formatear fecha
-        const fecha = new Date(fechaViaje + 'T00:00:00');
-        const opciones = { day: 'numeric', month: 'short' };
-        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
-        
-        let textoCompleto = `${fechaFormateada} ${horaSalida}`;
-        
-        if (idaVuelta && horaRegreso) {
-            textoCompleto += ` 🔄 ${horaRegreso}`;
-        }
-        
-        fechaTexto.textContent = textoCompleto;
-        fechaCard.style.display = 'block';
-    }
-}
-
+// ========================================
+// FUNCIONES DE ORIGEN Y DESTINO
+// ========================================
 function ponerOrigen(location) {
     console.log('📍 Poniendo origen');
     
@@ -971,6 +1131,9 @@ function actualizarDestino(location) {
     });
 }
 
+// ========================================
+// FUNCIONES DE PARADAS INTERMEDIAS
+// ========================================
 function agregarNuevaParada() {
     if (!origenMarker || !destinoMarker) {
         alert('⚠️ Por favor, primero selecciona el origen y destino');
@@ -980,7 +1143,6 @@ function agregarNuevaParada() {
     paradaCounter++;
     const paradaId = 'parada_' + paradaCounter;
     
-    // Crear el HTML de la parada
     const paradaHTML = `
         <div class="parada-item" id="${paradaId}">
             <div class="parada-number">${paradaCounter}</div>
@@ -1008,18 +1170,15 @@ function agregarNuevaParada() {
         const place = autocomplete.getPlace();
         if (place.geometry) {
             colocarParadaEnMapa(place.geometry.location, paradaId);
-            paradaEnEspera = null; // Ya se colocó
+            paradaEnEspera = null;
             document.getElementById('status').textContent = '✅ Parada agregada. Puedes agregar más';
             document.body.style.cursor = 'default';
         }
     });
     
-    // Activar modo de espera para click en mapa
     paradaEnEspera = paradaId;
     document.getElementById('status').textContent = '🛑 Busca una dirección o haz clic en el mapa para la parada';
     document.body.style.cursor = 'crosshair';
-    
-    // Hacer focus en el input
     input.focus();
     
     console.log('➕ Nueva parada creada:', paradaId);
@@ -1046,7 +1205,6 @@ function colocarParadaEnMapa(location, paradaId) {
         location: location
     });
     
-    // Obtener y actualizar dirección
     geocoder.geocode({ location: location }, function(results, status) {
         if (status === 'OK' && results[0]) {
             document.getElementById(paradaId + '_input').value = results[0].formatted_address;
@@ -1055,7 +1213,6 @@ function colocarParadaEnMapa(location, paradaId) {
         }
     });
     
-    // Resetear modo de espera
     paradaEnEspera = null;
     document.getElementById('status').textContent = '✅ Parada agregada. Puedes agregar más o arrastrar';
     document.body.style.cursor = 'default';
@@ -1063,65 +1220,6 @@ function colocarParadaEnMapa(location, paradaId) {
     calcularRuta();
     
     console.log('🛑 Parada colocada en:', location.toString());
-}
-
-function activarModoParada() {
-    if (!origenMarker || !destinoMarker) {
-        alert('⚠️ Por favor, primero selecciona el origen y destino');
-        return;
-    }
-    
-    paso = 'parada';
-    document.getElementById('status').textContent = '🛑 Haz clic en el mapa para agregar una parada';
-    document.body.style.cursor = 'crosshair';
-    console.log('📍 Modo parada activado');
-}
-
-function agregarParadaPorClick(location) {
-    paradaCounter++;
-    const paradaId = 'parada_' + paradaCounter;
-    
-    // Crear el HTML de la parada
-    const paradaHTML = `
-        <div class="parada-item" id="${paradaId}">
-            <div class="parada-number">${paradaCounter}</div>
-            <div class="parada-input-wrapper">
-                <input type="text" 
-                       class="parada-input" 
-                       id="${paradaId}_input" 
-                       placeholder="Cargando dirección...">
-            </div>
-            <button class="btn-remove-parada" onclick="eliminarParada('${paradaId}')">
-                ✕
-            </button>
-        </div>
-    `;
-    
-    document.getElementById('paradas-list').insertAdjacentHTML('beforeend', paradaHTML);
-    
-    // Agregar al mapa
-    agregarParadaMapa(location, paradaId);
-    
-    // Obtener dirección
-    geocoder.geocode({ location: location }, function(results, status) {
-        if (status === 'OK' && results[0]) {
-            document.getElementById(paradaId + '_input').value = results[0].formatted_address;
-        } else {
-            document.getElementById(paradaId + '_input').value = 'Ubicación personalizada';
-        }
-    });
-    
-    // Restaurar modo normal
-    paso = 'listo';
-    document.getElementById('status').textContent = '✅ Parada agregada. Puedes agregar más o arrastrar';
-    document.body.style.cursor = 'default';
-    
-    console.log('🛑 Parada agregada por click en:', location.toString());
-}
-
-function agregarParadaMapa(location, paradaId) {
-    // Esta función ya no se usa, todo pasa por colocarParadaEnMapa
-    colocarParadaEnMapa(location, paradaId);
 }
 
 function actualizarParada(paradaId, location) {
@@ -1146,7 +1244,6 @@ function eliminarParada(paradaId) {
     
     document.getElementById(paradaId).remove();
     
-    // Si era la parada en espera, limpiar
     if (paradaEnEspera === paradaId) {
         paradaEnEspera = null;
         document.getElementById('status').textContent = '✅ Listo para agregar más paradas';
@@ -1157,6 +1254,9 @@ function eliminarParada(paradaId) {
     console.log('🗑️ Parada eliminada:', paradaId);
 }
 
+// ========================================
+// CÁLCULO DE RUTA
+// ========================================
 function calcularRuta() {
     if (!origenMarker || !destinoMarker) {
         console.log('⚠️ Faltan origen o destino');
@@ -1203,7 +1303,6 @@ function calcularRuta() {
             document.getElementById('distancia_km').value = km;
             document.getElementById('tiempo_estimado').value = tiempoTexto;
             
-            // Mostrar información de programación
             mostrarInfoProgramacion();
             
             document.getElementById('route-info').classList.add('show');
@@ -1213,57 +1312,299 @@ function calcularRuta() {
     });
 }
 
-console.log('📜 Script cargado');
-// Variables de configuración del servidor
-const comisionPlataforma = {{ $comision_plataforma ?? 0 }};
-
+// ========================================
+// CÁLCULO AUTOMÁTICO DE TARIFAS
+// ========================================
 function mostrarInfoProgramacion() {
+    const fechaViaje = document.getElementById('fecha_viaje').value;
+    const horaSalida = document.getElementById('hora_salida').value;
+    const idaVuelta = document.getElementById('ida_vuelta').checked;
+    const horaRegreso = document.getElementById('hora_regreso').value;
+    
+    // Guardar en campos hidden
+    document.getElementById('es_ida_vuelta').value = idaVuelta ? '1' : '0';
+    document.getElementById('fecha_programada').value = fechaViaje;
+    document.getElementById('hora_salida_programada').value = horaSalida;
+    document.getElementById('hora_regreso_programada').value = horaRegreso;
+    
+    // Mostrar tarjeta de fecha programada
+    if (fechaViaje && horaSalida) {
+        const fechaCard = document.getElementById('fecha-programada-card');
+        const fechaTexto = document.getElementById('fecha-programada');
+        
+        const fecha = new Date(fechaViaje + 'T00:00:00');
+        const opciones = { day: 'numeric', month: 'short' };
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+        
+        let textoCompleto = `${fechaFormateada} ${horaSalida}`;
+        
+        if (idaVuelta && horaRegreso) {
+            textoCompleto += ` 🔄 ${horaRegreso}`;
+        }
+        
+        fechaTexto.textContent = textoCompleto;
+        fechaCard.style.display = 'block';
+    }
+    
+    // Mostrar sección de cálculos
     const resultadosDiv = document.getElementById('calculation-results');
     if (resultadosDiv) {
         resultadosDiv.style.display = 'block';
-        actualizarDistanciaTiempo();
+        calcularTarifaAutomatica();
     }
 }
 
-function actualizarDistanciaTiempo() {
-    // Obtener distancia y tiempo del cálculo de ruta
+function calcularTarifaAutomatica() {
     const distanciaKm = parseFloat(document.getElementById('distancia_km').value) || 0;
     const tiempoEstimado = document.getElementById('tiempo_estimado').value || '--';
-    
+
     // Actualizar valores básicos
     document.getElementById('calc-distancia').textContent = distanciaKm > 0 ? distanciaKm.toFixed(1) + ' km' : '-- km';
     document.getElementById('calc-tiempo').textContent = tiempoEstimado;
-    
-    // Calcular costos si ya hay tarifa base
-    recalcularTotales();
-}
 
-function recalcularTotales() {
-    // Obtener tarifa base ingresada por el conductor
-    const tarifaBase = parseFloat(document.getElementById('tarifa_base').value) || 0;
-    
-    if (tarifaBase === 0) {
-        document.getElementById('calc-mantenimiento').textContent = '$--';
-        document.getElementById('calc-total-final').textContent = '$--';
+    if (distanciaKm === 0) {
+        console.warn('⚠️ Faltan datos para calcular costos');
         return;
     }
-    
-    // Calcular costo de mantenimiento (comisión de la plataforma)
-    const costoMantenimiento = (tarifaBase * comisionPlataforma) / 100;
-    
-    // Total a cobrar al pasajero
-    const totalFinal = tarifaBase + costoMantenimiento;
-    
+
+    // PASO 1: Costo operativo = Distancia × $0.30/km
+    const costoOperativo = distanciaKm * 0.30;
+
+    // PASO 2: Comisión = Costo operativo × porcentaje
+    const comision = (costoOperativo * comisionPlataforma) / 100;
+
+    // PASO 3: TARIFA MÍNIMA = Costo operativo + Comisión
+    tarifaMinima = costoOperativo + comision;
+
+    // PASO 4: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo de ganancia %)
+    tarifaMaxima = tarifaMinima + (tarifaMinima * maximoGanancia / 100);
+
     // Actualizar la interfaz
-    document.getElementById('calc-mantenimiento').textContent = '$' + costoMantenimiento.toFixed(2);
-    document.getElementById('calc-total-final').textContent = '$' + totalFinal.toFixed(2);
-    
-    // Log para debug
-    console.log('💰 Cálculo de tarifa:');
-    console.log('- Tarifa base: $', tarifaBase.toFixed(2));
-    console.log('- Costo mantenimiento (' + comisionPlataforma + '%): $', costoMantenimiento.toFixed(2));
-    console.log('- TOTAL A COBRAR: $', totalFinal.toFixed(2));
+    document.getElementById('calc-minimo').textContent = '$' + tarifaMinima.toFixed(2);
+    document.getElementById('calc-maximo').textContent = '$' + tarifaMaxima.toFixed(2);
+
+    // Actualizar rangos
+    document.getElementById('rango-minimo').textContent = '$' + tarifaMinima.toFixed(2);
+    document.getElementById('rango-maximo').textContent = '$' + tarifaMaxima.toFixed(2);
+
+    // Sugerir automáticamente la tarifa mínima en el input
+    document.getElementById('valor_viaje_manual').value = tarifaMinima.toFixed(2);
+    validarValorViaje();
+
+    // Calcular el precio por pasajero automáticamente
+    calcularPorPasajero();
+
+    console.log('💰 Cálculo automático completado');
+    console.log('- Distancia:', distanciaKm, 'km');
+    console.log('- Costo operativo: $', costoOperativo.toFixed(2));
+    console.log('- Comisión: $', comision.toFixed(2));
+    console.log('- TARIFA MÍNIMA: $', tarifaMinima.toFixed(2));
+    console.log('- TARIFA MÁXIMA: $', tarifaMaxima.toFixed(2));
 }
+
+// ========================================
+// VALIDACIÓN DEL VALOR DEL VIAJE
+// ========================================
+function validarValorViaje() {
+    const valorIngresado = parseFloat(document.getElementById('valor_viaje_manual').value) || 0;
+    const mensajeDiv = document.getElementById('mensaje-validacion');
+    const inputViaje = document.getElementById('valor_viaje_manual');
+
+    if (valorIngresado === 0) {
+        mensajeDiv.style.display = 'none';
+        inputViaje.style.borderColor = '#fcd34d';
+        calcularPorPasajero();
+        return;
+    }
+
+    // Validar que esté dentro del rango permitido
+    if (valorIngresado < tarifaMinima) {
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+        mensajeDiv.style.color = '#991b1b';
+        mensajeDiv.style.borderLeft = '4px solid #dc2626';
+        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de $' + tarifaMinima.toFixed(2);
+        inputViaje.style.borderColor = '#dc2626';
+    } else if (valorIngresado > tarifaMaxima) {
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+        mensajeDiv.style.color = '#991b1b';
+        mensajeDiv.style.borderLeft = '4px solid #dc2626';
+        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de $' + tarifaMaxima.toFixed(2);
+        inputViaje.style.borderColor = '#dc2626';
+    } else {
+        mensajeDiv.style.display = 'block';
+        mensajeDiv.style.background = 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
+        mensajeDiv.style.color = '#166534';
+        mensajeDiv.style.borderLeft = '4px solid #16a34a';
+        mensajeDiv.innerHTML = '✅ Valor válido dentro del rango permitido';
+        inputViaje.style.borderColor = '#16a34a';
+    }
+
+    // Recalcular precio por pasajero con el nuevo valor
+    calcularPorPasajero();
+}
+
+// ========================================
+// CÁLCULO POR PASAJERO
+// ========================================
+function calcularPorPasajero() {
+    const puestosDisponibles = parseInt(document.getElementById('puestos_disponibles').value) || 0;
+
+    // Usar el valor manual si está ingresado, si no usar la tarifa mínima
+    const valorManual = parseFloat(document.getElementById('valor_viaje_manual').value) || 0;
+    const totalViaje = valorManual > 0 ? valorManual : tarifaMinima;
+
+    if (puestosDisponibles === 0 || totalViaje === 0) {
+        document.getElementById('total-viaje').textContent = '$--';
+        document.getElementById('precio-por-pasajero').textContent = '$--';
+        return;
+    }
+
+    // Dividir entre los puestos disponibles
+    const precioPorPasajero = totalViaje / puestosDisponibles;
+
+    // Actualizar la interfaz
+    document.getElementById('total-viaje').textContent = '$' + totalViaje.toFixed(2);
+    document.getElementById('precio-por-pasajero').textContent = '$' + precioPorPasajero.toFixed(2);
+
+    console.log('👥 Cálculo por pasajero:');
+    console.log('- Puestos disponibles:', puestosDisponibles);
+    console.log('- Total del viaje: $', totalViaje.toFixed(2));
+    console.log('- Precio por pasajero: $', precioPorPasajero.toFixed(2));
+}
+
+
+// ========================================
+// GUARDAR VIAJE
+// ========================================
+function guardarViaje() {
+    // Validar que todos los datos necesarios estén completos
+    const origenCoords = document.getElementById('origen_coords').value;
+    const destinoCoords = document.getElementById('destino_coords').value;
+    const distanciaKm = document.getElementById('distancia_km').value;
+    const fechaViaje = document.getElementById('fecha_viaje').value;
+    const horaSalida = document.getElementById('hora_salida').value;
+    const puestosDisponibles = document.getElementById('puestos_disponibles').value;
+    const valorViaje = document.getElementById('valor_viaje_manual').value;
+
+    // Validaciones
+    if (!origenCoords || !destinoCoords) {
+        alert('⚠️ Por favor, selecciona el origen y el destino del viaje');
+        return;
+    }
+
+    if (!fechaViaje || !horaSalida) {
+        alert('⚠️ Por favor, completa la fecha y hora de salida');
+        return;
+    }
+
+    if (!puestosDisponibles || puestosDisponibles <= 0) {
+        alert('⚠️ Por favor, indica los puestos disponibles para este viaje');
+        return;
+    }
+
+    if (!valorViaje || parseFloat(valorViaje) <= 0) {
+        alert('⚠️ Por favor, establece el valor del viaje');
+        return;
+    }
+
+    // Validar que el valor esté dentro del rango permitido
+    const valorIngresado = parseFloat(valorViaje);
+    if (valorIngresado < tarifaMinima || valorIngresado > tarifaMaxima) {
+        alert('⚠️ El valor del viaje debe estar entre $' + tarifaMinima.toFixed(2) + ' y $' + tarifaMaxima.toFixed(2));
+        return;
+    }
+
+    // Recopilar datos de las paradas
+    const paradasArray = paradas.map((parada, index) => {
+        const inputElement = document.getElementById(parada.id + '_input');
+        return {
+            numero: index + 1,
+            direccion: inputElement ? inputElement.value : '',
+            lat: parada.location.lat(),
+            lng: parada.location.lng()
+        };
+    });
+
+    // Construir el objeto de datos
+    const datosViaje = {
+        // Coordenadas
+        origen_lat: origenCoords.split(',')[0],
+        origen_lng: origenCoords.split(',')[1],
+        destino_lat: destinoCoords.split(',')[0],
+        destino_lng: destinoCoords.split(',')[1],
+
+        // Direcciones
+        origen: document.getElementById('origen_direccion').value,
+        destino: document.getElementById('destino_direccion').value,
+
+        // Datos del viaje
+        distancia_km: distanciaKm,
+        tiempo_estimado: document.getElementById('tiempo_estimado').value,
+        fecha_salida: fechaViaje,
+        hora_salida: horaSalida,
+
+        // Ida y vuelta
+        ida_vuelta: document.getElementById('ida_vuelta').checked ? 1 : 0,
+        hora_regreso: document.getElementById('hora_regreso').value || null,
+
+        // Puestos y precios
+        puestos_disponibles: puestosDisponibles,
+        puestos_totales: document.getElementById('puestos_totales').value,
+        valor_cobrado: valorViaje,
+        valor_persona: (parseFloat(valorViaje) / parseInt(puestosDisponibles)).toFixed(2),
+
+        // Paradas intermedias
+        paradas: JSON.stringify(paradasArray),
+
+        _token: '{{ csrf_token() }}'
+    };
+
+    // Deshabilitar el botón mientras se guarda
+    const btnGuardar = document.getElementById('btn-guardar-viaje');
+    const textoOriginal = btnGuardar.innerHTML;
+    btnGuardar.disabled = true;
+    btnGuardar.innerHTML = '<span style="font-size: 1.5rem;">⏳</span> GUARDANDO...';
+
+    console.log('📤 Enviando datos del viaje:', datosViaje);
+
+    // Enviar datos al servidor
+    fetch('{{ route("conductor.guardar-viaje") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}',
+            'Accept': 'application/json'
+        },
+        body: JSON.stringify(datosViaje)
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('✅ Respuesta del servidor:', data);
+
+        if (data.success) {
+            // Mostrar mensaje de éxito
+            alert('✅ ¡Viaje publicado exitosamente!\n\nLos pasajeros ya pueden ver y reservar tu viaje.');
+
+            // Redirigir a la lista de viajes
+            window.location.href = '{{ route("conductor.gestion") }}';
+        } else {
+            // Mostrar error
+            alert('❌ Error al guardar el viaje:\n' + (data.message || 'Error desconocido'));
+            btnGuardar.disabled = false;
+            btnGuardar.innerHTML = textoOriginal;
+        }
+    })
+    .catch(error => {
+        console.error('❌ Error al guardar:', error);
+        alert('❌ Error al guardar el viaje. Por favor, intenta nuevamente.');
+        btnGuardar.disabled = false;
+        btnGuardar.innerHTML = textoOriginal;
+    });
+}
+
+console.log('📜 Script cargado correctamente');
 </script>
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&libraries=places&callback=initMap&language=es&region=AR" async defer></script>

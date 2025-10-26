@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Log;
 
 class ConductorController extends Controller
 {
-public function gestion() 
+public function gestion()
 {
     $userId = auth()->id();
     $registro = RegistroConductor::where('user_id', $userId)->first();
     
-    // Obtener configuraciones más recientes de gasolina y comisión
+    // Obtener configuraciones más recientes
     $configuracionGasolina = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
         ->where('nombre', 'gasolina')
@@ -29,6 +29,12 @@ public function gestion()
     $configuracionComision = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
         ->where('nombre', 'comision')
+        ->orderBy('created_at', 'desc')
+        ->first();
+        
+    $configuracionMaximo = DB::table('configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'maximo')
         ->orderBy('created_at', 'desc')
         ->first();
     
@@ -43,8 +49,10 @@ public function gestion()
         // Configuraciones de administrador
         'precio_gasolina' => $configuracionGasolina ? $configuracionGasolina->valor : null,
         'comision_plataforma' => $configuracionComision ? $configuracionComision->valor : null,
+        'maximo_ganancia' => $configuracionMaximo ? $configuracionMaximo->valor : null,
         'config_gasolina' => $configuracionGasolina,
         'config_comision' => $configuracionComision,
+        'config_maximo' => $configuracionMaximo,
     ]);
 }
 public function verificarPasajero(Request $request, Reserva $reserva) 
@@ -815,7 +823,7 @@ public function finalizarViaje(Request $request, $viajeId)
 }
 
 
-public function calificarConductor(Request $request, $reservaId)  
+public function calificarConductor(Request $request, $reservaId)
 {
     try {
         // Validar datos
@@ -856,19 +864,19 @@ public function calificarConductor(Request $request, $reservaId)
             $viaje = $reserva->viaje;
             $pasajero = auth()->user();
             $conductor = \App\Models\User::find($viaje->conductor_id);
-            
+
             if ($conductor && $conductor->email && $viaje) {
                 $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
                 $estrellas = str_repeat('⭐', $request->calificacion);
                 $comentarioTexto = $request->comentario ? "\n\nComentario del pasajero:\n\"{$request->comentario}\"" : '';
-                
+
                 Mail::to($conductor->email)->send(new UniversalMail(
                     $conductor,
                     'Has recibido una calificación - VoyConvos',
                     "¡El pasajero {$pasajero->name} te ha calificado!\n\n📍 Detalles del viaje:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n\n⭐ Calificación recibida: {$estrellas} ({$request->calificacion}/5){$comentarioTexto}\n\nGracias por brindar un excelente servicio como conductor en VoyConvos. Tu dedicación es muy valorada.\n\n¡Sigue así y tendrás más pasajeros satisfechos!",
                     'notificacion'
                 ));
-                
+
                 \Log::info('Email de calificación a conductor enviado', [
                     'calificacion_id' => $calificacion->id,
                     'conductor_email' => $conductor->email,
@@ -876,7 +884,7 @@ public function calificarConductor(Request $request, $reservaId)
                     'pasajero_id' => $pasajero->id
                 ]);
             }
-            
+
         } catch (\Exception $emailError) {
             // Si falla el email, solo registrar pero continuar
             \Log::error('Error enviando email de calificación a conductor: ' . $emailError->getMessage());
@@ -893,6 +901,153 @@ public function calificarConductor(Request $request, $reservaId)
             'message' => 'Error al enviar la calificación'
         ], 500);
     }
+}
+
+/**
+ * Guardar un nuevo viaje creado por el conductor
+ */
+public function guardarViaje(Request $request)
+{
+    try {
+        if ($request->has('paradas') && is_string($request->paradas)) {
+            $paradasDecoded = json_decode($request->paradas, true);
+            $request->merge(['paradas' => $paradasDecoded ?: []]);
+        }
+
+        $request->validate([
+            'origen' => 'required|string|max:500',
+            'destino' => 'required|string|max:500',
+            'origen_lat' => 'required|numeric',
+            'origen_lng' => 'required|numeric',
+            'destino_lat' => 'required|numeric',
+            'destino_lng' => 'required|numeric',
+            'distancia_km' => 'required|numeric|min:0',
+            'tiempo_estimado' => 'nullable|string',
+            'fecha_salida' => 'required|date',
+            'hora_salida' => 'required',
+            'puestos_disponibles' => 'required|integer|min:1',
+            'puestos_totales' => 'required|integer|min:1',
+            'valor_estimado' => 'nullable|numeric|min:0',  // ✅ Opcional - se calcula si no viene
+            'valor_cobrado' => 'required|numeric|min:0',
+            'valor_persona' => 'required|numeric|min:0',
+            'ida_vuelta' => 'nullable|boolean',
+            'hora_regreso' => 'nullable',
+            'paradas' => 'nullable|array',
+            'paradas.*.nombre' => 'required_with:paradas|string',
+            'paradas.*.latitud' => 'required_with:paradas|numeric',
+            'paradas.*.longitud' => 'required_with:paradas|numeric',
+        ]);
+
+        // ✅ Calcular valor_estimado si no viene del frontend (tarifa plana $0.30/km)
+        if (!$request->has('valor_estimado') || !$request->valor_estimado) {
+            $request->merge([
+                'valor_estimado' => round($request->distancia_km * 0.30, 2)
+            ]);
+
+            \Log::info('Valor estimado calculado automáticamente', [
+                'distancia_km' => $request->distancia_km,
+                'valor_estimado' => $request->valor_estimado
+            ]);
+        }
+
+        $viaje = Viaje::create([
+            'conductor_id' => auth()->id(),
+            'origen_direccion' => $request->origen,
+            'origen_lat' => $request->origen_lat,
+            'origen_lng' => $request->origen_lng,
+            'destino_direccion' => $request->destino,
+            'destino_lat' => $request->destino_lat,
+            'destino_lng' => $request->destino_lng,
+            'distancia_km' => $request->distancia_km,
+            'tiempo_estimado' => $request->tiempo_estimado,
+            'fecha_salida' => $request->fecha_salida,
+            'hora_salida' => $request->hora_salida,
+            'puestos_totales' => $request->puestos_totales,
+            'puestos_disponibles' => $request->puestos_disponibles,
+            'valor_estimado' => $request->valor_estimado,  // ✅ AGREGADO
+            'valor_cobrado' => $request->valor_cobrado,
+            'valor_persona' => $request->valor_persona,
+            'ida_vuelta' => $request->ida_vuelta ? 1 : 0,
+            'hora_regreso' => $request->hora_regreso,
+            'estado' => 'pendiente',
+            'activo' => true,
+            'vehiculo' => $this->obtenerInfoVehiculo()
+        ]);
+
+        $paradas = $request->paradas;
+        if (!empty($paradas) && is_array($paradas)) {
+            foreach ($paradas as $index => $parada) {
+                \App\Models\Parada::create([
+                    'viaje_id' => $viaje->id,
+                    'conductor_id' => auth()->id(),
+                    'nombre' => $parada['nombre'] ?? '',
+                    'latitud' => $parada['latitud'],
+                    'longitud' => $parada['longitud'],
+                    'orden' => $index + 1
+                ]);
+            }
+
+            \Log::info('Paradas guardadas exitosamente', [
+                'viaje_id' => $viaje->id,
+                'cantidad_paradas' => count($paradas)
+            ]);
+        }
+
+        \Log::info('Viaje creado exitosamente', [
+            'viaje_id' => $viaje->id,
+            'conductor_id' => auth()->id(),
+            'origen' => $request->origen,
+            'destino' => $request->destino,
+            'fecha_salida' => $request->fecha_salida,
+            'valor_cobrado' => $request->valor_cobrado
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Viaje publicado exitosamente',
+            'viaje_id' => $viaje->id,
+            'redirect_url' => route('conductor.gestion')
+        ]);
+
+    } catch (\Illuminate\Validation\ValidationException $e) {
+        \Log::error('Error de validación al guardar viaje', [
+            'errores' => $e->errors(),
+            'datos_recibidos' => $request->all()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error de validación: ' . implode(', ', $e->validator->errors()->all()),
+            'errors' => $e->errors()
+        ], 422);
+
+    } catch (\Exception $e) {
+        \Log::error('Error al guardar viaje', [
+            'conductor_id' => auth()->id(),
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine(),
+            'archivo' => $e->getFile()
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error al guardar el viaje. Por favor, intenta nuevamente.'
+        ], 500);
+    }
+}
+
+/**
+ * Obtener información del vehículo del conductor
+ */
+private function obtenerInfoVehiculo()
+{
+    $registro = RegistroConductor::where('user_id', auth()->id())->first();
+
+    if ($registro) {
+        return $registro->marca_vehiculo . ' ' . $registro->modelo_vehiculo . ' (' . $registro->anio_vehiculo . ')';
+    }
+
+    return 'Vehículo no especificado';
 }
 
 }

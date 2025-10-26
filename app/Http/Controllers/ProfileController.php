@@ -43,41 +43,28 @@ public function editarUsuario(Request $request): View
 {
     $user = $request->user();
 
-    // Si es conductor, cargar ambas tablas y mostrar la vista
-    if ($user->hasRole('conductor')) {
-        $registro = RegistroConductor::where('user_id', $user->id)->first();
+    // Cargar el registro de conductor si existe (puede no existir si solo es pasajero)
+    $registro = RegistroConductor::where('user_id', $user->id)->first();
 
-        // Si no tiene registro, puedes crear uno vacío para el formulario
-        if (!$registro) {
-            $registro = new RegistroConductor([
-                'user_id' => $user->id,
-                'estado_verificacion' => 'pendiente',
-                'estado_registro' => 'incompleto',
-            ]);
-        }
-
-        return view('conductor.perfil.edit', compact('user', 'registro'));
+    // Si no tiene registro de conductor, crear uno vacío para el formulario
+    if (!$registro) {
+        $registro = new RegistroConductor([
+            'user_id' => $user->id,
+            'estado_verificacion' => 'pendiente',
+            'estado_registro' => 'incompleto',
+        ]);
     }
 
-    // Si es pasajero, podrías hacer lo mismo con otra vista
-    if ($user->hasRole('pasajero')) {
-        return view('pasajero.perfil.edit', compact('user'));
-    }
-
-    // Si es administrador, mostrar su propia edición o ir al CRUD
-    if ($user->hasRole('admin')) {
-        return view('admin.perfil.edit', compact('user'));
-    }
-
-    // Sin rol reconocido
-    return view('profile.edit', compact('user'))->with('info', 'Tu perfil no tiene un formulario asignado.');
+    // Retornar vista unificada con datos de usuario y vehículo (si existe)
+    return view('profile.edit-unified', compact('user', 'registro'));
 }
 public function actualizarPerfil(Request $request)
 {
     $user = $request->user();
-    
-    // Validación básica
+
+    // Validación completa
     $validated = $request->validate([
+        // Datos personales
         'name' => 'required|string|max:255',
         'email' => 'required|email|unique:users,email,' . $user->id,
         'fecha_nacimiento' => 'nullable|date|before:today',
@@ -85,20 +72,22 @@ public function actualizarPerfil(Request $request)
         'celular' => 'nullable|string|max:20',
         'pais' => 'nullable|string|max:100',
         'ciudad' => 'nullable|string|max:100',
+
+        // Fotos personales
         'foto' => 'nullable|image|max:2048',
         'dni_foto' => 'nullable|image|max:2048',
         'dni_foto_atras' => 'nullable|image|max:2048',
-        
+
+        // Datos del vehículo
         'marca_vehiculo' => 'nullable|string|max:100',
         'modelo_vehiculo' => 'nullable|string|max:100',
         'anio_vehiculo' => 'nullable|integer|min:1900|max:' . (date('Y') + 1),
-        'numero_puestos' => 'nullable|integer' ,
+        'patente' => 'nullable|string|max:20',
+        'numero_puestos' => 'nullable|integer|min:1|max:8',
         'verificar_pasajeros' => 'nullable|boolean',
         'consumo_por_galon' => 'nullable|numeric|min:0|max:100',
 
-        'patente' => 'nullable|string|max:20',
-        
-
+        // Documentos del vehículo
         'licencia' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'cedula' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
         'cedula_verde' => 'nullable|file|mimes:pdf,jpg,jpeg,png|max:5120',
@@ -162,18 +151,23 @@ public function actualizarPerfil(Request $request)
             'consumo_por_galon' => $validated['consumo_por_galon'],
         ]);
 
-        // Manejar documentos
-        $documentos = ['licencia', 'cedula', 'cedula_verde'];
-        
+        // Manejar todos los documentos del vehículo
+        $documentos = ['licencia', 'cedula', 'cedula_verde', 'seguro', 'rto', 'antecedentes'];
+
         foreach ($documentos as $documento) {
             if ($request->hasFile($documento)) {
-                // Eliminar archivo anterior
+                // Eliminar archivo anterior si existe
                 if ($registro->$documento && Storage::disk('public')->exists($registro->$documento)) {
                     Storage::disk('public')->delete($registro->$documento);
                 }
                 // Guardar nuevo archivo
                 $registro->$documento = $request->file($documento)->store("conductores/documentos/{$user->id}", 'public');
             }
+        }
+
+        // Agregar patente que faltaba
+        if (isset($validated['patente'])) {
+            $registro->patente = $validated['patente'];
         }
 
         // Verificar si está completo

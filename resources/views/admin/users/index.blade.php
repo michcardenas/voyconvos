@@ -1,215 +1,287 @@
 @extends('layouts.app_admin')
 
-@section('title', 'Usuarios')
+@section('title', 'Gestión de Usuarios')
 
 @section('content')
-{{-- resources/views/admin/users/index.blade.php --}}
-<div class="container py-5">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1 class="fw-bold mb-0">Lista de Usuarios</h1>
-        <div class="text-end">
-            <small class="text-muted d-block">Hora actual:</small>
-            <span class="fw-bold text-primary" id="hora-actual"></span>
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="h3 fw-bold text-dark mb-1">
+                <i class="fas fa-users me-2 text-primary"></i>
+                Gestión de Usuarios
+            </h1>
+            <p class="text-muted mb-0">Administra todos los usuarios de la plataforma</p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{{ route('admin.users.create') }}" class="btn btn-primary">
+                <i class="fas fa-plus me-2"></i>Nuevo Usuario
+            </a>
         </div>
     </div>
-    
+
     @if(session('success'))
-    <div class="alert alert-success mb-4">
-        {{ session('success') }}
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>{{ session('success') }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
     @endif
 
-    {{-- Barra de acciones y filtros MEJORADA --}}
-    <div class="card mb-4">
-        <div class="card-body py-3">
-            <div class="row align-items-end">
+    <!-- Filtros -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <div class="row g-3">
+                <!-- Búsqueda -->
                 <div class="col-md-4">
-                    <a href="{{ route('admin.users.create') }}" class="btn btn-success mb-2">
-                        <i class="fas fa-plus me-1"></i>Nuevo Usuario
-                    </a>
+                    <label class="form-label small fw-semibold text-muted">
+                        <i class="fas fa-search me-1"></i>Buscar
+                    </label>
+                    <div class="input-group">
+                        <input type="text"
+                               id="busqueda"
+                               class="form-control"
+                               placeholder="Nombre o email..."
+                               value="{{ request('buscar') }}">
+                        <button class="btn btn-outline-primary" type="button" id="btn-buscar">
+                            <i class="fas fa-search"></i>
+                        </button>
+                        @if(request('buscar'))
+                        <button class="btn btn-outline-danger" type="button" id="btn-limpiar-busqueda">
+                            <i class="fas fa-times"></i>
+                        </button>
+                        @endif
+                    </div>
                 </div>
-                <div class="col-md-8">
-                    {{-- 🔥 NUEVA FILA PARA BÚSQUEDA --}}
-                    <div class="row g-2">
-                        <div class="col-md-6">
-                            <label for="busqueda" class="form-label mb-1 small">🔍 Buscar por nombre o correo:</label>
-                            <div class="input-group input-group-sm">
-                                <input type="text" 
-                                       id="busqueda" 
-                                       class="form-control" 
-                                       placeholder="Escribe nombre o email..."
-                                       value="{{ request('buscar') }}"
-                                       maxlength="50">
-                                <button class="btn btn-outline-secondary" type="button" id="btn-buscar" title="Buscar">
-                                    <i class="fas fa-search"></i>
-                                </button>
-                                @if(request('buscar'))
-                                    <button class="btn btn-outline-danger" type="button" id="btn-limpiar-busqueda" title="Limpiar búsqueda">
-                                        <i class="fas fa-times"></i>
-                                    </button>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="row g-2">
-                                <div class="col-4">
-                                    <label for="filtro-ordenar" class="form-label mb-1 small">Ordenar:</label>
-                                    <select id="filtro-ordenar" class="form-select form-select-sm">
-                                        <option value="created_at" {{ request('ordenar') == 'created_at' || !request('ordenar') ? 'selected' : '' }}>Más recientes</option>
-                                        <option value="updated_at" {{ request('ordenar') == 'updated_at' ? 'selected' : '' }}>Últimas actualizaciones</option>
-                                        <option value="name" {{ request('ordenar') == 'name' ? 'selected' : '' }}>Por nombre</option>
-                                    </select>
-                                </div>
-                                <div class="col-4">
-                                    <label for="filtro-rol" class="form-label mb-1 small">Rol:</label>
-                                    <select id="filtro-rol" class="form-select form-select-sm">
-                                        <option value="">Todos</option>
-                                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Admin</option>
-                                        <option value="conductor" {{ request('rol') == 'conductor' ? 'selected' : '' }}>Conductor</option>
-                                        <option value="pasajero" {{ request('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
-                                    </select>
-                                </div>
-                                <div class="col-4">
-                                    <label for="filtro-verificado" class="form-label mb-1 small">Estado:</label>
-                                    <select id="filtro-verificado" class="form-select form-select-sm">
-                                        <option value="">Todos</option>
-                                        <option value="1" {{ request('verificado') == '1' ? 'selected' : '' }}>Verificados</option>
-                                        <option value="0" {{ request('verificado') == '0' ? 'selected' : '' }}>No Verificados</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    {{-- BOTÓN LIMPIAR FILTROS --}}
-                    <div class="row mt-2">
-                        <div class="col-12 text-end">
-                            <button id="limpiar-filtros" class="btn btn-outline-secondary btn-sm" title="Limpiar todos los filtros">
-                                <i class="fas fa-broom me-1"></i>Limpiar Filtros
-                            </button>
-                        </div>
-                    </div>
+
+                <!-- Filtro de Perfil -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold text-muted">
+                        <i class="fas fa-user-tag me-1"></i>Perfil
+                    </label>
+                    <select id="filtro-perfil" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="conductor" {{ request('perfil') == 'conductor' ? 'selected' : '' }}>Conductores</option>
+                        <option value="pasajero" {{ request('perfil') == 'pasajero' ? 'selected' : '' }}>Pasajeros</option>
+                    </select>
+                </div>
+
+                <!-- Filtro de Rol -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold text-muted">
+                        <i class="fas fa-shield-alt me-1"></i>Rol
+                    </label>
+                    <select id="filtro-rol" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Admin</option>
+                    </select>
+                </div>
+
+                <!-- Filtro de Verificado -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold text-muted">
+                        <i class="fas fa-check-circle me-1"></i>Estado
+                    </label>
+                    <select id="filtro-verificado" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="1" {{ request('verificado') == '1' ? 'selected' : '' }}>Verificados</option>
+                        <option value="0" {{ request('verificado') == '0' ? 'selected' : '' }}>No verificados</option>
+                    </select>
+                </div>
+
+                <!-- Ordenar -->
+                <div class="col-md-2">
+                    <label class="form-label small fw-semibold text-muted">
+                        <i class="fas fa-sort me-1"></i>Ordenar
+                    </label>
+                    <select id="filtro-ordenar" class="form-select">
+                        <option value="created_at" {{ request('ordenar') == 'created_at' || !request('ordenar') ? 'selected' : '' }}>Más recientes</option>
+                        <option value="updated_at" {{ request('ordenar') == 'updated_at' ? 'selected' : '' }}>Actualizados</option>
+                        <option value="name" {{ request('ordenar') == 'name' ? 'selected' : '' }}>Por nombre</option>
+                    </select>
                 </div>
             </div>
+
+            @if(request()->hasAny(['buscar', 'perfil', 'rol', 'verificado', 'ordenar']))
+            <div class="mt-3 d-flex align-items-center justify-content-between">
+                <div class="d-flex flex-wrap gap-2">
+                    @if(request('buscar'))
+                    <span class="badge bg-primary">
+                        <i class="fas fa-search me-1"></i>Búsqueda: "{{ request('buscar') }}"
+                    </span>
+                    @endif
+                    @if(request('perfil'))
+                    <span class="badge bg-info">
+                        <i class="fas fa-user-tag me-1"></i>{{ ucfirst(request('perfil')) }}
+                    </span>
+                    @endif
+                    @if(request('rol'))
+                    <span class="badge bg-warning text-dark">
+                        <i class="fas fa-shield-alt me-1"></i>{{ ucfirst(request('rol')) }}
+                    </span>
+                    @endif
+                    @if(request('verificado') !== null)
+                    <span class="badge bg-success">
+                        <i class="fas fa-check-circle me-1"></i>{{ request('verificado') == '1' ? 'Verificados' : 'No verificados' }}
+                    </span>
+                    @endif
+                </div>
+                <button id="limpiar-filtros" class="btn btn-sm btn-outline-secondary">
+                    <i class="fas fa-broom me-1"></i>Limpiar filtros
+                </button>
+            </div>
+            @endif
         </div>
     </div>
 
-    {{-- 🔥 MOSTRAR FILTROS ACTIVOS --}}
-    @if(request('buscar') || request('rol') || request('verificado') !== null || request('ordenar'))
-    <div class="alert alert-info alert-sm mb-3">
-        <i class="fas fa-filter me-2"></i>
-        <strong>Filtros activos:</strong>
-        @if(request('buscar'))
-            <span class="badge bg-primary me-1">Búsqueda: "{{ request('buscar') }}"</span>
-        @endif
-        @if(request('rol'))
-            <span class="badge bg-warning text-dark me-1">Rol: {{ ucfirst(request('rol')) }}</span>
-        @endif
-        @if(request('verificado') !== null)
-            <span class="badge bg-info me-1">
-                Estado: {{ request('verificado') == '1' ? 'Verificados' : 'No Verificados' }}
-            </span>
-        @endif
-        @if(request('ordenar') && request('ordenar') !== 'created_at')
-            <span class="badge bg-secondary me-1">
-                Orden: {{ request('ordenar') == 'updated_at' ? 'Últimas actualizaciones' : 'Por nombre' }}
-            </span>
-        @endif
-    </div>
-    @endif
-
-    {{-- Tabla --}}
-    <div class="card">
+    <!-- Tabla de Usuarios -->
+    <div class="card shadow-sm">
         <div class="card-body p-0">
             <div class="table-responsive">
-                <table class="table table-hover table-striped mb-0" id="tabla-usuarios">
-                    <thead>
+                <table class="table table-hover align-middle mb-0">
+                    <thead class="bg-light">
                         <tr>
-                            <th>Nombre</th>
-                            <th>Email</th>
-                            <th>Rol</th>
-                            <th>Verificado</th>
-                            <th>Fecha Registro</th>
-                            <th>Última Actualización</th>
-                            <th>Acciones</th>
+                            <th class="px-4 py-3">Usuario</th>
+                            <th class="py-3">Perfil</th>
+                            <th class="py-3">Documentos</th>
+                            <th class="py-3">Rol</th>
+                            <th class="py-3">Estado</th>
+                            <th class="py-3">Registrado</th>
+                            <th class="py-3 text-end pe-4">Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
                         @forelse($users as $user)
-                        <tr data-rol="{{ $user->getRoleNames()->first() }}" data-verificado="{{ $user->verificado ? '1' : '0' }}">
+                        <tr>
+                            <!-- Usuario -->
+                            <td class="px-4">
+                                <div class="d-flex align-items-center">
+                                    <div class="avatar-circle me-3">
+                                        @if($user->foto)
+                                        <img src="{{ asset('storage/' . $user->foto) }}" alt="{{ $user->name }}">
+                                        @else
+                                        <span>{{ strtoupper(substr($user->name, 0, 2)) }}</span>
+                                        @endif
+                                    </div>
+                                    <div>
+                                        <div class="fw-semibold text-dark">{{ $user->name }}</div>
+                                        <small class="text-muted">{{ $user->email }}</small>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Perfil -->
                             <td>
-                                <strong>{{ $user->name }}</strong>
-                                @if(request('buscar') && stripos($user->name, request('buscar')) !== false)
-                                    <small class="text-success d-block">
-                                        <i class="fas fa-search"></i> Coincidencia en nombre
-                                    </small>
+                                @if($user->registroConductor)
+                                <span class="badge badge-conductor">
+                                    <i class="fas fa-car me-1"></i>Conductor
+                                </span>
+                                @else
+                                <span class="badge badge-pasajero">
+                                    <i class="fas fa-user me-1"></i>Pasajero
+                                </span>
                                 @endif
                             </td>
+
+                            <!-- Documentos -->
                             <td>
-                                {{ $user->email }}
-                                @if(request('buscar') && stripos($user->email, request('buscar')) !== false)
-                                    <small class="text-success d-block">
-                                        <i class="fas fa-search"></i> Coincidencia en email
-                                    </small>
-                                @endif
+                                <div class="d-flex flex-wrap gap-1">
+                                    @php
+                                        $documentos = [
+                                            'dni_foto' => ['icon' => 'id-card', 'title' => 'DNI Frente', 'field' => 'dni_foto'],
+                                            'dni_foto_atras' => ['icon' => 'id-card', 'title' => 'DNI Atrás', 'field' => 'dni_foto_atras'],
+                                        ];
+
+                                        $documentosConductor = [];
+                                        if($user->registroConductor) {
+                                            $documentosConductor = [
+                                                'licencia' => ['icon' => 'id-badge', 'title' => 'Licencia'],
+                                                'cedula' => ['icon' => 'file-alt', 'title' => 'Cédula'],
+                                                'cedula_verde' => ['icon' => 'file-contract', 'title' => 'Cédula Verde'],
+                                                'seguro' => ['icon' => 'shield-alt', 'title' => 'Seguro'],
+                                            ];
+                                        }
+                                    @endphp
+
+                                    {{-- Documentos de Usuario (DNI) --}}
+                                    @foreach($documentos as $key => $doc)
+                                        @if($user->{$doc['field']})
+                                        <span class="doc-icon doc-present" title="{{ $doc['title'] }} ✓" data-bs-toggle="tooltip">
+                                            <i class="fas fa-{{ $doc['icon'] }}"></i>
+                                        </span>
+                                        @else
+                                        <span class="doc-icon doc-missing" title="{{ $doc['title'] }} ✗" data-bs-toggle="tooltip">
+                                            <i class="fas fa-{{ $doc['icon'] }}"></i>
+                                        </span>
+                                        @endif
+                                    @endforeach
+
+                                    {{-- Documentos de Conductor --}}
+                                    @foreach($documentosConductor as $key => $doc)
+                                        @if($user->registroConductor->{$key})
+                                        <span class="doc-icon doc-present" title="{{ $doc['title'] }} ✓" data-bs-toggle="tooltip">
+                                            <i class="fas fa-{{ $doc['icon'] }}"></i>
+                                        </span>
+                                        @else
+                                        <span class="doc-icon doc-missing" title="{{ $doc['title'] }} ✗" data-bs-toggle="tooltip">
+                                            <i class="fas fa-{{ $doc['icon'] }}"></i>
+                                        </span>
+                                        @endif
+                                    @endforeach
+                                </div>
                             </td>
+
+                            <!-- Rol -->
                             <td>
                                 @php
                                     $rol = $user->getRoleNames()->first();
                                 @endphp
-                                <span class="badge 
-                                    @if($rol == 'admin') bg-danger
-                                    @elseif($rol == 'conductor') bg-warning text-dark
-                                    @elseif($rol == 'pasajero') bg-info
-                                    @else bg-secondary
-                                    @endif">
-                                    {{ ucfirst($rol) }}
+                                @if($rol == 'admin')
+                                <span class="badge badge-admin">
+                                    <i class="fas fa-shield-alt me-1"></i>Admin
                                 </span>
-                            </td>
-                            <td>
-                                @if($user->verificado)
-                                    <span class="badge bg-success">
-                                        <i class="fas fa-check me-1"></i>Verificado
-                                    </span>
                                 @else
-                                    <span class="badge bg-secondary">
-                                        <i class="fas fa-clock me-1"></i>Pendiente
-                                    </span>
+                                <span class="badge badge-user">
+                                    <i class="fas fa-user me-1"></i>Usuario
+                                </span>
                                 @endif
                             </td>
+
+                            <!-- Estado -->
                             <td>
-                                <small class="text-muted">
-                                    {{ $user->created_at->format('d/m/Y') }}<br>
-                                    <span class="text-xs">{{ $user->created_at->format('H:i') }}</span>
-                                </small>
+                                @if($user->verificado)
+                                <span class="badge badge-verified">
+                                    <i class="fas fa-check-circle me-1"></i>Verificado
+                                </span>
+                                @else
+                                <span class="badge badge-pending">
+                                    <i class="fas fa-clock me-1"></i>Pendiente
+                                </span>
+                                @endif
                             </td>
+
+                            <!-- Fecha -->
                             <td>
-                                <small class="text-muted">
-                                    @if($user->updated_at->diffInMinutes($user->created_at) > 5)
-                                        <span class="badge bg-warning text-dark mb-1" title="Usuario actualizado recientemente">
-                                            <i class="fas fa-sync-alt me-1"></i>Actualizado
-                                        </span><br>
-                                    @endif
-                                    {{ $user->updated_at->format('d/m/Y') }}<br>
-                                    <span class="text-xs">{{ $user->updated_at->format('H:i') }}</span>
-                                    @if($user->updated_at->isToday())
-                                        <br><span class="text-xs text-success">Hoy</span>
-                                    @endif
-                                </small>
+                                <div class="small">
+                                    <div class="text-dark">{{ $user->created_at->format('d/m/Y') }}</div>
+                                    <div class="text-muted">{{ $user->created_at->format('H:i') }}</div>
+                                </div>
                             </td>
-                            <td>
+
+                            <!-- Acciones -->
+                            <td class="text-end pe-4">
                                 <div class="btn-group" role="group">
-                                    <a href="{{ route('admin.users.edit', $user) }}" 
-                                       class="btn btn-sm btn-warning" 
-                                       title="Editar usuario">
+                                    <a href="{{ route('admin.users.edit', $user) }}"
+                                       class="btn btn-sm btn-warning"
+                                       title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <form action="{{ route('admin.users.destroy', $user) }}" 
-                                          method="POST" 
-                                          style="display:inline;">
+                                    <form action="{{ route('admin.users.destroy', $user) }}"
+                                          method="POST"
+                                          class="d-inline">
                                         @csrf @method('DELETE')
-                                        <button class="btn btn-sm btn-danger" 
-                                                onclick="return confirm('¿Estás seguro de eliminar este usuario?')"
-                                                title="Eliminar usuario">
+                                        <button class="btn btn-sm btn-danger"
+                                                onclick="return confirm('¿Eliminar a {{ $user->name }}?')"
+                                                title="Eliminar">
                                             <i class="fas fa-trash"></i>
                                         </button>
                                     </form>
@@ -218,12 +290,12 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-4">
+                            <td colspan="7" class="text-center py-5">
                                 <div class="text-muted">
-                                    <i class="fas fa-search fa-2x mb-2"></i>
+                                    <i class="fas fa-search fa-3x mb-3 d-block"></i>
                                     <p class="mb-0">No se encontraron usuarios</p>
                                     @if(request('buscar'))
-                                        <small>con la búsqueda "{{ request('buscar') }}"</small>
+                                    <small>con el término "{{ request('buscar') }}"</small>
                                     @endif
                                 </div>
                             </td>
@@ -233,350 +305,264 @@
                 </table>
             </div>
         </div>
-        {{-- Paginación dentro de la card --}}
+
         @if($users->hasPages())
         <div class="card-footer bg-light">
             <div class="row align-items-center">
                 <div class="col-md-6">
-                    <small class="text-muted" id="info-resultados">
+                    <small class="text-muted">
                         Mostrando {{ $users->firstItem() }} - {{ $users->lastItem() }} de {{ $users->total() }} usuarios
-                        @if(request('buscar'))
-                            (filtrados por "{{ request('buscar') }}")
-                        @endif
                     </small>
                 </div>
                 <div class="col-md-6">
                     <div class="d-flex justify-content-end">
-                        {{ $users->appends(request()->query())->links('pagination::bootstrap-4') }}
+                        {{ $users->links('pagination::bootstrap-4') }}
                     </div>
                 </div>
             </div>
         </div>
         @endif
     </div>
-
-    {{-- Información adicional --}}
-    <div class="row mt-3">
-        <div class="col-md-4">
-            <div class="small text-muted">
-                <i class="fas fa-info-circle me-1"></i>
-                Total de usuarios: <strong id="total-usuarios">{{ $users->total() }}</strong>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="small text-muted">
-                <i class="fas fa-sort me-1"></i>
-                Ordenado por: <strong>
-                    @switch(request('ordenar'))
-                        @case('updated_at') Últimas actualizaciones @break
-                        @case('name') Nombre @break
-                        @default Más recientes
-                    @endswitch
-                </strong>
-            </div>
-        </div>
-        <div class="col-md-4">
-            <div class="small text-muted">
-                <i class="fas fa-clock me-1"></i>
-                Última actualización de página: <strong id="ultima-carga"></strong>
-            </div>
-        </div>
-    </div>
 </div>
 
-{{-- CSS personalizado --}}
 <style>
-        .card {
-            border: none;
-            box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-            border-radius: 0.5rem;
-        }
+/* Estilos personalizados */
+.avatar-circle {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: 600;
+    font-size: 0.9rem;
+    overflow: hidden;
+}
 
-        .table-hover tbody tr:hover {
-            background-color: rgba(0, 123, 255, 0.05);
-        }
+.avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
 
-        .pagination {
-            margin-bottom: 0;
-        }
+.badge {
+    font-weight: 500;
+    padding: 0.35rem 0.65rem;
+    font-size: 0.75rem;
+}
 
-        .pagination .page-link {
-            border-radius: 0.375rem;
-            margin: 0 2px;
-            border: 1px solid #dee2e6;
-        }
+.badge-conductor {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
 
-        .pagination .page-item.active .page-link {
-            background-color: #0d6efd;
-            border-color: #0d6efd;
-        }
+.badge-pasajero {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    color: white;
+}
 
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.375rem 0.75rem;
-        }
+.badge-admin {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: #000;
+}
 
-        .btn-sm {
-            padding: 0.25rem 0.75rem;
-            font-size: 0.875rem;
-        }
+.badge-user {
+    background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+    color: #000;
+}
 
-        .form-select-sm {
-            padding: 0.25rem 0.5rem;
-            font-size: 0.875rem;
-        }
+.badge-verified {
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    color: white;
+}
 
-        .text-xs {
-            font-size: 0.65rem;
-        }
+.badge-pending {
+    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    color: white;
+}
 
-        .btn-group .btn {
-            border-radius: 0;
-        }
+.card {
+    border: none;
+    border-radius: 12px;
+}
 
-        .btn-group .btn:first-child {
-            border-radius: 0.375rem 0 0 0.375rem;
-        }
+.card-shadow {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
 
-        .btn-group .btn:last-child {
-            border-radius: 0 0.375rem 0.375rem 0;
-        }
+.table > thead {
+    border-bottom: 2px solid #dee2e6;
+}
 
-        #hora-actual {
-            font-size: 1.1rem;
-            letter-spacing: 0.5px;
-        }
+.table > thead > tr > th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #6c757d;
+    border-bottom: none;
+}
 
-        /* 🔥 ESTILOS PARA LA BÚSQUEDA */
-        #busqueda {
-            transition: all 0.3s ease;
-        }
+.table > tbody > tr {
+    transition: all 0.2s ease;
+}
 
-        #busqueda:focus {
-            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-            border-color: #0d6efd;
-        }
+.table > tbody > tr:hover {
+    background-color: #f8f9fa;
+    transform: scale(1.002);
+}
 
-        .alert-sm {
-            padding: 0.5rem 1rem;
-            font-size: 0.875rem;
-        }
+.btn-group .btn {
+    padding: 0.375rem 0.75rem;
+}
 
-        .input-group .btn {
-            border-left: none;
-        }
+.form-select, .form-control {
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
 
-        .input-group .form-control:focus + .btn {
-            border-color: #0d6efd;
-        }
+.form-select:focus, .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+}
 
-        @media (max-width: 768px) {
-            .row.g-2 > .col-md-6,
-            .row.g-2 > .col-4 {
-                margin-bottom: 0.5rem;
-            }
-            
-            .btn-group {
-                display: flex;
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .btn-group .btn {
-                border-radius: 0.375rem !important;
-                margin-bottom: 2px;
-            }
-            
-            .table-responsive {
-                font-size: 0.875rem;
-            }
-        }
+/* Document icons */
+.doc-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    transition: all 0.2s ease;
+}
+
+.doc-icon.doc-present {
+    background: linear-gradient(135deg, #00b09b 0%, #96c93d 100%);
+    color: white;
+}
+
+.doc-icon.doc-missing {
+    background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+    color: white;
+    opacity: 0.5;
+}
+
+.doc-icon:hover {
+    transform: scale(1.1);
+    opacity: 1;
+}
+
+@media (max-width: 768px) {
+    .table {
+        font-size: 0.85rem;
+    }
+
+    .avatar-circle {
+        width: 35px;
+        height: 35px;
+        font-size: 0.75rem;
+    }
+
+    .doc-icon {
+        width: 24px;
+        height: 24px;
+        font-size: 0.65rem;
+    }
+}
 </style>
 @endsection
 
 @push('scripts')
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const filtroRol = document.getElementById('filtro-rol');
-        const filtroVerificado = document.getElementById('filtro-verificado');
-        const filtroOrdenar = document.getElementById('filtro-ordenar');
-        const limpiarFiltros = document.getElementById('limpiar-filtros');
-        const tabla = document.getElementById('tabla-usuarios');
-        const tbody = tabla.querySelector('tbody');
-        
-        // 🔥 NUEVOS ELEMENTOS PARA BÚSQUEDA
-        const campoBusqueda = document.getElementById('busqueda');
-        const btnBuscar = document.getElementById('btn-buscar');
-        const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
+document.addEventListener('DOMContentLoaded', function() {
+    // Inicializar tooltips de Bootstrap
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
 
-        // ===============================================
-        // FUNCIONALIDAD DE HORA (mantener como está)
-        // ===============================================
-        function actualizarHora() {
-            const ahora = new Date();
-            const opciones = { 
-                timeZone: 'America/Argentina/Buenos_Aires',
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit', 
-                minute: '2-digit', 
-                second: '2-digit',
-                hour12: false 
-            };
-            const horaFormateada = ahora.toLocaleString('es-AR', opciones);
-            document.getElementById('hora-actual').textContent = horaFormateada;
-            
-            // Actualizar última carga
-            document.getElementById('ultima-carga').textContent = ahora.toLocaleTimeString('es-AR', {
-                timeZone: 'America/Argentina/Buenos_Aires',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-        }
+    const filtroRol = document.getElementById('filtro-rol');
+    const filtroVerificado = document.getElementById('filtro-verificado');
+    const filtroOrdenar = document.getElementById('filtro-ordenar');
+    const filtroPerfil = document.getElementById('filtro-perfil');
+    const limpiarFiltros = document.getElementById('limpiar-filtros');
+    const campoBusqueda = document.getElementById('busqueda');
+    const btnBuscar = document.getElementById('btn-buscar');
+    const btnLimpiarBusqueda = document.getElementById('btn-limpiar-busqueda');
 
-        // Actualizar hora cada segundo
-        actualizarHora();
-        setInterval(actualizarHora, 1000);
+    function aplicarFiltros() {
+        const url = new URL(window.location);
 
-        // ===============================================
-        // FUNCIÓN PRINCIPAL PARA APLICAR FILTROS CON BÚSQUEDA
-        // ===============================================
-        function aplicarFiltros() {
-            const url = new URL(window.location);
-            
-            // Limpiar parámetros existentes
-            url.searchParams.delete('rol');
-            url.searchParams.delete('verificado');
-            url.searchParams.delete('buscar');
-            url.searchParams.delete('page'); // Resetear a página 1 cuando se aplican filtros
-            
-            // Mantener el ordenamiento actual
-            const ordenar = filtroOrdenar.value;
-            if (ordenar && ordenar !== 'created_at') {
-                url.searchParams.set('ordenar', ordenar);
-            } else {
-                url.searchParams.delete('ordenar');
-            }
-            
-            // 🔥 AGREGAR BÚSQUEDA
-            const terminoBusqueda = campoBusqueda.value.trim();
-            if (terminoBusqueda) {
-                url.searchParams.set('buscar', terminoBusqueda);
-            }
-            
-            // Agregar filtro de rol si está seleccionado
-            const valorRol = filtroRol.value;
-            if (valorRol) {
-                url.searchParams.set('rol', valorRol);
-            }
-            
-            // Agregar filtro de verificado si está seleccionado
-            const valorVerificado = filtroVerificado.value;
-            if (valorVerificado !== '') {
-                url.searchParams.set('verificado', valorVerificado);
-            }
-            
-            // Redirigir con los nuevos parámetros
-            window.location.href = url.toString();
-        }
+        url.searchParams.delete('rol');
+        url.searchParams.delete('verificado');
+        url.searchParams.delete('buscar');
+        url.searchParams.delete('perfil');
+        url.searchParams.delete('page');
 
-        // ===============================================
-        // FUNCIÓN PARA LIMPIAR TODOS LOS FILTROS
-        // ===============================================
-        function limpiarTodosFiltros() {
-            const url = new URL(window.location);
-            
-            // Eliminar todos los parámetros de filtro
-            url.searchParams.delete('rol');
-            url.searchParams.delete('verificado');
+        const ordenar = filtroOrdenar.value;
+        if (ordenar && ordenar !== 'created_at') {
+            url.searchParams.set('ordenar', ordenar);
+        } else {
             url.searchParams.delete('ordenar');
-            url.searchParams.delete('buscar');
-            url.searchParams.delete('page');
-            
-            // Redirigir a la URL limpia
-            window.location.href = url.toString();
         }
 
-        // 🔥 FUNCIÓN PARA LIMPIAR SOLO LA BÚSQUEDA
-        function limpiarBusqueda() {
-            campoBusqueda.value = '';
+        const terminoBusqueda = campoBusqueda.value.trim();
+        if (terminoBusqueda) {
+            url.searchParams.set('buscar', terminoBusqueda);
+        }
+
+        const valorRol = filtroRol.value;
+        if (valorRol) {
+            url.searchParams.set('rol', valorRol);
+        }
+
+        const valorVerificado = filtroVerificado.value;
+        if (valorVerificado !== '') {
+            url.searchParams.set('verificado', valorVerificado);
+        }
+
+        const valorPerfil = filtroPerfil.value;
+        if (valorPerfil) {
+            url.searchParams.set('perfil', valorPerfil);
+        }
+
+        window.location.href = url.toString();
+    }
+
+    function limpiarTodosFiltros() {
+        window.location.href = window.location.pathname;
+    }
+
+    function limpiarBusqueda() {
+        campoBusqueda.value = '';
+        aplicarFiltros();
+    }
+
+    filtroRol.addEventListener('change', aplicarFiltros);
+    filtroVerificado.addEventListener('change', aplicarFiltros);
+    filtroOrdenar.addEventListener('change', aplicarFiltros);
+    filtroPerfil.addEventListener('change', aplicarFiltros);
+    btnBuscar.addEventListener('click', aplicarFiltros);
+
+    if (btnLimpiarBusqueda) {
+        btnLimpiarBusqueda.addEventListener('click', limpiarBusqueda);
+    }
+
+    campoBusqueda.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
             aplicarFiltros();
         }
-
-        // ===============================================
-        // EVENT LISTENERS
-        // ===============================================
-        filtroRol.addEventListener('change', aplicarFiltros);
-        filtroVerificado.addEventListener('change', aplicarFiltros);
-        filtroOrdenar.addEventListener('change', aplicarFiltros);
-        
-        // 🔥 EVENTOS PARA BÚSQUEDA
-        btnBuscar.addEventListener('click', aplicarFiltros);
-        if (btnLimpiarBusqueda) {
-            btnLimpiarBusqueda.addEventListener('click', limpiarBusqueda);
-        }
-        
-        // Buscar al presionar Enter
-        campoBusqueda.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                aplicarFiltros();
-            }
-        });
-        
-        // Buscar en tiempo real (opcional - con debounce)
-        let timeoutBusqueda;
-        campoBusqueda.addEventListener('input', function() {
-            clearTimeout(timeoutBusqueda);
-            timeoutBusqueda = setTimeout(() => {
-                if (this.value.length >= 2 || this.value.length === 0) {
-                    aplicarFiltros();
-                }
-            }, 500); // Esperar 500ms después de que el usuario deje de escribir
-        });
-        
-        limpiarFiltros.addEventListener('click', function(e) {
-            e.preventDefault();
-            limpiarTodosFiltros();
-        });
-
-        // ===============================================
-        // RESALTAR FILAS ACTUALIZADAS RECIENTEMENTE
-        // ===============================================
-        const filas = tbody.querySelectorAll('tr');
-        filas.forEach(function(fila) {
-            const celdaActualizacion = fila.cells[5];
-            if (celdaActualizacion) {
-                const badgeActualizado = celdaActualizacion.querySelector('.badge.bg-warning');
-                if (badgeActualizado && badgeActualizado.textContent.includes('Actualizado')) {
-                    fila.style.backgroundColor = 'rgba(255, 193, 7, 0.08)';
-                }
-            }
-        });
-
-        // ===============================================
-        // CONFIRMACIÓN AL ELIMINAR USUARIO
-        // ===============================================
-        const botonesEliminar = document.querySelectorAll('button[onclick*="confirm"]');
-        botonesEliminar.forEach(boton => {
-            boton.onclick = function(e) {
-                e.preventDefault();
-                const form = this.closest('form');
-                const fila = this.closest('tr');
-                const nombreUsuario = fila.cells[0].textContent.trim();
-                
-                if (confirm(`¿Estás seguro de eliminar al usuario "${nombreUsuario}"?\n\nEsta acción no se puede deshacer.`)) {
-                    form.submit();
-                }
-            };
-        });
-
-        // 🔥 FOCUS AUTOMÁTICO EN EL CAMPO DE BÚSQUEDA AL CARGAR
-        if (!campoBusqueda.value) {
-            campoBusqueda.focus();
-        }
     });
+
+    limpiarFiltros.addEventListener('click', function(e) {
+        e.preventDefault();
+        limpiarTodosFiltros();
+    });
+});
 </script>
 @endpush

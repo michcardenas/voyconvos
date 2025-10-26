@@ -29,7 +29,8 @@ public function create() {
     // Solo los tipos que manejas en tu sistema
     $tiposConfiguracion = [
         'comision' => '💰 Comisión (%)',
-        'gasolina' => '⛽ Precio Gasolina ($)'
+        'gasolina' => '⛽ Precio Gasolina ($)',
+        'maximo' => '💰 Maximo permitido',
     ];
     
     return view('admin.create_configuracion', compact('tiposConfiguracion'));
@@ -38,7 +39,7 @@ public function create() {
 public function store(Request $request)
 {
     $request->validate([
-        'nombre' => 'required|in:gasolina,comision',
+        'nombre' => 'required|in:gasolina,comision,maximo',
         'valor' => 'nullable|string',
     ]);
 
