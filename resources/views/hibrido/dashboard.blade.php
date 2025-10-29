@@ -597,26 +597,43 @@ body {
     .search-box {
         padding: 1.5rem;
     }
-    
+
     .search-bar {
         flex-direction: column;
         padding: 1rem;
         gap: 1rem;
     }
-    
+
     .search-field {
         width: 100%;
         border-bottom: 1px solid #e2e8f0;
         padding-bottom: 1rem;
     }
-    
+
     .search-field:last-of-type {
         border-bottom: none;
         padding-bottom: 0;
     }
-    
+
     .search-tabs {
         flex-direction: column;
+    }
+}
+
+/* Viajes Cards */
+.viaje-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+}
+
+.btn-ver-viaje:hover {
+    background: #173d61 !important;
+    transform: translateX(2px);
+}
+
+@media (max-width: 768px) {
+    .viajes-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 </style>
@@ -736,72 +753,125 @@ body {
     </div>
 </div>
 
-<!-- Features Section -->
+<!-- Mis Viajes Publicados Section -->
+@if($esConductor && $viajesProximosList->count() > 0)
 <div class="features-section">
-    <h2 class="section-title">¿Por qué viajar con VoyConVos?</h2>
-    
-    <div class="features-grid">
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-piggy-bank"></i>
+    <h2 class="section-title">Mis Viajes Publicados</h2>
+
+    <div class="viajes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+        @foreach($viajesProximosList as $viaje)
+        <div class="viaje-card" style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; border-left: 4px solid var(--vcv-primary);">
+            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                    <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                        {{ $viaje->estado == 'pendiente' ? 'background: #fef3c7; color: #92400e;' : '' }}
+                        {{ $viaje->estado == 'en_curso' ? 'background: #dbeafe; color: #1e40af;' : '' }}
+                        {{ $viaje->estado == 'finalizado' ? 'background: #d1fae5; color: #065f46;' : '' }}
+                        {{ $viaje->estado == 'cancelado' ? 'background: #fee2e2; color: #991b1b;' : '' }}">
+                        {{ ucfirst($viaje->estado) }}
+                    </span>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--vcv-accent);">
+                        ${{ number_format($viaje->valor_persona, 2, ',', '.') }}
+                    </div>
+                    <div style="font-size: 0.75rem; color: #64748b;">por persona</div>
+                </div>
             </div>
-            <h3 class="feature-title">Ahorra dinero</h3>
-            <p class="feature-description">
-                Comparte los gastos del viaje y ahorra hasta un 70% comparado con otros medios de transporte
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-users"></i>
+
+            <div style="margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--vcv-accent); width: 16px;"></i>
+                    <span style="font-weight: 600; color: var(--vcv-dark);">
+                        @php
+                            $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                            $count = count($origenParts);
+                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                            $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                            // Eliminar códigos postales (alfanuméricos como B1650, C1405, etc)
+                            $origenCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $origenCorta);
+                        @endphp
+                        {{ $origenCorta }}
+                    </span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <i class="fas fa-map-marker-alt" style="color: var(--vcv-primary); width: 16px;"></i>
+                    <span style="font-weight: 600; color: var(--vcv-dark);">
+                        @php
+                            $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                            $count = count($destinoParts);
+                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                            $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                            // Eliminar códigos postales (alfanuméricos como B1650, C1405, etc)
+                            $destinoCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $destinoCorta);
+                        @endphp
+                        {{ $destinoCorta }}
+                    </span>
+                </div>
             </div>
-            <h3 class="feature-title">Conoce gente nueva</h3>
-            <p class="feature-description">
-                Conecta con personas que comparten tu ruta y haz del viaje una experiencia memorable
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-leaf"></i>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                <div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">
+                        <i class="far fa-calendar" style="margin-right: 4px;"></i>Fecha
+                    </div>
+                    <div style="font-weight: 600; color: var(--vcv-dark);">
+                        {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}
+                    </div>
+                </div>
+                <div>
+                    <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">
+                        <i class="far fa-clock" style="margin-right: 4px;"></i>Hora
+                    </div>
+                    <div style="font-weight: 600; color: var(--vcv-dark);">
+                        {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                    </div>
+                </div>
             </div>
-            <h3 class="feature-title">Cuida el planeta</h3>
-            <p class="feature-description">
-                Reduce tu huella de carbono viajando juntos. Menos autos, menos contaminación
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-shield-alt"></i>
+
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                <div>
+                    <div style="font-size: 0.875rem; color: #64748b;">
+                        <i class="fas fa-users" style="margin-right: 4px;"></i>
+                        <span style="font-weight: 600; color: var(--vcv-primary);">{{ $viaje->puestos_disponibles }}</span> de {{ $viaje->puestos_totales }} disponibles
+                    </div>
+                    @if($viaje->reservas->count() > 0)
+                    <div style="font-size: 0.875rem; color: #64748b; margin-top: 0.25rem;">
+                        <i class="fas fa-check-circle" style="margin-right: 4px; color: var(--vcv-accent);"></i>
+                        {{ $viaje->reservas->count() }} reserva(s)
+                    </div>
+                    @endif
+                </div>
+                <a href="{{ route('conductor.viaje.detalles', $viaje->id) }}"
+                   class="btn-ver-viaje"
+                   style="padding: 0.5rem 1.25rem; background: var(--vcv-primary); color: white; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem;">
+                    Ver detalles
+                    <i class="fas fa-arrow-right"></i>
+                </a>
             </div>
-            <h3 class="feature-title">Viaja seguro</h3>
-            <p class="feature-description">
-                Todos los conductores están verificados. Revisa calificaciones y comentarios antes de reservar
-            </p>
         </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-clock"></i>
-            </div>
-            <h3 class="feature-title">Flexibilidad total</h3>
-            <p class="feature-description">
-                Elige el horario que mejor te convenga. Hay viajes disponibles todos los días
-            </p>
-        </div>
-        
-        <div class="feature-card">
-            <div class="feature-icon">
-                <i class="fas fa-mobile-alt"></i>
-            </div>
-            <h3 class="feature-title">Fácil de usar</h3>
-            <p class="feature-description">
-                Reserva en segundos desde tu computadora o celular. Sin complicaciones
-            </p>
-        </div>
+        @endforeach
     </div>
 </div>
+@elseif($esConductor)
+<div class="features-section">
+    <div style="text-align: center; padding: 3rem 2rem; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, var(--vcv-light) 0%, rgba(76, 175, 80, 0.1) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem; color: var(--vcv-primary);">
+            <i class="fas fa-car"></i>
+        </div>
+        <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--vcv-primary); margin-bottom: 1rem;">
+            No tienes viajes publicados
+        </h3>
+        <p style="color: #64748b; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Comienza a publicar tus viajes y conecta con pasajeros que comparten tu ruta. Es fácil y rápido.
+        </p>
+        <a href="{{ route('conductor.gestion') }}" class="btn-publish">
+            <i class="fas fa-plus-circle"></i>
+            Publicar mi primer viaje
+        </a>
+    </div>
+</div>
+@endif
 
 <!-- How it Works -->
 <div class="how-it-works">

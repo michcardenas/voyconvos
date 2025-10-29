@@ -1,116 +1,231 @@
 @extends('layouts.app_dashboard')
 
+@section('title', 'Detalles del Viaje')
+
 @section('content')
 <style>
-    /* Variables para mantener consistencia */
     :root {
+        --primary: #003366;
+        --success: #00C853;
+        --danger: #FF1744;
+        --warning: #FFC107;
+        --light: #f5f7fa;
         --vcv-primary: #003366;
-        --vcv-primary-light: #004080;
-        --vcv-info: #00BFFF;
-        --vcv-success: #28a745;
-        --vcv-warning: #ffc107;
-        --vcv-danger: #dc3545;
-        --border-color: rgba(0, 51, 102, 0.1);
-        --shadow-card: 0 4px 12px rgba(0, 51, 102, 0.1);
-        --shadow-soft: 0 2px 8px rgba(0, 51, 102, 0.08);
-        --border-radius: 12px;
-        --transition: all 0.3s ease;
     }
 
-    /* TUS CLASES ORIGINALES */
-    .text-vcv {
-        color: #003366;
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
     }
 
-    .shadow-sm {
-        box-shadow: var(--shadow-soft);
+    body {
+        font-family: 'Segoe UI', system-ui, sans-serif;
+        background: var(--light);
+    }
+
+    .container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem 1.5rem;
     }
 
     /* Header de la página */
     .page-header {
-        background: linear-gradient(135deg, var(--vcv-primary) 0%, var(--vcv-primary-light) 100%);
-        color: white;
-        padding: 2rem;
-        border-radius: var(--border-radius);
+        background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+        padding: 2.5rem 2rem;
+        border-radius: 20px;
         margin-bottom: 2rem;
-        box-shadow: var(--shadow-card);
+        text-align: center;
+        box-shadow: 0 8px 32px rgba(0, 51, 102, 0.15);
     }
 
     .page-header h2 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.8rem;
         color: white;
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
     }
 
     .page-header p {
-        margin: 0.5rem 0 0 0;
-        opacity: 0.9;
+        color: rgba(255, 255, 255, 0.9);
         font-size: 1rem;
+        margin: 0;
     }
 
-    /* Cards modernas */
+    @media (max-width: 768px) {
+        .page-header {
+            padding: 1.5rem 1rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+
+        .page-header p {
+            font-size: 0.875rem;
+        }
+    }
+
+    /* Current time */
+    .current-time {
+        background: white;
+        padding: 1rem;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 51, 102, 0.08);
+        text-align: center;
+        font-weight: 600;
+        color: var(--primary);
+    }
+
+    /* Card principal */
     .modern-card {
         background: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-card);
-        border: 1px solid var(--border-color);
-        overflow: hidden;
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(0, 51, 102, 0.1);
         margin-bottom: 2rem;
-        transition: var(--transition);
+        overflow: hidden;
+        transition: all 0.3s ease;
     }
 
     .modern-card:hover {
+        box-shadow: 0 12px 40px rgba(0, 51, 102, 0.15);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(0, 51, 102, 0.15);
     }
 
     .card-header-custom {
-        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-        padding: 1.5rem;
-        border-bottom: 2px solid #f0f0f0;
+        background: linear-gradient(135deg, var(--primary) 0%, #0066CC 100%);
+        padding: 1.5rem 2rem;
+        border-bottom: none;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .card-header-custom::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 100%);
+        pointer-events: none;
     }
 
     .card-title-custom {
-        color: var(--vcv-primary);
-        font-weight: 600;
+        color: white;
         font-size: 1.3rem;
+        font-weight: 700;
         margin: 0;
+        line-height: 1.6;
+        word-wrap: break-word;
+        position: relative;
+        z-index: 1;
         display: flex;
         align-items: center;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .ruta-location {
+        display: inline-flex;
+        align-items: center;
         gap: 0.5rem;
+        background: rgba(255, 255, 255, 0.15);
+        padding: 0.5rem 1rem;
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        transition: all 0.3s ease;
+    }
+
+    .ruta-location:hover {
+        background: rgba(255, 255, 255, 0.25);
+        transform: translateY(-2px);
+    }
+
+    .ruta-arrow {
+        font-size: 1.5rem;
+        opacity: 0.8;
+    }
+
+    @media (max-width: 768px) {
+        .card-title-custom {
+            font-size: 0.9rem;
+            gap: 0.5rem;
+        }
+
+        .ruta-location {
+            padding: 0.4rem 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .ruta-arrow {
+            font-size: 1.2rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .card-title-custom {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .ruta-arrow {
+            transform: rotate(90deg);
+        }
     }
 
     .card-body-custom {
         padding: 2rem;
     }
 
-    /* Información del viaje en grid */
+    /* Grid de información del viaje */
     .trip-info-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
-        margin-bottom: 1.5rem;
+        margin-bottom: 2rem;
     }
 
     .info-item {
         display: flex;
         align-items: center;
-        padding: 1rem;
-        background: #f8f9fa;
-        border-radius: 8px;
-        border-left: 4px solid var(--vcv-info);
-        transition: var(--transition);
+        gap: 1rem;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+        border-radius: 16px;
+        border: 2px solid #e0e7ff;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .info-item::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary) 0%, #00BFFF 100%);
+        opacity: 0;
+        transition: opacity 0.3s ease;
     }
 
     .info-item:hover {
-        background: #e9ecef;
-        transform: translateX(5px);
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 51, 102, 0.15);
+        border-color: #00BFFF;
+    }
+
+    .info-item:hover::before {
+        opacity: 1;
     }
 
     .info-item .icon {
-        margin-right: 0.75rem;
-        font-size: 1.2rem;
+        font-size: 2rem;
+        flex-shrink: 0;
     }
 
     .info-item .content {
@@ -118,680 +233,644 @@
     }
 
     .info-item .label {
-        font-weight: 600;
-        color: var(--vcv-primary);
         font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
+        color: #64748b;
+        font-weight: 600;
         margin-bottom: 0.25rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
     }
 
     .info-item .value {
-        color: #495057;
-        font-weight: 500;
-        font-size: 1rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--primary);
     }
 
-    /* Estado del viaje */
-    .status-badge {
-        padding: 0.5rem 1rem;
-        border-radius: 20px;
+    /* Botón Iniciar Viaje */
+    #iniciarViajeContainer {
+        margin: 1.5rem 0;
+        text-align: center;
+        display: none;
+    }
+
+    #btnIniciarViaje {
+        background: linear-gradient(135deg, var(--success) 0%, #69F0AE 100%);
+        color: white;
+        border: none;
+        padding: 1.25rem 3rem;
+        font-size: 1.2rem;
+        font-weight: 700;
+        border-radius: 16px;
+        cursor: pointer;
+        box-shadow: 0 8px 24px rgba(0, 200, 83, 0.3);
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    #btnIniciarViaje:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 32px rgba(0, 200, 83, 0.4);
+    }
+
+    #btnIniciarViaje:active {
+        transform: translateY(-1px);
+    }
+
+    #countdown {
+        margin-top: 1rem;
+        font-size: 0.95rem;
+        color: #64748b;
         font-weight: 600;
-        font-size: 0.85rem;
-        text-transform: uppercase;
-        letter-spacing: 0.3px;
-        box-shadow: var(--shadow-soft);
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        text-transform: capitalize;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .status-badge.bg-success {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #15803d;
     }
 
     .status-badge.bg-primary {
-        background: linear-gradient(45deg, var(--vcv-primary), var(--vcv-primary-light)) !important;
+        background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+        color: #0369a1;
+    }
+
+    .status-badge.bg-warning {
+        background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+        color: #92400e;
+    }
+
+    .status-badge.bg-info {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        color: #1e40af;
+    }
+
+    .status-badge.bg-danger {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+
+    @media (max-width: 768px) {
+        .status-badge {
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+        }
+    }
+
+    /* Botones modernos */
+    .btn-modern {
+        padding: 0.75rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        border: 2px solid transparent;
+    }
+
+    .btn-sm.btn-modern {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-outline-primary.btn-modern {
+        background: white;
+        color: var(--primary);
+        border-color: var(--primary);
+    }
+
+    .btn-outline-primary.btn-modern:hover {
+        background: var(--primary);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 51, 102, 0.3);
+    }
+
+    .btn-success.btn-modern {
+        background: linear-gradient(135deg, var(--success) 0%, #69F0AE 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+    }
+
+    .btn-success.btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+    }
+
+    .btn-danger.btn-modern {
+        background: linear-gradient(135deg, var(--danger) 0%, #FF5252 100%);
+        color: white;
+        border: none;
+        box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
+    }
+
+    .btn-danger.btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 23, 68, 0.4);
+    }
+
+    .btn-warning.btn-modern {
+        background: linear-gradient(135deg, var(--warning) 0%, #FFD54F 100%);
+        color: #000;
+        border: none;
+        box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-warning.btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(255, 193, 7, 0.4);
+    }
+
+    .btn-outline-danger.btn-modern {
+        background: white;
+        color: var(--danger);
+        border-color: var(--danger);
+    }
+
+    .btn-outline-danger.btn-modern:hover {
+        background: var(--danger);
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(255, 23, 68, 0.3);
+    }
+
+    /* Mapa */
+    #map {
+        height: 400px;
+        width: 100%;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(0, 51, 102, 0.1);
     }
 
     /* Sección de pasajeros */
     .passengers-section {
         background: white;
-        border-radius: var(--border-radius);
-        box-shadow: var(--shadow-card);
-        border: 1px solid var(--border-color);
-        overflow: hidden;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 8px 32px rgba(0, 51, 102, 0.1);
+        margin-bottom: 2rem;
     }
 
     .section-header {
-        background: linear-gradient(135deg, var(--vcv-primary) 0%, var(--vcv-primary-light) 100%);
-        color: white;
-        padding: 1.5rem;
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.2rem;
+        color: var(--primary);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #e0e7ff;
     }
 
     .passenger-card {
-        border-bottom: 1px solid #f0f0f0;
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border: 2px solid #e0e7ff;
+        border-radius: 16px;
         padding: 1.5rem;
-        transition: var(--transition);
-            display: flex;
-    justify-content: space-between;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
     }
 
     .passenger-card:hover {
-        background: #f8f9fa;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 24px rgba(0, 51, 102, 0.12);
+        border-color: #00BFFF;
     }
 
-    .passenger-card:last-child {
-        border-bottom: none;
-    }
-
-    .passenger-info {
+    .passenger-details {
         display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        gap: 1rem;
+        flex-direction: column;
+        gap: 0.75rem;
+        margin-bottom: 1rem;
     }
 
-    .passenger-details h6 {
-        color: var(--vcv-primary);
-        font-weight: 600;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
+    .passenger-name-clickable {
+        color: var(--primary);
+        font-size: 1.15rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin: 0;
+    }
+
+    .passenger-name-clickable:hover {
+        color: #0066CC;
+        transform: translateX(5px);
     }
 
     .passenger-meta {
-        color: #6c757d;
+        color: #64748b;
         font-size: 0.9rem;
-        margin-bottom: 0.25rem;
+        font-weight: 500;
     }
 
     .rating-display {
-        color: var(--vcv-warning);
+        color: var(--warning);
         font-weight: 600;
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
-    /* Sección de calificaciones */
-    .ratings-section {
-        background: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        margin-top: 1rem;
-        border: 1px solid #e9ecef;
-    }
-
-    .ratings-title {
-        color: var(--vcv-primary);
-        font-weight: 600;
-        font-size: 1rem;
-        margin-bottom: 1rem;
+    .passenger-actions {
         display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        margin-top: 1rem;
+    }
+
+    /* Badges de verificación */
+    .badge.verification-mini {
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        display: inline-flex;
         align-items: center;
         gap: 0.5rem;
     }
 
-    .rating-item {
-        background: white;
-        border-radius: 6px;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        border-left: 3px solid var(--vcv-success);
-        box-shadow: var(--shadow-soft);
+    .badge.verification-mini.verified {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #15803d;
     }
 
-    .rating-item:last-child {
-        margin-bottom: 0;
+    .badge.verification-mini.not-verified {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+
+    /* Sección de calificaciones */
+    .ratings-section {
+        margin-top: 1.5rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 12px;
+        border: 2px dashed #e0e7ff;
+    }
+
+    .ratings-title {
+        color: var(--primary);
+        font-size: 1.1rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .rating-item {
+        background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+        border-left: 4px solid #00BFFF;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
     }
 
     .rating-header {
-        font-weight: 600;
-        color: var(--vcv-primary);
+        font-weight: 700;
+        color: var(--primary);
         margin-bottom: 0.5rem;
+        font-size: 0.95rem;
     }
 
     .rating-comment {
-        color: #495057;
-        line-height: 1.5;
+        color: #334155;
+        font-size: 0.95rem;
+        line-height: 1.6;
         margin-bottom: 0.5rem;
     }
 
     .rating-stars {
-        color: var(--vcv-warning);
+        color: var(--warning);
         font-weight: 600;
+        font-size: 0.9rem;
     }
 
     .no-rating {
-        color: #6c757d;
+        color: #94a3b8;
         font-style: italic;
-        background: #f8f9fa;
-        padding: 0.75rem;
-        border-radius: 6px;
-        border-left: 3px solid #dee2e6;
-    }
-
-    /* Botones modernos */
-    .btn-modern {
-        border-radius: 6px;
-        font-weight: 500;
-        padding: 0.6rem 1.2rem;
-        font-size: 0.9rem;
-        transition: var(--transition);
-        border: 1px solid transparent;
-    }
-
-    .btn-outline-primary.btn-modern {
-        border-color: var(--vcv-primary);
-        color: var(--vcv-primary);
-    }
-
-    .btn-outline-primary.btn-modern:hover {
-        background-color: var(--vcv-primary);
-        border-color: var(--vcv-primary);
-        color: white;
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(0, 51, 102, 0.2);
-    }
-
-    .btn-danger.btn-modern {
-        background: linear-gradient(45deg, var(--vcv-danger), #c82333);
-        border: none;
-        color: white;
-    }
-
-    .btn-danger.btn-modern:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 3px 10px rgba(220, 53, 69, 0.3);
-    }
-
-    .btn-link.btn-modern {
-        color: var(--vcv-info);
-        font-weight: 500;
-        text-decoration: none;
-    }
-
-    .btn-link.btn-modern:hover {
-        color: var(--vcv-primary);
-        transform: translateX(5px);
-    }
-
-    /* Alert mejorado */
-    .alert-modern {
-        border: none;
+        padding: 1rem;
+        text-align: center;
+        background: #f8fafc;
         border-radius: 8px;
-        padding: 1.5rem;
-        background: rgba(0, 191, 255, 0.05);
-        border-left: 4px solid var(--vcv-info);
-        color: #495057;
+    }
+
+    /* Alertas modernas */
+    .alert-modern {
+        border-radius: 16px;
+        padding: 1.25rem;
+        border: 2px solid;
+        font-weight: 500;
+    }
+
+    .alert-secondary.alert-modern {
+        background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+
+    .alert-warning {
+        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        border-color: #ffe082;
+        color: #92400e;
     }
 
     /* Área de acciones */
     .actions-area {
-        background: white;
-        border-radius: var(--border-radius);
-        padding: 1.5rem;
-        box-shadow: var(--shadow-card);
-        border: 1px solid var(--border-color);
+        margin-top: 2rem;
         text-align: center;
     }
-    .passenger-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
 
-.passenger-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.modal-content {
-    border-radius: 12px;
-    border: none;
-}
-.passenger-name-clickable {
-    cursor: pointer;
-    color: #0066cc;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    border-bottom: 1px dotted #0066cc;
-    display: inline-block;
-}
-
-.passenger-name-clickable:hover {
-    color: #004499;
-    border-bottom: 1px solid #004499;
-    transform: translateY(-1px);
-}
-
-.passenger-profile {
-    padding: 1rem 0;
-}
-
-.profile-photo-container {
-    position: relative;
-    display: inline-block;
-}
-
-.profile-photo {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid #e9ecef;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.no-photo-placeholder {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #6c757d, #adb5bd);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 2.5rem;
-    border: 4px solid #e9ecef;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-
-.rating-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background: linear-gradient(135deg, #ffc107, #ff8c00);
-    color: white;
-    padding: 0.375rem 1rem;
-    border-radius: 20px;
-    font-weight: 500;
-    font-size: 0.9rem;
-    box-shadow: 0 2px 8px rgba(255, 193, 7, 0.3);
-}
-
-.passenger-details-grid {
-    display: grid;
-    gap: 1rem;
-}
-
-.detail-item {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    padding: 1rem;
-    background: #f8f9fa;
-    border-radius: 10px;
-    border-left: 4px solid transparent;
-    transition: all 0.2s ease;
-}
-
-.detail-item:hover {
-    background: #e9ecef;
-    transform: translateX(5px);
-}
-
-.detail-item:nth-child(1) { border-left-color: #007bff; }
-.detail-item:nth-child(2) { border-left-color: #28a745; }
-.detail-item:nth-child(3) { border-left-color: #dc3545; }
-.detail-item:nth-child(4) { border-left-color: #17a2b8; }
-
-.detail-icon {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: white;
-    border-radius: 50%;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-}
-
-.detail-content {
-    flex: 1;
-}
-
-.detail-label {
-    font-size: 0.85rem;
-    color: #6c757d;
-    font-weight: 500;
-    margin-bottom: 0.25rem;
-}
-
-.detail-value {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #2c3e50;
-}
-/* Estilos para el estado de verificación */
-.verification-status-container {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
-.verification-badge {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-align: center;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    border: 1px solid;
-    transition: all 0.2s ease;
-}
-
-/* Estado verificado - verde suave */
-.verification-badge.verified {
-    background-color: #d1f2eb;
-    color: #0d6d3f;
-    border-color: #85d1b2;
-}
-
-/* Estado no verificado - rojo suave */
-.verification-badge.not-verified {
-    background-color: #fdeaea;
-    color: #c53030;
-    border-color: #f5b7b7;
-}
-
-/* Estado pendiente - amarillo suave */
-.verification-badge.pending {
-    background-color: #fff3cd;
-    color: #856404;
-    border-color: #ffd60a;
-}
-
-/* Iconos para los estados */
-.verification-badge i {
-    font-size: 0.875rem;
-}
-
-/* Responsive para dispositivos móviles */
-@media (max-width: 576px) {
-    .verification-badge {
-        font-size: 0.8rem;
-        padding: 0.4rem 0.8rem;
+    .btn-link.btn-modern {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.3s ease;
     }
-}
-@media (max-width: 768px) {
-    .profile-photo,
-    .no-photo-placeholder {
+
+    .btn-link.btn-modern:hover {
+        color: #0066CC;
+        transform: translateX(-5px);
+    }
+
+    /* Modal personalizado de confirmación */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal-container {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.4s ease;
+    }
+
+    .modal-icon {
         width: 80px;
         height: 80px;
+        margin: 0 auto 1.5rem;
+        background: linear-gradient(135deg, #00C853 0%, #69F0AE 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
     }
-    
-    .no-photo-placeholder i {
-        font-size: 2rem;
+
+    .modal-title {
+        text-align: center;
+        color: var(--primary);
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
     }
-    
+
+    .modal-message {
+        text-align: center;
+        color: #64748b;
+        font-size: 1rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .modal-highlight {
+        color: var(--primary);
+        font-weight: 700;
+    }
+
+    .modal-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .modal-btn {
+        padding: 1rem 2rem;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 1rem;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .modal-btn-cancel {
+        background: #f1f5f9;
+        color: #475569;
+    }
+
+    .modal-btn-cancel:hover {
+        background: #e2e8f0;
+        transform: translateY(-2px);
+    }
+
+    .modal-btn-confirm {
+        background: linear-gradient(135deg, var(--success) 0%, #69F0AE 100%);
+        color: white;
+        box-shadow: 0 4px 12px rgba(0, 200, 83, 0.3);
+    }
+
+    .modal-btn-confirm:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 200, 83, 0.4);
+    }
+
+    .modal-btn-confirm.loading {
+        background: #94a3b8;
+        cursor: not-allowed;
+        position: relative;
+    }
+
+    .modal-btn-confirm.loading::after {
+        content: "⏳";
+        animation: spin 1s linear infinite;
+    }
+
+    /* Modal de Bootstrap mejorado */
+    .modal-content {
+        border-radius: 20px;
+        border: none;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+        border-radius: 20px 20px 0 0;
+        border-bottom: 2px solid #e0e7ff;
+        padding: 1.5rem 2rem;
+    }
+
+    .modal-header.bg-danger {
+        background: linear-gradient(135deg, var(--danger) 0%, #FF5252 100%) !important;
+    }
+
+    .modal-header.bg-primary {
+        background: linear-gradient(135deg, var(--primary) 0%, #0066CC 100%) !important;
+    }
+
+    .modal-body {
+        padding: 2rem;
+    }
+
+    .modal-footer {
+        border-top: 2px solid #e0e7ff;
+        padding: 1.5rem 2rem;
+    }
+
+    /* Profile photo en modal */
+    .passenger-profile {
+        text-align: center;
+    }
+
+    .profile-photo-section {
+        margin-bottom: 2rem;
+    }
+
+    .profile-photo-container {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 1rem;
+        border-radius: 50%;
+        overflow: hidden;
+        border: 4px solid var(--primary);
+        box-shadow: 0 8px 24px rgba(0, 51, 102, 0.2);
+    }
+
+    .profile-photo {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    .no-photo-placeholder {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3rem;
+        color: #94a3b8;
+    }
+
+    .rating-badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+        border-radius: 50px;
+        font-weight: 600;
+        color: #92400e;
+    }
+
+    .verification-status-container {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .verification-badge {
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 0.95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .verification-badge.verified {
+        background: linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%);
+        color: #15803d;
+    }
+
+    .verification-badge.not-verified {
+        background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
+        color: #991b1b;
+    }
+
+    .passenger-details-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
     .detail-item {
-        padding: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f8fafc;
+        border-radius: 12px;
     }
-    
+
     .detail-icon {
-        width: 35px;
-        height: 35px;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
-}
 
-/* Modal Overlay */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(8px);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
+    .detail-content {
+        flex: 1;
+    }
+
+    .detail-label {
+        font-size: 0.8rem;
+        color: #94a3b8;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    /* Animaciones */
+    @keyframes fadeIn {
+        from {
             opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
         }
-
-        .modal-overlay.show {
+        to {
             opacity: 1;
-            visibility: visible;
         }
-
-        /* Modal Container */
-        .modal-container {
-            background: linear-gradient(145deg, #ffffff, #f8f9fa);
-            border-radius: 20px;
-            padding: 2rem;
-            max-width: 450px;
-            width: 90%;
-            box-shadow: 
-                0 20px 60px rgba(0, 0, 0, 0.15),
-                0 0 0 1px rgba(255, 255, 255, 0.1);
-            transform: scale(0.8) translateY(30px);
-            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .modal-overlay.show .modal-container {
-            transform: scale(1) translateY(0);
-        }
-
-        /* Decorative Elements */
-        .modal-container::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #28a745, #20c997, #17a2b8);
-        }
-
-        /* Icon */
-        .modal-icon {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 1.5rem;
-            background: linear-gradient(135deg, #28a745, #20c997);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(40, 167, 69, 0.3);
-            animation: pulse 2s infinite;
-        }
-
-        .modal-icon i {
-            font-size: 2.5rem;
-            color: white;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
-        /* Title */
-        .modal-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            line-height: 1.3;
-        }
-
-        /* Message */
-        .modal-message {
-            color: #6c757d;
-            font-size: 1rem;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-        }
-
-        .modal-highlight {
-            color: #28a745;
-            font-weight: 600;
-        }
-
-        /* Buttons Container */
-        .modal-buttons {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
-        }
-
-        /* Button Base */
-        .modal-btn {
-            padding: 12px 30px;
-            border: none;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            min-width: 120px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Confirm Button */
-        .modal-btn-confirm {
-            background: linear-gradient(135deg, #28a745, #20c997);
-            color: white;
-            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
-        }
-
-        .modal-btn-confirm:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.5);
-        }
-
-        .modal-btn-confirm:active {
-            transform: translateY(0);
-        }
-
-        /* Cancel Button */
-        .modal-btn-cancel {
-            background: #f8f9fa;
-            color: #6c757d;
-            border: 2px solid #e9ecef;
-        }
-
-        .modal-btn-cancel:hover {
-            background: #e9ecef;
-            color: #495057;
-            transform: translateY(-2px);
-        }
-
-        /* Loading State */
-        .modal-btn.loading {
-            pointer-events: none;
-            opacity: 0.8;
-        }
-
-        .modal-btn.loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 20px;
-            height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid transparent;
-            border-top: 2px solid currentColor;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Responsive */
-        @media (max-width: 480px) {
-            .modal-container {
-                margin: 1rem;
-                padding: 1.5rem;
-            }
-
-            .modal-buttons {
-                flex-direction: column;
-            }
-
-            .modal-btn {
-                width: 100%;
-            }
-        }
-</style>
-
-<style>
-.passenger-actions {
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-}
-
-.passenger-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 1rem;
-}
-
-.modal-content {
-    border-radius: 12px;
-    border: none;
-}
-
-@media (max-width: 768px) {
-    .passenger-info {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .passenger-actions {
-        justify-content: flex-start;
-    }
-}
-@media (max-width: 768px) {
-    .passenger-info {
-        flex-direction: column;
-        gap: 1rem;
-    }
-    
-    .passenger-actions {
-        justify-content: flex-start;
-    }
-}
-    /* Responsive */
-    @media (max-width: 768px) {
-        .page-header {
-            padding: 1.5rem;
-        }
-        
-        .page-header h2 {
-            font-size: 1.5rem;
-        }
-        
-        .trip-info-grid {
-            grid-template-columns: 1fr;
-        }
-        
-        .passenger-info {
-            flex-direction: column;
-            align-items: flex-start;
-        }
-        
-        .card-body-custom {
-            padding: 1.5rem;
-        }
-    }
-
-    /* Animación de entrada */
-    .modern-card {
-        animation: slideUp 0.5s ease-out;
     }
 
     @keyframes slideUp {
@@ -804,6 +883,117 @@
             transform: translateY(0);
         }
     }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+
+        .trip-info-grid {
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+        }
+
+        .info-item .icon {
+            font-size: 1.5rem;
+        }
+
+        .info-item .value {
+            font-size: 1rem;
+        }
+
+        .card-body-custom {
+            padding: 1.5rem;
+        }
+
+        .card-header-custom {
+            padding: 1.25rem 1.5rem;
+        }
+
+        .passenger-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .passenger-actions {
+            flex-direction: column;
+        }
+
+        .passenger-card {
+            padding: 1.25rem;
+        }
+
+        .passengers-section {
+            padding: 1.5rem;
+        }
+
+        .section-header {
+            font-size: 1.1rem;
+        }
+
+        .modal-container {
+            padding: 1.5rem;
+        }
+
+        .modal-buttons {
+            flex-direction: column;
+        }
+
+        .modal-btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        #map {
+            height: 300px;
+        }
+
+        .modern-card {
+            border-radius: 16px;
+        }
+
+        #btnIniciarViaje {
+            padding: 1rem 2rem;
+            font-size: 1rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .container {
+            padding: 0.5rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.25rem;
+        }
+
+        .card-title-custom {
+            font-size: 0.875rem;
+        }
+
+        .info-item .label {
+            font-size: 0.75rem;
+        }
+
+        .info-item .value {
+            font-size: 0.9rem;
+        }
+
+        .btn-modern {
+            font-size: 0.8rem;
+            padding: 0.5rem 1rem;
+        }
+    }
 </style>
 
 <div class="container py-4">
@@ -813,148 +1003,162 @@
         <p>Información completa sobre tu viaje y pasajeros</p>
     </div>
 
- <!-- Card principal con detalles del viaje -->
-  <!-- imprimir hora actual -->
-   <div class="current-time">
-       <!-- <strong>Hora actual:</strong> {{ \Carbon\Carbon::now()->format('H:i') }} -->
-   </div>
-<div class="modern-card">
-    <div class="card-header-custom">
-        <h5 class="card-title-custom">📍 {{ $viaje->origen_direccion }} → {{ $viaje->destino_direccion }}</h5>
-    </div>
-    <div class="card-body-custom">
-        <div class="trip-info-grid">
-            <div class="info-item">
-                <div class="icon">🗓</div>
-                <div class="content">
-               <div class="label">Fecha</div>
-<div class="value">{{ $viaje->fecha_salida ? \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') : 'No definida' }}</div>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="icon">🕒</div>
-                <div class="content">
-                    <div class="label">Hora</div>
-                    <div class="value">{{ $viaje->hora_salida ? substr($viaje->hora_salida, 0, 5) : 'No definida' }}</div>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="icon">🎯</div>
-                <div class="content">
-                    <div class="label">Distancia estimada</div>
-                    <div class="value">{{ $viaje->distancia_km ?? '—' }} km</div>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="icon">🚗</div>
-                <div class="content">
-                    <div class="label">Vehículo</div>
-                   <div class="value">
+    <!-- Card principal con detalles del viaje -->
+    <div class="modern-card">
+        <div class="card-header-custom">
+            <h5 class="card-title-custom">
+                <span class="ruta-location">
+                    <i class="fas fa-map-marker-alt" style="color: #00C853;"></i>
                     @php
-                        $marca = $viaje->registroConductor->marca_vehiculo ?? null;
-                        $modelo = $viaje->registroConductor->modelo_vehiculo ?? null;
+                        $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                        $count = count($origenParts);
+                        $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                        $origenCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $origenCorta);
                     @endphp
+                    {{ $origenCorta }}
+                </span>
 
-                    {{ $viaje->vehiculo !== $marca ? ($viaje->vehiculo . ' - ') : '' }}
-                    {{ $marca }} {{ $modelo }}
-                </div>
+                <span class="ruta-arrow">→</span>
 
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="icon">💰</div>
-                <div class="content">
-                    <div class="label">Valor por persona</div>
-                    <div class="value">${{ number_format($viaje->valor_persona, 2) }}</div>
-                </div>
-            </div>
-            
-            <div class="info-item">
-                <div class="icon">🪑</div>
-                <div class="content">
-                    <div class="label">Puestos disponibles</div>
-                    <div class="value">{{ $viaje->puestos_disponibles }}</div>
-                </div>
-            </div>
+                <span class="ruta-location">
+                    <i class="fas fa-map-marker-alt" style="color: #FF1744;"></i>
+                    @php
+                        $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                        $count = count($destinoParts);
+                        $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                        $destinoCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $destinoCorta);
+                    @endphp
+                    {{ $destinoCorta }}
+                </span>
+            </h5>
         </div>
+        <div class="card-body-custom">
+            <div class="trip-info-grid">
+                <div class="info-item">
+                    <div class="icon">🗓</div>
+                    <div class="content">
+                        <div class="label">Fecha</div>
+                        <div class="value">{{ $viaje->fecha_salida ? \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') : 'No definida' }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="icon">🕒</div>
+                    <div class="content">
+                        <div class="label">Hora</div>
+                        <div class="value">{{ $viaje->hora_salida ? substr($viaje->hora_salida, 0, 5) : 'No definida' }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="icon">🎯</div>
+                    <div class="content">
+                        <div class="label">Distancia estimada</div>
+                        <div class="value">{{ $viaje->distancia_km ?? '—' }} km</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="icon">🚗</div>
+                    <div class="content">
+                        <div class="label">Vehículo</div>
+                        <div class="value">
+                            @php
+                                $marca = $viaje->registroConductor->marca_vehiculo ?? null;
+                                $modelo = $viaje->registroConductor->modelo_vehiculo ?? null;
+                            @endphp
+                            {{ $viaje->vehiculo !== $marca ? ($viaje->vehiculo . ' - ') : '' }}
+                            {{ $marca }} {{ $modelo }}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="icon">💰</div>
+                    <div class="content">
+                        <div class="label">Valor por persona</div>
+                        <div class="value">${{ number_format($viaje->valor_persona, 2, ',', '.') }}</div>
+                    </div>
+                </div>
+                
+                <div class="info-item">
+                    <div class="icon">🪑</div>
+                    <div class="content">
+                        <div class="label">Puestos disponibles</div>
+                        <div class="value">{{ $viaje->puestos_disponibles }}</div>
+                    </div>
+                </div>
+            </div>
 
-        <!-- 🚀 BOTÓN INICIAR VIAJE - Solo visible 15 min antes de la hora -->
-        <div id="iniciarViajeContainer" style=" margin: 1.5rem 0; text-align: center;">
+            <!-- 🚀 BOTÓN INICIAR VIAJE -->
+            <div id="iniciarViajeContainer">
                 <button id="btnIniciarViaje"
-                    class="btn btn-success btn-lg px-5 py-3"
-                    onclick="mostrarModalConfirmacion({{ $viaje->id }})">  <!-- ← Cambio aquí -->
-                🚀 INICIAR VIAJE
-            </button>
-            <div id="countdown" class="mt-2 text-muted" style="font-size: 0.9rem;"></div>
-        </div>
-
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
-            <div>
-                <span class="label" style="font-weight: 600; color: var(--vcv-primary); font-size: 0.85rem; text-transform: uppercase; margin-right: 0.5rem;">📦 Estado:</span>
-                <span class="status-badge {{ $viaje->estado === 'Listo_para_iniciar' ? 'bg-success' : 'bg-primary' }} text-light">
-                {{ ucfirst(str_replace('_', ' ', $viaje->estado)) }}
-            </span>
-
+                    onclick="mostrarModalConfirmacion({{ $viaje->id }})">
+                    🚀 INICIAR VIAJE
+                </button>
+                <div id="countdown"></div>
             </div>
 
-            @if($viaje->conductor_id === auth()->id())
-            <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" class="d-inline">
-                @csrf
-                @method('DELETE')
-                <button type="button" class="btn btn-sm btn-outline-danger btn-modern btn-cancelar-viaje">
-                    ❌ Cancelar
-                </button>
-            </form>
-            @endif
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem;">
+                <div>
+                    <span class="label" style="font-weight: 600; color: var(--vcv-primary); font-size: 0.85rem; text-transform: uppercase; margin-right: 0.5rem;">📦 Estado:</span>
+                    <span class="status-badge {{ $viaje->estado === 'Listo_para_iniciar' ? 'bg-success' : 'bg-primary' }} text-light">
+                        {{ ucfirst(str_replace('_', ' ', $viaje->estado)) }}
+                    </span>
+                </div>
+
+                @if($viaje->conductor_id === auth()->id())
+                <form method="POST" action="{{ route('conductor.viaje.eliminar', $viaje->id) }}" class="d-inline">
+                    @csrf
+                    @method('DELETE')
+                    <button type="button" class="btn btn-sm btn-outline-danger btn-modern btn-cancelar-viaje">
+                        ❌ Cancelar
+                    </button>
+                </form>
+                @endif
+            </div>
         </div>
     </div>
-</div>
 
-    <!-- NUEVA SECCIÓN: Mapa de la ruta -->
-    <div class="modern-card" style="margin-top: 1.5rem;">
+    <!-- Mapa de la ruta -->
+    <div class="modern-card">
         <div class="card-header-custom">
             <h5 class="card-title-custom">🗺️ Ruta del Viaje</h5>
         </div>
         <div class="card-body-custom">
-            <div id="map" style="height: 400px; width: 100%; border-radius: 8px;"></div>
+            <div id="map"></div>
         </div>
     </div>
 
-
-<!-- Sección de pasajeros -->
-<!-- Sección de pasajeros -->
-<div class="passengers-section">
-    <h4 class="section-header">👥 Pasajeros</h4>
-    
-    @if($viaje->reservas->count())
-        @foreach($viaje->reservas as $reserva)
-        <div class="passenger-card">
-          <div class="passenger-details">
-                        <h6 class="passenger-name-clickable"
-                            onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
-                            {{ $reserva->user->name }}
-                        </h6>
-                        
-                        <!-- Badge de verificación en la tarjeta -->
-                        @if($reserva->user->verificado == 1)
-                            <span class="badge verification-mini verified">
-                                <i class="fas fa-shield-check"></i> Verificado
-                            </span>
-                        @else
-                            <span class="badge verification-mini not-verified">
-                                <i class="fas fa-shield-exclamation"></i> No Verificado
-                            </span>
-                        @endif
-                        
-                        <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
-                        @if($reserva->user->calificacion)
-                            <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
-                        @endif
-                    </div>
+    <!-- Sección de pasajeros -->
+    <div class="passengers-section">
+        <h4 class="section-header">👥 Pasajeros</h4>
+        
+        @if($viaje->reservas->count())
+            @foreach($viaje->reservas as $reserva)
+            <div class="passenger-card">
+                <div class="passenger-details">
+                    <h6 class="passenger-name-clickable"
+                        onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
+                        {{ $reserva->user->name }}
+                    </h6>
+                    
+                    @if($reserva->user->verificado == 1)
+                        <span class="badge verification-mini verified">
+                            <i class="fas fa-shield-check"></i> Verificado
+                        </span>
+                    @else
+                        <span class="badge verification-mini not-verified">
+                            <i class="fas fa-shield-exclamation"></i> No Verificado
+                        </span>
+                    @endif
+                    
+                    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
+                    @if($reserva->user->calificacion)
+                        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
+                    @endif
+                </div>
+                
                 <div class="passenger-actions">
                     <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
                     
@@ -986,45 +1190,46 @@
                         <span class="badge bg-danger">❌ Cancelado por conductor</span>
                     @endif
                 </div>
-            </div>
-            
-            <div class="ratings-section">
-                <h5 class="ratings-title">🗣️ Calificaciones</h5>
                 
-                {{-- Comentario del pasajero al conductor --}}
-                @if($reserva->calificacionPasajero)
-                    <div class="rating-item">
-                        <div class="rating-header">Pasajero comentó:</div>
-                        <div class="rating-comment">{{ $reserva->calificacionPasajero->comentario }}</div>
-                        <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</div>
-                    </div>
-                @else
-                    <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
-                @endif
-                
-                {{-- Comentario del conductor al pasajero --}}
-                @if($reserva->calificacionConductor)
-                    <div class="rating-item">
-                        <div class="rating-header">Conductor comentó:</div>
-                        <div class="rating-comment">{{ $reserva->calificacionConductor->comentario }}</div>
-                        <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</div>
-                    </div>
-                @else
-                    <div class="no-rating">Aún no has calificado a este pasajero.</div>
-                @endif
+                <div class="ratings-section">
+                    <h5 class="ratings-title">🗣️ Calificaciones</h5>
+                    
+                    @if($reserva->calificacionPasajero)
+                        <div class="rating-item">
+                            <div class="rating-header">Pasajero comentó:</div>
+                            <div class="rating-comment">{{ $reserva->calificacionPasajero->comentario }}</div>
+                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</div>
+                        </div>
+                    @else
+                        <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
+                    @endif
+                    
+                    @if($reserva->calificacionConductor)
+                        <div class="rating-item">
+                            <div class="rating-header">Conductor comentó:</div>
+                            <div class="rating-comment">{{ $reserva->calificacionConductor->comentario }}</div>
+                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</div>
+                        </div>
+                    @else
+                        <div class="no-rating">Aún no has calificado a este pasajero.</div>
+                    @endif
+                </div>
             </div>
-        </div>
-        @endforeach
-    @else
-        <div style="padding: 2rem;">
+            @endforeach
+        @else
             <div class="alert alert-secondary alert-modern">
                 Aún no hay pasajeros en este viaje.
             </div>
-        </div>
-    @endif
+        @endif
+    </div>
+
+    <!-- Botón de regreso -->
+    <div class="actions-area">
+        <a href="{{ route('dashboard') }}" class="btn-link btn-modern">⬅️ Volver al dashboard</a>
+    </div>
 </div>
 
-<!-- Modal Simple de Aprobación -->
+<!-- Modal de Aprobación -->
 <div class="modal fade" id="aprobarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -1041,7 +1246,6 @@
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                
                 <form id="approvalForm" method="POST" style="display: inline;">
                     @csrf
                     <input type="hidden" name="accion" value="verificar">
@@ -1051,13 +1255,14 @@
         </div>
     </div>
 </div>
-<!-- Modal de Rechazar Pasajero -->
-<div class="modal fade" id="rechazarModal" tabindex="-1" aria-labelledby="rechazarModalLabel" aria-hidden="true">
+
+<!-- Modal de Rechazar -->
+<div class="modal fade" id="rechazarModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title" id="rechazarModalLabel">❌ Rechazar Pasajero</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <h5 class="modal-title">❌ Rechazar Pasajero</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <p id="modalRejectionMessage">¿Estás seguro de rechazar a este pasajero?</p>
@@ -1076,6 +1281,7 @@
         </div>
     </div>
 </div>
+
 <!-- Modal de Información del Pasajero -->
 <div class="modal fade" id="passengerInfoModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -1089,25 +1295,19 @@
             </div>
             <div class="modal-body">
                 <div class="passenger-profile">
-                    <div class="profile-photo-section text-center mb-4">
+                    <div class="profile-photo-section">
                         <div class="profile-photo-container">
-                            <img id="passengerPhoto"
-                                  src=""
-                                  alt="Foto del pasajero"
-                                  class="profile-photo">
+                            <img id="passengerPhoto" src="" alt="Foto del pasajero" class="profile-photo">
                             <div id="noPhotoPlaceholder" class="no-photo-placeholder" style="display: none;">
                                 <i class="fas fa-user"></i>
                             </div>
                         </div>
-                        <h5 id="passengerName" class="mt-3 mb-1"></h5>
+                        <h5 id="passengerName"></h5>
                         <div id="passengerRating" class="rating-badge"></div>
                     </div>
                     
-                    <!-- Label de verificación -->
-                    <div class="verification-status-container mb-3">
-                        <div id="verificationStatus" class="verification-badge">
-                            <!-- Este contenido se llenará dinámicamente -->
-                        </div>
+                    <div class="verification-status-container">
+                        <div id="verificationStatus" class="verification-badge"></div>
                     </div>
                     
                     <div class="passenger-details-grid">
@@ -1160,59 +1360,55 @@
     </div>
 </div>
 
-    <!-- Botón de regreso -->
-    <div class="actions-area" style="margin-top: 2rem;">
-        <a href="{{ route('dashboard') }}" class="btn btn-link btn-modern">⬅️ Volver al dashboard</a>
-    </div>
-</div>
-<div class="modal fade" id="modalCancelarViaje" tabindex="-1" aria-labelledby="modalCancelarViajeLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="modalCancelarViajeLabel">❌ Cancelar Viaje</h5>
-        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <form id="formCancelarViaje" method="POST">
-        @csrf
-        @method('DELETE')
-        <div class="modal-body">
-          <div class="alert alert-warning">
-            <strong>⚠️ Atención:</strong> Esta acción no se puede deshacer. El viaje será cancelado permanentemente.
-          </div>
-          
-          <div class="mb-3">
-            <label for="motivoCancelacion" class="form-label">
-              <strong>Motivo de cancelación</strong> <span class="text-danger">*</span>
-            </label>
-            <textarea class="form-control" id="motivoCancelacion" name="motivo_cancelacion" rows="4" 
-                      placeholder="Explica brevemente por qué cancelas este viaje..." required></textarea>
-            <div class="form-text">Este motivo será visible para los pasajeros que tenían reservas.</div>
-          </div>
-          
-          <div class="mb-3">
-            <div class="form-check">
-              <input class="form-check-input" type="checkbox" id="confirmarCancelacion" required>
-              <label class="form-check-label" for="confirmarCancelacion">
-                Confirmo que deseo cancelar este viaje
-              </label>
+<!-- Modal Cancelar Viaje -->
+<div class="modal fade" id="modalCancelarViaje" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">❌ Cancelar Viaje</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
-          </div>
+            <form id="formCancelarViaje" method="POST">
+                @csrf
+                @method('DELETE')
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Atención:</strong> Esta acción no se puede deshacer. El viaje será cancelado permanentemente.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="motivoCancelacion" class="form-label">
+                            <strong>Motivo de cancelación</strong> <span class="text-danger">*</span>
+                        </label>
+                        <textarea class="form-control" id="motivoCancelacion" name="motivo_cancelacion" rows="4" 
+                                  placeholder="Explica brevemente por qué cancelas este viaje..." required></textarea>
+                        <div class="form-text">Este motivo será visible para los pasajeros que tenían reservas.</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" id="confirmarCancelacion" required>
+                            <label class="form-check-label" for="confirmarCancelacion">
+                                Confirmo que deseo cancelar este viaje
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-ban me-1"></i> Cancelar Viaje
+                    </button>
+                </div>
+            </form>
         </div>
-        
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-            <i class="fas fa-times me-1"></i> Cerrar
-          </button>
-          <button type="submit" class="btn btn-danger">
-            <i class="fas fa-ban me-1"></i> Cancelar Viaje
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
 </div>
 
-<!-- Agregar después de tu botón existente -->
+<!-- Modal Confirmar Inicio de Viaje -->
 <div id="modalConfirmarViaje" class="modal-overlay">
     <div class="modal-container">
         <div class="modal-icon">
@@ -1238,92 +1434,16 @@
         </div>
     </div>
 </div>
-<!-- Cargar Google Maps para esta vista -->
+
+<!-- Google Maps -->
 <script async defer src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initViajeDetalleMapa&v=3.55"></script>
 
-<!-- Script para el mapa -->
 <script>
-// Función para configurar los datos de aprobación
-function setApprovalData(reservaId, nombrePasajero, accion = 'verificar') {
-    // Configurar el formulario de aprobación
-    const form = document.getElementById('approvalForm');
-    form.action = `/conductor/verificar-pasajero/${reservaId}`;
-    
-    // Actualizar el mensaje del modal
-    const modalMessage = document.getElementById('modalMessage');
-    modalMessage.textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
-}
-
-// Función para configurar los datos de rechazo
-function setRejectionData(reservaId, nombrePasajero) {
-    // Configurar el formulario de rechazo
-    const form = document.getElementById('rejectionForm');
-    form.action = `/conductor/verificar-pasajero/${reservaId}`;
-    
-    // Actualizar el mensaje del modal
-    const modalMessage = document.getElementById('modalRejectionMessage');
-    modalMessage.textContent = `¿Estás seguro de rechazar a ${nombrePasajero}?`;
-}
-
-function showPassengerModal(userId, name, photo, email, phone, city, rating, seats, userVerified = 0) {
-    // Llenar información básica
-    document.getElementById('passengerName').textContent = name;
-    document.getElementById('passengerEmail').textContent = email;
-    document.getElementById('passengerPhone').textContent = phone;
-    document.getElementById('passengerCity').textContent = city;
-    document.getElementById('passengerSeats').textContent = seats;
-    
-    // Manejar foto del perfil
-    const photoElement = document.getElementById('passengerPhoto');
-    const placeholderElement = document.getElementById('noPhotoPlaceholder');
-    
-    if (photo && photo.trim() !== '') {
-        photoElement.src = photo;
-        photoElement.style.display = 'block';
-        placeholderElement.style.display = 'none';
-    } else {
-        photoElement.style.display = 'none';
-        placeholderElement.style.display = 'flex';
-    }
-    
-    // Manejar calificación
-    const ratingElement = document.getElementById('passengerRating');
-    if (rating && rating > 0) {
-        ratingElement.innerHTML = `<i class="fas fa-star text-warning"></i> ${rating}/5`;
-        ratingElement.style.display = 'block';
-    } else {
-        ratingElement.innerHTML = '<span class="text-muted">Sin calificación</span>';
-        ratingElement.style.display = 'block';
-    }
-    
-    // Manejar estado de verificación del usuario
-    const verificationElement = document.getElementById('verificationStatus');
-    verificationElement.className = 'verification-badge'; // Reset clases
-    
-    if (parseInt(userVerified) === 1) {
-        verificationElement.classList.add('verified');
-        verificationElement.innerHTML = '<i class="fas fa-shield-check"></i> Usuario Verificado';
-    } else {
-        verificationElement.classList.add('not-verified');
-        verificationElement.innerHTML = '<i class="fas fa-shield-exclamation"></i> Usuario No Verificado';
-    }
-    
-    // Mostrar el modal
-    const modal = new bootstrap.Modal(document.getElementById('passengerInfoModal'));
-    modal.show();
-}
-function setApprovalData(reservaId, nombrePasajero) {
-    // Configurar el formulario
-    const form = document.getElementById('approvalForm');
-    form.action = `/conductor/verificar-pasajero/${reservaId}`;
-    
-    // Actualizar el mensaje del modal
-    const modalMessage = document.getElementById('modalMessage');
-    modalMessage.textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
-}
+// ========================================
+// FUNCIONES DEL MAPA
+// ========================================
 function initViajeDetalleMapa() {
     try {
-        // Coordenadas del origen y destino desde Laravel
         const origen = {
             lat: parseFloat({{ $viaje->origen_lat }}),
             lng: parseFloat({{ $viaje->origen_lng }})
@@ -1334,17 +1454,19 @@ function initViajeDetalleMapa() {
             lng: parseFloat({{ $viaje->destino_lng }})
         };
 
-        console.log('Coordenadas origen:', origen);
-        console.log('Coordenadas destino:', destino);
-
-        // Inicializar el mapa
         const map = new google.maps.Map(document.getElementById('map'), {
             zoom: 12,
             center: origen,
-            mapTypeId: 'roadmap'
+            mapTypeId: 'roadmap',
+            styles: [
+                {
+                    featureType: 'poi',
+                    elementType: 'labels',
+                    stylers: [{ visibility: 'off' }]
+                }
+            ]
         });
 
-        // Crear marcadores primero
         const markerOrigen = new google.maps.Marker({
             position: origen,
             map: map,
@@ -1363,19 +1485,17 @@ function initViajeDetalleMapa() {
             }
         });
 
-        // Ajustar vista para mostrar ambos puntos
         const bounds = new google.maps.LatLngBounds();
         bounds.extend(origen);
         bounds.extend(destino);
         map.fitBounds(bounds);
 
-        // Intentar mostrar la ruta (si falla, al menos tenemos los marcadores)
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer({
-            suppressMarkers: true, // Usamos nuestros marcadores personalizados
+            suppressMarkers: true,
             polylineOptions: {
-                strokeColor: '#4285f4',
-                strokeWeight: 4
+                strokeColor: '#003366',
+                strokeWeight: 5
             }
         });
         
@@ -1388,32 +1508,161 @@ function initViajeDetalleMapa() {
         }, function(response, status) {
             if (status === 'OK') {
                 directionsRenderer.setDirections(response);
-                console.log('Ruta cargada exitosamente');
-            } else {
-                console.log('No se pudo cargar la ruta, pero los marcadores están visibles. Error:', status);
             }
         });
 
     } catch (error) {
         console.error('Error al inicializar el mapa:', error);
-        document.getElementById('map').innerHTML = '<div style="padding: 20px; text-align: center; color: #666;">Error al cargar el mapa. Verifica la configuración de Google Maps.</div>';
     }
 }
 
-// Función para cargar el mapa cuando esté listo
-function loadMap() {
-    if (typeof google !== 'undefined' && google.maps) {
-        initViajeDetalleMapa();
+window.initViajeDetalleMapa = initViajeDetalleMapa;
+
+// ========================================
+// FUNCIONES DE MODALES
+// ========================================
+function setApprovalData(reservaId, nombrePasajero, accion = 'verificar') {
+    const form = document.getElementById('approvalForm');
+    form.action = `/conductor/verificar-pasajero/${reservaId}`;
+    document.getElementById('modalMessage').textContent = `¿Estás seguro de aprobar a ${nombrePasajero}?`;
+}
+
+function setRejectionData(reservaId, nombrePasajero) {
+    const form = document.getElementById('rejectionForm');
+    form.action = `/conductor/verificar-pasajero/${reservaId}`;
+    document.getElementById('modalRejectionMessage').textContent = `¿Estás seguro de rechazar a ${nombrePasajero}?`;
+}
+
+function showPassengerModal(userId, name, photo, email, phone, city, rating, seats, userVerified = 0) {
+    document.getElementById('passengerName').textContent = name;
+    document.getElementById('passengerEmail').textContent = email;
+    document.getElementById('passengerPhone').textContent = phone;
+    document.getElementById('passengerCity').textContent = city;
+    document.getElementById('passengerSeats').textContent = seats;
+    
+    const photoElement = document.getElementById('passengerPhoto');
+    const placeholderElement = document.getElementById('noPhotoPlaceholder');
+    
+    if (photo && photo.trim() !== '') {
+        photoElement.src = photo;
+        photoElement.style.display = 'block';
+        placeholderElement.style.display = 'none';
     } else {
-        setTimeout(loadMap, 100); // Intentar cada 100ms
+        photoElement.style.display = 'none';
+        placeholderElement.style.display = 'flex';
     }
+    
+    const ratingElement = document.getElementById('passengerRating');
+    if (rating && rating > 0) {
+        ratingElement.innerHTML = `<i class="fas fa-star text-warning"></i> ${rating}/5`;
+        ratingElement.style.display = 'block';
+    } else {
+        ratingElement.innerHTML = '<span class="text-muted">Sin calificación</span>';
+        ratingElement.style.display = 'block';
+    }
+    
+    const verificationElement = document.getElementById('verificationStatus');
+    verificationElement.className = 'verification-badge';
+    
+    if (parseInt(userVerified) === 1) {
+        verificationElement.classList.add('verified');
+        verificationElement.innerHTML = '<i class="fas fa-shield-check"></i> Usuario Verificado';
+    } else {
+        verificationElement.classList.add('not-verified');
+        verificationElement.innerHTML = '<i class="fas fa-shield-exclamation"></i> Usuario No Verificado';
+    }
+    
+    const modal = new bootstrap.Modal(document.getElementById('passengerInfoModal'));
+    modal.show();
 }
 
-// Inicializar cuando carga la página
-document.addEventListener('DOMContentLoaded', function() {
+// ========================================
+// MODAL PERSONALIZADO INICIAR VIAJE
+// ========================================
+let viajeIdActual = null;
 
-    loadMap();
-     // Obtener todos los botones de cancelar
+function mostrarModalConfirmacion(viajeId) {
+    viajeIdActual = viajeId;
+    const modal = document.getElementById('modalConfirmarViaje');
+    modal.classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+
+function cerrarModal() {
+    const modal = document.getElementById('modalConfirmarViaje');
+    modal.classList.remove('show');
+    document.body.style.overflow = '';
+    viajeIdActual = null;
+}
+
+function confirmarInicioViaje() {
+    if (!viajeIdActual) return;
+    iniciarViaje(viajeIdActual);
+    cerrarModal();
+}
+
+document.getElementById('modalConfirmarViaje').addEventListener('click', function(e) {
+    if (e.target === this) {
+        cerrarModal();
+    }
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        cerrarModal();
+    }
+});
+
+function iniciarViaje(viajeId) {
+    const confirmBtn = document.querySelector('.modal-btn-confirm');
+    const originalText = confirmBtn.innerHTML;
+    confirmBtn.innerHTML = '';
+    confirmBtn.classList.add('loading');
+    
+    const btn = document.getElementById('btnIniciarViaje');
+    if (btn) {
+        const btnOriginalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
+        btn.disabled = true;
+    }
+
+    fetch(`/conductor/viaje/${viajeId}/iniciar`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            window.location.href = data.redirect_url;
+        } else {
+            alert('Error al iniciar viaje: ' + data.message);
+            confirmBtn.innerHTML = originalText;
+            confirmBtn.classList.remove('loading');
+            if (btn) {
+                btn.innerHTML = btnOriginalText;
+                btn.disabled = false;
+            }
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al conectar con el servidor');
+        confirmBtn.innerHTML = originalText;
+        confirmBtn.classList.remove('loading');
+        if (btn) {
+            btn.innerHTML = btnOriginalText;
+            btn.disabled = false;
+        }
+    });
+}
+
+// ========================================
+// MODAL CANCELAR VIAJE
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
     const botonesCancelar = document.querySelectorAll('.btn-cancelar-viaje');
     const modal = new bootstrap.Modal(document.getElementById('modalCancelarViaje'));
     const form = document.getElementById('formCancelarViaje');
@@ -1421,19 +1670,12 @@ document.addEventListener('DOMContentLoaded', function() {
     botonesCancelar.forEach(boton => {
         boton.addEventListener('click', function(e) {
             e.preventDefault();
-            
-            // Obtener la URL del formulario original
             const actionUrl = this.closest('form').action;
-            
-            // Establecer la acción del modal al mismo endpoint
             form.action = actionUrl;
-            
-            // Mostrar el modal
             modal.show();
         });
     });
     
-    // Validación del formulario
     form.addEventListener('submit', function(e) {
         const motivo = document.getElementById('motivoCancelacion').value.trim();
         const confirmacion = document.getElementById('confirmarCancelacion').checked;
@@ -1450,48 +1692,35 @@ document.addEventListener('DOMContentLoaded', function() {
             return false;
         }
         
-        // Deshabilitar el botón para evitar doble envío
         const submitBtn = this.querySelector('button[type="submit"]');
         submitBtn.disabled = true;
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Cancelando...';
     });
 
-      // Datos del viaje desde PHP
+    // ========================================
+    // SISTEMA DE BOTÓN INICIAR VIAJE
+    // ========================================
     const fechaSalida = '{{ $viaje->fecha_salida }}';
     const horaSalida = '{{ $viaje->hora_salida }}';
     const estadoViaje = '{{ $viaje->estado }}';
     
-    console.log('Datos del viaje:', { fechaSalida, horaSalida, estadoViaje });
-    
     if (!fechaSalida || !horaSalida) {
-        console.log('Fecha u hora de salida no definidas');
         return;
     }
     
     function verificarBotonIniciar() {
         const ahora = new Date();
-        
-        // 🔧 CORRECCIÓN: Formatear correctamente la fecha y hora
-        const fechaFormateada = fechaSalida.split(' ')[0]; // Solo la fecha (YYYY-MM-DD)
-        const horaFormateada = horaSalida.substring(0, 8); // Solo HH:MM:SS
-        
-        // Crear la fecha completa
+        const fechaFormateada = fechaSalida.split(' ')[0];
+        const horaFormateada = horaSalida.substring(0, 8);
         const fechaHoraSalida = new Date(fechaFormateada + 'T' + horaFormateada);
-        
-        // Calcular 15 minutos antes
         const tiempoActivacion = new Date(fechaHoraSalida.getTime() - (15 * 60 * 1000));
-        
-        // 🔧 CORRECCIÓN: Comparar fechas más flexiblemente
         const fechaAhora = ahora.toISOString().split('T')[0];
         const fechaViaje = fechaFormateada;
         const esMismoDia = fechaAhora === fechaViaje;
-        
-        // Verificar si estamos en el rango de tiempo (15 min antes hasta 3 horas después)
         const tiempoMaximo = new Date(fechaHoraSalida.getTime() + (3 * 60 * 60 * 1000));
         const enRangoTiempo = ahora >= tiempoActivacion && ahora <= tiempoMaximo;
         
-        // 🔧 TEMPORAL: Para testing, mostrar siempre si es el mismo día
-        const modoTesting = true; // Cambia a false cuando esté funcionando
+        const modoTesting = true;
         const deberiaVisible = modoTesting ? 
             (esMismoDia && estadoViaje !== 'iniciado') : 
             (esMismoDia && enRangoTiempo && estadoViaje !== 'iniciado');
@@ -1502,7 +1731,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (deberiaVisible) {
             container.style.display = 'block';
             
-            // Mostrar countdown
             const diff = fechaHoraSalida.getTime() - ahora.getTime();
             if (diff > 0) {
                 const horas = Math.floor(diff / (1000 * 60 * 60));
@@ -1517,145 +1745,20 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 const tiempoPasado = Math.abs(diff);
                 const minutosPasados = Math.floor(tiempoPasado / (1000 * 60));
-                if (minutosPasados < 180) { // Menos de 3 horas
+                if (minutosPasados < 180) {
                     countdown.textContent = `🚀 ¡Viaje disponible! (${minutosPasados} min desde la hora programada)`;
                 } else {
                     countdown.textContent = '⏰ Tiempo de salida expirado';
                 }
             }
         } else {
-            container.style.display = '';
+            container.style.display = 'none';
         }
-        
-        // 🔍 Debug detallado
-        console.log('🔍 Debug completo:', {
-            ahora: ahora.toLocaleString('es-AR'),
-            fechaHoraSalida: fechaHoraSalida.toLocaleString('es-AR'),
-            tiempoActivacion: tiempoActivacion.toLocaleString('es-AR'),
-            fechaAhora,
-            fechaViaje,
-            esMismoDia,
-            enRangoTiempo,
-            deberiaVisible,
-            estadoViaje,
-            modoTesting,
-            diferencia: `${Math.floor((fechaHoraSalida - ahora) / (1000 * 60))} minutos`
-        });
     }
     
-    // Verificar inmediatamente
     verificarBotonIniciar();
-    
-    // Verificar cada 10 segundos para testing
     setInterval(verificarBotonIniciar, 10000);
 });
-
-// También exponer la función globalmente por si acaso
-window.initViajeDetalleMapa = initViajeDetalleMapa;
-
-
- let viajeIdActual = null;
-
-        // Función para mostrar el modal (reemplaza el confirm())
-        function mostrarModalConfirmacion(viajeId = 123) {
-            viajeIdActual = viajeId;
-            const modal = document.getElementById('modalConfirmarViaje');
-            modal.classList.add('show');
-            
-            // Prevenir scroll del body
-            document.body.style.overflow = 'hidden';
-        }
-
-        // Función para cerrar el modal
-        function cerrarModal() {
-            const modal = document.getElementById('modalConfirmarViaje');
-            modal.classList.remove('show');
-            
-            // Restaurar scroll del body
-            document.body.style.overflow = '';
-            viajeIdActual = null;
-        }
-
-        // Función para confirmar el inicio del viaje
-        function confirmarInicioViaje() {
-            if (!viajeIdActual) return;
-            
-            // Aquí va tu lógica original de iniciarViaje()
-            iniciarViaje(viajeIdActual);
-            cerrarModal();
-        }
-
-        // Cerrar modal al hacer click fuera
-        document.getElementById('modalConfirmarViaje').addEventListener('click', function(e) {
-            if (e.target === this) {
-                cerrarModal();
-            }
-        });
-
-        // Cerrar modal con Escape
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                cerrarModal();
-            }
-        });
-
-        // Tu función original modificada
-        function iniciarViaje(viajeId) {
-            // Mostrar loading en el botón del modal
-            const confirmBtn = document.querySelector('.modal-btn-confirm');
-            const originalText = confirmBtn.innerHTML;
-            confirmBtn.innerHTML = '';
-            confirmBtn.classList.add('loading');
-            
-            // También actualizar el botón principal
-            const btn = document.getElementById('btnIniciarViaje');
-            if (btn) {
-                const btnOriginalText = btn.innerHTML;
-                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Iniciando...';
-                btn.disabled = true;
-            }
-
-            fetch(`/conductor/viaje/${viajeId}/iniciar`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Redirigir a verificar pasajeros
-                    window.location.href = data.redirect_url;
-                } else {
-                    alert('Error al iniciar viaje: ' + data.message);
-                    
-                    // Restaurar botones
-                    confirmBtn.innerHTML = originalText;
-                    confirmBtn.classList.remove('loading');
-                    
-                    if (btn) {
-                        btn.innerHTML = btnOriginalText;
-                        btn.disabled = false;
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                alert('Error al conectar con el servidor');
-                
-                // Restaurar botones
-                confirmBtn.innerHTML = originalText;
-                confirmBtn.classList.remove('loading');
-                
-                if (btn) {
-                    btn.innerHTML = btnOriginalText;
-                    btn.disabled = false;
-                }
-            });
-        }
-
-// 🎨 Efecto hover para el botón
-
 </script>
+
 @endsection

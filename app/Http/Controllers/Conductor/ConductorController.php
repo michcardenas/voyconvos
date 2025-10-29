@@ -575,12 +575,53 @@ public function viajeEnCurso(Viaje $viaje)
 }
 // 🔍 CONTROLADOR TEMPORAL PARA DEBUG
 
-public function verViajeFinalizados($viajeId) 
+/**
+ * Ver detalles de un viaje específico del conductor
+ */
+public function verViaje(Viaje $viaje)
+{
+    try {
+        // Verificar que el conductor sea el dueño del viaje
+        if ($viaje->conductor_id !== auth()->id()) {
+            return redirect()
+                ->route('conductor.gestion')
+                ->with('error', 'No tienes permisos para ver este viaje.');
+        }
+
+        // Cargar relaciones necesarias
+        $viaje->load(['reservas.user', 'conductor.registroConductor']);
+
+        // Calcular estadísticas del viaje
+        $estadisticas = [
+            'total_reservas' => $viaje->reservas->count(),
+            'reservas_confirmadas' => $viaje->reservas->whereIn('estado', ['confirmada', 'confirmado'])->count(),
+            'reservas_pendientes' => $viaje->reservas->where('estado', 'pendiente_pago')->count(),
+            'reservas_pendientes_confirmacion' => $viaje->reservas->where('estado', 'pendiente_confirmacion')->count(),
+            'puestos_reservados' => $viaje->reservas->whereIn('estado', ['confirmada', 'confirmado', 'pendiente_pago', 'pendiente_confirmacion'])->sum('cantidad_puestos'),
+            'ingresos_estimados' => $viaje->reservas->whereIn('estado', ['confirmada', 'confirmado'])->sum('total'),
+        ];
+
+        return view('conductor.viaje-detalles', compact('viaje', 'estadisticas'));
+
+    } catch (\Exception $e) {
+        \Log::error('Error al mostrar detalles del viaje', [
+            'viaje_id' => $viaje->id ?? 'desconocido',
+            'error' => $e->getMessage(),
+            'linea' => $e->getLine()
+        ]);
+
+        return redirect()
+            ->route('conductor.gestion')
+            ->with('error', 'Error al cargar los detalles del viaje.');
+    }
+}
+
+public function verViajeFinalizados($viajeId)
 {
     try {
         // 🔍 PASO 1: Cargar viaje SIN calificaciones primero
         $viaje = \App\Models\Viaje::with([
-            'reservas.user', 
+            'reservas.user',
             'conductor.registroConductor'
         ])
         ->where('id', $viajeId)
