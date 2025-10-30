@@ -660,18 +660,17 @@ public function confirmacionReserva(Reserva $reserva)
 }
 public function mostrarViajesDisponibles(Request $request) {
     $usuarioId = auth()->id();
-    $usuario = auth()->user(); // Obtener el usuario completo
+    $usuario = auth()->user();
 
     $viajesReservados = \DB::table('reservas')
         ->where('user_id', $usuarioId)
         ->pluck('viaje_id')
         ->toArray();
 
-    // Query base - AGREGADO FILTRO POR ESTADO
+    // Query base
     $query = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
-        ->where('estado', '!=', 'cancelado') // Excluir viajes cancelados
-        // O si prefieres ser más específico: ->where('estado', 'pendiente')
+        ->where('estado', '!=', 'cancelado')
         ->whereNotIn('id', $viajesReservados)
         ->with(['conductor' => function($query) {
             $query->leftJoin('vista_calificaciones_usuarios', function($join) {
@@ -679,38 +678,67 @@ public function mostrarViajesDisponibles(Request $request) {
                      ->where('vista_calificaciones_usuarios.tipo', '=', 'conductor');
             })
             ->select('users.*',
-                      'vista_calificaciones_usuarios.total_calificaciones',
+                     'vista_calificaciones_usuarios.total_calificaciones',
                      'vista_calificaciones_usuarios.promedio_calificacion as calificacion_promedio');
         }]);
 
-    // Filtro por número mínimo de puestos
+    // ✅ FILTRO MEJORADO: Aplicar filtros básicos primero
     if ($request->filled('puestos_minimos')) {
         $query->where('puestos_disponibles', '>=', $request->puestos_minimos);
     }
 
-    // Filtro por ciudad de origen
-    if ($request->filled('ciudad_origen')) {
-        $query->where('origen_direccion', 'LIKE', '%' . $request->ciudad_origen . '%');
-    }
-
-    // Filtro por ciudad de destino
-    if ($request->filled('ciudad_destino')) {
-        $query->where('destino_direccion', 'LIKE', '%' . $request->ciudad_destino . '%');
-    }
-
-    // Filtro por fecha de salida
     if ($request->filled('fecha_salida')) {
         $query->whereDate('fecha_salida', $request->fecha_salida);
     }
 
-    $viajesDisponibles = $query->orderBy('fecha_salida', 'asc')->get();
+    // Obtener TODOS los viajes que cumplen los criterios básicos
+    $viajesDisponibles = $query->get();
 
-    // Formatear direcciones 
+    // ✅ FILTRADO FLEXIBLE POR CIUDADES (después de obtener los viajes)
+    if ($request->filled('ciudad_origen')) {
+        $ciudadOrigenBuscada = $this->normalizarCiudad($request->ciudad_origen);
+        
+        $viajesDisponibles = $viajesDisponibles->filter(function($viaje) use ($ciudadOrigenBuscada) {
+            $ciudadViaje = $this->normalizarCiudad($this->extraerCiudad($viaje->origen_direccion));
+            
+            // Coincidencia flexible: contiene o es similar
+            return stripos($ciudadViaje, $ciudadOrigenBuscada) !== false 
+                   || stripos($ciudadOrigenBuscada, $ciudadViaje) !== false
+                   || $this->esSimilar($ciudadViaje, $ciudadOrigenBuscada);
+        });
+    }
 
-    // Obtener ciudades únicas para los filtros - TAMBIÉN AGREGAR FILTRO AQUÍ
+    if ($request->filled('ciudad_destino')) {
+        $ciudadDestinoBuscada = $this->normalizarCiudad($request->ciudad_destino);
+        
+        $viajesDisponibles = $viajesDisponibles->filter(function($viaje) use ($ciudadDestinoBuscada) {
+            $ciudadViaje = $this->normalizarCiudad($this->extraerCiudad($viaje->destino_direccion));
+            
+            // Coincidencia flexible: contiene o es similar
+            return stripos($ciudadViaje, $ciudadDestinoBuscada) !== false 
+                   || stripos($ciudadDestinoBuscada, $ciudadViaje) !== false
+                   || $this->esSimilar($ciudadViaje, $ciudadDestinoBuscada);
+        });
+    }
+
+    // Determinar ordenamiento
+    $ordenamiento = $request->get('ordenar', 'fecha');
+
+    if ($ordenamiento === 'cercania') {
+        $viajesDisponibles = $viajesDisponibles->map(function($viaje) {
+            $viaje->distancia_km = $this->calcularDistanciaDesdeReferencia($viaje);
+            return $viaje;
+        })->sortBy('distancia_km');
+    } elseif ($ordenamiento === 'precio') {
+        $viajesDisponibles = $viajesDisponibles->sortBy('valor_persona');
+    } else {
+        $viajesDisponibles = $viajesDisponibles->sortBy('fecha_salida');
+    }
+
+    // ✅ OBTENER CIUDADES PARA LOS FILTROS (usando extraerCiudad)
     $ciudadesOrigen = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
-        ->where('estado', '!=', 'cancelado') // Filtro agregado
+        ->where('estado', '!=', 'cancelado')
         ->distinct()
         ->pluck('origen_direccion')
         ->map(function($direccion) {
@@ -723,7 +751,7 @@ public function mostrarViajesDisponibles(Request $request) {
 
     $ciudadesDestino = Viaje::whereDate('fecha_salida', '>=', now())
         ->where('puestos_disponibles', '>', 0)
-        ->where('estado', '!=', 'cancelado') // Filtro agregado
+        ->where('estado', '!=', 'cancelado')
         ->distinct()
         ->pluck('destino_direccion')
         ->map(function($direccion) {
@@ -734,12 +762,11 @@ public function mostrarViajesDisponibles(Request $request) {
         ->sort()
         ->values();
 
-    // Obtener calificaciones del usuario autenticado
+    // Calificaciones del usuario
     $calificacionesUsuario = \DB::table('vista_calificaciones_usuarios')
         ->where('usuario_id', $usuarioId)
         ->first();
 
-    // Si no tiene calificaciones, crear objeto vacío con valores por defecto
     if (!$calificacionesUsuario) {
         $calificacionesUsuario = (object) [
             'usuario_id' => $usuarioId,
@@ -749,7 +776,7 @@ public function mostrarViajesDisponibles(Request $request) {
         ];
     }
 
-    // Verificar estado del perfil del usuario
+    // Verificar estado del perfil
     $estadoVerificacion = $this->verificarEstadoPerfil($usuario);
 
     return view('pasajero.viajesDisponibles', compact(
@@ -759,6 +786,56 @@ public function mostrarViajesDisponibles(Request $request) {
         'calificacionesUsuario',
         'estadoVerificacion'
     ));
+}
+/**
+ * Normalizar ciudad para comparación
+ */
+private function normalizarCiudad($ciudad)
+{
+    if (!$ciudad) return '';
+    
+    // Convertir a minúsculas
+    $ciudad = mb_strtolower($ciudad, 'UTF-8');
+    
+    // Remover acentos
+    $ciudad = $this->removerAcentos($ciudad);
+    
+    // Remover caracteres especiales y espacios múltiples
+    $ciudad = preg_replace('/[^a-z0-9\s]/', '', $ciudad);
+    $ciudad = preg_replace('/\s+/', ' ', $ciudad);
+    
+    return trim($ciudad);
+}
+
+/**
+ * Remover acentos
+ */
+private function removerAcentos($str)
+{
+    $acentos = [
+        'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u',
+        'Á' => 'A', 'É' => 'E', 'Í' => 'I', 'Ó' => 'O', 'Ú' => 'U',
+        'ñ' => 'n', 'Ñ' => 'N',
+        'ü' => 'u', 'Ü' => 'U'
+    ];
+    
+    return strtr($str, $acentos);
+}
+
+/**
+ * Verificar si dos ciudades son similares (Levenshtein distance)
+ */
+private function esSimilar($ciudad1, $ciudad2, $umbral = 3)
+{
+    if (empty($ciudad1) || empty($ciudad2)) return false;
+    
+    // Calcular distancia de Levenshtein
+    $distancia = levenshtein(
+        substr($ciudad1, 0, 255), 
+        substr($ciudad2, 0, 255)
+    );
+    
+    return $distancia <= $umbral;
 }
 
 /**
@@ -821,20 +898,57 @@ private function obtenerMensajeVerificacion($verificado, $perfilCompleto)
 private function extraerCiudad($direccion)
 {
     if (!$direccion) return '';
-    
-    // Formato: "MQ2X+7P Mosquera, Cundinamarca, Colombia"
-    $partes = explode(',', $direccion);
-    
-    if (count($partes) >= 1) {
-        // Tomar la primera parte: "MQ2X+7P Mosquera"
-        $primeraParte = trim($partes[0]);
-        
-        // Dividir por espacios y tomar la última palabra (la ciudad)
-        $palabras = explode(' ', $primeraParte);
-        return trim(end($palabras));
+
+    // Limpiar códigos postales alfanuméricos (B1650, C1405, C1416IEB, etc)
+    $direccion = preg_replace('/\b[A-Z]\d{4}[A-Z]*\b\s*/i', '', $direccion);
+
+    // Formato esperado: "Calle 123, Villa Maipú, Provincia de Buenos Aires, Argentina"
+    $partes = array_map('trim', explode(',', $direccion));
+    $count = count($partes);
+
+    // Si tiene 4 o más partes: "Calle 123, Ciudad, Provincia, País"
+    // Tomar ciudad y provincia (penúltimas 2)
+    if ($count >= 4) {
+        $ciudad = trim($partes[$count - 3]);
+        $provincia = trim($partes[$count - 2]);
+
+        // Limpiar números de calle de la ciudad si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        return $ciudad . ', ' . $provincia;
     }
-    
-    return '';
+
+    // Si tiene 3 partes: "Ciudad, Provincia, País"
+    if ($count >= 3) {
+        $ciudad = trim($partes[$count - 3]);
+        $provincia = trim($partes[$count - 2]);
+
+        // Limpiar números de calle si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        return $ciudad . ', ' . $provincia;
+    }
+
+    // Si tiene 2 partes: "Ciudad, País" o "Provincia, País"
+    elseif ($count >= 2) {
+        $ciudad = trim($partes[$count - 2]);
+
+        // Limpiar números de calle si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        $resultado = $ciudad;
+    }
+
+    // Filtrar si el resultado tiene más de 2 números (probablemente es una dirección con calle)
+    if ($resultado) {
+        // Contar cuántos números tiene
+        preg_match_all('/\d/', $resultado, $matches);
+        if (count($matches[0]) > 2) {
+            return ''; // Descartar si tiene más de 2 números
+        }
+    }
+
+    return $resultado;
 }
 
 private function formatearDireccion($direccion)
@@ -919,5 +1033,63 @@ public function mostrarResumen(Request $request, Viaje $viaje)
     return view('pasajero.resumen-reserva', compact('viaje', 'cantidad', 'total', 'precio', 'calificacionesUsuario'));
 }
 
+/**
+ * Calcular distancia desde un punto de referencia (centro de Buenos Aires por defecto)
+ * @param Viaje $viaje El viaje del cual calcular la distancia
+ * @return float Distancia en kilómetros
+ */
+private function calcularDistanciaDesdeReferencia($viaje)
+{
+    // Punto de referencia: Centro de Buenos Aires, Argentina
+    $latReferencia = -34.6037;
+    $lngReferencia = -58.3816;
+
+    // Si el usuario tiene coordenadas guardadas, usarlas como referencia
+    $usuario = auth()->user();
+    if (isset($usuario->origen_lat) && isset($usuario->origen_lng)) {
+        $latReferencia = $usuario->origen_lat;
+        $lngReferencia = $usuario->origen_lng;
+    }
+
+    // Calcular distancia desde el origen del viaje
+    return $this->calcularDistancia(
+        $latReferencia,
+        $lngReferencia,
+        $viaje->origen_lat,
+        $viaje->origen_lng
+    );
+}
+
+/**
+ * Calcular distancia entre dos coordenadas GPS usando la fórmula de Haversine
+ * @param float $lat1 Latitud del punto 1
+ * @param float $lng1 Longitud del punto 1
+ * @param float $lat2 Latitud del punto 2
+ * @param float $lng2 Longitud del punto 2
+ * @return float Distancia en kilómetros
+ */
+private function calcularDistancia($lat1, $lng1, $lat2, $lng2)
+{
+    // Validar que todas las coordenadas existan y sean números
+    if (!$lat1 || !$lng1 || !$lat2 || !$lng2) {
+        return 999999; // Distancia muy grande para poner al final
+    }
+
+    $radioTierra = 6371; // Radio de la Tierra en kilómetros
+
+    // Convertir grados a radianes
+    $dLat = deg2rad($lat2 - $lat1);
+    $dLng = deg2rad($lng2 - $lng1);
+
+    // Fórmula de Haversine
+    $a = sin($dLat / 2) * sin($dLat / 2) +
+         cos(deg2rad($lat1)) * cos(deg2rad($lat2)) *
+         sin($dLng / 2) * sin($dLng / 2);
+
+    $c = 2 * atan2(sqrt($a), sqrt(1 - $a));
+    $distancia = $radioTierra * $c;
+
+    return round($distancia, 2); // Redondear a 2 decimales
+}
 
 }

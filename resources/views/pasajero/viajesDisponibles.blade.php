@@ -848,9 +848,9 @@
                     <i class="fas fa-chair" aria-hidden="true"></i>
                     <span class="label-text">Puestos mín:</span>
                 </label>
-                <select name="puestos_minimos" 
-                        id="puestos_minimos" 
-                        class="filter-select" 
+                <select name="puestos_minimos"
+                        id="puestos_minimos"
+                        class="filter-select"
                         onchange="this.form.submit()"
                         aria-label="Seleccionar número mínimo de puestos">
                     <option value="">Todos</option>
@@ -858,6 +858,23 @@
                     <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2+</option>
                     <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3+</option>
                     <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4+</option>
+                </select>
+            </div>
+
+            <!-- Filtro por Ordenamiento -->
+            <div class="filter-group">
+                <label for="ordenar" class="filter-label">
+                    <i class="fas fa-sort" aria-hidden="true"></i>
+                    <span class="label-text">Ordenar por:</span>
+                </label>
+                <select name="ordenar"
+                        id="ordenar"
+                        class="filter-select"
+                        onchange="this.form.submit()"
+                        aria-label="Ordenar resultados">
+                    <option value="fecha" {{ request('ordenar', 'fecha') == 'fecha' ? 'selected' : '' }}>Fecha (próxima)</option>
+                    <option value="cercania" {{ request('ordenar') == 'cercania' ? 'selected' : '' }}>Cercanía</option>
+                    <option value="precio" {{ request('ordenar') == 'precio' ? 'selected' : '' }}>Precio (menor)</option>
                 </select>
             </div>
 
@@ -963,6 +980,9 @@
                                     {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('M d, Y') }}
                                     @if($viaje->hora_salida)
                                         • {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                                    @endif
+                                    @if(request('ordenar') == 'cercania' && isset($viaje->distancia_km) && $viaje->distancia_km < 999999)
+                                        • 📍 {{ number_format($viaje->distancia_km, 1) }} km
                                     @endif
                                 </div>
                             </div>

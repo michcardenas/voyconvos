@@ -145,7 +145,94 @@ class DashboardHibridoController extends Controller
             ];
             $data['calificacionesDetalleConductor'] = collect();
         }
-        
+
+        // OBTENER CIUDADES DISPONIBLES PARA EL BUSCADOR
+        // Nota: Se incluyen todos los viajes disponibles para que el buscador tenga opciones
+        // La exclusión de viajes propios se hará en la página de resultados si es necesario
+        $data['ciudadesOrigen'] = Viaje::whereDate('fecha_salida', '>=', now())
+            ->where('puestos_disponibles', '>', 0)
+            ->where('estado', '!=', 'cancelado')
+            // ->where('conductor_id', '!=', $user->id) // COMENTADO: Permitir ver todos los viajes en buscador
+            ->distinct()
+            ->pluck('origen_direccion')
+            ->map(function($direccion) {
+                return $this->extraerCiudad($direccion);
+            })
+            ->filter()
+            ->unique()
+            ->sort()
+            ->values();
+
+       $data['ciudadesDestino'] = Viaje::whereDate('fecha_salida', '>=', now())
+    ->where('puestos_disponibles', '>', 0)
+    ->where('estado', '!=', 'cancelado')
+    // ->where('conductor_id', '!=', $user->id) // ❌ COMENTAR O ELIMINAR
+    ->distinct()
+    ->pluck('destino_direccion')
+    ->map(function($direccion) {
+        return $this->extraerCiudad($direccion);
+    })
+    ->filter()
+    ->unique()
+    ->sort()
+    ->values();
+
         return view('hibrido.dashboard', $data);
     }
+
+    /**
+     * Extraer ciudad y provincia de una dirección completa
+     */
+private function extraerCiudad($direccion)
+{
+    if (!$direccion) return '';
+
+    // Limpiar códigos postales alfanuméricos (B1650, C1405, C1416IEB, etc)
+    $direccion = preg_replace('/\b[A-Z]\d{4}[A-Z]*\b\s*/i', '', $direccion);
+
+    // Formato esperado: "Calle 123, Villa Maipú, Provincia de Buenos Aires, Argentina"
+    $partes = array_map('trim', explode(',', $direccion));
+    $count = count($partes);
+
+    $resultado = '';
+
+    // Si tiene 4 o más partes: "Calle 123, Ciudad, Provincia, País"
+    if ($count >= 4) {
+        $ciudad = trim($partes[$count - 3]);
+        $provincia = trim($partes[$count - 2]);
+
+        // Limpiar números de calle de la ciudad si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        $resultado = $ciudad . ', ' . $provincia;
+    }
+    // Si tiene 3 partes: "Calle, Ciudad, País"
+    elseif ($count >= 3) {
+        $ciudad = trim($partes[$count - 2]); // ✅ CORREGIDO
+        
+        // Limpiar números de calle si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        $resultado = $ciudad; // ✅ CORREGIDO - solo ciudad sin provincia
+    }
+    // Si tiene 2 partes: "Ciudad, País"
+    elseif ($count >= 2) {
+        $ciudad = trim($partes[$count - 2]);
+
+        // Limpiar números de calle si existen
+        $ciudad = preg_replace('/^[^\s]+\s+\d+\s*,?\s*/', '', $ciudad);
+
+        $resultado = $ciudad;
+    }
+
+    // Filtrar si el resultado tiene más de 2 números
+    if ($resultado) {
+        preg_match_all('/\d/', $resultado, $matches);
+        if (count($matches[0]) > 2) {
+            return '';
+        }
+    }
+
+    return $resultado;
+}
 }
