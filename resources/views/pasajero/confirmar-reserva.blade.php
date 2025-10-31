@@ -36,6 +36,7 @@
         max-width: 700px;
     }
 
+    /* Page Header */
     .page-header {
         background: linear-gradient(135deg, var(--vcv-primary) 0%, rgba(31, 78, 121, 0.9) 50%, rgba(58, 58, 58, 0.8) 100%);
         color: white;
@@ -78,6 +79,58 @@
         z-index: 2;
     }
 
+    /* Progress Steps */
+    .progress-steps {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.08);
+    }
+
+    .step {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 25px;
+        background: rgba(31, 78, 121, 0.05);
+        color: rgba(58, 58, 58, 0.6);
+        transition: all 0.3s ease;
+    }
+
+    .step.active {
+        background: linear-gradient(135deg, var(--vcv-primary), rgba(31, 78, 121, 0.9));
+        color: white;
+        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.3);
+    }
+
+    .step.completed {
+        background: linear-gradient(135deg, var(--vcv-accent), rgba(76, 175, 80, 0.9));
+        color: white;
+    }
+
+    .step-number {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+    }
+
+    .step-arrow {
+        color: rgba(58, 58, 58, 0.3);
+        font-size: 1.2rem;
+    }
+
+    /* Trip Summary Card */
     .trip-summary-card {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -173,27 +226,13 @@
         justify-content: center;
         margin-right: 1.5rem;
         font-size: 1.2rem;
+        flex-shrink: 0;
     }
 
-    .detail-icon.time {
-        background: rgba(76, 175, 80, 0.1);
-        color: var(--vcv-accent);
-    }
-
-    .detail-icon.driver {
-        background: rgba(31, 78, 121, 0.1);
-        color: var(--vcv-primary);
-    }
-
-    .detail-icon.seats {
-        background: rgba(255, 193, 7, 0.1);
-        color: #f57c00;
-    }
-
-    .detail-icon.price {
-        background: rgba(76, 175, 80, 0.15);
-        color: var(--vcv-accent);
-    }
+    .detail-icon.time { background: rgba(76, 175, 80, 0.1); color: var(--vcv-accent); }
+    .detail-icon.driver { background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary); }
+    .detail-icon.seats { background: rgba(255, 193, 7, 0.1); color: #f57c00; }
+    .detail-icon.price { background: rgba(76, 175, 80, 0.15); color: var(--vcv-accent); }
 
     .detail-content h6 {
         margin: 0 0 0.3rem 0;
@@ -208,6 +247,7 @@
         font-size: 0.9rem;
     }
 
+    /* Driver Section */
     .driver-section {
         background: rgba(31, 78, 121, 0.02);
         border-radius: 12px;
@@ -224,6 +264,7 @@
         width: 60px;
         height: 60px;
         margin-right: 1.5rem;
+        flex-shrink: 0;
     }
 
     .driver-photo {
@@ -295,6 +336,7 @@
         font-size: 1rem;
     }
 
+    /* Booking Form */
     .booking-form {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(10px);
@@ -398,6 +440,119 @@
         margin-top: 0.3rem;
     }
 
+    /* Summary Section - Hidden by default */
+    .summary-section {
+        max-height: 0;
+        overflow: hidden;
+        opacity: 0;
+        transition: all 0.5s ease;
+        margin-bottom: 2rem;
+    }
+
+    .summary-section.show {
+        max-height: 3000px;
+        opacity: 1;
+    }
+
+    .summary-card {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.05), rgba(31, 78, 121, 0.05));
+        border: 2px solid rgba(76, 175, 80, 0.2);
+        border-radius: 16px;
+        padding: 2rem;
+        animation: slideDown 0.5s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-20px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .summary-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .summary-header .icon {
+        font-size: 3rem;
+        color: var(--vcv-accent);
+        margin-bottom: 1rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+    }
+
+    .summary-header h4 {
+        color: var(--vcv-primary);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .summary-details-list {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(31, 78, 121, 0.1);
+    }
+
+    .summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .summary-item-label {
+        color: rgba(58, 58, 58, 0.7);
+        font-size: 0.9rem;
+    }
+
+    .summary-item-value {
+        color: var(--vcv-dark);
+        font-weight: 600;
+    }
+
+    .total-section {
+        background: linear-gradient(135deg, var(--vcv-accent), rgba(76, 175, 80, 0.9));
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 6px 20px rgba(76, 175, 80, 0.3);
+    }
+
+    .total-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .total-amount {
+        font-size: 3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .total-breakdown {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-top: 0.5rem;
+    }
+
+    /* Form Actions */
     .form-actions {
         display: flex;
         gap: 1rem;
@@ -416,6 +571,24 @@
         gap: 0.5rem;
         justify-content: center;
         flex: 1;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-custom::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: left 0.5s;
+    }
+
+    .btn-custom:hover::before {
+        left: 100%;
     }
 
     .btn-custom.primary {
@@ -427,6 +600,19 @@
         background: rgba(31, 78, 121, 0.9);
         transform: translateY(-2px);
         box-shadow: 0 6px 16px rgba(31, 78, 121, 0.3);
+        color: white;
+    }
+
+    .btn-custom.success {
+        background: linear-gradient(135deg, var(--vcv-accent), rgba(76, 175, 80, 0.9));
+        color: white;
+        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+    }
+
+    .btn-custom.success:hover {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.9), var(--vcv-accent));
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(76, 175, 80, 0.4);
         color: white;
     }
 
@@ -443,6 +629,7 @@
         text-decoration: none;
     }
 
+    /* Responsive */
     @media (max-width: 768px) {
         .confirm-wrapper {
             padding: 1rem 0;
@@ -454,6 +641,15 @@
         
         .page-header h2 {
             font-size: 1.5rem;
+        }
+
+        .progress-steps {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .step-arrow {
+            transform: rotate(90deg);
         }
         
         .route-city {
@@ -499,19 +695,41 @@
             width: 100%;
             margin: 0.3rem 0;
         }
+
+        .total-amount {
+            font-size: 2.5rem;
+        }
     }
 </style>
+
 <div class="confirm-wrapper">
     <div class="container">
         <!-- Page Header -->
         <div class="page-header">
             <h2>✅ Confirmar Reserva</h2>
-            <p class="page-subtitle">Revisa los detalles antes de continuar</p>
+            <p class="page-subtitle">Completa tu reserva en simples pasos</p>
+        </div>
+
+        <!-- Progress Steps -->
+        <div class="progress-steps">
+            <div class="step active" id="step1">
+                <div class="step-number">1</div>
+                <span>Detalles</span>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step" id="step2">
+                <div class="step-number">2</div>
+                <span>Resumen</span>
+            </div>
+            <div class="step-arrow">→</div>
+            <div class="step" id="step3">
+                <div class="step-number">3</div>
+                <span>Confirmar</span>
+            </div>
         </div>
 
         <!-- Trip Summary Card -->
         <div class="trip-summary-card">
-            <!-- Trip Header -->
             <div class="trip-header">
                 <div class="route-display">
                     <div class="route-city">{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}</div>
@@ -529,74 +747,70 @@
                 </div>
             </div>
 
-            <!-- Trip Details -->
             <div class="trip-details">
                 <div class="detail-grid">
                     <!-- Conductor -->
                     <div class="driver-section">
-                    <div class="driver-info">
-                        <div class="driver-avatar">
-                            @if($viaje->conductor?->foto)
-                                <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                            @elseif($viaje->conductor?->avatar)
-                                <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                            @else
-                                <div class="driver-photo-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            @endif
-                        </div>
-                        <div class="driver-details">
-                            <h6>
-                                {{ $viaje->conductor->name ?? 'No disponible' }}
-                                @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
-                                    <span class="verified-badge">
-                                        <i class="fas fa-check-circle"></i>
-                                    </span>
-                                @endif
-                            </h6>
-                            
-                            @if($viaje->conductor)
-                                @php
-                                    // Verificar si el conductor tiene calificaciones reales
-                                    $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
-                                    $rating = $viaje->conductor->calificacion_promedio ?? 0;
-                                @endphp
-                                
-                                @if($tieneCalificaciones && $rating > 0)
-                                    <div class="driver-rating">
-                                        @php
-                                            $fullStars = floor($rating);
-                                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                                        @endphp
-                                        <div class="stars">
-                                            @for($i = 1; $i <= $fullStars; $i++)
-                                                <i class="fas fa-star"></i>
-                                            @endfor
-                                            @if($hasHalfStar)
-                                                <i class="fas fa-star-half-alt"></i>
-                                            @endif
-                                            @for($i = 1; $i <= $emptyStars; $i++)
-                                                <i class="far fa-star"></i>
-                                            @endfor
-                                        </div>
-                                        <span class="rating-value">{{ number_format($rating, 1) }}</span>
-                                        <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
-                                    </div>
+                        <div class="driver-info">
+                            <div class="driver-avatar">
+                                @if($viaje->conductor?->foto)
+                                    <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
+                                @elseif($viaje->conductor?->avatar)
+                                    <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
                                 @else
-                                    <div class="driver-no-rating">
-                                        <span class="no-rating-text"></span>
+                                    <div class="driver-photo-placeholder">
+                                        <i class="fas fa-user"></i>
                                     </div>
                                 @endif
-                            @endif
-                            
-                            <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
-                                <i class="fas fa-steering-wheel me-1"></i>Tu conductor
-                            </p>
+                            </div>
+                            <div class="driver-details">
+                                <h6>
+                                    {{ $viaje->conductor->name ?? 'No disponible' }}
+                                    @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
+                                        <span class="verified-badge">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                                    @endif
+                                </h6>
+                                
+                                @if($viaje->conductor)
+                                    @php
+                                        $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
+                                        $rating = $viaje->conductor->calificacion_promedio ?? 0;
+                                    @endphp
+                                    
+                                    @if($tieneCalificaciones && $rating > 0)
+                                        <div class="driver-rating">
+                                            @php
+                                                $fullStars = floor($rating);
+                                                $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                            @endphp
+                                            <div class="stars">
+                                                @for($i = 1; $i <= $fullStars; $i++)
+                                                    <i class="fas fa-star"></i>
+                                                @endfor
+                                                @if($hasHalfStar)
+                                                    <i class="fas fa-star-half-alt"></i>
+                                                @endif
+                                                @for($i = 1; $i <= $emptyStars; $i++)
+                                                    <i class="far fa-star"></i>
+                                                @endfor
+                                            </div>
+                                            <span class="rating-value">{{ number_format($rating, 1) }}</span>
+                                            <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
+                                        </div>
+                                    @endif
+                                @endif
+                                
+                                <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
+                                    <i class="fas fa-steering-wheel me-1"></i>Tu conductor
+                                </p>
+                            </div>
                         </div>
                     </div>
-                </div>
+
+                    <!-- Vehículo -->
                     <div class="detail-item">
                         <div class="detail-icon" style="background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary);">
                             <i class="fas fa-car"></i>
@@ -611,7 +825,7 @@
                         </div>
                     </div>
 
-                    <!-- Available Seats -->
+                    <!-- Puestos Disponibles -->
                     <div class="detail-item">
                         <div class="detail-icon seats">
                             <i class="fas fa-chair"></i>
@@ -622,7 +836,7 @@
                         </div>
                     </div>
 
-                    <!-- Price -->
+                    <!-- Precio -->
                     <div class="detail-item">
                         <div class="detail-icon price">
                             <i class="fas fa-dollar-sign"></i>
@@ -636,10 +850,10 @@
             </div>
         </div>
 
-        <!-- NUEVA SECCIÓN: Mapa de la ruta -->
+        <!-- Mapa de la ruta -->
         <div class="trip-summary-card" style="margin-top: 1.5rem;">
             <div class="trip-header">
-                <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div style="display: flex; align-items: center; gap: 0.5rem; justify-content: center;">
                     <i class="fas fa-map" style="color: #4285f4;"></i>
                     <h5 style="margin: 0; font-weight: 600;">Ruta del Viaje</h5>
                 </div>
@@ -659,335 +873,1019 @@
                 <p>¿Cuántos asientos necesitas para tu viaje?</p>
             </div>
 
-            <form action="{{ route('pasajero.reserva.resumen', $viaje->id) }}" method="GET">
-                @csrf
-                
-                <div class="seats-selector">
-                    <label for="cantidad_puestos" class="seats-label">
-                        <i class="fas fa-users me-2"></i>Número de pasajeros
-                    </label>
-                    <input 
-                        type="number" 
-                        name="cantidad_puestos" 
-                        id="cantidad_puestos" 
-                        class="seats-input" 
-                        min="1" 
-                        max="{{ $viaje->puestos_disponibles }}" 
-                        value="1" 
-                        required
-                        oninput="handleInputChange()"
-                        onchange="handleInputChange()"
-                    >
-                    <div class="seats-info">
-                        <span>Mínimo: 1 pasajero</span>
-                        <span>Máximo: {{ $viaje->puestos_disponibles }} pasajeros</span>
-                    </div>
+            <div class="seats-selector">
+                <label for="cantidad_puestos" class="seats-label">
+                    <i class="fas fa-users me-2"></i>Número de pasajeros
+                </label>
+                <input 
+                    type="number" 
+                    name="cantidad_puestos" 
+                    id="cantidad_puestos" 
+                    class="seats-input" 
+                    min="1" 
+                    max="{{ $viaje->puestos_disponibles }}" 
+                    value="1" 
+                    required
+                    oninput="updatePrice()"
+                    onchange="updatePrice()"
+                >
+                <div class="seats-info">
+                    <span>Mínimo: 1 pasajero</span>
+                    <span>Máximo: {{ $viaje->puestos_disponibles }} pasajeros</span>
                 </div>
+            </div>
 
-                <div class="price-summary">
-                    <div class="price-label">Total a pagar</div>
-                    <p class="price-amount" id="totalPrice">
-                        ${{ number_format($viaje->valor_persona ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
+            <div class="price-summary">
+                <div class="price-label">Total estimado</div>
+                <p class="price-amount" id="totalPrice">
+                    ${{ number_format($viaje->valor_persona, 0, ',', '.') }}
+                </p>
+                <div class="price-per-person" id="priceBreakdown">
+                    1 persona × ${{ number_format($viaje->valor_persona, 0, ',', '.') }}
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-custom secondary">
+                    <i class="fas fa-arrow-left"></i>
+                    Cancelar
+                </a>
+                <button type="button" class="btn-custom primary" onclick="mostrarResumen()">
+                    <i class="fas fa-eye"></i>
+                    Ver Resumen
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Section (Hidden initially) -->
+        <div class="summary-section" id="summarySection">
+            <div class="summary-card">
+                <div class="summary-header">
+                    <div class="icon">🎉</div>
+                    <h4>¡Todo listo para viajar!</h4>
+                    <p style="color: rgba(58, 58, 58, 0.7); margin: 0;">
+                        Revisa los detalles finales de tu reserva
                     </p>
-                    <div class="price-per-person" id="priceBreakdown">
-                        1 persona × ${{ number_format($viaje->valor_persona ?? $viaje->valor_estimado ?? 0, 0, ',', '.') }}
+                </div>
+
+                <div class="summary-details-list">
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-map-marker-alt me-2"></i>Origen
+                        </span>
+                        <span class="summary-item-value">{{ explode(',', $viaje->origen_direccion)[0] }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-flag-checkered me-2"></i>Destino
+                        </span>
+                        <span class="summary-item-value">{{ explode(',', $viaje->destino_direccion)[0] }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-calendar me-2"></i>Fecha
+                        </span>
+                        <span class="summary-item-value">{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-clock me-2"></i>Hora
+                        </span>
+                        <span class="summary-item-value">{{ $viaje->hora_salida }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-user me-2"></i>Conductor
+                        </span>
+                        <span class="summary-item-value">{{ $viaje->conductor->name ?? 'No disponible' }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-item-label">
+                            <i class="fas fa-users me-2"></i>Pasajeros
+                        </span>
+                        <span class="summary-item-value" id="summaryPasajeros">1 pasajero</span>
                     </div>
                 </div>
 
-                <div class="form-actions">
-                    <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-custom secondary">
-                        <i class="fas fa-arrow-left"></i>
-                        Cancelar
-                    </a>
-                    <button type="submit" class="btn-custom primary">
-                        <i class="fas fa-eye"></i>
-                        Ver Resumen
-                    </button>
+                <div class="total-section">
+                    <div class="total-label">
+                        <i class="fas fa-calculator me-2"></i>Total a pagar
+                    </div>
+                    <p class="total-amount" id="summaryTotal">
+                        ${{ number_format($viaje->valor_persona, 0, ',', '.') }}
+                    </p>
+                    <div class="total-breakdown" id="summaryBreakdown">
+                        1 persona × ${{ number_format($viaje->valor_persona, 0, ',', '.') }}
+                    </div>
                 </div>
-            </form>
+
+                <form id="form-confirmar-reserva" action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST">
+                    @csrf
+                    <input type="hidden" name="cantidad_puestos" id="cantidad_puestos_hidden" value="1">
+                    <input type="hidden" name="valor_cobrado" value="{{ $viaje->valor_persona }}">
+                    <input type="hidden" name="total" id="total_hidden" value="{{ $viaje->valor_persona }}">
+                    <input type="hidden" name="viaje_id" value="{{ $viaje->id }}">
+
+                    <div class="form-actions">
+                        <button type="button" class="btn-custom secondary" onclick="ocultarResumen()">
+                            <i class="fas fa-arrow-left"></i>
+                            Modificar
+                        </button>
+                        <button type="button" class="btn-custom success" onclick="confirmarReserva()">
+                            <i class="fas fa-check-circle"></i>
+                            Confirmar Reserva
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- ⚡ SCRIPT DE PRECIOS - INLINE -->
+<!-- Scripts -->
 <script>
-console.log("🚨 INICIANDO SCRIPT DE PRECIOS...");
-
-// 📊 Datos del viaje
+// Datos del viaje
 const VIAJE_DATA = {
-    precio: {{ $viaje->valor_persona ?? $viaje->valor_estimado ?? 0 }},
+    precio: {{ $viaje->valor_persona ?? 0 }},
     puestos_max: {{ $viaje->puestos_disponibles ?? 1 }}
 };
 
-console.log("💰 Datos del viaje:", VIAJE_DATA);
-
-// ✅ FUNCIÓN updatePrice
+// Actualizar precio
 function updatePrice() {
-    console.log("💰 updatePrice ejecutándose...");
+    const cantidadInput = document.getElementById('cantidad_puestos');
+    let cantidad = parseInt(cantidadInput.value) || 1;
     
-    try {
-        const cantidadInput = document.getElementById('cantidad_puestos');
-        if (!cantidadInput) {
-            console.error("❌ Input cantidad_puestos no encontrado");
+    // Validar límites
+    if (cantidad > VIAJE_DATA.puestos_max) {
+        cantidad = VIAJE_DATA.puestos_max;
+        cantidadInput.value = cantidad;
+    }
+    if (cantidad < 1) {
+        cantidad = 1;
+        cantidadInput.value = cantidad;
+    }
+    
+    const total = cantidad * VIAJE_DATA.precio;
+    
+    // Actualizar precio en la pantalla principal
+    document.getElementById('totalPrice').textContent = '$' + total.toLocaleString('es-CO');
+    document.getElementById('priceBreakdown').textContent = 
+        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + VIAJE_DATA.precio.toLocaleString('es-CO');
+}
+
+// Mostrar resumen
+function mostrarResumen() {
+    const cantidad = parseInt(document.getElementById('cantidad_puestos').value);
+    const total = cantidad * VIAJE_DATA.precio;
+    
+    // Actualizar valores hidden
+    document.getElementById('cantidad_puestos_hidden').value = cantidad;
+    document.getElementById('total_hidden').value = total;
+    
+    // Actualizar resumen
+    document.getElementById('summaryPasajeros').textContent = cantidad + ' pasajero' + (cantidad > 1 ? 's' : '');
+    document.getElementById('summaryTotal').textContent = '$' + total.toLocaleString('es-CO');
+    document.getElementById('summaryBreakdown').textContent = 
+        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + VIAJE_DATA.precio.toLocaleString('es-CO');
+    
+    // Mostrar sección resumen
+    document.getElementById('summarySection').classList.add('show');
+    
+    // Actualizar steps
+    document.getElementById('step1').classList.add('completed');
+    document.getElementById('step2').classList.add('active');
+    
+    // Scroll suave al resumen
+    setTimeout(() => {
+        document.getElementById('summarySection').scrollIntoView({ 
+            behavior: 'smooth', 
+            block: 'start' 
+        });
+    }, 100);
+}
+
+// Ocultar resumen
+function ocultarResumen() {
+    document.getElementById('summarySection').classList.remove('show');
+    document.getElementById('step1').classList.remove('completed');
+    document.getElementById('step2').classList.remove('active');
+    
+    // Scroll de vuelta al formulario
+    document.querySelector('.booking-form').scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'start' 
+    });
+}
+
+// Confirmar reserva - Mostrar opciones de pago
+function confirmarReserva() {
+    // Actualizar step 3
+    document.getElementById('step2').classList.add('completed');
+    document.getElementById('step3').classList.add('active');
+
+    // Modal de selección de método de pago
+    const modal = document.createElement('div');
+    modal.id = 'modalMetodoPago';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 0;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            margin: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        ">
+            <!-- Header -->
+            <div style="
+                background: linear-gradient(135deg, #1F4E79 0%, rgba(31, 78, 121, 0.9) 100%);
+                padding: 2rem;
+                text-align: center;
+                color: white;
+                position: relative;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">💳</div>
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 600;">Selecciona tu método de pago</h3>
+                <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Elige cómo deseas completar el pago de tu reserva</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 2rem;">
+                <!-- Total a pagar -->
+                <div style="
+                    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(31, 78, 121, 0.1));
+                    border: 2px solid rgba(76, 175, 80, 0.3);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    text-align: center;
+                    margin-bottom: 2rem;
+                ">
+                    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;">Total a pagar</div>
+                    <div style="font-size: 2rem; font-weight: 700; color: #4CAF50;" id="modalTotal">
+                        $${document.getElementById('summaryTotal').textContent.replace('$', '')}
+                    </div>
+                </div>
+
+                <!-- Opciones de pago -->
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                    <!-- MercadoPago -->
+                    <button onclick="seleccionarMercadoPago()" style="
+                        background: white;
+                        border: 2px solid #009EE3;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        text-align: left;
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0, 158, 227, 0.2)'; this.style.borderColor='#009EE3';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#009EE3';">
+                        <div style="
+                            width: 60px;
+                            height: 60px;
+                            background: linear-gradient(135deg, #009EE3, #00B4F0);
+                            border-radius: 12px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.8rem;
+                            flex-shrink: 0;
+                        ">💰</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 1.1rem; margin-bottom: 0.3rem;">MercadoPago</div>
+                            <div style="font-size: 0.85rem; color: #666;">Pago online seguro con tarjeta o efectivo</div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #009EE3; font-size: 1.2rem;"></i>
+                    </button>
+
+                    <!-- Transferencia Manual -->
+                    <button onclick="seleccionarTransferencia()" style="
+                        background: white;
+                        border: 2px solid #4CAF50;
+                        border-radius: 12px;
+                        padding: 1.5rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                        text-align: left;
+                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.2)'; this.style.borderColor='#4CAF50';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#4CAF50';">
+                        <div style="
+                            width: 60px;
+                            height: 60px;
+                            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+                            border-radius: 12px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.8rem;
+                            flex-shrink: 0;
+                        ">🏦</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 1.1rem; margin-bottom: 0.3rem;">Transferencia Bancaria</div>
+                            <div style="font-size: 0.85rem; color: #666;">Paga por transferencia y sube tu comprobante</div>
+                        </div>
+                        <i class="fas fa-chevron-right" style="color: #4CAF50; font-size: 1.2rem;"></i>
+                    </button>
+                </div>
+
+                <!-- Botón cancelar -->
+                <button onclick="cerrarModalPago()" style="
+                    width: 100%;
+                    background: rgba(58, 58, 58, 0.05);
+                    border: 1px solid rgba(58, 58, 58, 0.2);
+                    border-radius: 10px;
+                    padding: 0.8rem;
+                    color: #666;
+                    font-weight: 500;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                " onmouseover="this.style.background='rgba(58, 58, 58, 0.1)';" onmouseout="this.style.background='rgba(58, 58, 58, 0.05)';">
+                    <i class="fas fa-times me-2"></i>Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Cerrar modal de pago
+function cerrarModalPago() {
+    const modal = document.getElementById('modalMetodoPago');
+    if (modal) {
+        modal.remove();
+    }
+    // Revertir steps
+    document.getElementById('step2').classList.remove('completed');
+    document.getElementById('step3').classList.remove('active');
+}
+
+// Seleccionar MercadoPago
+function seleccionarMercadoPago() {
+    // Agregar método de pago al formulario
+    const form = document.getElementById('form-confirmar-reserva');
+    let metodoPagoInput = document.getElementById('metodo_pago');
+    if (!metodoPagoInput) {
+        metodoPagoInput = document.createElement('input');
+        metodoPagoInput.type = 'hidden';
+        metodoPagoInput.name = 'metodo_pago';
+        metodoPagoInput.id = 'metodo_pago';
+        form.appendChild(metodoPagoInput);
+    }
+    metodoPagoInput.value = 'mercadopago';
+
+    // Cerrar modal
+    cerrarModalPago();
+
+    // Mostrar confirmación y enviar
+    mostrarConfirmacionFinal('MercadoPago');
+}
+
+// Seleccionar Transferencia Manual
+function seleccionarTransferencia() {
+    cerrarModalPago();
+    mostrarModalTransferencia();
+}
+
+// Mostrar modal de transferencia
+function mostrarModalTransferencia() {
+    const modal = document.createElement('div');
+    modal.id = 'modalTransferencia';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+        overflow-y: auto;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 0;
+            border-radius: 20px;
+            max-width: 550px;
+            width: 90%;
+            margin: 2rem auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            overflow: hidden;
+        ">
+            <!-- Header -->
+            <div style="
+                background: linear-gradient(135deg, #4CAF50 0%, rgba(76, 175, 80, 0.9) 100%);
+                padding: 2rem;
+                text-align: center;
+                color: white;
+            ">
+                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏦</div>
+                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 600;">Transferencia Bancaria</h3>
+                <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Completa tu pago por transferencia</p>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 2rem;">
+                <!-- Información importante -->
+                <div style="
+                    background: #FFF3CD;
+                    border-left: 4px solid #FFC107;
+                    border-radius: 8px;
+                    padding: 1rem;
+                    margin-bottom: 1.5rem;
+                ">
+                    <div style="display: flex; gap: 0.8rem; align-items: start;">
+                        <i class="fas fa-clock" style="color: #F57C00; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #F57C00; margin-bottom: 0.3rem;">⏰ Tienes 1 hora para subir el comprobante</div>
+                            <div style="font-size: 0.85rem; color: #856404;">Si no subes el comprobante en ese tiempo, tu reserva quedará disponible para otros pasajeros.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Datos bancarios (ejemplo) -->
+                <div style="
+                    background: rgba(31, 78, 121, 0.05);
+                    border: 1px solid rgba(31, 78, 121, 0.2);
+                    border-radius: 12px;
+                    padding: 1.5rem;
+                    margin-bottom: 1.5rem;
+                ">
+                    <div style="font-weight: 600; color: #1F4E79; margin-bottom: 1rem; text-align: center;">📋 Datos para transferencia</div>
+                    <div style="font-size: 0.9rem; color: #666; line-height: 1.8;">
+                        <div><strong>Banco:</strong> Banco Ejemplo</div>
+                        <div><strong>Titular:</strong> VoyConvos SRL</div>
+                        <div><strong>CBU:</strong> 0000003100010123456789</div>
+                        <div><strong>Alias:</strong> VOYCONVOS.PAGOS</div>
+                        <div style="margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid rgba(31, 78, 121, 0.1);">
+                            <strong>Monto:</strong> <span style="color: #4CAF50; font-size: 1.1rem; font-weight: 700;">${document.getElementById('summaryTotal').textContent}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Formulario de subida -->
+                <form id="formTransferencia" style="margin-bottom: 1.5rem;">
+                    <div style="margin-bottom: 1.5rem;">
+                        <label style="
+                            display: block;
+                            font-weight: 600;
+                            color: #1F4E79;
+                            margin-bottom: 0.5rem;
+                            font-size: 0.95rem;
+                        ">
+                            <i class="fas fa-file-upload me-2"></i>Subir comprobante
+                        </label>
+                        <input type="file"
+                               id="comprobanteInput"
+                               accept="image/*,.pdf"
+                               style="
+                                   width: 100%;
+                                   padding: 0.8rem;
+                                   border: 2px dashed rgba(76, 175, 80, 0.3);
+                                   border-radius: 10px;
+                                   background: rgba(76, 175, 80, 0.05);
+                                   cursor: pointer;
+                                   transition: all 0.3s ease;
+                               "
+                               onchange="previsualizarComprobante(this)">
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
+                            Formatos aceptados: JPG, PNG, PDF (máx 5MB)
+                        </div>
+                        <div id="previewComprobante" style="margin-top: 1rem; display: none;"></div>
+                    </div>
+                </form>
+
+                <!-- Botones de acción -->
+                <div style="display: grid; gap: 0.8rem;">
+                    <!-- Subir ahora -->
+                    <button onclick="subirComprobanteAhora()" id="btnSubirAhora" disabled style="
+                        background: linear-gradient(135deg, #4CAF50, rgba(76, 175, 80, 0.9));
+                        color: white;
+                        border: none;
+                        border-radius: 10px;
+                        padding: 1rem;
+                        font-weight: 600;
+                        cursor: not-allowed;
+                        transition: all 0.3s ease;
+                        opacity: 0.5;
+                    ">
+                        <i class="fas fa-upload me-2"></i>Subir comprobante ahora
+                    </button>
+
+                    <!-- Subir después -->
+                    <button onclick="subirComprobanteDespues()" style="
+                        background: white;
+                        color: #1F4E79;
+                        border: 2px solid #1F4E79;
+                        border-radius: 10px;
+                        padding: 1rem;
+                        font-weight: 600;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='#1F4E79'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#1F4E79';">
+                        <i class="fas fa-clock me-2"></i>Lo subiré después (1 hora)
+                    </button>
+
+                    <!-- Volver -->
+                    <button onclick="volverAMetodosPago()" style="
+                        background: rgba(58, 58, 58, 0.05);
+                        border: 1px solid rgba(58, 58, 58, 0.2);
+                        border-radius: 10px;
+                        padding: 0.8rem;
+                        color: #666;
+                        font-weight: 500;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                    " onmouseover="this.style.background='rgba(58, 58, 58, 0.1)';" onmouseout="this.style.background='rgba(58, 58, 58, 0.05)';">
+                        <i class="fas fa-arrow-left me-2"></i>Volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Previsualizar comprobante
+function previsualizarComprobante(input) {
+    const preview = document.getElementById('previewComprobante');
+    const btnSubir = document.getElementById('btnSubirAhora');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        // Validar tamaño (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es muy grande. Máximo 5MB.');
+            input.value = '';
             return;
         }
-        
-        const cantidad = parseInt(cantidadInput.value) || 1;
-        const precio = VIAJE_DATA.precio;
-        const total = cantidad * precio;
-        
-        console.log("📊 Cálculo:", { cantidad, precio, total });
-        
-        const totalElement = document.getElementById('totalPrice');
-        const breakdownElement = document.getElementById('priceBreakdown');
-        
-        if (totalElement) {
-            const nuevoTotal = '$' + total.toLocaleString('es-CO');
-            totalElement.textContent = nuevoTotal;
-            console.log("✅ Total actualizado a:", nuevoTotal);
-        }
-        
-        if (breakdownElement) {
-            const nuevoDesglose = cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + precio.toLocaleString('es-CO');
-            breakdownElement.textContent = nuevoDesglose;
-            console.log("✅ Desglose actualizado a:", nuevoDesglose);
-        }
-        
-    } catch (error) {
-        console.error("❌ Error en updatePrice:", error);
+
+        reader.onload = function(e) {
+            preview.style.display = 'block';
+            if (file.type.includes('pdf')) {
+                preview.innerHTML = `
+                    <div style="
+                        background: rgba(31, 78, 121, 0.05);
+                        border: 1px solid rgba(31, 78, 121, 0.2);
+                        border-radius: 8px;
+                        padding: 1rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                    ">
+                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #F44336;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79;">${file.name}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${(file.size / 1024).toFixed(2)} KB</div>
+                        </div>
+                        <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1.5rem;"></i>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" style="
+                        width: 100%;
+                        max-height: 200px;
+                        object-fit: contain;
+                        border-radius: 8px;
+                        border: 2px solid rgba(76, 175, 80, 0.3);
+                    ">
+                `;
+            }
+
+            // Habilitar botón
+            btnSubir.disabled = false;
+            btnSubir.style.cursor = 'pointer';
+            btnSubir.style.opacity = '1';
+            btnSubir.onmouseover = function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.3)';
+            };
+            btnSubir.onmouseout = function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            };
+        };
+
+        reader.readAsDataURL(file);
     }
 }
 
-// ✅ FUNCIÓN PARA MANEJAR CAMBIOS
-function handleInputChange() {
-    console.log("🔔 handleInputChange disparado");
-    
-    const cantidadInput = document.getElementById('cantidad_puestos');
-    if (!cantidadInput) return;
-    
-    let valor = parseInt(cantidadInput.value) || 1;
-    console.log("📝 Valor del input:", valor);
-    
-    if (valor > VIAJE_DATA.puestos_max) {
-        valor = VIAJE_DATA.puestos_max;
-        cantidadInput.value = valor;
-        console.log("⚠️ Valor ajustado al máximo:", valor);
+// Subir comprobante ahora
+function subirComprobanteAhora() {
+    const fileInput = document.getElementById('comprobanteInput');
+    if (!fileInput.files || !fileInput.files[0]) {
+        alert('Por favor selecciona un comprobante');
+        return;
     }
-    
-    if (valor < 1) {
-        valor = 1;
-        cantidadInput.value = valor;
-        console.log("⚠️ Valor ajustado al mínimo:", valor);
+
+    // Agregar método y archivo al formulario principal
+    const form = document.getElementById('form-confirmar-reserva');
+    let metodoPagoInput = document.getElementById('metodo_pago');
+    if (!metodoPagoInput) {
+        metodoPagoInput = document.createElement('input');
+        metodoPagoInput.type = 'hidden';
+        metodoPagoInput.name = 'metodo_pago';
+        metodoPagoInput.id = 'metodo_pago';
+        form.appendChild(metodoPagoInput);
     }
-    
-    updatePrice();
+    metodoPagoInput.value = 'transferencia';
+
+    // Agregar indicador de subida inmediata
+    let subirAhoraInput = document.getElementById('subir_ahora');
+    if (!subirAhoraInput) {
+        subirAhoraInput = document.createElement('input');
+        subirAhoraInput.type = 'hidden';
+        subirAhoraInput.name = 'subir_ahora';
+        subirAhoraInput.id = 'subir_ahora';
+        form.appendChild(subirAhoraInput);
+    }
+    subirAhoraInput.value = '1';
+
+    // Aquí se agregaría el archivo al FormData cuando se envíe
+    // Por ahora, cerramos el modal y mostramos confirmación
+    cerrarModalTransferencia();
+    mostrarConfirmacionFinal('Transferencia', true);
 }
 
-// 🌍 Hacer funciones globales
-window.updatePrice = updatePrice;
-window.handleInputChange = handleInputChange;
+// Subir comprobante después
+function subirComprobanteDespues() {
+    const form = document.getElementById('form-confirmar-reserva');
+    let metodoPagoInput = document.getElementById('metodo_pago');
+    if (!metodoPagoInput) {
+        metodoPagoInput = document.createElement('input');
+        metodoPagoInput.type = 'hidden';
+        metodoPagoInput.name = 'metodo_pago';
+        metodoPagoInput.id = 'metodo_pago';
+        form.appendChild(metodoPagoInput);
+    }
+    metodoPagoInput.value = 'transferencia';
 
-// Configurar cuando DOM esté listo
+    let subirDespuesInput = document.getElementById('subir_despues');
+    if (!subirDespuesInput) {
+        subirDespuesInput = document.createElement('input');
+        subirDespuesInput.type = 'hidden';
+        subirDespuesInput.name = 'subir_despues';
+        subirDespuesInput.id = 'subir_despues';
+        form.appendChild(subirDespuesInput);
+    }
+    subirDespuesInput.value = '1';
+
+    cerrarModalTransferencia();
+    mostrarConfirmacionFinal('Transferencia', false);
+}
+
+// Cerrar modal transferencia
+function cerrarModalTransferencia() {
+    const modal = document.getElementById('modalTransferencia');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Volver a métodos de pago
+function volverAMetodosPago() {
+    cerrarModalTransferencia();
+    confirmarReserva();
+}
+
+// Mostrar confirmación final
+function mostrarConfirmacionFinal(metodoPago, subirAhora = false) {
+    let mensaje = '';
+    let icono = '';
+
+    if (metodoPago === 'MercadoPago') {
+        icono = '💳';
+        mensaje = 'Serás redirigido a MercadoPago para completar el pago de forma segura.';
+    } else {
+        if (subirAhora) {
+            icono = '✅';
+            mensaje = 'Tu comprobante ha sido recibido.Nuestro equipo verificará el pago pronto.';
+        } else {
+            icono = '⏰';
+            mensaje = 'Tienes 1 hora para subir el comprobante. Recibirás un email con los datos bancarios.';
+        }
+    }
+
+    const modal = document.createElement('div');
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 2rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 450px;
+            width: 90%;
+            margin: 1rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        ">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">${icono}</div>
+            <h3 style="color: #1F4E79; margin-bottom: 1rem; font-size: 1.4rem;">¡Reserva Confirmada!</h3>
+            <p style="color: #666; margin-bottom: 2rem; line-height: 1.6;">${mensaje}</p>
+            <button onclick="this.parentElement.parentElement.remove(); document.getElementById('form-confirmar-reserva').submit();"
+                    style="
+                        background: linear-gradient(135deg, #4CAF50, rgba(76, 175, 80, 0.9));
+                        color: white;
+                        border: none;
+                        padding: 1rem 2.5rem;
+                        border-radius: 25px;
+                        font-weight: 600;
+                        font-size: 1rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+                    "
+                    onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 20px rgba(76, 175, 80, 0.4)';"
+                    onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.3)';">
+                <i class="fas fa-arrow-right me-2"></i>Continuar
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Configurar al cargar
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("📋 DOM cargado - configurando precios...");
-    
-    const cantidadInput = document.getElementById('cantidad_puestos');
-    if (cantidadInput) {
-        cantidadInput.addEventListener('input', handleInputChange);
-        cantidadInput.addEventListener('change', handleInputChange);
-        console.log("✅ Event listeners configurados");
-    }
-    
-    // Calcular precio inicial
-    setTimeout(updatePrice, 100);
-    console.log("✅ Configuración de precios completada");
+    updatePrice();
 });
-
-console.log("✅ Script de precios inicializado");
 </script>
 
-<!-- ⚡ SCRIPT DEL MAPA -->
-<!-- Google Maps API -->
-<script async defer 
-    src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&callback=initMapaCallback&v=3.55">
-</script>
-
-<!-- Script del Mapa -->
+<!-- Google Maps Script -->
 <script>
-console.log("🗺️ SCRIPT DEL MAPA CARGADO");
-
-// 📊 Datos del mapa
+// Datos del viaje para el mapa
 const datosViaje = {
     origen: {
-        lat: parseFloat("{{ $viaje->origen_lat ?? '4.6' }}") || 4.6,
-        lng: parseFloat("{{ $viaje->origen_lng ?? '-74.08' }}") || -74.08
+        lat: parseFloat("{{ $viaje->origen_lat ?? '-34.6037' }}") || -34.6037,
+        lng: parseFloat("{{ $viaje->origen_lng ?? '-58.3816' }}") || -58.3816
     },
     destino: {
-        lat: parseFloat("{{ $viaje->destino_lat ?? '4.7' }}") || 4.7,
-        lng: parseFloat("{{ $viaje->destino_lng ?? '-74.1' }}") || -74.1
+        lat: parseFloat("{{ $viaje->destino_lat ?? '-34.6158' }}") || -34.6158,
+        lng: parseFloat("{{ $viaje->destino_lng ?? '-58.5033' }}") || -58.5033
     },
-    origen_direccion: "{{ $viaje->origen_direccion ?? 'Origen' }}",
-    destino_direccion: "{{ $viaje->destino_direccion ?? 'Destino' }}",
-    distancia_km: "{{ $viaje->distancia_km ?? '10' }}"
+    origenDireccion: "{{ $viaje->origen_direccion ?? 'Origen' }}",
+    destinoDireccion: "{{ $viaje->destino_direccion ?? 'Destino' }}"
 };
-
-console.log("📍 Datos del mapa:", datosViaje);
 
 let mapaInicializado = false;
 
-// ✅ FUNCIÓN PRINCIPAL DEL MAPA
+// Función de callback para Google Maps
 function initMapaCallback() {
-    console.log("🚀 initMapaCallback ejecutado");
-    
     if (mapaInicializado) {
-        console.log("⚠️ Mapa ya inicializado");
+        console.log('Mapa ya inicializado');
         return;
     }
-    
+
+    console.log('Inicializando mapa con datos:', datosViaje);
+
     try {
         const mapElement = document.getElementById('map');
         if (!mapElement) {
-            console.error("❌ Elemento #map no encontrado");
+            console.error('Elemento #map no encontrado');
             return;
         }
-        
-        console.log("✅ Elemento #map encontrado");
-        
+
         // Crear el mapa
-        console.log("🗺️ Creando mapa...");
         const map = new google.maps.Map(mapElement, {
             zoom: 11,
             center: datosViaje.origen,
-            mapTypeId: 'roadmap'
+            mapTypeId: 'roadmap',
+            styles: [
+                {
+                    featureType: 'poi',
+                    elementType: 'labels',
+                    stylers: [{ visibility: 'off' }]
+                }
+            ]
         });
-        
-        console.log("✅ Mapa creado");
-        
-        // Crear marcadores
+
+        // Marcador de origen (verde)
         const markerOrigen = new google.maps.Marker({
             position: datosViaje.origen,
             map: map,
-            title: 'Origen: ' + datosViaje.origen_direccion,
-            icon: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png'
+            title: 'Origen: ' + datosViaje.origenDireccion,
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png',
+                scaledSize: new google.maps.Size(40, 40)
+            },
+            animation: google.maps.Animation.DROP
         });
-        
+
+        // Info window para origen
+        const infoOrigen = new google.maps.InfoWindow({
+            content: '<div style="padding: 10px;"><strong>Origen</strong><br>' +
+                     datosViaje.origenDireccion.split(',').slice(0, 2).join(',') + '</div>'
+        });
+
+        markerOrigen.addListener('click', function() {
+            infoOrigen.open(map, markerOrigen);
+        });
+
+        // Marcador de destino (rojo)
         const markerDestino = new google.maps.Marker({
             position: datosViaje.destino,
             map: map,
-            title: 'Destino: ' + datosViaje.destino_direccion,
-            icon: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png'
+            title: 'Destino: ' + datosViaje.destinoDireccion,
+            icon: {
+                url: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new google.maps.Size(40, 40)
+            },
+            animation: google.maps.Animation.DROP
         });
-        
-        console.log("✅ Marcadores creados");
-        
-        // Ajustar vista
+
+        // Info window para destino
+        const infoDestino = new google.maps.InfoWindow({
+            content: '<div style="padding: 10px;"><strong>Destino</strong><br>' +
+                     datosViaje.destinoDireccion.split(',').slice(0, 2).join(',') + '</div>'
+        });
+
+        markerDestino.addListener('click', function() {
+            infoDestino.open(map, markerDestino);
+        });
+
+        // Ajustar límites para mostrar ambos puntos
         const bounds = new google.maps.LatLngBounds();
         bounds.extend(datosViaje.origen);
         bounds.extend(datosViaje.destino);
         map.fitBounds(bounds);
-        
-        // Calcular ruta
+
+        // Agregar un pequeño padding
+        setTimeout(() => {
+            map.panBy(0, -50);
+        }, 500);
+
+        // Dibujar la ruta
         const directionsService = new google.maps.DirectionsService();
         const directionsRenderer = new google.maps.DirectionsRenderer({
-            suppressMarkers: true,
+            suppressMarkers: true, // No mostrar marcadores por defecto de la ruta
             polylineOptions: {
-                strokeColor: '#4285f4',
-                strokeWeight: 4
+                strokeColor: '#1F4E79',
+                strokeWeight: 5,
+                strokeOpacity: 0.8
             }
         });
-        
+
         directionsRenderer.setMap(map);
-        
-        console.log("🛣️ Calculando ruta...");
-        
+
+        // Solicitar la ruta
         directionsService.route({
             origin: datosViaje.origen,
             destination: datosViaje.destino,
-            travelMode: google.maps.TravelMode.DRIVING
+            travelMode: google.maps.TravelMode.DRIVING,
+            drivingOptions: {
+                departureTime: new Date(),
+                trafficModel: 'bestguess'
+            }
         }, function(response, status) {
-            console.log("📡 Respuesta de ruta:", status);
-            
             if (status === 'OK') {
+                console.log('Ruta cargada exitosamente');
                 directionsRenderer.setDirections(response);
-                console.log("✅ Ruta cargada exitosamente");
+
+                // Obtener información de la ruta
+                const route = response.routes[0];
+                if (route && route.legs && route.legs[0]) {
+                    const leg = route.legs[0];
+                    console.log('Distancia:', leg.distance.text);
+                    console.log('Duración:', leg.duration.text);
+                }
             } else {
-                console.warn("⚠️ No se pudo cargar la ruta:", status);
+                console.error('Error al cargar la ruta:', status);
+                // Si falla la ruta, al menos mostramos los marcadores
+                showError('No se pudo calcular la ruta. Mostrando ubicaciones.');
             }
         });
-        
+
         mapaInicializado = true;
-        console.log("🎉 MAPA COMPLETAMENTE INICIALIZADO");
-        
+        console.log('Mapa inicializado correctamente');
+
     } catch (error) {
-        console.error("❌ Error al crear el mapa:", error);
-        mostrarErrorMapa(error.message);
+        console.error("Error al crear el mapa:", error);
+        showError('Error al cargar el mapa: ' + error.message);
     }
 }
 
-function mostrarErrorMapa(mensaje) {
+// Función para mostrar errores en el mapa
+function showError(message) {
     const mapElement = document.getElementById('map');
     if (mapElement) {
         mapElement.innerHTML = `
-            <div style="
-                background: #f8f9fa;
-                border: 2px dashed #dc3545;
-                border-radius: 12px;
-                padding: 2rem;
-                text-align: center;
-                color: #dc3545;
-                height: 100%;
-                display: flex;
-                flex-direction: column;
-                justify-content: center;
-            ">
-                <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                <h6>Mapa no disponible</h6>
-                <p style="font-size: 13px;">${mensaje}</p>
-                <div style="background: white; padding: 1rem; border-radius: 8px; margin-top: 1rem; font-size: 12px;">
-                    <strong>📍 Ruta:</strong><br>
-                    🟢 ${datosViaje.origen_direccion}<br>
-                    🎯 ${datosViaje.destino_direccion}
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #fee; border-radius: 12px;">
+                <div style="text-align: center; color: #c00; padding: 20px;">
+                    <i class="fas fa-exclamation-triangle" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>${message}</p>
                 </div>
             </div>
         `;
     }
 }
 
-// Configurar cuando DOM esté listo
+// Inicializar el loader cuando cargue el DOM
 document.addEventListener('DOMContentLoaded', function() {
-    console.log("📋 DOM listo para el mapa");
-    
     const mapElement = document.getElementById('map');
     if (mapElement) {
-        console.log("✅ Elemento #map encontrado");
-        
-        // Mostrar loading inicial
         mapElement.innerHTML = `
-            <div style="
-                display: flex; 
-                justify-content: center; 
-                align-items: center; 
-                height: 100%; 
-                background: #f8f9fa;
-                border-radius: 12px;
-            ">
+            <div style="display: flex; justify-content: center; align-items: center; height: 100%; background: #f8f9fa; border-radius: 12px;">
                 <div style="text-align: center; color: #4285f4;">
                     <i class="fas fa-spinner fa-spin" style="font-size: 2rem; margin-bottom: 1rem;"></i>
-                    <p>Cargando mapa...</p>
+                    <p style="margin: 0; color: #666;">Cargando mapa de Google...</p>
                 </div>
             </div>
         `;
-    } else {
-        console.error("❌ Elemento #map NO encontrado");
     }
+
+    // Log para debug
+    console.log('DOM Cargado, esperando Google Maps API...');
 });
 
-// Error de autenticación
-window.gm_authFailure = function() {
-    console.error("❌ Error de autenticación de Google Maps");
-    mostrarErrorMapa("Error de autenticación: Verifica la API Key");
-};
+// Cargar la API de Google Maps si no está cargada
+window.addEventListener('load', function() {
+    // Verificar si Google Maps ya está cargado
+    if (typeof google !== 'undefined' && google.maps) {
+        console.log('Google Maps ya está cargado');
+        initMapaCallback();
+    } else {
+        console.log('Cargando Google Maps API...');
 
-console.log("✅ Script del mapa configurado");
+        // Crear script dinámicamente
+        const script = document.createElement('script');
+        script.src = 'https://maps.googleapis.com/maps/api/js?key={{ config("services.google_maps.key") }}&callback=initMapaCallback&libraries=places';
+        script.async = true;
+        script.defer = true;
+        script.onerror = function() {
+            console.error('Error al cargar Google Maps API');
+            showError('No se pudo cargar Google Maps. Verifica tu conexión o la API key.');
+        };
+        document.head.appendChild(script);
+    }
+});
 </script>
+
+<style>
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+</style>
+
 @endsection

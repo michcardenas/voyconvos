@@ -834,13 +834,6 @@ body {
     
     <!-- Formulario Buscar - NUEVO DISEÑO -->
     <form action="{{ route('pasajero.viajes.disponibles') }}" method="GET" class="search-form active" id="form-buscar">
-        @if(isset($ciudadesOrigen) && isset($ciudadesDestino) && count($ciudadesOrigen) == 0 && count($ciudadesDestino) == 0)
-            <div class="alert alert-info" style="background: #e0f2fe; border: 1px solid #0ea5e9; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; color: #0c4a6e; text-align: center;">
-                <i class="fas fa-info-circle" style="margin-right: 8px;"></i>
-                <strong>No hay viajes disponibles para buscar en este momento.</strong><br>
-                <small style="font-size: 0.875rem;">Los viajes que has publicado no aparecen aquí. Si quieres reservar un viaje, espera a que otros conductores publiquen sus rutas.</small>
-            </div>
-        @endif
         <div class="search-bar">
             <!-- De -->
             <div class="search-field">
@@ -860,17 +853,11 @@ body {
                         class="field-input field-select"
                         onchange="updateOrigenLabel(this.value)">
                     <option value="">Todas las ciudades</option>
-                    @if(isset($ciudadesOrigen) && count($ciudadesOrigen) > 0)
-                        @foreach($ciudadesOrigen as $ciudad)
-                            @if($ciudad)
-                                <option value="{{ $ciudad }}" {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
-                                    {{ $ciudad }}
-                                </option>
-                            @endif
-                        @endforeach
-                    @else
-                        <option value="" disabled>No hay orígenes disponibles</option>
-                    @endif
+                    @foreach($ciudadesOrigen as $ciudad)
+                        <option value="{{ $ciudad }}" {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
+                            {{ $ciudad }}
+                        </option>
+                    @endforeach
                 </select>
             </div>
 

@@ -107,11 +107,16 @@
                         <span class="error-msg">{{ $message }}</span>
                     @enderror
                 </div>
-                
+
                 <div class="divider">
-                    <span>Documentos adicionales (opcional)</span>
+                    <span>¿Quieres ser conductor? (opcional)</span>
                 </div>
-                
+
+                <div class="tip-box">
+                    <strong>💡 Documentos opcionales de conductor</strong>
+                    <p>Si quieres ofrecer viajes, sube estos documentos ahora. O completa solo tu DNI y agrégalos después desde tu perfil.</p>
+                </div>
+
                 <!-- Licencia -->
                 <div class="form-group">
                     <label class="label">🪪 Licencia de Conducir</label>
@@ -126,11 +131,14 @@
                         </div>
                         <input type="file" name="licencia" id="licencia" accept="image/*">
                     </div>
+                    @error('licencia')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
                 </div>
-                
-                <!-- Cédula Verde -->
+
+                <!-- Cédula de Identidad -->
                 <div class="form-group">
-                    <label class="label">📋 Cédula Verde del Vehículo</label>
+                    <label class="label">🪪 Cédula de Identidad</label>
                     <div class="upload-box small" id="upload4">
                         <div class="preview" id="preview4">
                             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -140,13 +148,16 @@
                             </svg>
                             <p>Subir (opcional)</p>
                         </div>
-                        <input type="file" name="cedula_verde" id="cedula_verde" accept="image/*">
+                        <input type="file" name="cedula" id="cedula" accept="image/*">
                     </div>
+                    @error('cedula')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
                 </div>
-                
-                <!-- Seguro -->
+
+                <!-- Cédula Verde -->
                 <div class="form-group">
-                    <label class="label">🛡️ Seguro del Vehículo</label>
+                    <label class="label">📋 Cédula Verde del Vehículo</label>
                     <div class="upload-box small" id="upload5">
                         <div class="preview" id="preview5">
                             <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -156,27 +167,49 @@
                             </svg>
                             <p>Subir (opcional)</p>
                         </div>
+                        <input type="file" name="cedula_verde" id="cedula_verde" accept="image/*">
+                    </div>
+                    @error('cedula_verde')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
+                </div>
+
+                <!-- Seguro -->
+                <div class="form-group">
+                    <label class="label">🛡️ Seguro del Vehículo</label>
+                    <div class="upload-box small" id="upload6">
+                        <div class="preview" id="preview6">
+                            <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                                <polyline points="17 8 12 3 7 8"/>
+                                <line x1="12" y1="3" x2="12" y2="15"/>
+                            </svg>
+                            <p>Subir (opcional)</p>
+                        </div>
                         <input type="file" name="seguro" id="seguro" accept="image/*">
                     </div>
+                    @error('seguro')
+                        <span class="error-msg">{{ $message }}</span>
+                    @enderror
                 </div>
-                
-                <div class="tip-box">
-                    <strong>💡 Consejo:</strong>
-                    <p>Sube solo DNI/Cédula ahora. Los otros documentos puedes subirlos después desde tu perfil.</p>
-                </div>
-                
+
                 <!-- Botones -->
-                <button type="submit" class="btn btn-primary" id="btnSubmit">
-                    <span>Verificar Ahora</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <polyline points="20 6 9 17 4 12"/>
-                    </svg>
-                </button>
-                
-                <a href="{{ route('dashboard') }}" class="btn btn-secondary">
-                    Completar después
-                </a>
-                
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <button type="submit" class="btn btn-primary" id="btnSubmit" style="flex: 1; min-width: 200px;">
+                        <span>Verificar y Continuar</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <polyline points="20 6 9 17 4 12"/>
+                        </svg>
+                    </button>
+
+                    <a href="{{ route('hibrido.dashboard') }}" class="btn btn-secondary" style="flex: 1; min-width: 200px; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem;">
+                        <span>Completar Después</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 18l6-6-6-6"/>
+                        </svg>
+                    </a>
+                </div>
+
                 <p class="privacy">🔒 Tus datos están seguros y encriptados</p>
             </form>
         </div>
@@ -555,15 +588,16 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Configurar uploads
+        // Configurar uploads (DNI obligatorio + documentos conductor opcionales)
         const uploads = [
             { input: 'dni_foto', preview: 'preview1', box: 'upload1' },
             { input: 'dni_foto_atras', preview: 'preview2', box: 'upload2' },
             { input: 'licencia', preview: 'preview3', box: 'upload3' },
-            { input: 'cedula_verde', preview: 'preview4', box: 'upload4' },
-            { input: 'seguro', preview: 'preview5', box: 'upload5' }
+            { input: 'cedula', preview: 'preview4', box: 'upload4' },
+            { input: 'cedula_verde', preview: 'preview5', box: 'upload5' },
+            { input: 'seguro', preview: 'preview6', box: 'upload6' }
         ];
-        
+
         uploads.forEach(item => setupUpload(item));
         
         function setupUpload({ input, preview, box }) {

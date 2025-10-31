@@ -1,7 +1,17 @@
-@extends('layouts.app_dashboard')
+@extends('layouts.app')
 
 @section('content')
 <style>
+    /* ============================================
+       RESET ESPECÍFICO PARA ESTA VISTA
+       ============================================ */
+    #viajes-disponibles-page * {
+        box-sizing: border-box;
+    }
+
+    /* ============================================
+       VARIABLES Y ESTILOS BASE (del dashboard)
+       ============================================ */
     :root {
         --vcv-primary: #1F4E79;
         --vcv-light: #DDF2FE;
@@ -10,14 +20,17 @@
         --vcv-bg: #FCFCFD;
     }
 
-    .trips-wrapper {
-        background: linear-gradient(135deg, #DDF2FE 0%, #FCFCFD 50%, rgba(31, 78, 121, 0.03) 100%);
+    /* ============================================
+       WRAPPER PRINCIPAL - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page {
+        background: linear-gradient(135deg, rgba(31, 78, 121, 0.03) 0%, #FCFCFD 50%, rgba(76, 175, 80, 0.02) 100%);
         min-height: 100vh;
-        padding: 2rem 0;
+        padding: 6rem 0 3rem 0; /* Padding top para el header fijo */
         position: relative;
     }
 
-    .trips-wrapper::before {
+    #viajes-disponibles-page::before {
         content: '';
         position: absolute;
         top: 0;
@@ -25,83 +38,272 @@
         right: 0;
         bottom: 0;
         background: 
-            radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(31, 78, 121, 0.05) 0%, transparent 50%);
+            radial-gradient(circle at 20% 80%, rgba(76, 175, 80, 0.03) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(31, 78, 121, 0.03) 0%, transparent 50%);
         pointer-events: none;
+        z-index: 0;
     }
 
-    .container {
+    #viajes-disponibles-page .container {
         position: relative;
         z-index: 1;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 1rem;
     }
 
-    .page-header {
-        background: linear-gradient(135deg, var(--vcv-primary) 0%, rgba(31, 78, 121, 0.9) 50%, rgba(58, 58, 58, 0.8) 100%);
-        color: white;
+    /* ============================================
+       PAGE HEADER - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .page-header {
+        background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%),
+                    url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600') center/cover;
+        color: white !important;
         border-radius: 16px;
         padding: 2rem;
         margin-bottom: 2rem;
-        box-shadow: 0 6px 20px rgba(31, 78, 121, 0.15);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        backdrop-filter: blur(10px);
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
         position: relative;
         overflow: hidden;
+        min-height: 120px;
+        display: flex;
+        align-items: center;
     }
 
-    .page-header::before {
+    #viajes-disponibles-page .page-header::before {
         content: '';
         position: absolute;
         top: 0;
         right: 0;
-        width: 150px;
-        height: 150px;
-        background: radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%);
+        width: 200px;
+        height: 200px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
         border-radius: 50%;
         transform: translate(30%, -30%);
     }
 
-    .page-header h2 {
-        margin: 0;
-        font-weight: 600;
-        font-size: 1.8rem;
+    #viajes-disponibles-page .page-header h2 {
+        margin: 0 !important;
+        font-weight: 700;
+        font-size: 2rem;
         position: relative;
         z-index: 2;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        color: white !important;
     }
 
-    .alert-custom {
-        border: none;
-        border-radius: 12px;
-        padding: 1rem 1.5rem;
-        margin-bottom: 1.5rem;
-        backdrop-filter: blur(10px);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    /* ============================================
+       FILTROS - Estilo Dashboard Search Box
+       ============================================ */
+    #viajes-disponibles-page .filter-container {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+        border: 1px solid rgba(31, 78, 121, 0.1);
     }
 
-    .alert-success {
-        background: rgba(76, 175, 80, 0.1);
-        color: var(--vcv-accent);
-        border-left: 4px solid var(--vcv-accent);
+    #viajes-disponibles-page .filter-form {
+        margin: 0;
     }
 
-    .alert-danger {
-        background: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-        border-left: 4px solid #dc3545;
+    #viajes-disponibles-page .filters-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        align-items: end;
     }
 
-    .alert-info {
-        background: rgba(31, 78, 121, 0.1);
+    #viajes-disponibles-page .filter-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 180px;
+    }
+
+    #viajes-disponibles-page .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--vcv-dark);
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    #viajes-disponibles-page .filter-label i {
         color: var(--vcv-primary);
-        border-left: 4px solid var(--vcv-primary);
     }
 
-    .trip-card {
-        background: rgba(255, 255, 255, 0.95);
+    #viajes-disponibles-page .filter-select,
+    #viajes-disponibles-page input[type="date"].filter-select {
+        padding: 0.875rem 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background: white;
+        color: var(--vcv-dark);
+        font-weight: 500;
+        width: 100%;
+        font-family: 'Poppins', sans-serif;
+    }
+
+    #viajes-disponibles-page .filter-select:focus,
+    #viajes-disponibles-page input[type="date"].filter-select:focus {
+        outline: none;
+        border-color: var(--vcv-primary);
+        box-shadow: 0 0 0 3px rgba(31, 78, 121, 0.1);
+    }
+
+    #viajes-disponibles-page .clear-filter {
+        padding: 0.875rem 2rem;
+        background: #dc3545;
+        color: white !important;
+        border: none;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    #viajes-disponibles-page .clear-filter:hover {
+        background: #c82333;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+        color: white !important;
+    }
+
+    /* ============================================
+       FILTROS ACTIVOS - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .active-filters {
+        background: linear-gradient(135deg, var(--vcv-primary), rgba(31, 78, 121, 0.9));
+        color: white;
+        padding: 1.5rem 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.2);
+    }
+
+    #viajes-disponibles-page .active-filters-header {
+        width: 100%;
+        margin-bottom: 0.5rem;
+    }
+
+    #viajes-disponibles-page .active-filters-header strong {
+        color: white;
+    }
+
+    #viajes-disponibles-page .filters-tags-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+        width: 100%;
+    }
+
+    #viajes-disponibles-page .filter-tag {
+        background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 500;
+        font-size: 0.875rem;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+    }
+
+    /* ============================================
+       RESUMEN DE RESULTADOS - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .results-summary {
+        background: rgba(76, 175, 80, 0.05);
+        border-radius: 12px;
+        padding: 1.25rem 2rem;
+        margin-bottom: 2rem;
+        border-left: 4px solid var(--vcv-accent);
+        box-shadow: 0 2px 8px rgba(76, 175, 80, 0.1);
+    }
+
+    #viajes-disponibles-page .results-content {
+        margin: 0;
+    }
+
+    #viajes-disponibles-page .results-text {
+        margin: 0;
+        color: var(--vcv-dark);
+        font-weight: 500;
+        font-size: 1rem;
+    }
+
+    #viajes-disponibles-page .results-count {
+        color: var(--vcv-accent);
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    #viajes-disponibles-page .results-icon {
+        margin-right: 0.5rem;
+    }
+
+    #viajes-disponibles-page .filter-indicator {
+        color: var(--vcv-primary);
+        font-weight: 600;
+    }
+
+    #viajes-disponibles-page .no-results-suggestion {
+        margin: 0.75rem 0 0 0;
+        font-size: 0.875rem;
+    }
+
+    #viajes-disponibles-page .no-results-suggestion a {
+        color: var(--vcv-primary);
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    #viajes-disponibles-page .no-results-suggestion a:hover {
+        text-decoration: underline;
+    }
+
+    /* ============================================
+       GRID DE CARDS
+       ============================================ */
+    #viajes-disponibles-page .row {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+        margin: 0;
+    }
+
+    #viajes-disponibles-page .col-lg-4,
+    #viajes-disponibles-page .col-md-6 {
+        width: 100%;
+        padding: 0;
+    }
+
+    /* ============================================
+       CARDS DE VIAJES - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .trip-card {
+        background: white;
         border-radius: 16px;
         padding: 0;
-        border: 1px solid rgba(31, 78, 121, 0.12);
-        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.08);
+        border: 1px solid rgba(31, 78, 121, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         transition: all 0.3s ease;
         overflow: hidden;
         height: 100%;
@@ -109,132 +311,143 @@
         flex-direction: column;
     }
 
-    .trip-card:hover {
+    #viajes-disponibles-page .trip-card:hover {
         transform: translateY(-8px);
-        box-shadow: 0 12px 24px rgba(31, 78, 121, 0.15);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
         border-color: rgba(31, 78, 121, 0.2);
     }
 
-    .trip-header {
-        background: linear-gradient(135deg, var(--vcv-primary), rgba(31, 78, 121, 0.9));
-        color: white;
-        padding: 1.2rem 1.5rem;
+    /* ============================================
+       HEADER DE TARJETA - Estilo Dashboard Hero
+       ============================================ */
+    #viajes-disponibles-page .trip-header {
+        background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%);
+        color: white !important;
+        padding: 1.5rem 1.5rem;
         position: relative;
         overflow: hidden;
     }
 
-    .trip-header::before {
+    #viajes-disponibles-page .trip-header::before {
         content: '';
         position: absolute;
         top: 0;
         right: 0;
-        width: 80px;
-        height: 80px;
-        background: radial-gradient(circle, rgba(76, 175, 80, 0.2) 0%, transparent 70%);
+        width: 100px;
+        height: 100px;
+        background: radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%);
         border-radius: 50%;
         transform: translate(30%, -30%);
     }
 
-    .route-display {
+    #viajes-disponibles-page .route-display {
         display: flex;
         align-items: center;
         justify-content: space-between;
         margin: 0;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 1.1rem;
         position: relative;
         z-index: 2;
+        color: white !important;
     }
 
-    .route-city {
+    #viajes-disponibles-page .route-city {
         flex: 1;
         text-align: center;
+        color: white !important;
     }
 
-    .route-arrow {
+    #viajes-disponibles-page .route-arrow {
         margin: 0 1rem;
-        font-size: 1.2rem;
-        color: rgba(255, 255, 255, 0.8);
+        font-size: 1.3rem;
+        color: rgba(255, 255, 255, 0.9);
     }
 
-    .trip-duration {
+    #viajes-disponibles-page .trip-duration {
         text-align: center;
-        font-size: 0.8rem;
-        opacity: 0.9;
-        margin-top: 0.3rem;
+        font-size: 0.85rem;
+        opacity: 0.95;
+        margin-top: 0.5rem;
         position: relative;
         z-index: 2;
+        color: white !important;
     }
 
-    .trip-body {
+    /* ============================================
+       BODY DE TARJETA
+       ============================================ */
+    #viajes-disponibles-page .trip-body {
         padding: 1.5rem;
         flex: 1;
         display: flex;
         flex-direction: column;
     }
 
-    .trip-details {
+    #viajes-disponibles-page .trip-details {
         flex: 1;
     }
 
-    .detail-row {
+    #viajes-disponibles-page .detail-row {
         display: flex;
         align-items: center;
-        margin-bottom: 0.8rem;
+        margin-bottom: 1rem;
         padding: 0.5rem 0;
     }
 
-    .detail-row:last-child {
+    #viajes-disponibles-page .detail-row:last-child {
         margin-bottom: 0;
     }
 
-    .detail-icon {
-        width: 35px;
-        height: 35px;
+    #viajes-disponibles-page .detail-icon {
+        width: 40px;
+        height: 40px;
         border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
         margin-right: 1rem;
-        font-size: 0.9rem;
+        font-size: 1rem;
+        flex-shrink: 0;
     }
 
-    .detail-icon.date {
-        background: rgba(31, 78, 121, 0.1);
+    #viajes-disponibles-page .detail-icon.date {
+        background: linear-gradient(135deg, var(--vcv-light) 0%, rgba(31, 78, 121, 0.1) 100%);
         color: var(--vcv-primary);
     }
 
-    .detail-icon.time {
-        background: rgba(76, 175, 80, 0.1);
+    #viajes-disponibles-page .detail-icon.time {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%);
         color: var(--vcv-accent);
     }
 
-    .detail-icon.driver {
-        background: rgba(221, 242, 254, 0.8);
+    #viajes-disponibles-page .detail-icon.driver {
+        background: linear-gradient(135deg, var(--vcv-light) 0%, rgba(221, 242, 254, 0.5) 100%);
         color: var(--vcv-primary);
     }
 
-    .detail-icon.seats {
-        background: rgba(255, 193, 7, 0.1);
+    #viajes-disponibles-page .detail-icon.seats {
+        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%);
         color: #f57c00;
     }
 
-    .driver-row {
-        background: rgba(31, 78, 121, 0.02);
+    #viajes-disponibles-page .driver-row {
+        background: rgba(31, 78, 121, 0.03);
         border-radius: 12px;
         padding: 1rem !important;
         margin-bottom: 1.2rem !important;
         border: 1px solid rgba(31, 78, 121, 0.08);
     }
 
-    .driver-avatar {
+    #viajes-disponibles-page .driver-avatar {
         width: 50px;
         height: 50px;
         margin-right: 1rem;
         position: relative;
+        flex-shrink: 0;
     }
 
-    .driver-photo {
+    #viajes-disponibles-page .driver-photo {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -243,7 +456,7 @@
         box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);
     }
 
-    .driver-photo-placeholder {
+    #viajes-disponibles-page .driver-photo-placeholder {
         width: 50px;
         height: 50px;
         border-radius: 50%;
@@ -252,710 +465,660 @@
         align-items: center;
         justify-content: center;
         color: white;
-        font-size: 1.2rem;
+        font-size: 1.3rem;
         border: 3px solid var(--vcv-primary);
         box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);
     }
 
-    .driver-rating {
+    #viajes-disponibles-page .driver-rating {
         display: flex;
         align-items: center;
         gap: 0.5rem;
         margin-top: 0.5rem;
+        flex-wrap: wrap;
     }
 
-    .stars {
+    #viajes-disponibles-page .stars {
         display: flex;
-        gap: 0.1rem;
+        gap: 0.15rem;
     }
 
-    .stars i {
-        font-size: 0.8rem;
+    #viajes-disponibles-page .stars i {
+        font-size: 0.85rem;
         color: #ffc107;
     }
 
-    .stars .far {
+    #viajes-disponibles-page .stars .far {
         color: rgba(255, 193, 7, 0.3);
     }
 
-    .rating-value {
+    #viajes-disponibles-page .rating-value {
         font-weight: 600;
         color: var(--vcv-primary);
-        font-size: 0.85rem;
+        font-size: 0.875rem;
     }
 
-    .rating-count {
+    #viajes-disponibles-page .rating-count {
         color: rgba(58, 58, 58, 0.6);
         font-size: 0.75rem;
     }
 
-    .verified-badge {
+    #viajes-disponibles-page .verified-badge {
         display: inline-block;
         margin-left: 0.5rem;
         color: var(--vcv-accent);
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 
-    .verified-badge i {
+    #viajes-disponibles-page .verified-badge i {
         filter: drop-shadow(0 1px 2px rgba(76, 175, 80, 0.3));
     }
 
-    .experience-badge {
+    #viajes-disponibles-page .experience-badge {
         background: rgba(31, 78, 121, 0.1);
         color: var(--vcv-primary);
-        padding: 0.2rem 0.6rem;
+        padding: 0.25rem 0.65rem;
         border-radius: 12px;
         font-size: 0.7rem;
         font-weight: 600;
         border: 1px solid rgba(31, 78, 121, 0.2);
     }
 
-    .detail-content {
+    #viajes-disponibles-page .driver-no-rating {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+
+    #viajes-disponibles-page .no-rating-text {
+        font-size: 0.8rem;
+        color: rgba(58, 58, 58, 0.6);
+    }
+
+    #viajes-disponibles-page .detail-content {
         flex: 1;
     }
 
-    .detail-label {
+    #viajes-disponibles-page .detail-label {
         font-size: 0.8rem;
         color: rgba(58, 58, 58, 0.7);
-        margin-bottom: 0.2rem;
+        margin-bottom: 0.25rem;
         font-weight: 500;
     }
 
-    .detail-value {
+    #viajes-disponibles-page .detail-value {
         color: var(--vcv-dark);
         font-weight: 600;
         font-size: 0.95rem;
     }
 
-    .price-section {
-        background: rgba(76, 175, 80, 0.05);
-        border-radius: 10px;
-        padding: 1rem;
-        margin: 1rem 0;
+    /* ============================================
+       SECCIÓN DE PRECIO - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .price-section {
+        background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%);
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin: 1.25rem 0;
         text-align: center;
-        border: 1px solid rgba(76, 175, 80, 0.2);
+        border: 2px solid rgba(76, 175, 80, 0.2);
     }
 
-    .price-amount {
-        font-size: 1.8rem;
+    #viajes-disponibles-page .price-amount {
+        font-size: 2rem;
         font-weight: 700;
         color: var(--vcv-accent);
         margin: 0;
     }
 
-    .price-label {
-        font-size: 0.8rem;
-        color: rgba(58, 58, 58, 0.7);
-        margin: 0;
-    }
-
-    .trip-actions {
-        padding: 0 1.5rem 1.5rem;
-        display: flex;
-        gap: 0.8rem;
-        flex-wrap: wrap;
-    }
-
-    .btn-custom {
-        border: none;
-        border-radius: 25px;
-        padding: 0.7rem 1.2rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        text-decoration: none;
+    #viajes-disponibles-page .price-label {
         font-size: 0.85rem;
-        display: inline-flex;
-        align-items: center;
-        gap: 0.5rem;
-        flex: 1;
-        justify-content: center;
-        min-width: 100px;
-    }
-
-    .btn-custom.primary {
-        background: var(--vcv-primary);
-        color: white;
-    }
-
-    .btn-custom.primary:hover {
-        background: rgba(31, 78, 121, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(31, 78, 121, 0.3);
-        color: white;
-    }
-
-    .btn-custom.success {
-        background: var(--vcv-accent);
-        color: white;
-    }
-
-    .btn-custom.success:hover {
-        background: rgba(76, 175, 80, 0.9);
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
-        color: white;
-    }
-
-    .btn-custom.outline {
-        background: rgba(31, 78, 121, 0.05);
-        color: var(--vcv-primary);
-        border: 1px solid rgba(31, 78, 121, 0.3);
-    }
-
-    .btn-custom.outline:hover {
-        background: var(--vcv-primary);
-        color: white;
-        transform: translateY(-2px);
-    }
-
-    .empty-state {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border-radius: 16px;
-        padding: 3rem 2rem;
-        text-align: center;
-        border: 1px solid rgba(31, 78, 121, 0.12);
-        box-shadow: 0 4px 12px rgba(31, 78, 121, 0.08);
-    }
-
-    .empty-state i {
-        font-size: 4rem;
-        color: rgba(31, 78, 121, 0.3);
-        margin-bottom: 1.5rem;
-    }
-
-    .empty-state h4 {
-        color: var(--vcv-primary);
-        font-weight: 600;
-        margin-bottom: 1rem;
-    }
-
-    .empty-state p {
         color: rgba(58, 58, 58, 0.7);
-        margin: 0;
+        margin: 0.25rem 0 0 0;
+        font-weight: 500;
     }
 
-    .seats-available {
+    #viajes-disponibles-page .seats-available {
         display: inline-block;
         background: rgba(76, 175, 80, 0.1);
         color: var(--vcv-accent);
-        padding: 0.3rem 0.8rem;
-        border-radius: 15px;
-        font-size: 0.8rem;
+        padding: 0.4rem 0.9rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
         font-weight: 600;
         border: 1px solid rgba(76, 175, 80, 0.3);
     }
 
-
-    .filter-container {
-    background: #f8f9fa;
-    padding: 20px;
-    border-radius: 10px;
-    margin-bottom: 25px;
-    border-left: 4px solid #667eea;
-}
-
-.filter-form {
-    margin: 0;
-}
-
-.filters-row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    gap: 20px;
-    align-items: end;
-}
-
-.filter-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.filter-label {
-    font-weight: 600;
-    color: #333;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    font-size: 14px;
-}
-
-.filter-select {
-    padding: 10px 15px;
-    border: 2px solid #e1e5e9;
-    border-radius: 8px;
-    background: white;
-    font-size: 14px;
-    cursor: pointer;
-    transition: border-color 0.3s ease;
-    font-family: inherit;
-}
-
-.filter-select:focus {
-    outline: none;
-    border-color: #667eea;
-}
-
-.clear-filter {
-    background: #dc3545;
-    color: white;
-    padding: 10px 15px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 5px;
-    transition: background-color 0.3s ease;
-    height: fit-content;
-    font-weight: 500;
-}
-
-.clear-filter:hover {
-    background: #c82333;
-    color: white;
-    text-decoration: none;
-}
-
-.active-filters {
-    background: linear-gradient(45deg, #667eea, #764ba2);
-    color: white;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    display: flex;
-    gap: 15px;
-    flex-wrap: wrap;
-}
-
-.filter-tag {
-    background: rgba(255, 255, 255, 0.2);
-    padding: 8px 12px;
-    border-radius: 20px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-weight: 500;
-    font-size: 14px;
-}
-
-.results-summary {
-    background: #e8f4f8;
-    padding: 15px 20px;
-    border-radius: 8px;
-    margin-bottom: 25px;
-    border-left: 4px solid #17a2b8;
-}
-
-.results-text {
-    margin: 0;
-    color: #333;
-    font-weight: 500;
-}
-
-.results-count {
-    color: #17a2b8;
-    font-weight: 700;
-}
-/* Estilos para mensajes de verificación */
-.verification-message {
-    margin-bottom: 15px;
-}
-
-.verification-alert {
-    display: flex;
-    align-items: flex-start;
-    padding: 12px;
-    border-radius: 8px;
-    margin-bottom: 10px;
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.verification-alert.pending {
-    background-color: #fff3cd;
-    border: 1px solid #ffeaa7;
-    color: #856404;
-}
-
-.verification-alert.incomplete {
-    background-color: #f8d7da;
-    border: 1px solid #f5c6cb;
-    color: #721c24;
-}
-
-.verification-alert .alert-icon {
-    margin-right: 10px;
-    font-size: 16px;
-    margin-top: 2px;
-    flex-shrink: 0;
-}
-
-.verification-alert .alert-content {
-    flex: 1;
-}
-
-.verification-alert .alert-title {
-    font-size: 14px;
-    font-weight: 600;
-    margin: 0 0 4px 0;
-}
-
-.verification-alert .alert-text {
-    font-size: 13px;
-    margin: 0 0 8px 0;
-    opacity: 0.9;
-}
-
-/* Botones deshabilitados */
-.disabled-actions {
-    display: flex;
-    gap: 10px;
-    opacity: 0.6;
-}
-
-.btn-custom.disabled {
-    background-color: #e9ecef !important;
-    color: #6c757d !important;
-    border-color: #dee2e6 !important;
-    cursor: not-allowed !important;
-    pointer-events: none;
-}
-
-.btn-custom.outline.disabled {
-    background-color: transparent !important;
-    color: #6c757d !important;
-    border-color: #dee2e6 !important;
-}
-
-.btn-custom.small {
-    padding: 6px 12px;
-    font-size: 12px;
-    margin-top: 5px;
-}
-
-/* Responsive adjustments */
-@media (max-width: 768px) {
-    .verification-alert {
-        padding: 10px;
-        font-size: 13px;
+    /* ============================================
+       ACCIONES - Estilo Dashboard Buttons
+       ============================================ */
+    #viajes-disponibles-page .trip-actions {
+        padding: 0 1.5rem 1.5rem;
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
     }
-    
-    .verification-alert .alert-title {
-        font-size: 13px;
-    }
-    
-    .verification-alert .alert-text {
-        font-size: 12px;
-    }
-    
-    .disabled-actions {
-        flex-direction: column;
-    }
-}
 
-/* Estados hover para botones habilitados */
-.trip-actions .btn-custom:not(.disabled):hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-    transition: all 0.2s ease;
-}
-
-/* Tooltip para botones deshabilitados */
-.btn-custom.disabled[title] {
-    position: relative;
-}
-
-.btn-custom.disabled[title]:hover::after {
-    content: attr(title);
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: #333;
-    color: white;
-    padding: 5px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-    white-space: nowrap;
-    z-index: 1000;
-    margin-bottom: 5px;
-}
-
-.btn-custom.disabled[title]:hover::before {
-    content: '';
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    transform: translateX(-50%);
-    border: 4px solid transparent;
-    border-top-color: #333;
-    z-index: 1000;
-}
-/* Responsive */
-@media (max-width: 768px) {
-    .filters-row {
-        grid-template-columns: 1fr;
-        gap: 15px;
+    #viajes-disponibles-page .btn-custom {
+        border: none;
+        border-radius: 10px;
+        padding: 0.875rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        font-size: 0.875rem;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        flex: 1;
+        min-width: 120px;
+        cursor: pointer;
     }
-    
-    .active-filters {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
 
-@media (max-width: 1200px) {
-    .filters-row {
-        grid-template-columns: repeat(2, 1fr);
+    #viajes-disponibles-page .btn-custom.primary {
+        background: var(--vcv-primary);
+        color: white !important;
     }
-}
 
+    #viajes-disponibles-page .btn-custom.primary:hover {
+        background: #173d61;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(31, 78, 121, 0.3);
+        color: white !important;
+    }
+
+    #viajes-disponibles-page .btn-custom.success {
+        background: var(--vcv-accent);
+        color: white !important;
+    }
+
+    #viajes-disponibles-page .btn-custom.success:hover {
+        background: #45a049;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        color: white !important;
+    }
+
+    #viajes-disponibles-page .btn-custom.outline {
+        background: rgba(31, 78, 121, 0.05);
+        color: var(--vcv-primary) !important;
+        border: 2px solid rgba(31, 78, 121, 0.3);
+    }
+
+    #viajes-disponibles-page .btn-custom.outline:hover {
+        background: var(--vcv-primary);
+        color: white !important;
+        border-color: var(--vcv-primary);
+        transform: translateY(-2px);
+    }
+
+    #viajes-disponibles-page .btn-custom.small {
+        padding: 0.6rem 1.2rem;
+        font-size: 0.8rem;
+        margin-top: 0.5rem;
+    }
+
+    /* ============================================
+       VERIFICACIÓN - Estilo Dashboard Alerts
+       ============================================ */
+    #viajes-disponibles-page .verification-message {
+        margin-bottom: 1rem;
+        width: 100%;
+    }
+
+    #viajes-disponibles-page .verification-alert {
+        display: flex;
+        align-items: flex-start;
+        padding: 1rem 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+        font-size: 0.875rem;
+        line-height: 1.5;
+        border: 2px solid;
+    }
+
+    #viajes-disponibles-page .verification-alert.pending {
+        background: rgba(255, 193, 7, 0.1);
+        border-color: rgba(255, 193, 7, 0.3);
+        color: #856404;
+    }
+
+    #viajes-disponibles-page .verification-alert.incomplete {
+        background: rgba(220, 53, 69, 0.1);
+        border-color: rgba(220, 53, 69, 0.3);
+        color: #721c24;
+    }
+
+    #viajes-disponibles-page .verification-alert .alert-icon {
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+
+    #viajes-disponibles-page .verification-alert .alert-content {
+        flex: 1;
+    }
+
+    #viajes-disponibles-page .verification-alert .alert-title {
+        font-size: 0.875rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+    }
+
+    #viajes-disponibles-page .verification-alert .alert-text {
+        font-size: 0.8rem;
+        margin: 0 0 0.75rem 0;
+        opacity: 0.95;
+    }
+
+    #viajes-disponibles-page .disabled-actions {
+        display: flex;
+        gap: 0.75rem;
+        opacity: 0.6;
+        width: 100%;
+    }
+
+    #viajes-disponibles-page .btn-custom.disabled {
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+        border-color: #dee2e6 !important;
+        cursor: not-allowed !important;
+        pointer-events: none;
+    }
+
+    #viajes-disponibles-page .btn-custom.outline.disabled {
+        background-color: transparent !important;
+        color: #6c757d !important;
+        border-color: #dee2e6 !important;
+    }
+
+    /* ============================================
+       EMPTY STATE - Estilo Dashboard
+       ============================================ */
+    #viajes-disponibles-page .empty-state {
+        background: white;
+        border-radius: 16px;
+        padding: 4rem 2rem;
+        text-align: center;
+        border: 1px solid rgba(31, 78, 121, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+
+    #viajes-disponibles-page .empty-state i {
+        font-size: 4.5rem;
+        color: rgba(31, 78, 121, 0.3);
+        margin-bottom: 1.5rem;
+    }
+
+    #viajes-disponibles-page .empty-state h4 {
+        color: var(--vcv-primary);
+        font-weight: 600;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    #viajes-disponibles-page .empty-state p {
+        color: rgba(58, 58, 58, 0.7);
+        margin: 0;
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+
+    /* ============================================
+       ANIMACIONES - del Dashboard
+       ============================================ */
+    @keyframes fadeIn {
+        from { 
+            opacity: 0; 
+            transform: translateY(10px); 
+        }
+        to { 
+            opacity: 1; 
+            transform: translateY(0); 
+        }
+    }
+
+    /* ============================================
+       RESPONSIVE - Estilo Dashboard
+       ============================================ */
     @media (max-width: 768px) {
-        .trips-wrapper {
-            padding: 1rem 0;
+        #viajes-disponibles-page {
+            padding: 5rem 0 2rem 0;
+        }
+
+        #viajes-disponibles-page .container {
+            padding: 0 0.75rem;
         }
         
-        .page-header {
+        #viajes-disponibles-page .page-header {
             padding: 1.5rem;
+            min-height: 100px;
         }
         
-        .page-header h2 {
+        #viajes-disponibles-page .page-header h2 {
             font-size: 1.5rem;
         }
         
-        .trip-card {
-            margin-bottom: 1.5rem;
+        #viajes-disponibles-page .filter-container {
+            padding: 1.5rem;
+        }
+
+        #viajes-disponibles-page .filters-row {
+            flex-direction: column;
+        }
+
+        #viajes-disponibles-page .filter-group {
+            width: 100%;
+            min-width: 100%;
+        }
+
+        #viajes-disponibles-page .clear-filter {
+            width: 100%;
+            justify-content: center;
+        }
+
+        #viajes-disponibles-page .active-filters {
+            padding: 1.25rem 1.5rem;
+        }
+
+        #viajes-disponibles-page .filter-tag {
+            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+        }
+
+        #viajes-disponibles-page .results-summary {
+            padding: 1rem 1.5rem;
+        }
+
+        #viajes-disponibles-page .row {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        #viajes-disponibles-page .trip-card {
+            margin-bottom: 0;
         }
         
-        .trip-actions {
+        #viajes-disponibles-page .trip-actions {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        #viajes-disponibles-page .btn-custom {
+            width: 100%;
+            margin: 0;
+        }
+
+        #viajes-disponibles-page .disabled-actions {
             flex-direction: column;
         }
         
-        .btn-custom {
-            width: 100%;
-            margin: 0.2rem 0;
+        #viajes-disponibles-page .route-display {
+            font-size: 0.95rem;
         }
         
-        .route-display {
-            font-size: 0.9rem;
-        }
-        
-        .route-arrow {
+        #viajes-disponibles-page .route-arrow {
             margin: 0 0.5rem;
         }
 
-        .driver-avatar {
+        #viajes-disponibles-page .driver-avatar {
             width: 45px;
             height: 45px;
         }
 
-        .driver-photo,
-        .driver-photo-placeholder {
+        #viajes-disponibles-page .driver-photo,
+        #viajes-disponibles-page .driver-photo-placeholder {
             width: 45px;
             height: 45px;
         }
 
-        .driver-rating {
-            flex-wrap: wrap;
+        #viajes-disponibles-page .driver-rating {
             gap: 0.3rem;
         }
 
-        .stars {
-            gap: 0.05rem;
+        #viajes-disponibles-page .stars {
+            gap: 0.1rem;
         }
 
-        .stars i {
+        #viajes-disponibles-page .stars i {
             font-size: 0.75rem;
+        }
+
+        #viajes-disponibles-page .verification-alert {
+            padding: 0.875rem 1rem;
+            font-size: 0.8rem;
+        }
+        
+        #viajes-disponibles-page .verification-alert .alert-title {
+            font-size: 0.8rem;
+        }
+        
+        #viajes-disponibles-page .verification-alert .alert-text {
+            font-size: 0.75rem;
+        }
+
+        #viajes-disponibles-page .empty-state {
+            padding: 3rem 1.5rem;
+        }
+
+        #viajes-disponibles-page .empty-state i {
+            font-size: 3.5rem;
+        }
+
+        #viajes-disponibles-page .empty-state h4 {
+            font-size: 1.3rem;
+        }
+
+        #viajes-disponibles-page .empty-state p {
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (min-width: 769px) and (max-width: 1024px) {
+        #viajes-disponibles-page .row {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #viajes-disponibles-page .filters-row {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        #viajes-disponibles-page .filter-group:last-child {
+            grid-column: span 2;
+        }
+    }
+
+    @media (min-width: 1025px) {
+        #viajes-disponibles-page .row {
+            grid-template-columns: repeat(3, 1fr);
         }
     }
 </style>
 
-<div class="trips-wrapper">
+<div id="viajes-disponibles-page">
     <div class="container">
         <!-- Page Header -->
         <div class="page-header">
-            <h2>🚗 Viajes Disponibles</h2>
+            <h2> Viajes Disponibles</h2>
         </div>
-<div class="filter-container">
-    <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form" id="filterForm">
-        <div class="filters-row">
-            <!-- Filtro por Ciudad Origen -->
-            <div class="filter-group">
-                <label for="ciudad_origen" class="filter-label">
-                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                    <span class="label-text">Ciudad origen:</span>
-                </label>
-                <select name="ciudad_origen" 
-                        id="ciudad_origen" 
-                        class="filter-select" 
-                        onchange="this.form.submit()"
-                        aria-label="Seleccionar ciudad de origen">
-                    <option value="">Todas las ciudades</option>
-                    @foreach($ciudadesOrigen as $ciudad)
-                        <option value="{{ $ciudad }}" 
-                                {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
-                            {{ $ciudad }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
 
-            <!-- Filtro por Ciudad Destino -->
-            <div class="filter-group">
-                <label for="ciudad_destino" class="filter-label">
-                    <i class="fas fa-flag-checkered" aria-hidden="true"></i>
-                    <span class="label-text">Ciudad destino:</span>
-                </label>
-                <select name="ciudad_destino" 
-                        id="ciudad_destino" 
-                        class="filter-select" 
-                        onchange="this.form.submit()"
-                        aria-label="Seleccionar ciudad de destino">
-                    <option value="">Todas las ciudades</option>
-                    @foreach($ciudadesDestino as $ciudad)
-                        <option value="{{ $ciudad }}" 
-                                {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
-                            {{ $ciudad }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
+        <!-- Filtros -->
+        <div class="filter-container">
+            <form method="GET" action="{{ route('pasajero.viajes.disponibles') }}" class="filter-form" id="filterForm">
+                <div class="filters-row">
+                    <!-- Filtro por Ciudad Origen -->
+                    <div class="filter-group">
+                        <label for="ciudad_origen" class="filter-label">
+                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                            <span class="label-text">Ciudad origen</span>
+                        </label>
+                        <select name="ciudad_origen" 
+                                id="ciudad_origen" 
+                                class="filter-select" 
+                                onchange="this.form.submit()"
+                                aria-label="Seleccionar ciudad de origen">
+                            <option value="">Todas las ciudades</option>
+                            @foreach($ciudadesOrigen as $ciudad)
+                                <option value="{{ $ciudad }}" 
+                                        {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
+                                    {{ $ciudad }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-            <!-- Filtro por Fecha -->
-            <div class="filter-group">
-                <label for="fecha_salida" class="filter-label">
-                    <i class="fas fa-calendar" aria-hidden="true"></i>
-                    <span class="label-text">Fecha salida:</span>
-                </label>
-                <input type="date" 
-                       name="fecha_salida" 
-                       id="fecha_salida" 
-                       class="filter-select" 
-                       value="{{ request('fecha_salida') }}"
-                       min="{{ date('Y-m-d') }}"
-                       onchange="this.form.submit()"
-                       aria-label="Seleccionar fecha de salida">
-            </div>
+                    <!-- Filtro por Ciudad Destino -->
+                    <div class="filter-group">
+                        <label for="ciudad_destino" class="filter-label">
+                            <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                            <span class="label-text">Ciudad destino</span>
+                        </label>
+                        <select name="ciudad_destino" 
+                                id="ciudad_destino" 
+                                class="filter-select" 
+                                onchange="this.form.submit()"
+                                aria-label="Seleccionar ciudad de destino">
+                            <option value="">Todas las ciudades</option>
+                            @foreach($ciudadesDestino as $ciudad)
+                                <option value="{{ $ciudad }}" 
+                                        {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
+                                    {{ $ciudad }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-            <!-- Filtro por Puestos -->
-            <div class="filter-group">
-                <label for="puestos_minimos" class="filter-label">
-                    <i class="fas fa-chair" aria-hidden="true"></i>
-                    <span class="label-text">Puestos mín:</span>
-                </label>
-                <select name="puestos_minimos"
-                        id="puestos_minimos"
-                        class="filter-select"
-                        onchange="this.form.submit()"
-                        aria-label="Seleccionar número mínimo de puestos">
-                    <option value="">Todos</option>
-                    <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1+</option>
-                    <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2+</option>
-                    <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3+</option>
-                    <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4+</option>
-                </select>
-            </div>
+                    <!-- Filtro por Fecha -->
+                    <div class="filter-group">
+                        <label for="fecha_salida" class="filter-label">
+                            <i class="fas fa-calendar" aria-hidden="true"></i>
+                            <span class="label-text">Fecha salida</span>
+                        </label>
+                        <input type="date" 
+                               name="fecha_salida" 
+                               id="fecha_salida" 
+                               class="filter-select" 
+                               value="{{ request('fecha_salida') }}"
+                               min="{{ date('Y-m-d') }}"
+                               onchange="this.form.submit()"
+                               aria-label="Seleccionar fecha de salida">
+                    </div>
 
-            <!-- Filtro por Ordenamiento -->
-            <div class="filter-group">
-                <label for="ordenar" class="filter-label">
-                    <i class="fas fa-sort" aria-hidden="true"></i>
-                    <span class="label-text">Ordenar por:</span>
-                </label>
-                <select name="ordenar"
-                        id="ordenar"
-                        class="filter-select"
-                        onchange="this.form.submit()"
-                        aria-label="Ordenar resultados">
-                    <option value="fecha" {{ request('ordenar', 'fecha') == 'fecha' ? 'selected' : '' }}>Fecha (próxima)</option>
-                    <option value="cercania" {{ request('ordenar') == 'cercania' ? 'selected' : '' }}>Cercanía</option>
-                    <option value="precio" {{ request('ordenar') == 'precio' ? 'selected' : '' }}>Precio (menor)</option>
-                </select>
-            </div>
+                    <!-- Filtro por Puestos -->
+                    <div class="filter-group">
+                        <label for="puestos_minimos" class="filter-label">
+                            <i class="fas fa-chair" aria-hidden="true"></i>
+                            <span class="label-text">Puestos mínimos</span>
+                        </label>
+                        <select name="puestos_minimos"
+                                id="puestos_minimos"
+                                class="filter-select"
+                                onchange="this.form.submit()"
+                                aria-label="Seleccionar número mínimo de puestos">
+                            <option value="">Todos</option>
+                            <option value="1" {{ request('puestos_minimos') == '1' ? 'selected' : '' }}>1+</option>
+                            <option value="2" {{ request('puestos_minimos') == '2' ? 'selected' : '' }}>2+</option>
+                            <option value="3" {{ request('puestos_minimos') == '3' ? 'selected' : '' }}>3+</option>
+                            <option value="4" {{ request('puestos_minimos') == '4' ? 'selected' : '' }}>4+</option>
+                        </select>
+                    </div>
 
-            <!-- Botón limpiar -->
-            @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
-                <div class="filter-group">
-                    <label class="filter-label" style="opacity: 0; pointer-events: none;" aria-hidden="true">
-                        <span>Acciones</span>
-                    </label>
-                    <a href="{{ route('pasajero.viajes.disponibles') }}" 
-                       class="clear-filter"
-                       role="button"
-                       aria-label="Limpiar todos los filtros">
-                        <i class="fas fa-times" aria-hidden="true"></i>
-                        <span class="clear-text">Limpiar</span>
-                    </a>
+                    <!-- Filtro por Ordenamiento -->
+                    <div class="filter-group">
+                        <label for="ordenar" class="filter-label">
+                            <i class="fas fa-sort" aria-hidden="true"></i>
+                            <span class="label-text">Ordenar por</span>
+                        </label>
+                        <select name="ordenar"
+                                id="ordenar"
+                                class="filter-select"
+                                onchange="this.form.submit()"
+                                aria-label="Ordenar resultados">
+                            <option value="fecha" {{ request('ordenar', 'fecha') == 'fecha' ? 'selected' : '' }}>Fecha (próxima)</option>
+                            <option value="cercania" {{ request('ordenar') == 'cercania' ? 'selected' : '' }}>Cercanía</option>
+                            <option value="precio" {{ request('ordenar') == 'precio' ? 'selected' : '' }}>Precio (menor)</option>
+                        </select>
+                    </div>
+
+                    <!-- Botón limpiar -->
+                    @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+                        <div class="filter-group">
+                            <label class="filter-label" style="opacity: 0; pointer-events: none;" aria-hidden="true">
+                                <span>Acciones</span>
+                            </label>
+                            <a href="{{ route('pasajero.viajes.disponibles') }}" 
+                               class="clear-filter"
+                               role="button"
+                               aria-label="Limpiar todos los filtros">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                                <span class="clear-text">Limpiar</span>
+                            </a>
+                        </div>
+                    @endif
                 </div>
-            @endif
+            </form>
         </div>
-    </form>
-</div>
 
-<!-- Filtros Activos Responsive -->
-@if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
-    <div class="active-filters" role="region" aria-label="Filtros aplicados">
-        <div class="active-filters-header" style="width: 100%; margin-bottom: 8px;">
-            <strong style="font-size: 14px; opacity: 0.9;">Filtros aplicados:</strong>
-        </div>
-        <div class="filters-tags-container">
-            @if(request('ciudad_origen'))
-                <span class="filter-tag" role="status">
-                    <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
-                    <span>Origen: {{ request('ciudad_origen') }}</span>
-                </span>
-            @endif
-            @if(request('ciudad_destino'))
-                <span class="filter-tag" role="status">
-                    <i class="fas fa-flag-checkered" aria-hidden="true"></i>
-                    <span>Destino: {{ request('ciudad_destino') }}</span>
-                </span>
-            @endif
-            @if(request('fecha_salida'))
-                <span class="filter-tag" role="status">
-                    <i class="fas fa-calendar" aria-hidden="true"></i>
-                    <span>Fecha: {{ \Carbon\Carbon::parse(request('fecha_salida'))->format('d/m/Y') }}</span>
-                </span>
-            @endif
-            @if(request('puestos_minimos'))
-                <span class="filter-tag" role="status">
-                    <i class="fas fa-chair" aria-hidden="true"></i>
-                    <span>{{ request('puestos_minimos') }}+ puestos</span>
-                </span>
-            @endif
-        </div>
-    </div>
-@endif
-
-<!-- Resumen de Resultados Responsive -->
-<div class="results-summary" role="status" aria-live="polite">
-    <div class="results-content">
-        <p class="results-text">
-            <span class="results-icon">🔍</span>
-            Se encontraron 
-            <span class="results-count">{{ $viajesDisponibles->count() }}</span> 
-            {{ $viajesDisponibles->count() == 1 ? 'viaje disponible' : 'viajes disponibles' }}
-            @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
-                <span class="filter-indicator">con los filtros aplicados</span>
-            @endif
-        </p>
-        @if($viajesDisponibles->count() == 0 && request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
-            <p class="no-results-suggestion">
-                <small>💡 Intenta <a href="{{ route('pasajero.viajes.disponibles') }}" style="color: #17a2b8; text-decoration: underline;">quitar algunos filtros</a> para ver más opciones</small>
-            </p>
+        <!-- Filtros Activos -->
+        @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+            <div class="active-filters" role="region" aria-label="Filtros aplicados">
+                <div class="active-filters-header">
+                    <strong>Filtros aplicados:</strong>
+                </div>
+                <div class="filters-tags-container">
+                    @if(request('ciudad_origen'))
+                        <span class="filter-tag" role="status">
+                            <i class="fas fa-map-marker-alt" aria-hidden="true"></i>
+                            <span>Origen: {{ request('ciudad_origen') }}</span>
+                        </span>
+                    @endif
+                    @if(request('ciudad_destino'))
+                        <span class="filter-tag" role="status">
+                            <i class="fas fa-flag-checkered" aria-hidden="true"></i>
+                            <span>Destino: {{ request('ciudad_destino') }}</span>
+                        </span>
+                    @endif
+                    @if(request('fecha_salida'))
+                        <span class="filter-tag" role="status">
+                            <i class="fas fa-calendar" aria-hidden="true"></i>
+                            <span>Fecha: {{ \Carbon\Carbon::parse(request('fecha_salida'))->format('d/m/Y') }}</span>
+                        </span>
+                    @endif
+                    @if(request('puestos_minimos'))
+                        <span class="filter-tag" role="status">
+                            <i class="fas fa-chair" aria-hidden="true"></i>
+                            <span>{{ request('puestos_minimos') }}+ puestos</span>
+                        </span>
+                    @endif
+                </div>
+            </div>
         @endif
-    </div>
-</div>
-<!-- Resumen de resultados -->
-        <!-- Success/Error Messages -->
 
+        <!-- Resumen de Resultados -->
+        <div class="results-summary" role="status" aria-live="polite">
+            <div class="results-content">
+                <p class="results-text">
+                    <span class="results-icon">🔍</span>
+                    Se encontraron 
+                    <span class="results-count">{{ $viajesDisponibles->count() }}</span> 
+                    {{ $viajesDisponibles->count() == 1 ? 'viaje disponible' : 'viajes disponibles' }}
+                    @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+                        <span class="filter-indicator">con los filtros aplicados</span>
+                    @endif
+                </p>
+                @if($viajesDisponibles->count() == 0 && request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
+                    <p class="no-results-suggestion">
+                        <small>💡 Intenta <a href="{{ route('pasajero.viajes.disponibles') }}">quitar algunos filtros</a> para ver más opciones</small>
+                    </p>
+                @endif
+            </div>
+        </div>
 
-        <!-- Trips Grid -->
+        <!-- Grid de Viajes -->
         @if($viajesDisponibles->isEmpty())
             <div class="empty-state">
                 <i class="fas fa-car-side"></i>
@@ -963,7 +1126,7 @@
                 <p>Por el momento no hay viajes programados.<br>¡Vuelve más tarde para encontrar tu próximo destino!</p>
             </div>
         @else
-            <div class="row g-4">
+            <div class="row">
                 @foreach($viajesDisponibles as $viaje)
                     <div class="col-lg-4 col-md-6">
                         <div class="trip-card">
@@ -976,7 +1139,7 @@
                                     </div>
                                     <div class="route-city">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</div>
                                 </div>
-                                   <div class="trip-duration">
+                                <div class="trip-duration">
                                     {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('M d, Y') }}
                                     @if($viaje->hora_salida)
                                         • {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
@@ -1006,84 +1169,83 @@
                                         <div class="detail-icon time">
                                             <i class="fas fa-clock"></i>
                                         </div>
-                                      <div class="detail-content">
-                                    <div class="detail-label">Hora de salida</div>
-                                    <div class="detail-value">
-                                        @if($viaje->hora_salida)
-                                            {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
-                                        @else
-                                            Por definir
-                                        @endif
-                                    </div>
-                                </div>
+                                        <div class="detail-content">
+                                            <div class="detail-label">Hora de salida</div>
+                                            <div class="detail-value">
+                                                @if($viaje->hora_salida)
+                                                    {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                                                @else
+                                                    Por definir
+                                                @endif
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Driver -->
                                     <div class="detail-row driver-row">
-                                   <div class="driver-avatar">
-                            @if($viaje->conductor)
-                                <img src="{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" 
-                                    alt="{{ $viaje->conductor->name }}" 
-                                    class="driver-photo">
-                            @else
-                                <div class="driver-photo-placeholder">
-                                    <i class="fas fa-user"></i>
-                                </div>
-                            @endif
-                        </div>
-                                     <div class="detail-content">
-                        <div class="detail-label">Conductor</div>
-                        <div class="detail-value">
-                            {{ $viaje->conductor?->name ?? 'No disponible' }}
-                            @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
-                                <span class="verified-badge">
-                                    <i class="fas fa-check-circle"></i>
-                                </span>
-                            @endif
-                        </div>
-                        
-                        @if($viaje->conductor)
-                            @php
-                                // Verificar si el conductor tiene calificaciones reales
-                                $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
-                                $rating = $viaje->conductor->calificacion_promedio ?? 0;
-                            @endphp
-                            
-                            @if($tieneCalificaciones && $rating > 0)
-                                <div class="driver-rating">
-                                    @php
-                                        $fullStars = floor($rating);
-                                        $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                        $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                                    @endphp
-                                    <div class="stars">
-                                        @for($i = 1; $i <= $fullStars; $i++)
-                                            <i class="fas fa-star"></i>
-                                        @endfor
-                                        @if($hasHalfStar)
-                                            <i class="fas fa-star-half-alt"></i>
-                                        @endif
-                                        @for($i = 1; $i <= $emptyStars; $i++)
-                                            <i class="far fa-star"></i>
-                                        @endfor
+                                        <div class="driver-avatar">
+                                            @if($viaje->conductor)
+                                                <img src="{{ $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" 
+                                                    alt="{{ $viaje->conductor->name }}" 
+                                                    class="driver-photo">
+                                            @else
+                                                <div class="driver-photo-placeholder">
+                                                    <i class="fas fa-user"></i>
+                                                </div>
+                                            @endif
+                                        </div>
+                                        <div class="detail-content">
+                                            <div class="detail-label">Conductor</div>
+                                            <div class="detail-value">
+                                                {{ $viaje->conductor?->name ?? 'No disponible' }}
+                                                @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
+                                                    <span class="verified-badge">
+                                                        <i class="fas fa-check-circle"></i>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            
+                                            @if($viaje->conductor)
+                                                @php
+                                                    $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
+                                                    $rating = $viaje->conductor->calificacion_promedio ?? 0;
+                                                @endphp
+                                                
+                                                @if($tieneCalificaciones && $rating > 0)
+                                                    <div class="driver-rating">
+                                                        @php
+                                                            $fullStars = floor($rating);
+                                                            $hasHalfStar = ($rating - $fullStars) >= 0.5;
+                                                            $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
+                                                        @endphp
+                                                        <div class="stars">
+                                                            @for($i = 1; $i <= $fullStars; $i++)
+                                                                <i class="fas fa-star"></i>
+                                                            @endfor
+                                                            @if($hasHalfStar)
+                                                                <i class="fas fa-star-half-alt"></i>
+                                                            @endif
+                                                            @for($i = 1; $i <= $emptyStars; $i++)
+                                                                <i class="far fa-star"></i>
+                                                            @endfor
+                                                        </div>
+                                                        <span class="rating-value">{{ number_format($rating, 1) }}</span>
+                                                        <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
+                                                        @if($viaje->conductor->experiencia_anos ?? false)
+                                                            <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
+                                                        @endif
+                                                    </div>
+                                                @else
+                                                    <div class="driver-no-rating">
+                                                        <span class="no-rating-text"></span>
+                                                        @if($viaje->conductor->experiencia_anos ?? false)
+                                                            <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
+                                                        @endif
+                                                    </div>
+                                                @endif
+                                            @endif
+                                        </div>
                                     </div>
-                                    <span class="rating-value">{{ number_format($rating, 1) }}</span>
-                                    <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
-                                    @if($viaje->conductor->experiencia_anos ?? false)
-                                        <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
-                                    @endif
-                                </div>
-                            @else
-                                <div class="driver-no-rating">
-                                    <span class="no-rating-text"></span>
-                                    @if($viaje->conductor->experiencia_anos ?? false)
-                                        <span class="experience-badge">{{ $viaje->conductor->experiencia_anos }}+ años</span>
-                                    @endif
-                                </div>
-                            @endif
-                        @endif
-                    </div>
-                    </div>
 
                                     <!-- Available Seats -->
                                     <div class="detail-row">
@@ -1107,69 +1269,66 @@
                             </div>
 
                             <!-- Trip Actions -->
-                          <!-- Trip Actions -->
                             <div class="trip-actions">
-                            @if($estadoVerificacion['puede_acceder'])
-                                <!-- Usuario verificado: mostrar botones normales -->
-                                <a href="{{ route('pasajero.confirmar.mostrar', $viaje->id) }}" class="btn-custom primary">
-                                    <i class="fas fa-info-circle"></i>
-                                    Detalles
-                                </a>
-
-                                <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" class="btn-custom outline">
-                                    <i class="fas fa-comments"></i>
-                                    Chat
-                                </a>
-                            @else
-                                <!-- Usuario no verificado: mostrar mensaje apropiado -->
-                                <div class="verification-message">
-                                    @if($estadoVerificacion['mensaje']['tipo'] === 'pendiente')
-                                        <!-- Perfil completo pero pendiente de verificación -->
-                                        <div class="verification-alert pending">
-                                            <div class="alert-icon">
-                                                <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
-                                            </div>
-                                            <div class="alert-content">
-                                                <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
-                                                <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
-                                            </div>
-                                        </div>
-                                    @else
-                                        <!-- Perfil incompleto -->
-                                        <div class="verification-alert incomplete">
-                                            <div class="alert-icon">
-                                                <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
-                                            </div>
-                                            <div class="alert-content">
-                                                <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
-                                                <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
-                                                @if(isset($estadoVerificacion['mensaje']['boton']))
-                                                    <a href="{{ route($estadoVerificacion['mensaje']['boton']['ruta']) }}" 
-                                                    class="btn-custom primary small">
-                                                        <i class="fas fa-edit"></i>
-                                                        {{ $estadoVerificacion['mensaje']['boton']['texto'] }}
-                                                    </a>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    @endif
-                                </div>
-
-                                <!-- Botones deshabilitados para mostrar lo que estará disponible -->
-                                <div class="disabled-actions">
-                                    <button class="btn-custom primary disabled" disabled title="Completa tu verificación para acceder">
+                                @if($estadoVerificacion['puede_acceder'])
+                                    <!-- Usuario verificado -->
+                                    <a href="{{ route('pasajero.confirmar.mostrar', $viaje->id) }}" class="btn-custom primary">
                                         <i class="fas fa-info-circle"></i>
                                         Detalles
-                                    </button>
+                                    </a>
 
-                                    <button class="btn-custom outline disabled" disabled title="Completa tu verificación para acceder">
+                                    <a href="{{ route('chat.ver', $reserva->viaje_id ?? $viaje->id) }}" class="btn-custom outline">
                                         <i class="fas fa-comments"></i>
                                         Chat
-                                    </button>
-                                </div>
-                            @endif
-                        </div>
+                                    </a>
+                                @else
+                                    <!-- Usuario no verificado -->
+                                    <div class="verification-message">
+                                        @if($estadoVerificacion['mensaje']['tipo'] === 'pendiente')
+                                            <div class="verification-alert pending">
+                                                <div class="alert-icon">
+                                                    <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
                                                 </div>
+                                                <div class="alert-content">
+                                                    <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
+                                                    <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
+                                                </div>
+                                            </div>
+                                        @else
+                                            <div class="verification-alert incomplete">
+                                                <div class="alert-icon">
+                                                    <i class="{{ $estadoVerificacion['mensaje']['icono'] }}"></i>
+                                                </div>
+                                                <div class="alert-content">
+                                                    <h5 class="alert-title">{{ $estadoVerificacion['mensaje']['titulo'] }}</h5>
+                                                    <p class="alert-text">{{ $estadoVerificacion['mensaje']['texto'] }}</p>
+                                                    @if(isset($estadoVerificacion['mensaje']['boton']))
+                                                        <a href="{{ route($estadoVerificacion['mensaje']['boton']['ruta']) }}" 
+                                                           class="btn-custom primary small">
+                                                            <i class="fas fa-edit"></i>
+                                                            {{ $estadoVerificacion['mensaje']['boton']['texto'] }}
+                                                        </a>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                    <!-- Botones deshabilitados -->
+                                    <div class="disabled-actions">
+                                        <button class="btn-custom primary disabled" disabled title="Completa tu verificación para acceder">
+                                            <i class="fas fa-info-circle"></i>
+                                            Detalles
+                                        </button>
+
+                                        <button class="btn-custom outline disabled" disabled title="Completa tu verificación para acceder">
+                                            <i class="fas fa-comments"></i>
+                                            Chat
+                                        </button>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
                     </div>
                 @endforeach
             </div>

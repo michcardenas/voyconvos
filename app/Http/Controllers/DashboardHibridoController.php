@@ -23,7 +23,7 @@ class DashboardHibridoController extends Controller
         // DATOS COMO PASAJERO (todos los usuarios)
         $estadoFiltro = $request->get('estado', 'todos');
         
-        $reservasQuery = Reserva::with(['viaje.user'])
+        $reservasQuery = Reserva::with(['viaje.conductor'])
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc');
         

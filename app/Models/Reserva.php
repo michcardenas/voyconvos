@@ -34,13 +34,25 @@ class Reserva extends Model
         'uala_payment_url',
         'uala_external_reference',
         'uala_payment_status',
-        'uala_payment_date'
+        'uala_payment_date',
+        // Campos para transferencia manual
+        'metodo_pago',
+        'comprobante_pago',
+        'fecha_subida_comprobante',
+        'fecha_limite_comprobante',
+        'comprobante_verificado',
+        'fecha_verificacion_comprobante',
+        'comprobante_rechazado',
+        'motivo_rechazo_comprobante'
     ];
 
     // ✅ AGREGAR: Campos de fecha para manejo automático
     protected $dates = [
         'fecha_reserva',
         'fecha_pago',
+        'fecha_subida_comprobante',
+        'fecha_limite_comprobante',
+        'fecha_verificacion_comprobante',
         'created_at',
         'updated_at'
     ];
@@ -51,6 +63,11 @@ class Reserva extends Model
         'total' => 'decimal:2',
         'fecha_reserva' => 'datetime',
         'fecha_pago' => 'datetime',
+        'fecha_subida_comprobante' => 'datetime',
+        'fecha_limite_comprobante' => 'datetime',
+        'fecha_verificacion_comprobante' => 'datetime',
+        'comprobante_verificado' => 'boolean',
+        'comprobante_rechazado' => 'boolean',
     ];
 
     // Relaciones existentes - MANTENER IGUAL
