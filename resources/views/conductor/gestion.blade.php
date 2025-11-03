@@ -1521,9 +1521,9 @@ function guardarViaje() {
         const inputElement = document.getElementById(parada.id + '_input');
         return {
             numero: index + 1,
-            direccion: inputElement ? inputElement.value : '',
-            lat: parada.location.lat(),
-            lng: parada.location.lng()
+            nombre: inputElement ? inputElement.value : '',  // ← Cambio: direccion → nombre
+            latitud: parada.location.lat(),                   // ← Cambio: lat → latitud
+            longitud: parada.location.lng()                   // ← Cambio: lng → longitud
         };
     });
 

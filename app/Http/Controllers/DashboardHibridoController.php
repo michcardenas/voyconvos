@@ -98,7 +98,7 @@ class DashboardHibridoController extends Controller
         if ($data['esConductor']) {
             $data['viajesProximosList'] = Viaje::with(['reservas.user'])
                 ->where('conductor_id', $user->id)
-                ->where('fecha_salida', '>=', now())
+                ->whereDate('fecha_salida', '>=', now()->toDateString())
                 ->orderBy('fecha_salida', 'asc')
                 ->get();
             
