@@ -27,6 +27,8 @@
         max-width: 1400px;
         margin: 0 auto;
         padding: 2rem 1.5rem;
+        width: 100%;
+        overflow-x: hidden;
     }
 
     .page-header {
@@ -400,25 +402,60 @@
     }
 
     @media (max-width: 768px) {
+        .container-mapa {
+            padding: 1rem;
+        }
+
+        .page-header {
+            padding: 1.5rem 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .page-header h2 {
+            font-size: 1.5rem;
+        }
+
         .search-grid {
             grid-template-columns: 1fr;
+            gap: 1rem;
         }
+
+        .search-panel,
+        .trip-details,
+        .route-info {
+            padding: 1.5rem;
+        }
+
         #map {
-            height: 450px;
+            height: 400px;
         }
+
         .paradas-header {
             flex-direction: column;
             align-items: stretch;
             gap: 1rem;
         }
+
         .btn-add-parada {
             width: 100%;
         }
+
         .trip-options {
             grid-template-columns: 1fr;
+            gap: 1rem;
         }
+
         .info-grid {
             grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+        }
+
+        .info-value {
+            font-size: 1.25rem;
         }
     }
 
@@ -529,8 +566,14 @@
 }
 
 @media (max-width: 768px) {
+    .calculation-results {
+        padding: 1.5rem;
+        margin-top: 1.5rem;
+    }
+
     .results-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
     }
 
     .result-item.suggested {
@@ -539,6 +582,48 @@
 
     .result-item.final {
         grid-column: span 1;
+    }
+
+    .result-value {
+        font-size: 1.25rem;
+    }
+
+    .result-value-final {
+        font-size: 1.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container-mapa {
+        padding: 0.75rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.25rem;
+    }
+
+    .page-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .search-input,
+    .trip-input {
+        padding: 0.75rem 1rem;
+        font-size: 0.9rem;
+    }
+
+    #map {
+        height: 350px;
+    }
+
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+
+    #btn-guardar-viaje {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+        width: 100%;
     }
 }
    .result-item.suggested {
@@ -716,21 +801,7 @@
             <div class="result-value" id="calc-tiempo">-- min</div>
         </div>
 
-        <div class="result-item suggested">
-            <div class="result-label">💡 Tarifa mínima sugerida</div>
-            <div class="result-value" id="calc-minimo" style="font-size: 2rem;">$--</div>
-            <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 0.5rem;">
-                (Costo operativo + Comisión {{ $comision_plataforma ?? 0 }}%)
-            </small>
-        </div>
-
-        <div class="result-item max-allowed">
-            <div class="result-label">⚠️ Tarifa máxima permitida</div>
-            <div class="result-value" id="calc-maximo" style="font-size: 2rem;">$--</div>
-            <small style="color: #64748b; font-size: 0.8rem; display: block; margin-top: 0.5rem;">
-                (Tarifa mínima + {{ $maximo_ganancia ?? 30 }}%)
-            </small>
-        </div>
+  
     </div>
 
     <!-- Input para establecer el valor del viaje -->
@@ -746,27 +817,27 @@
                    step="0.01"
                    min="0"
                    class="result-input"
-                   placeholder="$0.00"
+                   placeholder="ARS $0.00"
                    oninput="validarValorViaje()"
                    style="font-size: 2rem; padding: 1rem; text-align: center; border: 3px solid #fcd34d;">
 
             <div id="mensaje-validacion" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: 600; display: none;"></div>
 
-            <div style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; font-size: 0.85rem;">
+            <div class="rango-container" style="margin-top: 1rem; display: flex; gap: 0.5rem; justify-content: center; font-size: 0.85rem; flex-wrap: wrap;">
                 <span style="color: #64748b;">
                     Rango válido:
-                    <strong style="color: #059669;" id="rango-minimo">$--</strong> -
-                    <strong style="color: #dc2626;" id="rango-maximo">$--</strong>
+                    <strong style="color: #059669;" id="rango-minimo">ARS $0.00</strong> -
+                    <strong style="color: #dc2626;" id="rango-maximo">ARS $0.00</strong>
                 </span>
             </div>
         </div>
     </div>
 
     <!-- Sección de puestos y cálculo por pasajero -->
-    <div style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; border: 2px solid #bae6fd;">
+    <div class="puestos-section" style="margin-top: 2rem; padding: 1.5rem; background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border-radius: 16px; border: 2px solid #bae6fd;">
         <h4 style="color: var(--primary); margin-bottom: 1.5rem; text-align: center; font-size: 1.1rem;">👥 Distribución de puestos</h4>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
+        <div class="puestos-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
             <div style="background: white; padding: 1rem; border-radius: 12px; text-align: center;">
                 <label style="display: block; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; font-size: 0.9rem;">🚗 Puestos totales del vehículo</label>
                 <input type="number"
@@ -788,7 +859,7 @@
             </div>
         </div>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div class="totales-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
             <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 1.25rem; border-radius: 12px; text-align: center; border: 2px solid #fcd34d;">
                 <div style="color: #92400e; font-size: 0.85rem; font-weight: 600; margin-bottom: 0.5rem;">💰 TOTAL DEL VIAJE</div>
                 <div style="color: #92400e; font-size: 2rem; font-weight: 700;" id="total-viaje">$--</div>
@@ -801,7 +872,7 @@
         </div>
     </div>
 
-    <div class="calculation-note">
+    <!-- <div class="calculation-note">
         <p><strong>ℹ️ Cómo funciona el sistema de tarifas:</strong></p>
         <ul style="margin: 0.5rem 0 0 1.5rem; line-height: 1.8;">
             <li><strong>Paso 1:</strong> El sistema calcula el costo operativo (Distancia × $0.30/km)</li>
@@ -815,7 +886,7 @@
             <strong>💡 Recomendación:</strong> Puedes ajustar el precio según la demanda, condiciones del viaje, o gastos adicionales (peajes, estacionamiento, etc.),
             siempre dentro del rango establecido para garantizar precios justos tanto para ti como para los pasajeros.
         </p>
-    </div>
+    </div> -->
 
     <!-- Botón para guardar el viaje -->
     <div style="margin-top: 2rem; text-align: center;">
@@ -860,6 +931,82 @@
     box-shadow: none;
     transform: none;
 }
+
+/* Estilos responsive adicionales */
+@media (max-width: 768px) {
+    .puestos-section {
+        padding: 1rem !important;
+    }
+
+    .puestos-grid,
+    .totales-grid {
+        grid-template-columns: 1fr !important;
+    }
+
+    .puestos-section h4 {
+        font-size: 1rem !important;
+    }
+
+    .totales-grid > div {
+        padding: 1rem !important;
+    }
+
+    .totales-grid > div > div:last-child {
+        font-size: 1.5rem !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .puestos-section input[type="number"] {
+        font-size: 1.25rem !important;
+    }
+
+    #valor_viaje_manual {
+        font-size: 1.5rem !important;
+        padding: 0.75rem !important;
+    }
+
+    .result-input {
+        font-size: 1.25rem !important;
+    }
+
+    .rango-container {
+        font-size: 0.75rem !important;
+        padding: 0 0.5rem;
+    }
+
+    .rango-container span {
+        text-align: center;
+        display: block;
+    }
+}
+
+/* Asegurar que los elementos no se salgan en pantallas muy pequeñas */
+@media (max-width: 360px) {
+    .container-mapa {
+        padding: 0.5rem;
+    }
+
+    .page-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .search-panel,
+    .trip-details,
+    .route-info,
+    .calculation-results,
+    .puestos-section {
+        padding: 1rem !important;
+    }
+
+    #valor_viaje_manual {
+        font-size: 1.25rem !important;
+    }
+
+    .totales-grid > div > div:last-child {
+        font-size: 1.25rem !important;
+    }
+}
 </style>
 <script>
 // ========================================
@@ -885,6 +1032,18 @@ const maximoGanancia = {{ $maximo_ganancia ?? 0 }};
 
 let tarifaMinima = 0;
 let tarifaMaxima = 0;
+
+// ========================================
+// FORMATEO DE MONEDA ARGENTINA
+// ========================================
+function formatearMoneda(valor) {
+    return new Intl.NumberFormat('es-AR', {
+        style: 'currency',
+        currency: 'ARS',
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(valor);
+}
 
 // ========================================
 // INICIALIZACIÓN DEL MAPA
@@ -1379,13 +1538,13 @@ function calcularTarifaAutomatica() {
     // PASO 4: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo de ganancia %)
     tarifaMaxima = tarifaMinima + (tarifaMinima * maximoGanancia / 100);
 
-    // Actualizar la interfaz
-    document.getElementById('calc-minimo').textContent = '$' + tarifaMinima.toFixed(2);
-    document.getElementById('calc-maximo').textContent = '$' + tarifaMaxima.toFixed(2);
+    // Actualizar la interfaz con formato argentino
+    document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('calc-maximo').textContent = formatearMoneda(tarifaMaxima);
 
     // Actualizar rangos
-    document.getElementById('rango-minimo').textContent = '$' + tarifaMinima.toFixed(2);
-    document.getElementById('rango-maximo').textContent = '$' + tarifaMaxima.toFixed(2);
+    document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
 
     // Sugerir automáticamente la tarifa mínima en el input
     document.getElementById('valor_viaje_manual').value = tarifaMinima.toFixed(2);
@@ -1423,14 +1582,14 @@ function validarValorViaje() {
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de $' + tarifaMinima.toFixed(2);
+        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima);
         inputViaje.style.borderColor = '#dc2626';
     } else if (valorIngresado > tarifaMaxima) {
         mensajeDiv.style.display = 'block';
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de $' + tarifaMaxima.toFixed(2);
+        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima);
         inputViaje.style.borderColor = '#dc2626';
     } else {
         mensajeDiv.style.display = 'block';
@@ -1456,17 +1615,17 @@ function calcularPorPasajero() {
     const totalViaje = valorManual > 0 ? valorManual : tarifaMinima;
 
     if (puestosDisponibles === 0 || totalViaje === 0) {
-        document.getElementById('total-viaje').textContent = '$--';
-        document.getElementById('precio-por-pasajero').textContent = '$--';
+        document.getElementById('total-viaje').textContent = formatearMoneda(0);
+        document.getElementById('precio-por-pasajero').textContent = formatearMoneda(0);
         return;
     }
 
     // Dividir entre los puestos disponibles
     const precioPorPasajero = totalViaje / puestosDisponibles;
 
-    // Actualizar la interfaz
-    document.getElementById('total-viaje').textContent = '$' + totalViaje.toFixed(2);
-    document.getElementById('precio-por-pasajero').textContent = '$' + precioPorPasajero.toFixed(2);
+    // Actualizar la interfaz con formato argentino
+    document.getElementById('total-viaje').textContent = formatearMoneda(totalViaje);
+    document.getElementById('precio-por-pasajero').textContent = formatearMoneda(precioPorPasajero);
 
     console.log('👥 Cálculo por pasajero:');
     console.log('- Puestos disponibles:', puestosDisponibles);
@@ -1512,7 +1671,7 @@ function guardarViaje() {
     // Validar que el valor esté dentro del rango permitido
     const valorIngresado = parseFloat(valorViaje);
     if (valorIngresado < tarifaMinima || valorIngresado > tarifaMaxima) {
-        alert('⚠️ El valor del viaje debe estar entre $' + tarifaMinima.toFixed(2) + ' y $' + tarifaMaxima.toFixed(2));
+        alert('⚠️ El valor del viaje debe estar entre ' + formatearMoneda(tarifaMinima) + ' y ' + formatearMoneda(tarifaMaxima));
         return;
     }
 
