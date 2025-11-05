@@ -9,68 +9,57 @@
 @section('content')
 
 {{-- HERO --}}
-<section class="hero position-relative">
-    <div class="hero-background"></div>
-    <div class="container hero-content position-relative">
-        <div class="hero-text">
-            <h1>{{ \App\Models\Contenido::getValor('hero', 'h1') }}</h1>
-            <h2>{{ \App\Models\Contenido::getValor('hero', 'h2') }}</h2>
-            <div class="hero-buttons">
-                <a href="#" class="btn btn-primary" id="buscarBtn"
-                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
-                    {{ \App\Models\Contenido::getValor('hero', 'btn_buscar') }}
-                </a>
-                <a href="#" class="btn btn-primary" id="publicarBtn"
-                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_2') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_2') }}')">
-                    {{ \App\Models\Contenido::getValor('hero', 'btn_publicar') }}
-                </a>
-            </div>
+<section class="hero-modern">
+    <div class="hero-background-image"></div>
+    <div class="hero-overlay"></div>
+    
+    <div class="container hero-container">
+        <!-- Texto del Hero -->
+        <div class="hero-text-content">
+            <h1 class="hero-title">{{ \App\Models\Contenido::getValor('hero', 'h1') }}</h1>
+            <p class="hero-subtitle">{{ \App\Models\Contenido::getValor('hero', 'h2') }}</p>
         </div>
 
-        {{-- Formulario de búsqueda --}}
-
-        <div class="search-box">
-            <form id="searchForm" class="search-form">
-                <div class="route-inputs">
-
-                    {{-- Campo Origen --}}
-                    <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-map-marker-alt" style="color: #0c4a6e; font-size: 1rem;"></i>
-                        <select id="origen" name="origen" required style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
-                            <option value="">Selecciona origen</option>
+        <!-- Tarjeta de Búsqueda -->
+        <div class="search-card-modern">
+            <form id="searchForm" class="search-form-modern">
+                <div class="form-row">
+                    <!-- Origen -->
+                    <div class="form-field">
+                        <i class="fas fa-map-marker-alt field-icon"></i>
+                        <select id="origen" name="origen" required>
+                            <option value="">Origen</option>
                             @foreach($origenes as $ciudad)
                                 <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    {{-- Botón Intercambiar --}}
-                    <div style="text-align: center; margin: 10px 0;">
-                        <button type="button" class="switch-btn" id="switchBtn">
-                            <i class="fas fa-exchange-alt"></i>
-                        </button>
-                    </div>
+                    <!-- Botón Intercambiar -->
+                    <button type="button" class="swap-button" id="switchBtn">
+                        <i class="fas fa-exchange-alt"></i>
+                    </button>
 
-                    {{-- Campo Destino --}}
-                    <div class="input-group" style="display: flex; align-items: center; gap: 8px;">
-                        <i class="fas fa-map-pin" style="color:rgb(21, 45, 78); font-size: 1rem;"></i>
-                        <select id="destino" name="destino" required style="padding: 6px 10px; border: 1px solid #ccc; border-radius: 4px; flex: 1;">
-                            <option value="">Selecciona destino</option>
+                    <!-- Destino -->
+                    <div class="form-field">
+                        <i class="fas fa-map-pin field-icon"></i>
+                        <select id="destino" name="destino" required>
+                            <option value="">Destino</option>
                             @foreach($destinos as $ciudad)
                                 <option value="{{ Str::slug($ciudad) }}">{{ trim($ciudad) }}</option>
                             @endforeach
                         </select>
                     </div>
 
-                    {{-- Campo Fecha --}}
-                    <div class="input-group">
+                    <!-- Fecha -->
+                    <div class="form-field">
+                        <i class="fas fa-calendar-alt field-icon"></i>
                         <input type="date" id="fecha" name="fecha" required min="{{ date('Y-m-d') }}">
                     </div>
-                </div>
 
-                {{-- Selector de Pasajeros --}}
-                <div class="passengers">
-                    <div class="input-group passengers-group">
+                    <!-- Pasajeros -->
+                    <div class="form-field">
+                        <i class="fas fa-users field-icon"></i>
                         <select id="pasajeros" name="pasajeros" required>
                             <option value="1">1 pasajero</option>
                             <option value="2">2 pasajeros</option>
@@ -80,35 +69,36 @@
                             <option value="6">6 pasajeros</option>
                         </select>
                     </div>
-                </div>
 
-                {{-- Botón de Búsqueda --}}
-                <button type="button" class="search-btn"
-                    onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
-                    <i class="fas fa-search"></i>
-                    Buscar viajes
-                </button>
+                    <!-- Botón Buscar -->
+                    <button type="button" class="search-button-modern"
+                        onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
+                        <i class="fas fa-search"></i>
+                        Buscar
+                    </button>
+                </div>
             </form>
 
-            {{-- Información de ahorro --}}
-            <div class="savings">
-                <h3>
+            <!-- Información adicional bajo la tarjeta -->
+            <div class="hero-bottom-info">
+                <p class="savings-text">
                     {{ \App\Models\Contenido::getValor('hero', 'ahorro_texto') }}
-                    <span class="highlight">{{ \App\Models\Contenido::getValor('hero', 'ahorro_valor') }}</span>
+                    <strong class="savings-amount">{{ \App\Models\Contenido::getValor('hero', 'ahorro_valor') }}</strong>
                     {{ \App\Models\Contenido::getValor('hero', 'ahorro_sufijo') }}
-                </h3>
+                </p>
+                
+                <div class="hero-actions">
+                    <button type="button" class="publish-button-modern"
+                        onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
+                        {{ \App\Models\Contenido::getValor('hero', 'btn_publicar_main') }}
+                    </button>
+                    
+                    <a href="/dashboard" class="how-it-works-link">
+                        {{ \App\Models\Contenido::getValor('hero', 'como_funciona') }}
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
             </div>
-
-            {{-- Botón Publicar Viaje --}}
-            <button type="button" class="publish-trip-btn" id="publishBtn"
-                onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_1') }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_1') }}')">
-                {{ \App\Models\Contenido::getValor('hero', 'btn_publicar_main') }}
-            </button>
-
-            {{-- Enlace Cómo Funciona --}}
-            <a href="/dashboard" class="como-funciona">
-                {{ \App\Models\Contenido::getValor('hero', 'como_funciona') }} <i class="fas fa-arrow-right"></i>
-            </a>
         </div>
     </div>
 </section>
