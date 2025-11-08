@@ -1565,8 +1565,12 @@ function calcularTarifaAutomatica() {
     inputValorViaje.setAttribute('min', tarifaMinima.toFixed(2));
     inputValorViaje.setAttribute('max', tarifaMaxima.toFixed(2));
 
-    // Sugerir automáticamente la tarifa mínima en el input
-    inputValorViaje.value = tarifaMinima.toFixed(2);
+    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido
+    const valorActual = parseFloat(inputValorViaje.value) || 0;
+    if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
+        inputValorViaje.value = tarifaMinima.toFixed(2);
+    }
+
     validarValorViaje();
 
     // Calcular el precio por pasajero automáticamente
@@ -1601,27 +1605,15 @@ function validarValorViaje() {
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima) + '. Se ajustará automáticamente.';
+        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima);
         inputViaje.style.borderColor = '#dc2626';
-
-        // Ajustar automáticamente al mínimo
-        setTimeout(() => {
-            inputViaje.value = tarifaMinima.toFixed(2);
-            validarValorViaje();
-        }, 1500);
     } else if (valorIngresado > tarifaMaxima) {
         mensajeDiv.style.display = 'block';
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima) + '. Se ajustará automáticamente.';
+        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima);
         inputViaje.style.borderColor = '#dc2626';
-
-        // Ajustar automáticamente al máximo
-        setTimeout(() => {
-            inputViaje.value = tarifaMaxima.toFixed(2);
-            validarValorViaje();
-        }, 1500);
     } else {
         // Valor válido - ocultar mensaje y usar borde verde
         mensajeDiv.style.display = 'none';
