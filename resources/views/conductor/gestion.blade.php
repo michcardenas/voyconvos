@@ -801,7 +801,7 @@
             <div class="result-value" id="calc-tiempo">-- min</div>
         </div>
 
-  
+      
     </div>
 
     <!-- Input para establecer el valor del viaje -->
@@ -810,7 +810,7 @@
 
         <div style="max-width: 400px; margin: 0 auto;">
             <label style="display: block; font-weight: 600; color: #92400e; margin-bottom: 0.5rem; font-size: 0.95rem; text-align: center;">
-                Ingresa el precio que cobrarás
+                Precio sugerido (puedes modificarlo)
             </label>
             <input type="number"
                    id="valor_viaje_manual"
@@ -819,6 +819,8 @@
                    class="result-input"
                    placeholder="ARS $0.00"
                    oninput="validarValorViaje()"
+                   readonly
+                   onfocus="this.removeAttribute('readonly')"
                    style="font-size: 2rem; padding: 1rem; text-align: center; border: 3px solid #fcd34d;">
 
             <div id="mensaje-validacion" style="margin-top: 1rem; padding: 0.75rem; border-radius: 8px; text-align: center; font-weight: 600; display: none;"></div>
@@ -1516,6 +1518,7 @@ function mostrarInfoProgramacion() {
 function calcularTarifaAutomatica() {
     const distanciaKm = parseFloat(document.getElementById('distancia_km').value) || 0;
     const tiempoEstimado = document.getElementById('tiempo_estimado').value || '--';
+    const inputValorViaje = document.getElementById('valor_viaje_manual');
 
     // Actualizar valores básicos
     document.getElementById('calc-distancia').textContent = distanciaKm > 0 ? distanciaKm.toFixed(1) + ' km' : '-- km';
@@ -1523,6 +1526,7 @@ function calcularTarifaAutomatica() {
 
     if (distanciaKm === 0) {
         console.warn('⚠️ Faltan datos para calcular costos');
+        inputValorViaje.placeholder = 'ARS $0.00';
         return;
     }
 
@@ -1546,8 +1550,15 @@ function calcularTarifaAutomatica() {
     document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
     document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
 
+    // Actualizar placeholder con el mínimo permitido
+    inputValorViaje.placeholder = formatearMoneda(tarifaMinima);
+
+    // Actualizar atributos min y max del input
+    inputValorViaje.setAttribute('min', tarifaMinima.toFixed(2));
+    inputValorViaje.setAttribute('max', tarifaMaxima.toFixed(2));
+
     // Sugerir automáticamente la tarifa mínima en el input
-    document.getElementById('valor_viaje_manual').value = tarifaMinima.toFixed(2);
+    inputValorViaje.value = tarifaMinima.toFixed(2);
     validarValorViaje();
 
     // Calcular el precio por pasajero automáticamente
@@ -1582,21 +1593,30 @@ function validarValorViaje() {
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima);
+        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima) + '. Se ajustará automáticamente.';
         inputViaje.style.borderColor = '#dc2626';
+
+        // Ajustar automáticamente al mínimo
+        setTimeout(() => {
+            inputViaje.value = tarifaMinima.toFixed(2);
+            validarValorViaje();
+        }, 1500);
     } else if (valorIngresado > tarifaMaxima) {
         mensajeDiv.style.display = 'block';
         mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
         mensajeDiv.style.color = '#991b1b';
         mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima);
+        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima) + '. Se ajustará automáticamente.';
         inputViaje.style.borderColor = '#dc2626';
+
+        // Ajustar automáticamente al máximo
+        setTimeout(() => {
+            inputViaje.value = tarifaMaxima.toFixed(2);
+            validarValorViaje();
+        }, 1500);
     } else {
-        mensajeDiv.style.display = 'block';
-        mensajeDiv.style.background = 'linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)';
-        mensajeDiv.style.color = '#166534';
-        mensajeDiv.style.borderLeft = '4px solid #16a34a';
-        mensajeDiv.innerHTML = '✅ Valor válido dentro del rango permitido';
+        // Valor válido - ocultar mensaje y usar borde verde
+        mensajeDiv.style.display = 'none';
         inputViaje.style.borderColor = '#16a34a';
     }
 
