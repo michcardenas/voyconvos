@@ -1105,122 +1105,117 @@ function confirmarReserva() {
         <div style="
             background: white;
             padding: 0;
-            border-radius: 20px;
-            max-width: 500px;
+            border-radius: 16px;
+            max-width: 380px;
             width: 90%;
             margin: 1rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
             overflow: hidden;
         ">
             <!-- Header -->
             <div style="
                 background: linear-gradient(135deg, #1F4E79 0%, rgba(31, 78, 121, 0.9) 100%);
-                padding: 2rem;
+                padding: 1.2rem;
                 text-align: center;
                 color: white;
-                position: relative;
             ">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">💳</div>
-                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 600;">Selecciona tu método de pago</h3>
-                <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Elige cómo deseas completar el pago de tu reserva</p>
+                <div style="font-size: 2rem; margin-bottom: 0.3rem;">💳</div>
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Método de pago</h3>
             </div>
 
             <!-- Body -->
-            <div style="padding: 2rem;">
-                <!-- Total a pagar -->
+            <div style="padding: 1.2rem;">
+                <!-- Total -->
                 <div style="
-                    background: linear-gradient(135deg, rgba(76, 175, 80, 0.1), rgba(31, 78, 121, 0.1));
-                    border: 2px solid rgba(76, 175, 80, 0.3);
-                    border-radius: 12px;
-                    padding: 1.5rem;
+                    background: rgba(76, 175, 80, 0.08);
+                    border: 1px solid rgba(76, 175, 80, 0.2);
+                    border-radius: 8px;
+                    padding: 0.8rem;
                     text-align: center;
-                    margin-bottom: 2rem;
+                    margin-bottom: 1rem;
                 ">
-                    <div style="color: #666; font-size: 0.9rem; margin-bottom: 0.3rem;">Total a pagar</div>
-                    <div style="font-size: 2rem; font-weight: 700; color: #4CAF50;" id="modalTotal">
+                    <div style="color: #666; font-size: 0.75rem; margin-bottom: 0.2rem;">Total</div>
+                    <div style="font-size: 1.3rem; font-weight: 700; color: #4CAF50;">
                         $${document.getElementById('summaryTotal').textContent.replace('$', '')}
                     </div>
                 </div>
 
-                <!-- Opciones de pago -->
-                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
-                    <!-- MercadoPago -->
-                    <button onclick="seleccionarMercadoPago()" style="
+                <!-- Opciones -->
+                <div style="display: grid; gap: 0.6rem; margin-bottom: 1rem;">
+                    <!-- UalaBis -->
+                    <button onclick="seleccionarUalaBis()" style="
                         background: white;
-                        border: 2px solid #009EE3;
-                        border-radius: 12px;
-                        padding: 1.5rem;
+                        border: 2px solid #6C2C91;
+                        border-radius: 8px;
+                        padding: 0.8rem;
                         cursor: pointer;
-                        transition: all 0.3s ease;
+                        transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
-                        gap: 1rem;
+                        gap: 0.7rem;
                         text-align: left;
-                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(0, 158, 227, 0.2)'; this.style.borderColor='#009EE3';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#009EE3';">
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(108, 44, 145, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="
-                            width: 60px;
-                            height: 60px;
-                            background: linear-gradient(135deg, #009EE3, #00B4F0);
-                            border-radius: 12px;
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #6C2C91, #8B3DAF);
+                            border-radius: 8px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            font-size: 1.8rem;
+                            font-size: 1.2rem;
                             flex-shrink: 0;
-                        ">💰</div>
+                        ">💳</div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #1F4E79; font-size: 1.1rem; margin-bottom: 0.3rem;">MercadoPago</div>
-                            <div style="font-size: 0.85rem; color: #666;">Pago online seguro con tarjeta o efectivo</div>
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">UalaBis</div>
+                            <div style="font-size: 0.7rem; color: #999;">Tarjeta online</div>
                         </div>
-                        <i class="fas fa-chevron-right" style="color: #009EE3; font-size: 1.2rem;"></i>
                     </button>
 
-                    <!-- Transferencia Manual -->
+                    <!-- Transferencia -->
                     <button onclick="seleccionarTransferencia()" style="
                         background: white;
                         border: 2px solid #4CAF50;
-                        border-radius: 12px;
-                        padding: 1.5rem;
+                        border-radius: 8px;
+                        padding: 0.8rem;
                         cursor: pointer;
-                        transition: all 0.3s ease;
+                        transition: all 0.2s ease;
                         display: flex;
                         align-items: center;
-                        gap: 1rem;
+                        gap: 0.7rem;
                         text-align: left;
-                    " onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.2)'; this.style.borderColor='#4CAF50';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'; this.style.borderColor='#4CAF50';">
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="
-                            width: 60px;
-                            height: 60px;
+                            width: 40px;
+                            height: 40px;
                             background: linear-gradient(135deg, #4CAF50, #66BB6A);
-                            border-radius: 12px;
+                            border-radius: 8px;
                             display: flex;
                             align-items: center;
                             justify-content: center;
-                            font-size: 1.8rem;
+                            font-size: 1.2rem;
                             flex-shrink: 0;
                         ">🏦</div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #1F4E79; font-size: 1.1rem; margin-bottom: 0.3rem;">Transferencia Bancaria</div>
-                            <div style="font-size: 0.85rem; color: #666;">Paga por transferencia y sube tu comprobante</div>
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">Transferencia</div>
+                            <div style="font-size: 0.7rem; color: #999;">Subir comprobante</div>
                         </div>
-                        <i class="fas fa-chevron-right" style="color: #4CAF50; font-size: 1.2rem;"></i>
                     </button>
                 </div>
 
-                <!-- Botón cancelar -->
+                <!-- Cancelar -->
                 <button onclick="cerrarModalPago()" style="
                     width: 100%;
-                    background: rgba(58, 58, 58, 0.05);
-                    border: 1px solid rgba(58, 58, 58, 0.2);
-                    border-radius: 10px;
-                    padding: 0.8rem;
-                    color: #666;
-                    font-weight: 500;
+                    background: transparent;
+                    border: none;
+                    padding: 0.6rem;
+                    color: #999;
+                    font-size: 0.85rem;
                     cursor: pointer;
-                    transition: all 0.3s ease;
-                " onmouseover="this.style.background='rgba(58, 58, 58, 0.1)';" onmouseout="this.style.background='rgba(58, 58, 58, 0.05)';">
-                    <i class="fas fa-times me-2"></i>Cancelar
+                    transition: color 0.2s;
+                " onmouseover="this.style.color='#666';" onmouseout="this.style.color='#999';">
+                    Cancelar
                 </button>
             </div>
         </div>
@@ -1240,8 +1235,8 @@ function cerrarModalPago() {
     document.getElementById('step3').classList.remove('active');
 }
 
-// Seleccionar MercadoPago
-function seleccionarMercadoPago() {
+// Seleccionar UalaBis
+function seleccionarUalaBis() {
     // Agregar método de pago al formulario
     const form = document.getElementById('form-confirmar-reserva');
     let metodoPagoInput = document.getElementById('metodo_pago');
@@ -1252,13 +1247,13 @@ function seleccionarMercadoPago() {
         metodoPagoInput.id = 'metodo_pago';
         form.appendChild(metodoPagoInput);
     }
-    metodoPagoInput.value = 'mercadopago';
+    metodoPagoInput.value = 'ualabis';
 
     // Cerrar modal
     cerrarModalPago();
 
     // Mostrar confirmación y enviar
-    mostrarConfirmacionFinal('MercadoPago');
+    mostrarConfirmacionFinal('UalaBis');
 }
 
 // Seleccionar Transferencia Manual
@@ -1285,118 +1280,118 @@ function mostrarModalTransferencia() {
         backdrop-filter: blur(5px);
         animation: fadeIn 0.3s ease;
         overflow-y: auto;
+        padding: 1rem 0;
     `;
 
     modal.innerHTML = `
         <div style="
             background: white;
             padding: 0;
-            border-radius: 20px;
-            max-width: 550px;
+            border-radius: 12px;
+            max-width: 380px;
             width: 90%;
-            margin: 2rem auto;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
             overflow: hidden;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
         ">
             <!-- Header -->
             <div style="
                 background: linear-gradient(135deg, #4CAF50 0%, rgba(76, 175, 80, 0.9) 100%);
-                padding: 2rem;
+                padding: 1rem;
                 text-align: center;
                 color: white;
+                flex-shrink: 0;
             ">
-                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏦</div>
-                <h3 style="margin: 0 0 0.5rem 0; font-size: 1.5rem; font-weight: 600;">Transferencia Bancaria</h3>
-                <p style="margin: 0; opacity: 0.9; font-size: 0.9rem;">Completa tu pago por transferencia</p>
+                <div style="font-size: 1.8rem; margin-bottom: 0.2rem;">🏦</div>
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Transferencia</h3>
             </div>
 
-            <!-- Body -->
-            <div style="padding: 2rem;">
-                <!-- Información importante -->
+            <!-- Body Scrollable -->
+            <div style="padding: 1rem; overflow-y: auto; flex: 1;">
+                <!-- Alerta -->
                 <div style="
                     background: #FFF3CD;
-                    border-left: 4px solid #FFC107;
-                    border-radius: 8px;
-                    padding: 1rem;
-                    margin-bottom: 1.5rem;
+                    border-left: 3px solid #FFC107;
+                    border-radius: 6px;
+                    padding: 0.6rem;
+                    margin-bottom: 0.8rem;
+                    font-size: 0.75rem;
                 ">
-                    <div style="display: flex; gap: 0.8rem; align-items: start;">
-                        <i class="fas fa-clock" style="color: #F57C00; font-size: 1.3rem; flex-shrink: 0; margin-top: 2px;"></i>
-                        <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #F57C00; margin-bottom: 0.3rem;">⏰ Tienes 1 hora para subir el comprobante</div>
-                            <div style="font-size: 0.85rem; color: #856404;">Si no subes el comprobante en ese tiempo, tu reserva quedará disponible para otros pasajeros.</div>
-                        </div>
-                    </div>
+                    <div style="font-weight: 600; color: #F57C00; margin-bottom: 0.2rem;">⏰ 1 hora para subir</div>
+                    <div style="color: #856404; line-height: 1.3;">Si no subes el comprobante, tu reserva quedará disponible.</div>
                 </div>
 
-                <!-- Datos bancarios (ejemplo) -->
+                <!-- Datos bancarios -->
                 <div style="
                     background: rgba(31, 78, 121, 0.05);
-                    border: 1px solid rgba(31, 78, 121, 0.2);
-                    border-radius: 12px;
-                    padding: 1.5rem;
-                    margin-bottom: 1.5rem;
+                    border: 1px solid rgba(31, 78, 121, 0.15);
+                    border-radius: 8px;
+                    padding: 0.8rem;
+                    margin-bottom: 0.8rem;
+                    font-size: 0.8rem;
                 ">
-                    <div style="font-weight: 600; color: #1F4E79; margin-bottom: 1rem; text-align: center;">📋 Datos para transferencia</div>
-                    <div style="font-size: 0.9rem; color: #666; line-height: 1.8;">
+                    <div style="font-weight: 600; color: #1F4E79; margin-bottom: 0.5rem; text-align: center; font-size: 0.85rem;">📋 Datos bancarios</div>
+                    <div style="color: #666; line-height: 1.6;">
                         <div><strong>Banco:</strong> Banco Ejemplo</div>
                         <div><strong>Titular:</strong> VoyConvos SRL</div>
-                        <div><strong>CBU:</strong> 0000003100010123456789</div>
+                        <div><strong>CBU:</strong> 0000...456789</div>
                         <div><strong>Alias:</strong> VOYCONVOS.PAGOS</div>
-                        <div style="margin-top: 0.8rem; padding-top: 0.8rem; border-top: 1px solid rgba(31, 78, 121, 0.1);">
-                            <strong>Monto:</strong> <span style="color: #4CAF50; font-size: 1.1rem; font-weight: 700;">${document.getElementById('summaryTotal').textContent}</span>
+                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(31, 78, 121, 0.1);">
+                            <strong>Monto:</strong> <span style="color: #4CAF50; font-weight: 700;">${document.getElementById('summaryTotal').textContent}</span>
                         </div>
                     </div>
                 </div>
 
-                <!-- Formulario de subida -->
-                <form id="formTransferencia" style="margin-bottom: 1.5rem;">
-                    <div style="margin-bottom: 1.5rem;">
-                        <label style="
-                            display: block;
-                            font-weight: 600;
-                            color: #1F4E79;
-                            margin-bottom: 0.5rem;
-                            font-size: 0.95rem;
-                        ">
-                            <i class="fas fa-file-upload me-2"></i>Subir comprobante
-                        </label>
-                        <input type="file"
-                               id="comprobanteInput"
-                               accept="image/*,.pdf"
-                               style="
-                                   width: 100%;
-                                   padding: 0.8rem;
-                                   border: 2px dashed rgba(76, 175, 80, 0.3);
-                                   border-radius: 10px;
-                                   background: rgba(76, 175, 80, 0.05);
-                                   cursor: pointer;
-                                   transition: all 0.3s ease;
-                               "
-                               onchange="previsualizarComprobante(this)">
-                        <div style="font-size: 0.8rem; color: #666; margin-top: 0.5rem;">
-                            Formatos aceptados: JPG, PNG, PDF (máx 5MB)
-                        </div>
-                        <div id="previewComprobante" style="margin-top: 1rem; display: none;"></div>
+                <!-- Upload -->
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="
+                        display: block;
+                        font-weight: 600;
+                        color: #1F4E79;
+                        margin-bottom: 0.4rem;
+                        font-size: 0.85rem;
+                    ">
+                        📎 Subir comprobante
+                    </label>
+                    <input type="file"
+                           id="comprobanteInput"
+                           accept="image/*,.pdf"
+                           style="
+                               width: 100%;
+                               padding: 0.6rem;
+                               border: 2px dashed rgba(76, 175, 80, 0.3);
+                               border-radius: 6px;
+                               background: rgba(76, 175, 80, 0.05);
+                               cursor: pointer;
+                               font-size: 0.75rem;
+                           "
+                           onchange="previsualizarComprobante(this)">
+                    <div style="font-size: 0.7rem; color: #999; margin-top: 0.3rem;">
+                        JPG, PNG, PDF (máx 5MB)
                     </div>
-                </form>
+                    <div id="previewComprobante" style="margin-top: 0.5rem; display: none;"></div>
+                </div>
 
-                <!-- Botones de acción -->
-                <div style="display: grid; gap: 0.8rem;">
+                <!-- Botones -->
+                <div style="display: grid; gap: 0.5rem;">
                     <!-- Subir ahora -->
                     <button onclick="subirComprobanteAhora()" id="btnSubirAhora" disabled style="
                         background: linear-gradient(135deg, #4CAF50, rgba(76, 175, 80, 0.9));
                         color: white;
                         border: none;
-                        border-radius: 10px;
-                        padding: 1rem;
+                        border-radius: 6px;
+                        padding: 0.7rem;
                         font-weight: 600;
                         cursor: not-allowed;
-                        transition: all 0.3s ease;
+                        transition: all 0.2s ease;
                         opacity: 0.5;
+                        font-size: 0.85rem;
                     ">
-                        <i class="fas fa-upload me-2"></i>Subir comprobante ahora
+                        📤 Subir ahora
                     </button>
 
                     <!-- Subir después -->
@@ -1404,27 +1399,27 @@ function mostrarModalTransferencia() {
                         background: white;
                         color: #1F4E79;
                         border: 2px solid #1F4E79;
-                        border-radius: 10px;
-                        padding: 1rem;
+                        border-radius: 6px;
+                        padding: 0.7rem;
                         font-weight: 600;
                         cursor: pointer;
-                        transition: all 0.3s ease;
+                        transition: all 0.2s ease;
+                        font-size: 0.85rem;
                     " onmouseover="this.style.background='#1F4E79'; this.style.color='white';" onmouseout="this.style.background='white'; this.style.color='#1F4E79';">
-                        <i class="fas fa-clock me-2"></i>Lo subiré después (1 hora)
+                        ⏰ Lo subiré después
                     </button>
 
                     <!-- Volver -->
                     <button onclick="volverAMetodosPago()" style="
-                        background: rgba(58, 58, 58, 0.05);
-                        border: 1px solid rgba(58, 58, 58, 0.2);
-                        border-radius: 10px;
-                        padding: 0.8rem;
-                        color: #666;
-                        font-weight: 500;
+                        background: transparent;
+                        border: none;
+                        padding: 0.5rem;
+                        color: #999;
+                        font-size: 0.8rem;
                         cursor: pointer;
-                        transition: all 0.3s ease;
-                    " onmouseover="this.style.background='rgba(58, 58, 58, 0.1)';" onmouseout="this.style.background='rgba(58, 58, 58, 0.05)';">
-                        <i class="fas fa-arrow-left me-2"></i>Volver
+                        transition: color 0.2s;
+                    " onmouseover="this.style.color='#666';" onmouseout="this.style.color='#999';">
+                        ← Volver
                     </button>
                 </div>
             </div>
@@ -1584,13 +1579,13 @@ function mostrarConfirmacionFinal(metodoPago, subirAhora = false) {
     let mensaje = '';
     let icono = '';
 
-    if (metodoPago === 'MercadoPago') {
+    if (metodoPago === 'UalaBis') {
         icono = '💳';
-        mensaje = 'Serás redirigido a MercadoPago para completar el pago de forma segura.';
-    } else {
+        mensaje = 'Serás redirigido a UalaBis para completar el pago de forma segura.';
+    } else if (metodoPago === 'Transferencia') {
         if (subirAhora) {
             icono = '✅';
-            mensaje = 'Tu comprobante ha sido recibido.Nuestro equipo verificará el pago pronto.';
+            mensaje = 'Tu comprobante ha sido recibido. Nuestro equipo verificará el pago pronto.';
         } else {
             icono = '⏰';
             mensaje = 'Tienes 1 hora para subir el comprobante. Recibirás un email con los datos bancarios.';
