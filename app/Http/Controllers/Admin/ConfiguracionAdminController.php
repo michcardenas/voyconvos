@@ -28,9 +28,8 @@ public function index()
 public function create() {
     // Solo los tipos que manejas en tu sistema
     $tiposConfiguracion = [
-        'comision' => '💰 Comisión (%)',
-        'gasolina' => '⛽ Precio Gasolina ($)',
-        'maximo' => '💰 Maximo permitido',
+        'Costo' => '💰 Costo de mantenimiento (%)',
+        'Maximo' => '💰 Maximo permitido',
     ];
     
     return view('admin.create_configuracion', compact('tiposConfiguracion'));

@@ -822,10 +822,10 @@
             </label>
             <input type="number"
                    id="valor_viaje_manual"
-                   step="0.01"
+                   step="1"
                    min="0"
                    class="result-input"
-                   placeholder="ARS $0.00"
+                   placeholder="ARS $0"
                    oninput="validarValorViaje()"
                    readonly
                    onfocus="this.removeAttribute('readonly')"
@@ -1035,9 +1035,7 @@ let paradaCounter = 0;
 let paradaEnEspera = null;
 
 // Variables de configuración del servidor
-const comisionPlataforma = {{ $comision_plataforma ?? 0 }};
-const precioGasolina = {{ $precio_gasolina ?? 0 }};
-const consumoPorGalon = {{ $consumo_por_galon ?? 1 }};
+const costoMantenimiento = {{ $costo_mantenimiento ?? 0 }};
 const maximoGanancia = {{ $maximo_ganancia ?? 0 }};
 
 let tarifaMinima = 0;
@@ -1050,8 +1048,8 @@ function formatearMoneda(valor) {
     return new Intl.NumberFormat('es-AR', {
         style: 'currency',
         currency: 'ARS',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
     }).format(valor);
 }
 
@@ -1538,17 +1536,17 @@ function calcularTarifaAutomatica() {
         return;
     }
 
-    // PASO 1: Costo operativo = Distancia × $0.30/km
-    const costoOperativo = distanciaKm * 0.30;
+    // PASO 1: Costo base operativo = Distancia × $1400/km (sin decimales)
+    const costoBase = Math.floor(distanciaKm * 1400);
 
-    // PASO 2: Comisión = Costo operativo × porcentaje
-    const comision = (costoOperativo * comisionPlataforma) / 100;
+    // PASO 2: Aplicar costo de mantenimiento (%) (sin decimales)
+    const costoMantenimientoMonto = Math.floor((costoBase * costoMantenimiento) / 100);
 
-    // PASO 3: TARIFA MÍNIMA = Costo operativo + Comisión
-    tarifaMinima = costoOperativo + comision;
+    // PASO 3: TARIFA MÍNIMA = Costo base + Costo de mantenimiento (sin decimales)
+    tarifaMinima = Math.floor(costoBase + costoMantenimientoMonto);
 
-    // PASO 4: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo de ganancia %)
-    tarifaMaxima = tarifaMinima + (tarifaMinima * maximoGanancia / 100);
+    // PASO 4: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo permitido %) (sin decimales)
+    tarifaMaxima = Math.floor(tarifaMinima + (tarifaMinima * maximoGanancia / 100));
 
     // Actualizar la interfaz con formato argentino
     document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
@@ -1561,14 +1559,14 @@ function calcularTarifaAutomatica() {
     // Actualizar placeholder con el mínimo permitido
     inputValorViaje.placeholder = formatearMoneda(tarifaMinima);
 
-    // Actualizar atributos min y max del input
-    inputValorViaje.setAttribute('min', tarifaMinima.toFixed(2));
-    inputValorViaje.setAttribute('max', tarifaMaxima.toFixed(2));
+    // Actualizar atributos min y max del input (sin decimales)
+    inputValorViaje.setAttribute('min', tarifaMinima);
+    inputValorViaje.setAttribute('max', tarifaMaxima);
 
-    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido
+    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido (sin decimales)
     const valorActual = parseFloat(inputValorViaje.value) || 0;
     if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
-        inputValorViaje.value = tarifaMinima.toFixed(2);
+        inputValorViaje.value = tarifaMinima;
     }
 
     validarValorViaje();
@@ -1578,8 +1576,8 @@ function calcularTarifaAutomatica() {
 
     console.log('💰 Cálculo automático completado');
     console.log('- Distancia:', distanciaKm, 'km');
-    console.log('- Costo operativo: $', costoOperativo.toFixed(2));
-    console.log('- Comisión: $', comision.toFixed(2));
+    console.log('- Costo base: $', costoBase.toFixed(2));
+    console.log('- Costo de mantenimiento (' + costoMantenimiento + '%): $', costoMantenimientoMonto.toFixed(2));
     console.log('- TARIFA MÍNIMA: $', tarifaMinima.toFixed(2));
     console.log('- TARIFA MÁXIMA: $', tarifaMaxima.toFixed(2));
 }

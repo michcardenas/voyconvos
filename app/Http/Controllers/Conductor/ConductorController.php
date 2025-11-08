@@ -18,40 +18,31 @@ public function gestion()
 {
     $userId = auth()->id();
     $registro = RegistroConductor::where('user_id', $userId)->first();
-    
+
     // Obtener configuraciones más recientes
-    $configuracionGasolina = DB::table('configuracion_admin')
+    $configuracionCosto = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'gasolina')
+        ->where('nombre', 'Costo')
         ->orderBy('created_at', 'desc')
         ->first();
-        
-    $configuracionComision = DB::table('configuracion_admin')
-        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'comision')
-        ->orderBy('created_at', 'desc')
-        ->first();
-        
+
     $configuracionMaximo = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'maximo')
+        ->where('nombre', 'Maximo')
         ->orderBy('created_at', 'desc')
         ->first();
-    
+
     return view('conductor.gestion', [
         'marca' => $registro ? $registro->marca_vehiculo . ' ' . $registro->modelo_vehiculo : null,
-        'consumo_por_galon' => $registro ? $registro->consumo_por_galon : null,
         'anio_vehiculo' => $registro ? $registro->anio_vehiculo : null,
         'numero_puestos' => $registro ? $registro->numero_puestos : null,
         'patente' => $registro ? $registro->patente : null,
         'registro_completo' => $registro ? true : false,
-        
+
         // Configuraciones de administrador
-        'precio_gasolina' => $configuracionGasolina ? $configuracionGasolina->valor : null,
-        'comision_plataforma' => $configuracionComision ? $configuracionComision->valor : null,
+        'costo_mantenimiento' => $configuracionCosto ? $configuracionCosto->valor : null,
         'maximo_ganancia' => $configuracionMaximo ? $configuracionMaximo->valor : null,
-        'config_gasolina' => $configuracionGasolina,
-        'config_comision' => $configuracionComision,
+        'config_costo' => $configuracionCosto,
         'config_maximo' => $configuracionMaximo,
     ]);
 }
