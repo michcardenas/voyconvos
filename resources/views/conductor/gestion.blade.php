@@ -801,7 +801,15 @@
             <div class="result-value" id="calc-tiempo">-- min</div>
         </div>
 
-      
+        <div class="result-item suggested" hidden>
+            <div class="result-label">💡 Tarifa mínima sugerida</div>
+            <div class="result-value" id="calc-minimo" style="color: #059669;">ARS $0.00</div>
+        </div>
+
+        <div class="result-item max-allowed">
+            <div class="result-label">⚠️ Máximo permitido</div>
+            <div class="result-value" id="calc-maximo" style="color: #dc2626;">ARS $0.00</div>
+        </div>
     </div>
 
     <!-- Input para establecer el valor del viaje -->
