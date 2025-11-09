@@ -54,8 +54,8 @@
                             <x-input-label for="fecha_nacimiento" :value="__('Fecha de nacimiento')" class="form-label" />
                             <x-text-input id="fecha_nacimiento" class="form-input" type="date" name="fecha_nacimiento" :value="old('fecha_nacimiento')" required />
                             <x-input-error :messages="$errors->get('fecha_nacimiento')" class="mt-2" />
-                            <span class="error-message" id="error-fecha"></span>
-                            <small class="form-hint">Debes ser mayor de 18 años</small>
+                            <span class="error-message" id="error-fecha_nacimiento"></span>
+                            <small class="form-hint">Debes ser mayor de 18 años (Campo obligatorio)</small>
                         </div>
                     </div>
                     
@@ -635,7 +635,55 @@
             width: 20px;
             height: 20px;
         }
-        
+
+        /* Alerta de error del servidor */
+        .server-error-alert {
+            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+            border: 2px solid #fca5a5;
+            border-left: 4px solid var(--color-error);
+            border-radius: 12px;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            animation: slideDown 0.3s ease;
+            transition: opacity 0.3s ease;
+        }
+
+        .error-content {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+        }
+
+        .error-content svg {
+            color: var(--color-error);
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .error-content strong {
+            display: block;
+            color: #991b1b;
+            font-size: 0.95rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .error-content p {
+            margin: 0;
+            color: #dc2626;
+            font-size: 0.85rem;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
         /* Responsive */
         @media (max-width: 768px) {
             .login-card {
@@ -667,6 +715,25 @@
         document.addEventListener('DOMContentLoaded', function() {
             let currentStep = 1;
             const totalSteps = 4;
+
+            // Detectar errores del servidor y navegar al paso correcto
+            const serverErrors = {
+                @if($errors->has('email')) 'email': 1, @endif
+                @if($errors->has('name')) 'name': 1, @endif
+                @if($errors->has('fecha_nacimiento')) 'fecha_nacimiento': 1, @endif
+                @if($errors->has('pais')) 'pais': 2, @endif
+                @if($errors->has('ciudad')) 'ciudad': 2, @endif
+                @if($errors->has('celular')) 'celular': 2, @endif
+                @if($errors->has('password')) 'password': 3, @endif
+                @if($errors->has('password_confirmation')) 'password_confirmation': 3, @endif
+                @if($errors->has('foto')) 'foto': 4, @endif
+            };
+
+            // Si hay errores, ir al primer paso con error
+            const errorSteps = Object.values(serverErrors);
+            if (errorSteps.length > 0) {
+                currentStep = Math.min(...errorSteps);
+            }
             
             const btnNext = document.getElementById('btnNext');
             const btnPrev = document.getElementById('btnPrev');
@@ -778,7 +845,7 @@
                         
                         const fecha = document.getElementById('fecha_nacimiento');
                         if (!fecha.value) {
-                            showError('fecha', 'La fecha de nacimiento es obligatoria');
+                            showError('fecha_nacimiento', 'La fecha de nacimiento es obligatoria');
                             isValid = false;
                         } else {
                             const birthDate = new Date(fecha.value);
@@ -789,7 +856,7 @@
                                 age--;
                             }
                             if (age < 18) {
-                                showError('fecha', 'Debes ser mayor de 18 años');
+                                showError('fecha_nacimiento', 'Debes ser mayor de 18 años');
                                 isValid = false;
                             }
                         }
@@ -894,6 +961,43 @@
                 });
             });
             
+            // Mostrar errores del servidor al cargar
+            @if($errors->any())
+                setTimeout(() => {
+                    // Mostrar alerta de error
+                    const errorAlert = document.createElement('div');
+                    errorAlert.className = 'server-error-alert';
+                    errorAlert.innerHTML = `
+                        <div class="error-content">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <line x1="12" y1="8" x2="12" y2="12"></line>
+                                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                            </svg>
+                            <div>
+                                <strong>Hay errores en el formulario</strong>
+                                <p>Por favor revisa los campos marcados en rojo</p>
+                            </div>
+                        </div>
+                    `;
+                    document.querySelector('.login-form-panel').insertBefore(errorAlert, document.querySelector('.login-title'));
+
+                    // Auto-cerrar después de 5 segundos
+                    setTimeout(() => {
+                        errorAlert.style.opacity = '0';
+                        setTimeout(() => errorAlert.remove(), 300);
+                    }, 5000);
+                }, 300);
+
+                // Marcar campos con error
+                @foreach($errors->keys() as $field)
+                    const field{{ ucfirst($field) }} = document.getElementById('{{ $field }}');
+                    if (field{{ ucfirst($field) }}) {
+                        field{{ ucfirst($field) }}.classList.add('error');
+                    }
+                @endforeach
+            @endif
+
             // Inicializar
             updateUI();
         });
