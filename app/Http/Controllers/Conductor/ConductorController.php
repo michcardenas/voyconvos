@@ -32,6 +32,12 @@ public function gestion()
         ->orderBy('created_at', 'desc')
         ->first();
 
+    $configuracionCostoKm = DB::table('configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'Costo_km')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
     return view('conductor.gestion', [
         'marca' => $registro ? $registro->marca_vehiculo . ' ' . $registro->modelo_vehiculo : null,
         'anio_vehiculo' => $registro ? $registro->anio_vehiculo : null,
@@ -42,8 +48,10 @@ public function gestion()
         // Configuraciones de administrador
         'costo_mantenimiento' => $configuracionCosto ? $configuracionCosto->valor : null,
         'maximo_ganancia' => $configuracionMaximo ? $configuracionMaximo->valor : null,
+        'costo_por_km' => $configuracionCostoKm ? $configuracionCostoKm->valor : 10000, // Default 10000 si no existe
         'config_costo' => $configuracionCosto,
         'config_maximo' => $configuracionMaximo,
+        'config_costo_km' => $configuracionCostoKm,
     ]);
 }
 public function verificarPasajero(Request $request, Reserva $reserva) 

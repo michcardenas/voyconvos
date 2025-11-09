@@ -1037,6 +1037,7 @@ let paradaEnEspera = null;
 // Variables de configuración del servidor
 const costoMantenimiento = {{ $costo_mantenimiento ?? 0 }};
 const maximoGanancia = {{ $maximo_ganancia ?? 0 }};
+const costoPorKm = {{ $costo_por_km ?? 10000 }}; // Costo por km desde BD, default 10000
 
 let tarifaMinima = 0;
 let tarifaMaxima = 0;
@@ -1536,8 +1537,8 @@ function calcularTarifaAutomatica() {
         return;
     }
 
-    // PASO 1: Costo base operativo = Distancia × $1400/km (sin decimales)
-    const costoBase = Math.floor(distanciaKm * 1400);
+    // PASO 1: Costo base operativo = Distancia × costoPorKm (desde BD, default 10000)
+    const costoBase = Math.floor(distanciaKm * costoPorKm);
 
     // PASO 2: Aplicar costo de mantenimiento (%) (sin decimales)
     const costoMantenimientoMonto = Math.floor((costoBase * costoMantenimiento) / 100);
