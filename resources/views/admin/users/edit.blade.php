@@ -92,8 +92,14 @@
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold">Rol <span class="text-danger">*</span></label>
                                 <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
+                                    @php
+                                        $userRole = old('role', $user->getRoleNames()->first());
+                                    @endphp
+                                    @if(!$userRole)
+                                    <option value="" selected disabled>Seleccione un rol</option>
+                                    @endif
                                     @foreach($roles as $role)
-                                    <option value="{{ $role->name }}" {{ old('role', $user->getRoleNames()->first()) == $role->name ? 'selected' : '' }}>
+                                    <option value="{{ $role->name }}" {{ $userRole == $role->name ? 'selected' : '' }}>
                                         @switch($role->name)
                                             @case('admin')
                                                 Administrador
