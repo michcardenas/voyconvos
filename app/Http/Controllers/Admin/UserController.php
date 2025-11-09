@@ -22,7 +22,6 @@ public function index(Request $request)
     $rol = $request->get('rol');
     $verificado = $request->get('verificado');
     $buscar = $request->get('buscar');
-    $perfil = $request->get('perfil'); // 🔥 NUEVO: filtro por tipo de perfil
 
     // Construir la consulta con filtros
     $query = User::query()->with('registroConductor');
@@ -46,17 +45,6 @@ public function index(Request $request)
     // Filtro por estado de verificación
     if ($verificado !== null && $verificado !== '') {
         $query->where('verificado', $verificado);
-    }
-
-    // 🔥 FILTRO POR TIPO DE PERFIL (conductor/pasajero)
-    if ($perfil) {
-        if ($perfil === 'conductor') {
-            // Usuarios que tienen registro de conductor
-            $query->whereHas('registroConductor');
-        } elseif ($perfil === 'pasajero') {
-            // Usuarios que NO tienen registro de conductor
-            $query->whereDoesntHave('registroConductor');
-        }
     }
 
     // Aplicar ordenamiento
@@ -235,14 +223,21 @@ public function update(Request $request, User $user)
 
     // Verificar estado de verificación para email
     $eraNoVerificado = !$user->verificado;
-    $seraVerificado = $request->has('verificado') && $request->verificado;
+
+    // Lógica de verificación dual:
+    // Si se marca como verificado conductor, también se verifica como usuario/pasajero
+    $verificacionConductor = $request->has('verificacion_conductor') && $request->verificacion_conductor;
+    $verificacionUsuario = $request->has('verificado') && $request->verificado;
+
+    // Si se verifica como conductor, automáticamente se verifica como usuario
+    $seraVerificado = $verificacionConductor || $verificacionUsuario;
     $acabaDeSerVerificado = $eraNoVerificado && $seraVerificado;
 
     // ===== ACTUALIZAR DATOS BÁSICOS DEL USUARIO =====
     $userData = $request->only(['name', 'email', 'pais', 'ciudad', 'dni', 'celular', 'fecha_nacimiento']);
 
-    // Manejar el checkbox de verificado (si no está marcado, no se envía)
-    $userData['verificado'] = $request->has('verificado') && $request->verificado ? 1 : 0;
+    // Manejar el checkbox de verificado (si se verifica como conductor, automáticamente se verifica como usuario)
+    $userData['verificado'] = $seraVerificado ? 1 : 0;
 
     // Manejar archivos del usuario
     if ($request->hasFile('foto')) {
@@ -325,7 +320,10 @@ public function update(Request $request, User $user)
         if ($request->has('verificar_pasajeros')) {
             $registroConductor->verificar_pasajeros = $request->verificar_pasajeros ? 1 : 0;
         }
-        
+
+        // Verificación de conductor
+        $registroConductor->verificacion_conductor = $request->has('verificacion_conductor') && $request->verificacion_conductor ? 1 : 0;
+
         // Enums con valores correctos
         $registroConductor->estado_verificacion = $request->estado_verificacion ?: 'pendiente';
         

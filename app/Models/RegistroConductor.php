@@ -21,10 +21,16 @@ class RegistroConductor extends Model
         'rto',
         'antecedentes',
         'estado_verificacion',
+        'verificacion_conductor',
         'estado_registro',
         'numero_puestos',
-        'verificar_pasajeros', 
+        'verificar_pasajeros',
         'consumo_por_galon',
-       
+
+    ];
+
+    protected $casts = [
+        'verificacion_conductor' => 'boolean',
+        'verificar_pasajeros' => 'boolean',
     ];
 }

@@ -1143,23 +1143,23 @@ function confirmarReserva() {
 
                 <!-- Opciones -->
                 <div style="display: grid; gap: 0.6rem; margin-bottom: 1rem;">
-                    <!-- UalaBis -->
-                    <button onclick="seleccionarUalaBis()" style="
-                        background: white;
-                        border: 2px solid #6C2C91;
+                    <!-- UalaBis DESHABILITADO -->
+                    <button disabled style="
+                        background: #f5f5f5;
+                        border: 2px solid #ccc;
                         border-radius: 8px;
                         padding: 0.8rem;
-                        cursor: pointer;
-                        transition: all 0.2s ease;
+                        cursor: not-allowed;
                         display: flex;
                         align-items: center;
                         gap: 0.7rem;
                         text-align: left;
-                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(108, 44, 145, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        opacity: 0.6;
+                    ">
                         <div style="
                             width: 40px;
                             height: 40px;
-                            background: linear-gradient(135deg, #6C2C91, #8B3DAF);
+                            background: #ccc;
                             border-radius: 8px;
                             display: flex;
                             align-items: center;
@@ -1168,8 +1168,8 @@ function confirmarReserva() {
                             flex-shrink: 0;
                         ">💳</div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">UalaBis</div>
-                            <div style="font-size: 0.7rem; color: #999;">Tarjeta online</div>
+                            <div style="font-weight: 600; color: #999; font-size: 0.95rem;">UalaBis</div>
+                            <div style="font-size: 0.7rem; color: #aaa;">No disponible</div>
                         </div>
                     </button>
 

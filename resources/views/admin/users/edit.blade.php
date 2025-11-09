@@ -94,7 +94,22 @@
                                 <select name="role" id="role" class="form-select @error('role') is-invalid @enderror" required>
                                     @foreach($roles as $role)
                                     <option value="{{ $role->name }}" {{ old('role', $user->getRoleNames()->first()) == $role->name ? 'selected' : '' }}>
-                                        {{ $role->name == 'admin' ? 'Administrador' : 'Usuario' }}
+                                        @switch($role->name)
+                                            @case('admin')
+                                                Administrador
+                                                @break
+                                            @case('conductor')
+                                                Conductor
+                                                @break
+                                            @case('pasajero')
+                                                Pasajero
+                                                @break
+                                            @case('soporte')
+                                                Soporte
+                                                @break
+                                            @default
+                                                {{ ucfirst($role->name) }}
+                                        @endswitch
                                     </option>
                                     @endforeach
                                 </select>
@@ -298,6 +313,45 @@
                                     <label class="form-check-label fw-semibold" for="verificar_pasajeros">
                                         ¿Requiere verificar pasajeros manualmente?
                                     </label>
+                                </div>
+                            </div>
+
+                            <!-- Verificación de Conductor -->
+                            <div class="col-12">
+                                <div class="card bg-light border-0">
+                                    <div class="card-body">
+                                        <div class="d-flex align-items-center justify-content-between">
+                                            <div>
+                                                <h6 class="mb-1 fw-semibold">
+                                                    <i class="fas fa-user-check me-2 text-success"></i>
+                                                    Verificación como Conductor
+                                                </h6>
+                                                <p class="text-muted small mb-0">
+                                                    Al verificar como conductor, el usuario también se verificará automáticamente como pasajero
+                                                </p>
+                                            </div>
+                                            <div class="form-check form-switch ms-3" style="transform: scale(1.5);">
+                                                <input class="form-check-input"
+                                                       type="checkbox"
+                                                       name="verificacion_conductor"
+                                                       id="verificacion_conductor"
+                                                       value="1"
+                                                       {{ old('verificacion_conductor', $registroConductor->verificacion_conductor ?? 0) ? 'checked' : '' }}>
+                                                <label class="form-check-label visually-hidden" for="verificacion_conductor">
+                                                    Verificado como Conductor
+                                                </label>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2">
+                                            <span class="badge {{ ($registroConductor->verificacion_conductor ?? 0) ? 'bg-success' : 'bg-warning text-dark' }}" id="badge-verificacion-conductor">
+                                                @if($registroConductor->verificacion_conductor ?? 0)
+                                                <i class="fas fa-check-circle me-1"></i>Conductor Verificado
+                                                @else
+                                                <i class="fas fa-clock me-1"></i>Verificación de Conductor Pendiente
+                                                @endif
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -678,6 +732,31 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 badgeVerificacion.className = 'badge bg-warning text-dark';
                 badgeVerificacion.innerHTML = '<i class="fas fa-clock me-1"></i>Verificación Pendiente';
+            }
+        });
+    }
+
+    // Manejar cambio de estado de verificación de conductor
+    const verificacionConductorCheckbox = document.getElementById('verificacion_conductor');
+    const badgeVerificacionConductor = document.getElementById('badge-verificacion-conductor');
+
+    if (verificacionConductorCheckbox && badgeVerificacionConductor) {
+        verificacionConductorCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                badgeVerificacionConductor.className = 'badge bg-success';
+                badgeVerificacionConductor.innerHTML = '<i class="fas fa-check-circle me-1"></i>Conductor Verificado';
+
+                // Si se verifica como conductor, también verificar como usuario (pasajero)
+                if (verificadoCheckbox) {
+                    verificadoCheckbox.checked = true;
+                    if (badgeVerificacion) {
+                        badgeVerificacion.className = 'badge bg-success';
+                        badgeVerificacion.innerHTML = '<i class="fas fa-check-circle me-1"></i>Usuario Verificado';
+                    }
+                }
+            } else {
+                badgeVerificacionConductor.className = 'badge bg-warning text-dark';
+                badgeVerificacionConductor.innerHTML = '<i class="fas fa-clock me-1"></i>Verificación de Conductor Pendiente';
             }
         });
     }

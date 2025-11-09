@@ -53,18 +53,6 @@
                     </div>
                 </div>
 
-                <!-- Filtro de Perfil -->
-                <div class="col-md-2">
-                    <label class="form-label small fw-semibold text-muted">
-                        <i class="fas fa-user-tag me-1"></i>Perfil
-                    </label>
-                    <select id="filtro-perfil" class="form-select">
-                        <option value="">Todos</option>
-                        <option value="conductor" {{ request('perfil') == 'conductor' ? 'selected' : '' }}>Conductores</option>
-                        <option value="pasajero" {{ request('perfil') == 'pasajero' ? 'selected' : '' }}>Pasajeros</option>
-                    </select>
-                </div>
-
                 <!-- Filtro de Rol -->
                 <div class="col-md-2">
                     <label class="form-label small fw-semibold text-muted">
@@ -72,7 +60,10 @@
                     </label>
                     <select id="filtro-rol" class="form-select">
                         <option value="">Todos</option>
-                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Admin</option>
+                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Administrador</option>
+                        <option value="conductor" {{ request('rol') == 'conductor' ? 'selected' : '' }}>Conductor</option>
+                        <option value="pasajero" {{ request('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
+                        <option value="soporte" {{ request('rol') == 'soporte' ? 'selected' : '' }}>Soporte</option>
                     </select>
                 </div>
 
@@ -101,7 +92,7 @@
                 </div>
             </div>
 
-            @if(request()->hasAny(['buscar', 'perfil', 'rol', 'verificado', 'ordenar']))
+            @if(request()->hasAny(['buscar', 'rol', 'verificado', 'ordenar']))
             <div class="mt-3 d-flex align-items-center justify-content-between">
                 <div class="d-flex flex-wrap gap-2">
                     @if(request('buscar'))
@@ -109,14 +100,25 @@
                         <i class="fas fa-search me-1"></i>Búsqueda: "{{ request('buscar') }}"
                     </span>
                     @endif
-                    @if(request('perfil'))
-                    <span class="badge bg-info">
-                        <i class="fas fa-user-tag me-1"></i>{{ ucfirst(request('perfil')) }}
-                    </span>
-                    @endif
                     @if(request('rol'))
                     <span class="badge bg-warning text-dark">
-                        <i class="fas fa-shield-alt me-1"></i>{{ ucfirst(request('rol')) }}
+                        <i class="fas fa-shield-alt me-1"></i>
+                        @switch(request('rol'))
+                            @case('admin')
+                                Administrador
+                                @break
+                            @case('conductor')
+                                Conductor
+                                @break
+                            @case('pasajero')
+                                Pasajero
+                                @break
+                            @case('soporte')
+                                Soporte
+                                @break
+                            @default
+                                {{ ucfirst(request('rol')) }}
+                        @endswitch
                     </span>
                     @endif
                     @if(request('verificado') !== null)
@@ -141,7 +143,6 @@
                     <thead class="bg-light">
                         <tr>
                             <th class="px-4 py-3">Usuario</th>
-                            <th class="py-3">Perfil</th>
                             <th class="py-3">Documentos</th>
                             <th class="py-3">Rol</th>
                             <th class="py-3">Estado</th>
@@ -167,19 +168,6 @@
                                         <small class="text-muted">{{ $user->email }}</small>
                                     </div>
                                 </div>
-                            </td>
-
-                            <!-- Perfil -->
-                            <td>
-                                @if($user->registroConductor)
-                                <span class="badge badge-conductor">
-                                    <i class="fas fa-car me-1"></i>Conductor
-                                </span>
-                                @else
-                                <span class="badge badge-pasajero">
-                                    <i class="fas fa-user me-1"></i>Pasajero
-                                </span>
-                                @endif
                             </td>
 
                             <!-- Documentos -->
@@ -235,15 +223,32 @@
                                 @php
                                     $rol = $user->getRoleNames()->first();
                                 @endphp
-                                @if($rol == 'admin')
-                                <span class="badge badge-admin">
-                                    <i class="fas fa-shield-alt me-1"></i>Admin
-                                </span>
-                                @else
-                                <span class="badge badge-user">
-                                    <i class="fas fa-user me-1"></i>Usuario
-                                </span>
-                                @endif
+                                @switch($rol)
+                                    @case('admin')
+                                        <span class="badge badge-admin">
+                                            <i class="fas fa-shield-alt me-1"></i>Administrador
+                                        </span>
+                                        @break
+                                    @case('conductor')
+                                        <span class="badge badge-conductor-rol">
+                                            <i class="fas fa-steering-wheel me-1"></i>Conductor
+                                        </span>
+                                        @break
+                                    @case('pasajero')
+                                        <span class="badge badge-pasajero-rol">
+                                            <i class="fas fa-user me-1"></i>Pasajero
+                                        </span>
+                                        @break
+                                    @case('soporte')
+                                        <span class="badge badge-soporte">
+                                            <i class="fas fa-headset me-1"></i>Soporte
+                                        </span>
+                                        @break
+                                    @default
+                                        <span class="badge badge-user">
+                                            <i class="fas fa-user me-1"></i>{{ ucfirst($rol) }}
+                                        </span>
+                                @endswitch
                             </td>
 
                             <!-- Estado -->
@@ -290,7 +295,7 @@
                         </tr>
                         @empty
                         <tr>
-                            <td colspan="7" class="text-center py-5">
+                            <td colspan="6" class="text-center py-5">
                                 <div class="text-muted">
                                     <i class="fas fa-search fa-3x mb-3 d-block"></i>
                                     <p class="mb-0">No se encontraron usuarios</p>
@@ -366,6 +371,21 @@
 .badge-admin {
     background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
     color: #000;
+}
+
+.badge-conductor-rol {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: #000;
+}
+
+.badge-pasajero-rol {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: #000;
+}
+
+.badge-soporte {
+    background: linear-gradient(135deg, #fa8bff 0%, #2bd2ff 100%);
+    color: #fff;
 }
 
 .badge-user {
@@ -488,7 +508,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const filtroRol = document.getElementById('filtro-rol');
     const filtroVerificado = document.getElementById('filtro-verificado');
     const filtroOrdenar = document.getElementById('filtro-ordenar');
-    const filtroPerfil = document.getElementById('filtro-perfil');
     const limpiarFiltros = document.getElementById('limpiar-filtros');
     const campoBusqueda = document.getElementById('busqueda');
     const btnBuscar = document.getElementById('btn-buscar');
@@ -500,7 +519,6 @@ document.addEventListener('DOMContentLoaded', function() {
         url.searchParams.delete('rol');
         url.searchParams.delete('verificado');
         url.searchParams.delete('buscar');
-        url.searchParams.delete('perfil');
         url.searchParams.delete('page');
 
         const ordenar = filtroOrdenar.value;
@@ -525,11 +543,6 @@ document.addEventListener('DOMContentLoaded', function() {
             url.searchParams.set('verificado', valorVerificado);
         }
 
-        const valorPerfil = filtroPerfil.value;
-        if (valorPerfil) {
-            url.searchParams.set('perfil', valorPerfil);
-        }
-
         window.location.href = url.toString();
     }
 
@@ -545,7 +558,6 @@ document.addEventListener('DOMContentLoaded', function() {
     filtroRol.addEventListener('change', aplicarFiltros);
     filtroVerificado.addEventListener('change', aplicarFiltros);
     filtroOrdenar.addEventListener('change', aplicarFiltros);
-    filtroPerfil.addEventListener('change', aplicarFiltros);
     btnBuscar.addEventListener('click', aplicarFiltros);
 
     if (btnLimpiarBusqueda) {
