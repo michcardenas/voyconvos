@@ -27,8 +27,30 @@
             <div class="row align-items-center">
                 <div class="col">
                     <h5 class="mb-0">
-                        <i class="fas fa-{{ $nombre == 'comision' ? 'percentage' : 'gas-pump' }} me-2"></i>
-                        {{ ucfirst($nombre) }}
+                        @php
+                            $iconos = [
+                                'gasolina' => 'gas-pump',
+                                'comision' => 'percentage',
+                                'maximo' => 'dollar-sign',
+                                'costo_km' => 'road',
+                                'Costo' => 'percentage',
+                                'Maximo' => 'dollar-sign',
+                                'Costo_km' => 'road',
+                            ];
+                            $nombres = [
+                                'gasolina' => 'Gasolina',
+                                'comision' => 'Comisión',
+                                'maximo' => 'Máximo',
+                                'costo_km' => 'Costo por km',
+                                'Costo' => 'Costo de mantenimiento',
+                                'Maximo' => 'Máximo permitido',
+                                'Costo_km' => 'Costo por km recorrido',
+                            ];
+                            $icono = $iconos[$nombre] ?? 'cog';
+                            $nombreMostrar = $nombres[$nombre] ?? ucfirst(str_replace('_', ' ', $nombre));
+                        @endphp
+                        <i class="fas fa-{{ $icono }} me-2"></i>
+                        {{ $nombreMostrar }}
                     </h5>
                 </div>
                 <div class="col-auto">
@@ -109,7 +131,7 @@
 
     {{-- Resumen de valores actuales --}}
     <div class="card mt-4">
-        <div class="card-header">
+        <div class="card-header bg-info text-white">
             <h6 class="mb-0">
                 <i class="fas fa-chart-line me-2"></i>Valores Actuales
             </h6>
@@ -120,15 +142,37 @@
                 @php
                     $valorActual = $configs->sortByDesc('created_at')->first();
                 @endphp
-                <div class="col-md-6">
-                    <div class="d-flex align-items-center p-3 bg-light rounded">
+                <div class="col-md-6 mb-3">
+                    <div class="d-flex align-items-center p-3 rounded config-card-resumen">
                         <div class="me-3">
-                            <i class="fas fa-{{ $nombre == 'comision' ? 'percentage' : 'gas-pump' }} text-primary fa-2x"></i>
+                            @php
+                                $iconos = [
+                                    'gasolina' => 'gas-pump',
+                                    'comision' => 'percentage',
+                                    'maximo' => 'dollar-sign',
+                                    'costo_km' => 'road',
+                                    'Costo' => 'percentage',
+                                    'Maximo' => 'dollar-sign',
+                                    'Costo_km' => 'road',
+                                ];
+                                $nombres = [
+                                    'gasolina' => 'Gasolina',
+                                    'comision' => 'Comisión',
+                                    'maximo' => 'Máximo',
+                                    'costo_km' => 'Costo por km',
+                                    'Costo' => 'Costo de mantenimiento',
+                                    'Maximo' => 'Máximo permitido',
+                                    'Costo_km' => 'Costo por km recorrido',
+                                ];
+                                $icono = $iconos[$nombre] ?? 'cog';
+                                $nombreMostrar = $nombres[$nombre] ?? ucfirst(str_replace('_', ' ', $nombre));
+                            @endphp
+                            <i class="fas fa-{{ $icono }} text-primary fa-2x"></i>
                         </div>
                         <div>
-                            <h6 class="mb-1">{{ ucfirst($nombre) }}</h6>
+                            <h6 class="mb-1 text-dark fw-bold">{{ $nombreMostrar }}</h6>
                             <p class="mb-0">
-                                <code class="fs-5 fw-bold">{{ $valorActual->valor }}</code>
+                                <code class="fs-5 fw-bold bg-dark text-white px-2 py-1 rounded">{{ $valorActual->valor }}</code>
                             </p>
                             <small class="text-muted">
                                 Actualizado: {{ $valorActual->created_at ? $valorActual->created_at->format('d/m/Y H:i') : 'Sin fecha' }}
@@ -171,15 +215,65 @@ code {
     border-radius: 0.5rem 0.5rem 0 0 !important;
 }
 
-.bg-light.rounded {
+/* Forzar color blanco en encabezados de tarjetas */
+.card-header.bg-primary h5,
+.card-header.bg-primary .badge,
+.card-header.bg-primary i {
+    color: #ffffff !important;
+}
+
+.card-header.bg-info h6,
+.card-header.bg-info i {
+    color: #ffffff !important;
+}
+
+/* Forzar texto oscuro en encabezados de tabla */
+.table-light th {
+    color: #212529 !important;
+    background-color: #f8f9fa !important;
+    font-weight: 600;
+}
+
+/* Asegurar que el texto del tbody también sea oscuro */
+.table tbody td {
+    color: #212529 !important;
+}
+
+.table tbody td code {
+    color: #212529 !important;
+}
+
+/* Tarjetas de resumen de configuración */
+.config-card-resumen {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border: 2px solid #dee2e6;
     border-left: 4px solid #0d6efd;
+    transition: all 0.3s ease;
+}
+
+.config-card-resumen:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-left-color: #0b5ed7;
+}
+
+.config-card-resumen h6 {
+    color: #212529 !important;
+    font-weight: 600;
+}
+
+.config-card-resumen code {
+    background-color: #212529 !important;
+    color: #ffffff !important;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
 }
 
 @media (max-width: 768px) {
     .table-responsive {
         font-size: 0.875rem;
     }
-    
+
     .col-md-6 {
         margin-bottom: 1rem;
     }

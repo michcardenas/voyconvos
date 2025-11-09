@@ -129,7 +129,7 @@
                                 <div class="input-group">
                                     <span class="input-group-text"><i class="fas fa-calendar text-primary"></i></span>
                                     <input type="date" name="fecha_nacimiento" class="form-control @error('fecha_nacimiento') is-invalid @enderror"
-                                           value="{{ old('fecha_nacimiento', $user->fecha_nacimiento) }}">
+                                           value="{{ old('fecha_nacimiento', $user->fecha_nacimiento ? \Carbon\Carbon::parse($user->fecha_nacimiento)->format('Y-m-d') : '') }}">
                                     @error('fecha_nacimiento')
                                     <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror

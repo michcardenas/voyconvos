@@ -29,16 +29,17 @@ public function create() {
     // Solo los tipos que manejas en tu sistema
     $tiposConfiguracion = [
         'Costo' => '💰 Costo de mantenimiento (%)',
-        'Maximo' => '💰 Maximo permitido',
+        'Maximo' => '💰 Máximo permitido',
+        'Costo_km' => '📏 Costo de km recorrido',
     ];
-    
+
     return view('admin.create_configuracion', compact('tiposConfiguracion'));
 }
 
 public function store(Request $request)
 {
     $request->validate([
-        'nombre' => 'required|in:gasolina,comision,maximo',
+        'nombre' => 'required|in:Costo,Maximo,Costo_km,gasolina,comision',
         'valor' => 'nullable|string',
     ]);
 
