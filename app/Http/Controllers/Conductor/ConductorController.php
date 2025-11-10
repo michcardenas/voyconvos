@@ -600,7 +600,11 @@ public function verViaje(Viaje $viaje)
             'ingresos_estimados' => $viaje->reservas->whereIn('estado', ['confirmada', 'confirmado'])->sum('total'),
         ];
 
-        return view('conductor.viaje-detalles', compact('viaje', 'estadisticas'));
+        // Obtener configuración de verificación del conductor
+        $registroConductor = RegistroConductor::where('user_id', auth()->id())->first();
+        $requiereVerificacion = $registroConductor ? $registroConductor->verificar_pasajeros : false;
+
+        return view('conductor.viaje-detalles', compact('viaje', 'estadisticas', 'requiereVerificacion'));
 
     } catch (\Exception $e) {
         \Log::error('Error al mostrar detalles del viaje', [

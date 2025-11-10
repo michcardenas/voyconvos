@@ -1004,8 +1004,14 @@ body {
                             $count = count($origenParts);
                             // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
                             $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
-                            // Eliminar códigos postales (alfanuméricos como B1650, C1405, etc)
-                            $origenCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $origenCorta);
+                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                            $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                            $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                            // Limpiar espacios dobles y comas dobles
+                            $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                            $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                            $origenCorta = trim($origenCorta, ' ,');
                         @endphp
                         {{ $origenCorta }}
                     </span>
@@ -1018,8 +1024,14 @@ body {
                             $count = count($destinoParts);
                             // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
                             $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
-                            // Eliminar códigos postales (alfanuméricos como B1650, C1405, etc)
-                            $destinoCorta = preg_replace('/\b[A-Z]\d{4}\b\s*/i', '', $destinoCorta);
+                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                            $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                            $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                            // Limpiar espacios dobles y comas dobles
+                            $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                            $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                            $destinoCorta = trim($destinoCorta, ' ,');
                         @endphp
                         {{ $destinoCorta }}
                     </span>

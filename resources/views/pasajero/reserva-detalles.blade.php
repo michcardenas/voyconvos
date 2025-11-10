@@ -1385,9 +1385,17 @@ main {
              =============================================== -->
         <div class="action-section">
             <h5 class="action-title">¿Qué quieres hacer?</h5>
-            <a href="{{ route('pasajero.dashboard') }}" class="btn-custom secondary">
-                <i class="fas fa-arrow-left me-2"></i>Volver al listado
-            </a>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                <a href="{{ route('pasajero.dashboard') }}" class="btn-custom secondary">
+                    <i class="fas fa-arrow-left me-2"></i>Volver al listado
+                </a>
+                <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-custom primary">
+                    <i class="fas fa-search me-2"></i>Buscar más viajes
+                </a>
+                <a href="{{ route('conductor.gestion') }}" class="btn-custom accent">
+                    <i class="fas fa-plus-circle me-2"></i>Publicar un viaje
+                </a>
+            </div>
         </div>
     </div>
 </div>

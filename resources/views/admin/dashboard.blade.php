@@ -554,17 +554,17 @@ h4 {
         </div>
     </div>
 
-    <!-- Botón centrado -->
+    <!-- Botones centrados -->
     <div class="center-button">
-        <a href="{{ url('/admin/users') }}" class="btn-view-users">
-            👥 Ver Usuarios
-        </a>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url('/admin/users') }}" class="btn-view-users">
+                👥 Ver Usuarios
+            </a>
+            <a href="{{ route('admin.gestor-pagos') }}" class="btn-view-users" style="background: linear-gradient(135deg, #1cc88a 0%, #17a673 100%);">
+                💳 Gestor de Pagos
+            </a>
+        </div>
     </div>
-</div>
-<div class="center-button mt-3">
-    <a href="{{ route('admin.gestor-pagos') }}" class="btn btn-primary btn-lg">
-        💳 Gestor de Pagos
-    </a>
 </div>
 
 <!-- Tarjetas de viajes ACTUALIZADAS -->
