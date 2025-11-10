@@ -29,22 +29,14 @@
                     <h5 class="mb-0">
                         @php
                             $iconos = [
-                                'gasolina' => 'gas-pump',
                                 'comision' => 'percentage',
                                 'maximo' => 'dollar-sign',
                                 'costo_km' => 'road',
-                                'Costo' => 'percentage',
-                                'Maximo' => 'dollar-sign',
-                                'Costo_km' => 'road',
                             ];
                             $nombres = [
-                                'gasolina' => 'Gasolina',
-                                'comision' => 'Comisión',
-                                'maximo' => 'Máximo',
-                                'costo_km' => 'Costo por km',
-                                'Costo' => 'Costo de mantenimiento',
-                                'Maximo' => 'Máximo permitido',
-                                'Costo_km' => 'Costo por km recorrido',
+                                'comision' => 'Comisión de la plataforma',
+                                'maximo' => 'Monto máximo permitido',
+                                'costo_km' => 'Costo por kilómetro recorrido',
                             ];
                             $icono = $iconos[$nombre] ?? 'cog';
                             $nombreMostrar = $nombres[$nombre] ?? ucfirst(str_replace('_', ' ', $nombre));
@@ -147,22 +139,14 @@
                         <div class="me-3">
                             @php
                                 $iconos = [
-                                    'gasolina' => 'gas-pump',
                                     'comision' => 'percentage',
                                     'maximo' => 'dollar-sign',
                                     'costo_km' => 'road',
-                                    'Costo' => 'percentage',
-                                    'Maximo' => 'dollar-sign',
-                                    'Costo_km' => 'road',
                                 ];
                                 $nombres = [
-                                    'gasolina' => 'Gasolina',
-                                    'comision' => 'Comisión',
-                                    'maximo' => 'Máximo',
-                                    'costo_km' => 'Costo por km',
-                                    'Costo' => 'Costo de mantenimiento',
-                                    'Maximo' => 'Máximo permitido',
-                                    'Costo_km' => 'Costo por km recorrido',
+                                    'comision' => 'Comisión de la plataforma',
+                                    'maximo' => 'Monto máximo permitido',
+                                    'costo_km' => 'Costo por kilómetro recorrido',
                                 ];
                                 $icono = $iconos[$nombre] ?? 'cog';
                                 $nombreMostrar = $nombres[$nombre] ?? ucfirst(str_replace('_', ' ', $nombre));

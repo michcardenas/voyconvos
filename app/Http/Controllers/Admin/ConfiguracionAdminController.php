@@ -26,11 +26,11 @@ public function index()
 }
 
 public function create() {
-    // Solo los tipos que manejas en tu sistema
+    // Tipos de configuración disponibles (usar minúsculas para consistencia)
     $tiposConfiguracion = [
-        'Costo' => '💰 Costo de mantenimiento (%)',
-        'Maximo' => '💰 Máximo permitido',
-        'Costo_km' => '📏 Costo de km recorrido',
+        'comision' => '💰 Comisión de la plataforma (%)',
+        'maximo' => '💵 Monto máximo permitido',
+        'costo_km' => '📏 Costo por kilómetro recorrido',
     ];
 
     return view('admin.create_configuracion', compact('tiposConfiguracion'));
@@ -39,8 +39,14 @@ public function create() {
 public function store(Request $request)
 {
     $request->validate([
-        'nombre' => 'required|in:Costo,Maximo,Costo_km,gasolina,comision',
-        'valor' => 'nullable|string',
+        'nombre' => 'required|in:comision,maximo,costo_km',
+        'valor' => 'required|numeric|min:0',
+    ], [
+        'nombre.required' => 'Debes seleccionar un tipo de configuración',
+        'nombre.in' => 'El tipo de configuración seleccionado no es válido',
+        'valor.required' => 'El valor es obligatorio',
+        'valor.numeric' => 'El valor debe ser un número',
+        'valor.min' => 'El valor debe ser mayor o igual a 0',
     ]);
 
     ConfiguracionAdmin::create([
