@@ -28,7 +28,7 @@ public function index()
 public function create() {
     // Tipos de configuración disponibles (usar minúsculas para consistencia)
     $tiposConfiguracion = [
-        'comision' => '💰 Comisión de la plataforma (%)',
+        'comision' => '💰 Costo de mantenimiento (%)',
         'maximo' => '💵 Monto máximo permitido',
         'costo_km' => '📏 Costo por kilómetro recorrido',
     ];

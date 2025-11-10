@@ -34,7 +34,7 @@
                                 'costo_km' => 'road',
                             ];
                             $nombres = [
-                                'comision' => 'Comisión de la plataforma',
+                                'comision' => 'Costo de mantenimiento',
                                 'maximo' => 'Monto máximo permitido',
                                 'costo_km' => 'Costo por kilómetro recorrido',
                             ];
@@ -144,7 +144,7 @@
                                     'costo_km' => 'road',
                                 ];
                                 $nombres = [
-                                    'comision' => 'Comisión de la plataforma',
+                                    'comision' => 'Costo de mantenimiento',
                                     'maximo' => 'Monto máximo permitido',
                                     'costo_km' => 'Costo por kilómetro recorrido',
                                 ];
