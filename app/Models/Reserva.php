@@ -10,7 +10,7 @@ class Reserva extends Model
     use HasFactory;
 
     // ✅ ACTUALIZAR: Agregar todos los campos necesarios
-  protected $fillable = [
+    protected $fillable = [
         'viaje_id',
         'user_id',
         'estado',
@@ -53,6 +53,7 @@ class Reserva extends Model
         'fecha_subida_comprobante',
         'fecha_limite_comprobante',
         'fecha_verificacion_comprobante',
+        'uala_payment_date',  // 👈 AGREGAR ESTA LÍNEA
         'created_at',
         'updated_at'
     ];
@@ -66,6 +67,7 @@ class Reserva extends Model
         'fecha_subida_comprobante' => 'datetime',
         'fecha_limite_comprobante' => 'datetime',
         'fecha_verificacion_comprobante' => 'datetime',
+        'uala_payment_date' => 'datetime',  // 👈 AGREGAR ESTA LÍNEA
         'comprobante_verificado' => 'boolean',
         'comprobante_rechazado' => 'boolean',
     ];
@@ -92,28 +94,25 @@ class Reserva extends Model
         return $this->belongsTo(Viaje::class);
     }
 
-    // public function calificacionPasajero()
-    // {
-    //     return $this->hasOne(Calificacion::class, 'reserva_id')->where('tipo', 'pasajero_a_conductor');
-    // }
-
-   public function calificacionConductor()
+    public function calificacionConductor()
     {
         return $this->hasOne(Calificacion::class, 'reserva_id', 'id')
                     ->where('tipo', 'conductor_a_pasajero');
     }
-        public function calificaciones()
+    
+    public function calificaciones()
     {
         return $this->hasMany(Calificacion::class, 'reserva_id', 'id');
     }
-     public function calificacionPasajero()
+    
+    public function calificacionPasajero()
     {
         return $this->hasOne(Calificacion::class, 'reserva_id', 'id')
                     ->where('tipo', 'pasajero_a_conductor')
                     ->where('usuario_id', $this->user_id);
     }
 
-       public function yaCalificadoPorConductor($conductorId)
+    public function yaCalificadoPorConductor($conductorId)
     {
         return $this->calificaciones()
                     ->where('usuario_id', $conductorId)
