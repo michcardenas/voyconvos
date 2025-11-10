@@ -818,7 +818,7 @@ body {
     <div class="hero-content">
         <h1 class="hero-title">Viaja conectando con otros</h1>
         <p class="hero-subtitle">Ahorra dinero, conoce gente y cuida el medio ambiente</p>
-        
+
        <div class="search-box">
     <!-- Tabs -->
     <div class="search-tabs">
@@ -1081,10 +1081,16 @@ body {
         <p style="color: #64748b; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
             Comienza a publicar tus viajes y conecta con pasajeros que comparten tu ruta. Es fácil y rápido.
         </p>
-        <a href="{{ route('conductor.gestion') }}" class="btn-publish">
-            <i class="fas fa-plus-circle"></i>
-            Publicar mi primer viaje
-        </a>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ route('conductor.gestion') }}" class="btn-publish">
+                <i class="fas fa-plus-circle"></i>
+                Publicar mi primer viaje
+            </a>
+            <a href="{{ route('pasajero.dashboard') }}" class="btn-publish" style="background: var(--vcv-accent);">
+                <i class="fas fa-suitcase-rolling"></i>
+                Mis Viajes
+            </a>
+        </div>
     </div>
 </div>
 @endif
