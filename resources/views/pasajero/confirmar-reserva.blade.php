@@ -979,7 +979,7 @@
                     </div>
                 </div>
 
-                <form id="form-confirmar-reserva" action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST">
+                <form id="form-confirmar-reserva" action="{{ route('pasajero.reservar', $viaje->id) }}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="cantidad_puestos" id="cantidad_puestos_hidden" value="1">
                     <input type="hidden" name="valor_cobrado" value="{{ $viaje->valor_persona }}">
@@ -1497,40 +1497,63 @@ function previsualizarComprobante(input) {
 }
 
 // Subir comprobante ahora
-function subirComprobanteAhora() {
+async function subirComprobanteAhora() {
     const fileInput = document.getElementById('comprobanteInput');
     if (!fileInput.files || !fileInput.files[0]) {
         alert('Por favor selecciona un comprobante');
         return;
     }
 
-    // Agregar método y archivo al formulario principal
-    const form = document.getElementById('form-confirmar-reserva');
-    let metodoPagoInput = document.getElementById('metodo_pago');
-    if (!metodoPagoInput) {
-        metodoPagoInput = document.createElement('input');
-        metodoPagoInput.type = 'hidden';
-        metodoPagoInput.name = 'metodo_pago';
-        metodoPagoInput.id = 'metodo_pago';
-        form.appendChild(metodoPagoInput);
-    }
-    metodoPagoInput.value = 'transferencia';
+    // Deshabilitar botón para evitar múltiples envíos
+    const btnSubir = document.getElementById('btnSubirAhora');
+    btnSubir.disabled = true;
+    btnSubir.textContent = '⏳ Subiendo...';
 
-    // Agregar indicador de subida inmediata
-    let subirAhoraInput = document.getElementById('subir_ahora');
-    if (!subirAhoraInput) {
-        subirAhoraInput = document.createElement('input');
-        subirAhoraInput.type = 'hidden';
-        subirAhoraInput.name = 'subir_ahora';
-        subirAhoraInput.id = 'subir_ahora';
-        form.appendChild(subirAhoraInput);
-    }
-    subirAhoraInput.value = '1';
+    try {
+        // Crear FormData con todos los datos del formulario
+        const form = document.getElementById('form-confirmar-reserva');
+        const formData = new FormData(form);
 
-    // Aquí se agregaría el archivo al FormData cuando se envíe
-    // Por ahora, cerramos el modal y mostramos confirmación
-    cerrarModalTransferencia();
-    mostrarConfirmacionFinal('Transferencia', true);
+        // Agregar el archivo del comprobante
+        formData.append('comprobante_pago', fileInput.files[0]);
+
+        // Agregar metodo de pago
+        formData.append('metodo_pago', 'transferencia');
+
+        // Agregar indicador de subida inmediata
+        formData.append('subir_ahora', '1');
+
+        // Obtener token CSRF
+        const csrfToken = document.querySelector('input[name="_token"]').value;
+
+        // Enviar con AJAX
+        const response = await fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': csrfToken,
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            cerrarModalTransferencia();
+            mostrarConfirmacionFinal('Transferencia', true);
+
+            // Redirigir después de mostrar mensaje
+            setTimeout(() => {
+                window.location.href = result.redirect || '{{ route("pasajero.dashboard") }}';
+            }, 2000);
+        } else {
+            throw new Error('Error al procesar la solicitud');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un error al subir el comprobante. Por favor, intenta nuevamente.');
+        btnSubir.disabled = false;
+        btnSubir.textContent = '📤 Subir ahora';
+    }
 }
 
 // Subir comprobante después

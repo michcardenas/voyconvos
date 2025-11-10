@@ -52,28 +52,65 @@ public function store(Request $request)
 }
  public function gestorPagos(Request $request)
     {
-        // Query base para obtener reservas con información de pagos
+        // Query base para obtener TODAS las reservas con pagos (Uala o Transferencia)
         $query = Reserva::with(['viaje.conductor', 'user'])
-            ->whereNotNull('uala_checkout_id') // Solo reservas que tienen checkout de Uala
+            ->where(function($q) {
+                $q->whereNotNull('uala_checkout_id') // Pagos Uala
+                  ->orWhereNotNull('comprobante_pago'); // Transferencias
+            })
             ->orderBy('updated_at', 'desc');
 
-        // Filtros opcionales
+        // Filtro por método de pago
+        if ($request->filled('metodo_pago')) {
+            if ($request->metodo_pago === 'transferencia') {
+                $query->where('metodo_pago', 'transferencia');
+            } elseif ($request->metodo_pago === 'uala') {
+                $query->where(function($q) {
+                    $q->where('metodo_pago', 'uala')
+                      ->orWhereNotNull('uala_checkout_id');
+                });
+            }
+        }
+
+        // Filtro por estado de pago (Uala)
         if ($request->filled('estado_pago')) {
             $query->where('uala_payment_status', $request->estado_pago);
         }
 
+        // Filtro por estado de comprobante (Transferencia)
+        if ($request->filled('estado_comprobante')) {
+            if ($request->estado_comprobante === 'verificado') {
+                $query->where('comprobante_verificado', true);
+            } elseif ($request->estado_comprobante === 'rechazado') {
+                $query->where('comprobante_rechazado', true);
+            } elseif ($request->estado_comprobante === 'pendiente') {
+                $query->whereNotNull('comprobante_pago')
+                      ->where('comprobante_verificado', false)
+                      ->where('comprobante_rechazado', false);
+            }
+        }
+
+        // Filtro por estado de reserva
         if ($request->filled('estado_reserva')) {
             $query->where('estado', $request->estado_reserva);
         }
 
+        // Filtro por rango de fechas
         if ($request->filled('fecha_desde')) {
-            $query->whereDate('uala_payment_date', '>=', $request->fecha_desde);
+            $query->where(function($q) use ($request) {
+                $q->whereDate('uala_payment_date', '>=', $request->fecha_desde)
+                  ->orWhereDate('fecha_subida_comprobante', '>=', $request->fecha_desde);
+            });
         }
 
         if ($request->filled('fecha_hasta')) {
-            $query->whereDate('uala_payment_date', '<=', $request->fecha_hasta);
+            $query->where(function($q) use ($request) {
+                $q->whereDate('uala_payment_date', '<=', $request->fecha_hasta)
+                  ->orWhereDate('fecha_subida_comprobante', '<=', $request->fecha_hasta);
+            });
         }
 
+        // Búsqueda general
         if ($request->filled('buscar')) {
             $buscar = $request->buscar;
             $query->where(function($q) use ($buscar) {
@@ -81,6 +118,7 @@ public function store(Request $request)
                     $subq->where('name', 'LIKE', "%{$buscar}%")
                          ->orWhere('email', 'LIKE', "%{$buscar}%");
                 })
+                ->orWhere('id', 'LIKE', "%{$buscar}%")
                 ->orWhere('uala_checkout_id', 'LIKE', "%{$buscar}%")
                 ->orWhere('uala_external_reference', 'LIKE', "%{$buscar}%");
             });
@@ -88,16 +126,125 @@ public function store(Request $request)
 
         $pagos = $query->paginate(20);
 
-        // Estadísticas de pagos
+        // Estadísticas actualizadas
         $estadisticas = [
-            'total_pagos' => Reserva::whereNotNull('uala_checkout_id')->count(),
-            'pagos_exitosos' => Reserva::where('uala_payment_status', 'approved')->count(),
-            'pagos_fallidos' => Reserva::where('uala_payment_status', 'rejected')->count(),
-            'pagos_pendientes' => Reserva::where('uala_payment_status', 'pending')->count(),
-            'total_recaudado' => Reserva::where('uala_payment_status', 'approved')->sum('total'),
+            'total_pagos' => Reserva::where(function($q) {
+                $q->whereNotNull('uala_checkout_id')
+                  ->orWhereNotNull('comprobante_pago');
+            })->count(),
+
+            'pagos_exitosos' => Reserva::where(function($q) {
+                $q->where('uala_payment_status', 'approved')
+                  ->orWhere('comprobante_verificado', true);
+            })->count(),
+
+            'pagos_fallidos' => Reserva::where(function($q) {
+                $q->where('uala_payment_status', 'rejected')
+                  ->orWhere('comprobante_rechazado', true);
+            })->count(),
+
+            'pagos_pendientes' => Reserva::where(function($q) {
+                $q->where('uala_payment_status', 'pending')
+                  ->orWhere(function($subq) {
+                      $subq->whereNotNull('comprobante_pago')
+                           ->where('comprobante_verificado', false)
+                           ->where('comprobante_rechazado', false);
+                  });
+            })->count(),
+
+            'total_recaudado' => Reserva::where(function($q) {
+                $q->where('uala_payment_status', 'approved')
+                  ->orWhere('comprobante_verificado', true);
+            })->sum('total'),
+
+            // Estadísticas adicionales por método
+            'total_uala' => Reserva::whereNotNull('uala_checkout_id')->count(),
+            'total_transferencias' => Reserva::where('metodo_pago', 'transferencia')->count(),
+            'comprobantes_pendientes' => Reserva::whereNotNull('comprobante_pago')
+                ->where('comprobante_verificado', false)
+                ->where('comprobante_rechazado', false)
+                ->count(),
         ];
 
         return view('admin.gestor-pagos', compact('pagos', 'estadisticas'));
+    }
+
+    // Aprobar comprobante de transferencia
+    public function aprobarComprobante(Request $request, $reservaId)
+    {
+        $reserva = Reserva::findOrFail($reservaId);
+
+        if (!$reserva->comprobante_pago) {
+            return back()->with('error', 'Esta reserva no tiene comprobante de pago');
+        }
+
+        $reserva->comprobante_verificado = true;
+        $reserva->comprobante_rechazado = false;
+        $reserva->fecha_verificacion_comprobante = now();
+        $reserva->estado = 'confirmada'; // Cambiar a confirmada
+        $reserva->fecha_pago = now();
+        $reserva->save();
+
+        // Enviar email de confirmación al pasajero
+        try {
+            $usuario = $reserva->user;
+            $viaje = $reserva->viaje;
+            $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+            $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+
+            \Mail::to($usuario->email)->send(new \App\Mail\UniversalMail(
+                $usuario,
+                '✅ Pago Aprobado - Reserva Confirmada',
+                "¡Buenas noticias! Tu comprobante de pago ha sido verificado y aprobado.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n\n✅ Tu reserva está CONFIRMADA.\n\nTe esperamos en el viaje. ¡Buen viaje!",
+                'notificacion'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error enviando email de aprobación: ' . $e->getMessage());
+        }
+
+        return back()->with('success', '✅ Comprobante aprobado. Reserva confirmada.');
+    }
+
+    // Rechazar comprobante de transferencia
+    public function rechazarComprobante(Request $request, $reservaId)
+    {
+        $request->validate([
+            'motivo' => 'required|string|min:10|max:500'
+        ]);
+
+        $reserva = Reserva::findOrFail($reservaId);
+
+        if (!$reserva->comprobante_pago) {
+            return back()->with('error', 'Esta reserva no tiene comprobante de pago');
+        }
+
+        $reserva->comprobante_verificado = false;
+        $reserva->comprobante_rechazado = true;
+        $reserva->fecha_verificacion_comprobante = now();
+        $reserva->motivo_rechazo_comprobante = $request->motivo;
+        $reserva->estado = 'cancelada'; // Cancelar la reserva
+        $reserva->save();
+
+        // Devolver puestos al viaje
+        $viaje = $reserva->viaje;
+        $viaje->puestos_disponibles += $reserva->cantidad_puestos;
+        $viaje->save();
+
+        // Enviar email de rechazo al pasajero
+        try {
+            $usuario = $reserva->user;
+
+            \Mail::to($usuario->email)->send(new \App\Mail\UniversalMail(
+                $usuario,
+                '❌ Comprobante Rechazado',
+                "Tu comprobante de pago ha sido revisado y no pudo ser aprobado.\n\n❌ Motivo del rechazo:\n{$request->motivo}\n\nPor favor, verifica los datos de tu transferencia y sube un nuevo comprobante válido, o contacta a soporte para más información.\n\nTu reserva ha sido cancelada y los puestos están nuevamente disponibles.",
+                'notificacion'
+            ));
+        } catch (\Exception $e) {
+            \Log::error('Error enviando email de rechazo: ' . $e->getMessage());
+        }
+
+        return back()->with('success', '❌ Comprobante rechazado. Reserva cancelada.');
     }
 public function detalleViaje(Viaje $viaje)
 {

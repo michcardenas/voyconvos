@@ -316,7 +316,9 @@ public function reservar(Request $request, Viaje $viaje)
         'cantidad_puestos' => 'required|integer|min:1',
         'valor_cobrado' => 'required|numeric|min:0.01',
         'total' => 'required|numeric|min:0.01',
-        'viaje_id' => 'required|integer'
+        'viaje_id' => 'required|integer',
+        'comprobante_pago' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
+        'metodo_pago' => 'nullable|in:mercadopago,uala,transferencia'
     ]);
 
     // Verificar disponibilidad de puestos
@@ -344,12 +346,48 @@ public function reservar(Request $request, Viaje $viaje)
         $reserva->total = $validated['total'];
         $reserva->estado = 'pendiente';
         $reserva->fecha_reserva = now();
+
+        // Si se seleccionó transferencia como método de pago
+        if ($request->has('metodo_pago') && $request->metodo_pago === 'transferencia') {
+            $reserva->metodo_pago = 'transferencia';
+        }
+
         $reserva->save();
-        
+
+        // 🔥 MANEJAR SUBIDA DE COMPROBANTE SI EXISTE
+        if ($request->hasFile('comprobante_pago')) {
+            try {
+                $file = $request->file('comprobante_pago');
+
+                // Crear nombre único para el archivo
+                $fileName = 'comprobante_' . $reserva->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+                // Guardar en storage/app/public/comprobantes
+                $path = $file->storeAs('comprobantes', $fileName, 'public');
+
+                // Actualizar la reserva con la ruta del comprobante
+                $reserva->comprobante_pago = $path;
+                $reserva->fecha_subida_comprobante = now();
+                $reserva->fecha_limite_comprobante = now()->addHour(); // 1 hora de límite
+                $reserva->save();
+
+                \Log::info('=== COMPROBANTE SUBIDO ===', [
+                    'reserva_id' => $reserva->id,
+                    'file_path' => $path,
+                    'file_name' => $fileName,
+                    'file_size' => $file->getSize()
+                ]);
+
+            } catch (\Exception $e) {
+                \Log::error('Error al subir comprobante: ' . $e->getMessage());
+                // No falla la reserva si el comprobante falla, solo lo registra
+            }
+        }
+
         // Actualizar puestos disponibles
         $viaje->puestos_disponibles -= $validated['cantidad_puestos'];
         $viaje->save();
-        
+
         // 🔥 NUEVA LÓGICA: Verificar si el viaje está completamente ocupado
         if ($viaje->puestos_disponibles <= 0) {
             $estadoAnterior = $viaje->estado;
@@ -379,6 +417,42 @@ public function reservar(Request $request, Viaje $viaje)
             ]);
         }
         
+        // 🔥 SI SE SUBIÓ COMPROBANTE AHORA, NO IR A UALA
+        if ($request->has('subir_ahora') && $request->subir_ahora == '1' && $request->hasFile('comprobante_pago')) {
+            $reserva->estado = 'pendiente_pago'; // Esperando verificación del comprobante
+            $reserva->save();
+
+            \DB::commit();
+
+            // ENVIAR EMAIL AL PASAJERO - COMPROBANTE RECIBIDO
+            try {
+                $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+                $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+                $conductor = \App\Models\User::find($viaje->conductor_id);
+
+                Mail::to($usuario->email)->send(new UniversalMail(
+                    $usuario,
+                    'Comprobante recibido - Reserva en verificación',
+                    "Tu comprobante ha sido recibido exitosamente.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos reservados: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nNuestro equipo verificará tu comprobante de pago pronto. Te notificaremos cuando tu reserva sea confirmada.\n\nGracias por tu paciencia.",
+                    'notificacion'
+                ));
+
+            } catch (\Exception $e) {
+                \Log::error('Error enviando email de comprobante recibido: ' . $e->getMessage());
+            }
+
+            // Si es AJAX, devolver JSON
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Comprobante recibido exitosamente',
+                    'redirect' => route('pasajero.dashboard')
+                ]);
+            }
+
+            return redirect()->route('pasajero.dashboard')->with('success', '✅ Tu comprobante ha sido recibido. Nuestro equipo verificará el pago pronto.');
+        }
+
         // Si el viaje requiere verificación de pasajeros, no crear checkout aún
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
@@ -392,14 +466,14 @@ public function reservar(Request $request, Viaje $viaje)
                 $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
                 $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
                 $conductor = \App\Models\User::find($viaje->conductor_id);
-                
+
                 Mail::to($usuario->email)->send(new UniversalMail(
                     $usuario,
                     'Reserva creada - Esperando confirmación del conductor',
                     "Tu reserva ha sido creada exitosamente y está esperando la confirmación del conductor.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos reservados: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nEl conductor revisará tu solicitud y te notificaremos cuando sea confirmada. Una vez confirmada, podrás proceder al pago.\n\nTe mantendremos informado sobre el estado de tu reserva.",
                     'notificacion'
                 ));
-                
+
                 // EMAIL AL CONDUCTOR - NUEVA RESERVA PARA CONFIRMAR
                 Mail::to($conductor->email)->send(new UniversalMail(
                     $conductor,
@@ -407,7 +481,7 @@ public function reservar(Request $request, Viaje $viaje)
                     "Tienes una nueva reserva esperando tu confirmación.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Pasajero: {$usuario->name}\n• Puestos solicitados: {$reserva->cantidad_puestos}\n• Valor: $" . number_format($reserva->total, 0, ',', '.') . "\n\nPor favor, ingresa a tu panel de conductor para revisar y confirmar esta reserva.\n\nUna vez que confirmes, el pasajero podrá proceder al pago.",
                     'notificacion'
                 ));
-                
+
             } catch (\Exception $e) {
                 \Log::error('Error enviando emails de reserva pendiente: ' . $e->getMessage());
             }

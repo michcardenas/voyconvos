@@ -155,6 +155,12 @@ Route::get('/admin/gestion/create', [ConfiguracionAdminController::class, 'creat
 Route::post('/admin/gestion', [ConfiguracionAdminController::class, 'store'])->name('admin.gestion.store');
 Route::get('/admin/gestor-pagos', [ConfiguracionAdminController::class, 'gestorPagos'])
     ->name('admin.gestor-pagos')
+    ->middleware(['auth']);
+Route::post('/admin/comprobante/{reserva}/aprobar', [ConfiguracionAdminController::class, 'aprobarComprobante'])
+    ->name('admin.comprobante.aprobar')
+    ->middleware(['auth']);
+Route::post('/admin/comprobante/{reserva}/rechazar', [ConfiguracionAdminController::class, 'rechazarComprobante'])
+    ->name('admin.comprobante.rechazar')
     ->middleware(['auth']); 
 // Rutas conductores
 Route::post('/conductor/destino', [DestinoController::class, 'store'])->name('conductor.destino.store');
