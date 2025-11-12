@@ -56,4 +56,13 @@ return [
         'username' => env('UALA_USERNAME'),
         'is_dev' => env('UALA_IS_DEV', true), // true para staging, false para producción
     ],
+
+    'apple' => [
+    'client_id' => env('APPLE_CLIENT_ID'),
+    'team_id' => env('APPLE_TEAM_ID'),
+    'key_id' => env('APPLE_KEY_ID'),
+    'private_key' => env('APPLE_PRIVATE_KEY'),
+    'redirect' => env('APPLE_REDIRECT_URI'),
+],
+
 ];

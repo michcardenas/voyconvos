@@ -1,4 +1,3 @@
-
 <x-guest-layout>
     <div class="login-container">
         <div class="login-card">
@@ -10,6 +9,13 @@
                 </div>
                 
                 <h1 class="login-title">Iniciar Sesión</h1>
+                
+                <!-- Mostrar mensajes de error -->
+                @if (session('error'))
+                    <div class="alert-error">
+                        {{ session('error') }}
+                    </div>
+                @endif
                 
                 <form method="POST" action="{{ route('login') }}">
                     @csrf
@@ -45,13 +51,21 @@
                     
                     <!-- Separador -->
                     <div class="separator">
-                        <span>ó</span>
+                        <span>ó continúa con</span>
                     </div>
                     
                     <!-- Botón de Google -->
                     <a href="{{ route('login.google') }}" class="google-btn">
                         <img src="https://www.svgrepo.com/show/475656/google-color.svg" class="google-icon" alt="Google logo">
                         <span>Iniciar sesión con Google</span>
+                    </a>
+                    
+                    <!-- Botón de Apple -->
+                    <a href="{{ route('login.apple') }}" class="apple-btn">
+                        <svg class="apple-icon" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.24 2.31-.93 3.57-.84 1.51.12 2.65.72 3.4 1.8-3.12 1.87-2.38 5.98.48 7.13-.57 1.5-1.31 2.99-2.54 4.09l.01-.01zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z"/>
+                        </svg>
+                        <span>Iniciar sesión con Apple</span>
                     </a>
                 </form>
             </div>
@@ -70,14 +84,13 @@
     
     <style>
         :root {
-            --color-principal: #1F4E79;     /* Principal - Azul corporativo */
-            --color-azul-claro: #DDF2FE;    /* Azul claro */
-            --color-neutro-oscuro: #3A3A3A; /* Neutro oscuro */
-            --color-complementario: #4CAF50; /* Complementario */
-            --color-fondo-base: #FCFCFD;    /* Fondo base */
+            --color-principal: #1F4E79;
+            --color-azul-claro: #DDF2FE;
+            --color-neutro-oscuro: #3A3A3A;
+            --color-complementario: #4CAF50;
+            --color-fondo-base: #FCFCFD;
         }
         
-        /* Estos estilos ayudan a que el diseño funcione correctamente con los estilos por defecto de Laravel/Breeze */
         body, html {
             height: 100%;
             margin: 0;
@@ -96,7 +109,6 @@
             width: 100%;
         }
         
-        /* Contenedor principal */
         .login-container {
             display: flex;
             justify-content: center;
@@ -105,7 +117,6 @@
             padding: 1rem;
         }
         
-        /* Tarjeta de login */
         .login-card {
             width: 100%;
             max-width: 800px;
@@ -116,13 +127,11 @@
             display: flex;
         }
         
-        /* Panel izquierdo - Formulario */
         .login-form-panel {
             flex: 1;
             padding: 2.5rem;
         }
         
-        /* Estilos para el logo */
         .logo-container {
             display: flex;
             justify-content: center;
@@ -134,7 +143,6 @@
             width: auto;
         }
         
-        /* Título */
         .login-title {
             font-size: 1.5rem;
             font-weight: 600;
@@ -143,7 +151,17 @@
             color: var(--color-principal);
         }
         
-        /* Campos del formulario */
+        /* Alerta de error */
+        .alert-error {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+        }
+        
         .form-group {
             margin-bottom: 1rem;
         }
@@ -162,7 +180,6 @@
             box-shadow: 0 0 0 2px rgba(31, 78, 121, 0.1);
         }
         
-        /* Checkbox "Recordarme" */
         .form-checkbox {
             display: flex;
             align-items: center;
@@ -173,7 +190,6 @@
             margin-right: 0.5rem;
         }
         
-        /* Link "¿Olvidaste tu contraseña?" */
         .forgot-link {
             display: block;
             font-size: 0.8rem;
@@ -186,7 +202,6 @@
             text-decoration: underline;
         }
         
-        /* Botón principal */
         .login-button {
             width: 100%;
             padding: 0.75rem;
@@ -205,13 +220,13 @@
             background-color: #173d61;
         }
         
-        /* Separador "ó" */
         .separator {
             display: flex;
             align-items: center;
             text-align: center;
             margin-bottom: 1.5rem;
             color: #94A3B8;
+            font-size: 0.85rem;
         }
         
         .separator::before,
@@ -245,6 +260,7 @@
             text-decoration: none;
             cursor: pointer;
             transition: background-color 0.2s;
+            margin-bottom: 0.75rem;
         }
         
         .google-btn:hover {
@@ -256,7 +272,33 @@
             height: 20px;
         }
         
-        /* Panel derecho - Bienvenida */
+        /* Botón de Apple */
+        .apple-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            width: 100%;
+            padding: 0.75rem;
+            background-color: #000;
+            border: 1px solid #000;
+            border-radius: 5px;
+            color: white;
+            font-size: 0.9rem;
+            text-decoration: none;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .apple-btn:hover {
+            background-color: #1a1a1a;
+        }
+        
+        .apple-icon {
+            width: 20px;
+            height: 20px;
+        }
+        
         .welcome-panel {
             background-color: var(--color-principal);
             color: white;
@@ -298,7 +340,6 @@
             background-color: rgba(255, 255, 255, 0.1);
         }
         
-        /* Responsive */
         @media (max-width: 768px) {
             .login-card {
                 flex-direction: column;

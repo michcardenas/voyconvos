@@ -31,6 +31,9 @@ class User extends Authenticatable
         'verificado',
         'dni_foto',
         'dni_foto_atras',
+        'google_id',      // Agregado para Google OAuth
+        'apple_id',       // Agregado para Apple OAuth
+        'avatar',         // Agregado para foto de perfil de redes sociales
     ];
 
     /**
@@ -54,7 +57,7 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
             'fecha_nacimiento' => 'date',
-            'verificado' => 'boolean', // Añadido el cast para verificado
+            'verificado' => 'boolean',
         ];
     }
 
@@ -63,7 +66,7 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\Reserva::class);
     }
 
-    // Métodos helper para verificación (opcional)
+    // Métodos helper para verificación
     public function isVerified(): bool
     {
         return $this->verificado;
@@ -80,7 +83,7 @@ class User extends Authenticatable
     }
 
     public function registroConductor()
-{
-    return $this->hasOne(\App\Models\RegistroConductor::class, 'user_id', 'id');
-}
+    {
+        return $this->hasOne(\App\Models\RegistroConductor::class, 'user_id', 'id');
+    }
 }

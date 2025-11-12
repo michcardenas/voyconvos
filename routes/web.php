@@ -30,6 +30,8 @@ use App\Http\Controllers\Admin\ConfiguracionAdminController;
 use App\Http\Controllers\InicioController;
 use App\Http\Controllers\VerificacionController;
 use App\Http\Controllers\DashboardHibridoController;
+use App\Http\Controllers\Auth\SocialAuthController;
+
 
 
 // Login con Google
@@ -286,7 +288,13 @@ Route::get('/test-time', function() {
         'hora_formato' => now()->format('d/m/Y H:i:s')
     ];
 });
+// Google OAuth
+Route::get('/auth/google', [SocialAuthController::class, 'redirectToGoogle'])->name('login.google');
+Route::get('/auth/google/callback', [SocialAuthController::class, 'handleGoogleCallback']);
 
+// Apple OAuth
+Route::get('/auth/apple', [SocialAuthController::class, 'redirectToApple'])->name('login.apple');
+Route::post('/auth/apple/callback', [SocialAuthController::class, 'handleAppleCallback']);
 // // Panel de usuario
 // Route::get('/panel', [\App\Http\Controllers\UsuarioController::class, 'index'])->name('usuario.panel');
 
