@@ -820,13 +820,11 @@
             <label style="display: block; font-weight: 600; color: #92400e; margin-bottom: 0.5rem; font-size: 0.95rem; text-align: center;">
                 Precio sugerido (puedes modificarlo)
             </label>
-            <input type="number"
+            <input type="text"
                    id="valor_viaje_manual"
-                   step="1"
-                   min="0"
                    class="result-input"
-                   placeholder="ARS $0"
-                   oninput="validarValorViaje()"
+                   placeholder="$0"
+                   oninput="formatearInputValor(this)"
                    readonly
                    onfocus="this.removeAttribute('readonly')"
                    style="font-size: 2rem; padding: 1rem; text-align: center; border: 3px solid #fcd34d;">
@@ -849,7 +847,7 @@
 
         <div class="puestos-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem;">
             <div style="background: white; padding: 1rem; border-radius: 12px; text-align: center;">
-                <label style="display: block; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; font-size: 0.9rem;">🚗 Puestos totales del vehículo</label>
+                <label style="display: block; font-weight: 600; color: #64748b; margin-bottom: 0.5rem; font-size: 0.9rem;">🚗 Puestos Disponibles del vehículo </label>
                 <input type="number"
                        id="puestos_totales"
                        value="{{ $numero_puestos ?? 0 }}"
@@ -1034,10 +1032,16 @@ let iconoVerde, iconoRojo, iconoAmarillo;
 let paradaCounter = 0;
 let paradaEnEspera = null;
 
+// Variables para rutas alternativas
+let rutasDisponibles = [];
+let rutaSeleccionada = 0;
+
 // Variables de configuración del servidor
-const costoMantenimiento = {{ $costo_mantenimiento ?? 0 }};
-const maximoGanancia = {{ $maximo_ganancia ?? 0 }};
-const costoPorKm = {{ $costo_por_km ?? 10000 }}; // Costo por km desde BD, default 10000
+const comisionPlataforma = {{ $costo_mantenimiento ?? 15 }}; // Porcentaje de comisión (%)
+const maximoGanancia = {{ $maximo_ganancia ?? 30 }}; // Porcentaje máximo de ganancia permitido (%)
+const costoPorKm = {{ $costo_por_km ?? 250 }}; // Costo por kilómetro recorrido (pesos/km)
+const costoCombustible = {{ $costo_combustible ?? 1500 }}; // Costo del combustible por litro/galón (pesos)
+const numeroGalones = {{ $numero_galones ?? 50 }}; // Número de galones del tanque
 
 let tarifaMinima = 0;
 let tarifaMaxima = 0;
@@ -1052,6 +1056,39 @@ function formatearMoneda(valor) {
         minimumFractionDigits: 0,
         maximumFractionDigits: 0
     }).format(valor);
+}
+
+// Formatear número con separador de miles (sin símbolo de moneda)
+function formatearNumero(valor) {
+    return new Intl.NumberFormat('es-AR', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    }).format(valor);
+}
+
+// Convertir string formateado a número
+function desformatearNumero(valorFormateado) {
+    // Eliminar todos los puntos (separadores de miles)
+    return parseFloat(valorFormateado.replace(/\./g, '').replace(/,/g, '.')) || 0;
+}
+
+// Formatear el input mientras el usuario escribe
+function formatearInputValor(input) {
+    // Obtener el valor sin formato
+    let valor = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
+
+    if (valor === '') {
+        input.value = '';
+        validarValorViaje();
+        return;
+    }
+
+    // Convertir a número y formatear
+    const numero = parseInt(valor);
+    input.value = formatearNumero(numero);
+
+    // Validar después de formatear
+    validarValorViaje();
 }
 
 // ========================================
@@ -1444,40 +1481,372 @@ function calcularRuta() {
         waypoints: waypoints,
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.METRIC,
-        optimizeWaypoints: true
+        optimizeWaypoints: true,
+        provideRouteAlternatives: true // ← Solicitar rutas alternativas
     };
 
     directionsService.route(request, function(result, status) {
         if (status === 'OK') {
-            console.log('✅ Ruta calculada');
+            console.log('✅ Rutas calculadas:', result.routes.length);
+
+            // Guardar todas las rutas disponibles
+            rutasDisponibles = result.routes;
+            rutaSeleccionada = 0; // Seleccionar la primera por defecto
+
+            // Mostrar la ruta seleccionada
             directionsRenderer.setDirections(result);
+            directionsRenderer.setRouteIndex(rutaSeleccionada);
 
-            let totalDistancia = 0;
-            let totalTiempo = 0;
+            // Actualizar información de la ruta seleccionada
+            actualizarInfoRuta(result.routes[rutaSeleccionada]);
 
-            result.routes[0].legs.forEach(leg => {
-                totalDistancia += leg.distance.value;
-                totalTiempo += leg.duration.value;
-            });
+            // 🔥 NUEVO: Calcular costos automáticamente con todas las variables
+            calcularCostosCompletos(result.routes[rutaSeleccionada]);
 
-            const km = (totalDistancia / 1000).toFixed(1);
-            const horas = Math.floor(totalTiempo / 3600);
-            const minutos = Math.floor((totalTiempo % 3600) / 60);
-            const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
+            // Mostrar opciones de rutas si hay más de una
+            if (result.routes.length > 1) {
+                mostrarOpcionesRutas(result.routes);
+            } else {
+                // Mostrar mensaje informativo si hay paradas
+                if (waypoints.length > 0) {
+                    mostrarMensajeRutaUnica();
+                } else {
+                    ocultarOpcionesRutas();
+                }
+            }
 
-            document.getElementById('distancia').textContent = km + ' km';
-            document.getElementById('tiempo').textContent = tiempoTexto;
-            document.getElementById('num-paradas').textContent = paradas.length;
-            document.getElementById('distancia_km').value = km;
-            document.getElementById('tiempo_estimado').value = tiempoTexto;
-            
-            mostrarInfoProgramacion();
-            
             document.getElementById('route-info').classList.add('show');
         } else {
             console.error('❌ Error calculando ruta:', status);
         }
     });
+}
+
+// ========================================
+// CÁLCULO COMPLETO DE COSTOS
+// ========================================
+function calcularCostosCompletos(route) {
+    let totalDistancia = 0;
+    let totalTiempo = 0;
+
+    route.legs.forEach(leg => {
+        totalDistancia += leg.distance.value;
+        totalTiempo += leg.duration.value;
+    });
+
+    const distanciaKm = totalDistancia / 1000;
+    const horas = Math.floor(totalTiempo / 3600);
+    const minutos = Math.floor((totalTiempo % 3600) / 60);
+    const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
+
+    // 🔥 ACTUALIZAR UI con distancia y tiempo
+    document.getElementById('calc-distancia').textContent = distanciaKm.toFixed(1) + ' km';
+    document.getElementById('calc-tiempo').textContent = tiempoTexto;
+
+    console.log('💰 === CÁLCULO COMPLETO DE COSTOS ===');
+    console.log('📏 Distancia total:', distanciaKm.toFixed(2), 'km');
+    console.log('⏱️ Tiempo estimado:', tiempoTexto);
+
+    // Validar que las variables existan (si no, usar 0)
+    const comision = comisionPlataforma || 0;
+    const maximo = maximoGanancia || 0;
+    const costoKm = costoPorKm || 0;
+    const costoComb = costoCombustible || 0;
+    const galones = numeroGalones || 0;
+
+    console.log('⚙️ Configuraciones:');
+    console.log('  - Comisión plataforma:', comision, '%');
+    console.log('  - Máximo ganancia:', maximo, '%');
+    console.log('  - Costo por km:', costoKm, 'pesos/km');
+    console.log('  - Costo combustible:', costoComb, 'pesos/litro');
+    console.log('  - Número de galones:', galones, 'galones');
+
+    // PASO 1: Calcular costo base por kilómetro
+    const costoBaseKm = Math.floor(distanciaKm * costoKm);
+    console.log('📊 Paso 1 - Costo base (distancia × costo/km):', costoBaseKm, 'pesos');
+
+    // PASO 2: Calcular costo de combustible (opcional, si está configurado)
+    let costoCombustibleViaje = 0;
+    if (costoComb > 0 && galones > 0) {
+        // Estimación: 1 galón recorre aproximadamente 10-12 km
+        const kmPorGalon = 10;
+        const galonesNecesarios = distanciaKm / kmPorGalon;
+        costoCombustibleViaje = Math.floor(galonesNecesarios * costoComb);
+        console.log('⛽ Paso 2 - Costo combustible estimado:', costoCombustibleViaje, 'pesos');
+        console.log('  - Galones necesarios:', galonesNecesarios.toFixed(2));
+    } else {
+        console.log('⛽ Paso 2 - Costo combustible: NO CONFIGURADO (usando 0)');
+    }
+
+    // PASO 3: Elegir el mayor entre costo por km y costo de combustible
+    const costoBaseOperativo = Math.max(costoBaseKm, costoCombustibleViaje);
+    console.log('💵 Paso 3 - Costo base operativo (mayor entre km y combustible):', costoBaseOperativo, 'pesos');
+
+    // PASO 4: Aplicar comisión de la plataforma
+    let comisionMonto = 0;
+    if (comision > 0) {
+        comisionMonto = Math.floor((costoBaseOperativo * comision) / 100);
+        console.log('🏦 Paso 4 - Comisión plataforma (' + comision + '%):', comisionMonto, 'pesos');
+    } else {
+        console.log('🏦 Paso 4 - Comisión plataforma: NO CONFIGURADA (usando 0)');
+    }
+
+    // PASO 5: TARIFA MÍNIMA = Costo base + Comisión
+    tarifaMinima = Math.floor(costoBaseOperativo + comisionMonto);
+    console.log('✅ Paso 5 - TARIFA MÍNIMA:', tarifaMinima, 'pesos');
+
+    // PASO 6: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo %)
+    if (maximo > 0) {
+        const gananciaMaxima = Math.floor((tarifaMinima * maximo) / 100);
+        tarifaMaxima = Math.floor(tarifaMinima + gananciaMaxima);
+        console.log('💰 Paso 6 - Ganancia máxima permitida (' + maximo + '%):', gananciaMaxima, 'pesos');
+        console.log('✅ Paso 6 - TARIFA MÁXIMA:', tarifaMaxima, 'pesos');
+    } else {
+        // Si no hay máximo configurado, permitir hasta 50% más
+        tarifaMaxima = Math.floor(tarifaMinima * 1.5);
+        console.log('💰 Paso 6 - Máximo NO CONFIGURADO, usando 50% por defecto');
+        console.log('✅ Paso 6 - TARIFA MÁXIMA:', tarifaMaxima, 'pesos');
+    }
+
+    console.log('🎯 === RESUMEN FINAL ===');
+    console.log('  Rango permitido: $', tarifaMinima, ' - $', tarifaMaxima);
+    console.log('========================');
+
+    // Actualizar interfaz con los valores calculados
+    actualizarInterfazPrecios();
+}
+
+// ========================================
+// ACTUALIZAR INTERFAZ DE PRECIOS
+// ========================================
+function actualizarInterfazPrecios() {
+    const inputValorViaje = document.getElementById('valor_viaje_manual');
+
+    // Actualizar la interfaz con formato argentino
+    document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('calc-maximo').textContent = formatearMoneda(tarifaMaxima);
+
+    // Actualizar rangos
+    document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
+
+    // Actualizar placeholder con el mínimo permitido (sin símbolo $)
+    inputValorViaje.placeholder = formatearNumero(tarifaMinima);
+
+    // Guardar min y max en atributos data para validación posterior
+    inputValorViaje.setAttribute('data-min', tarifaMinima);
+    inputValorViaje.setAttribute('data-max', tarifaMaxima);
+
+    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido
+    const valorActual = desformatearNumero(inputValorViaje.value);
+    if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
+        inputValorViaje.value = formatearNumero(tarifaMinima);
+    }
+
+    validarValorViaje();
+
+    // Calcular el precio por pasajero automáticamente
+    calcularPorPasajero();
+
+    console.log('✅ Interfaz actualizada con los nuevos precios');
+}
+
+// Nueva función para actualizar la información de una ruta
+function actualizarInfoRuta(route) {
+    let totalDistancia = 0;
+    let totalTiempo = 0;
+
+    route.legs.forEach(leg => {
+        totalDistancia += leg.distance.value;
+        totalTiempo += leg.duration.value;
+    });
+
+    const km = (totalDistancia / 1000).toFixed(1);
+    const horas = Math.floor(totalTiempo / 3600);
+    const minutos = Math.floor((totalTiempo % 3600) / 60);
+    const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
+
+    document.getElementById('distancia').textContent = km + ' km';
+    document.getElementById('tiempo').textContent = tiempoTexto;
+    document.getElementById('num-paradas').textContent = paradas.length;
+    document.getElementById('distancia_km').value = km;
+    document.getElementById('tiempo_estimado').value = tiempoTexto;
+
+    mostrarInfoProgramacion();
+}
+
+// Función para cambiar entre rutas
+function seleccionarRuta(index) {
+    if (index < 0 || index >= rutasDisponibles.length) return;
+
+    rutaSeleccionada = index;
+
+    // Crear un nuevo resultado con solo la ruta seleccionada para el renderer
+    const resultado = {
+        routes: rutasDisponibles,
+        request: directionsRenderer.getDirections().request
+    };
+
+    directionsRenderer.setDirections(resultado);
+    directionsRenderer.setRouteIndex(index);
+
+    // Actualizar información
+    actualizarInfoRuta(rutasDisponibles[index]);
+
+    // 🔥 NUEVO: Recalcular costos para la ruta seleccionada
+    calcularCostosCompletos(rutasDisponibles[index]);
+
+    // Actualizar UI de selección con estilos dinámicos
+    document.querySelectorAll('.ruta-opcion').forEach((btn, i) => {
+        if (i === index) {
+            // Ruta seleccionada - azul con fondo degradado
+            btn.classList.add('ruta-seleccionada');
+            btn.style.border = '3px solid #00BFFF';
+            btn.style.background = 'linear-gradient(135deg, #00BFFF 0%, #0080FF 100%)';
+            btn.style.color = 'white';
+            btn.style.boxShadow = '0 6px 20px rgba(0,191,255,0.5)';
+            btn.style.transform = 'scale(1.02)';
+
+            // Actualizar colores de los textos internos
+            const divs = btn.querySelectorAll('div');
+            divs.forEach(div => {
+                div.style.color = 'white';
+                if (div.style.color.includes('rgba')) {
+                    div.style.color = 'rgba(255,255,255,0.95)';
+                }
+            });
+        } else {
+            // Ruta no seleccionada - blanco con borde gris
+            btn.classList.remove('ruta-seleccionada');
+            btn.style.border = '3px solid #e2e8f0';
+            btn.style.background = 'white';
+            btn.style.color = '#334155';
+            btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
+            btn.style.transform = 'scale(1)';
+
+            // Restaurar colores de los textos internos
+            const divs = btn.querySelectorAll('div');
+            divs[0].style.color = 'var(--primary)'; // Título
+            divs[1].style.color = '#64748b'; // Distancia
+            divs[2].style.color = '#64748b'; // Tiempo
+            if (divs[3]) divs[3].style.color = '#94a3b8'; // Summary (si existe)
+        }
+    });
+
+    console.log('🛣️ Ruta', index + 1, 'seleccionada');
+}
+
+// Función para mostrar las opciones de rutas
+function mostrarOpcionesRutas(routes) {
+    let opcionesHTML = '<div class="rutas-alternativas" style="margin-top: 1rem;">';
+    opcionesHTML += '<div style="font-weight: 600; color: var(--primary); margin-bottom: 0.75rem; font-size: 0.95rem;">🛣️ Rutas disponibles (elige la más conveniente):</div>';
+    opcionesHTML += '<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">';
+
+    routes.forEach((route, index) => {
+        let totalDistancia = 0;
+        let totalTiempo = 0;
+
+        route.legs.forEach(leg => {
+            totalDistancia += leg.distance.value;
+            totalTiempo += leg.duration.value;
+        });
+
+        const km = (totalDistancia / 1000).toFixed(1);
+        const minutos = Math.floor(totalTiempo / 60);
+        const esSeleccionada = index === rutaSeleccionada;
+
+        opcionesHTML += `
+            <button class="ruta-opcion ${esSeleccionada ? 'ruta-seleccionada' : ''}"
+                    onclick="seleccionarRuta(${index})"
+                    onmouseover="if(!this.classList.contains('ruta-seleccionada')) { this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,191,255,0.25)'; this.style.borderColor='#00BFFF'; }"
+                    onmouseout="if(!this.classList.contains('ruta-seleccionada')) { this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; this.style.borderColor='#e2e8f0'; }"
+                    style="
+                        flex: 1;
+                        min-width: 150px;
+                        padding: 0.75rem 1rem;
+                        border: 3px solid ${esSeleccionada ? '#00BFFF' : '#e2e8f0'};
+                        background: ${esSeleccionada ? 'linear-gradient(135deg, #00BFFF 0%, #0080FF 100%)' : 'white'};
+                        color: ${esSeleccionada ? 'white' : '#334155'};
+                        border-radius: 12px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        text-align: left;
+                        box-shadow: ${esSeleccionada ? '0 6px 20px rgba(0,191,255,0.5)' : '0 2px 4px rgba(0,0,0,0.05)'};
+                        transform: ${esSeleccionada ? 'scale(1.02)' : 'scale(1)'};
+                    ">
+                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; color: ${esSeleccionada ? 'white' : 'var(--primary)'};">
+                    ${esSeleccionada ? '✓ ' : ''}Ruta ${index + 1}
+                </div>
+                <div style="font-size: 0.85rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.95)' : '#64748b'};">
+                    📏 ${km} km
+                </div>
+                <div style="font-size: 0.85rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.95)' : '#64748b'};">
+                    ⏱️ ${minutos} min
+                </div>
+                ${route.summary ? `<div style="font-size: 0.75rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.85)' : '#94a3b8'}; margin-top: 0.35rem;">${route.summary}</div>` : ''}
+            </button>
+        `;
+    });
+
+    opcionesHTML += '</div></div>';
+
+    // Insertar o actualizar las opciones
+    const container = document.querySelector('.search-panel');
+    let rutasContainer = document.getElementById('rutas-alternativas-container');
+
+    if (!rutasContainer) {
+        rutasContainer = document.createElement('div');
+        rutasContainer.id = 'rutas-alternativas-container';
+        container.appendChild(rutasContainer);
+    }
+
+    rutasContainer.innerHTML = opcionesHTML;
+}
+
+// Función para ocultar opciones de rutas
+function ocultarOpcionesRutas() {
+    const rutasContainer = document.getElementById('rutas-alternativas-container');
+    if (rutasContainer) {
+        rutasContainer.innerHTML = '';
+    }
+}
+
+// Función para mostrar mensaje cuando no hay rutas alternativas con paradas
+function mostrarMensajeRutaUnica() {
+    const mensajeHTML = `
+        <div class="mensaje-ruta-unica" style="
+            margin-top: 1rem;
+            padding: 1rem 1.25rem;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border: 2px solid #fcd34d;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        ">
+            <span style="font-size: 1.5rem;">ℹ️</span>
+            <div>
+                <div style="font-weight: 600; color: #92400e; font-size: 0.95rem; margin-bottom: 0.25rem;">
+                    Ruta única con paradas
+                </div>
+                <div style="color: #78350f; font-size: 0.85rem; line-height: 1.5;">
+                    Con paradas intermedias, Google Maps calcula la mejor ruta única que pasa por todos los puntos.
+                    Para ver rutas alternativas, elimina las paradas.
+                </div>
+            </div>
+        </div>
+    `;
+
+    const container = document.querySelector('.search-panel');
+    let rutasContainer = document.getElementById('rutas-alternativas-container');
+
+    if (!rutasContainer) {
+        rutasContainer = document.createElement('div');
+        rutasContainer.id = 'rutas-alternativas-container';
+        container.appendChild(rutasContainer);
+    }
+
+    rutasContainer.innerHTML = mensajeHTML;
 }
 
 // ========================================
@@ -1518,78 +1887,16 @@ function mostrarInfoProgramacion() {
     const resultadosDiv = document.getElementById('calculation-results');
     if (resultadosDiv) {
         resultadosDiv.style.display = 'block';
-        calcularTarifaAutomatica();
     }
-}
-
-function calcularTarifaAutomatica() {
-    const distanciaKm = parseFloat(document.getElementById('distancia_km').value) || 0;
-    const tiempoEstimado = document.getElementById('tiempo_estimado').value || '--';
-    const inputValorViaje = document.getElementById('valor_viaje_manual');
-
-    // Actualizar valores básicos
-    document.getElementById('calc-distancia').textContent = distanciaKm > 0 ? distanciaKm.toFixed(1) + ' km' : '-- km';
-    document.getElementById('calc-tiempo').textContent = tiempoEstimado;
-
-    if (distanciaKm === 0) {
-        console.warn('⚠️ Faltan datos para calcular costos');
-        inputValorViaje.placeholder = 'ARS $0.00';
-        return;
-    }
-
-    // PASO 1: Costo base operativo = Distancia × costoPorKm (desde BD, default 10000)
-    const costoBase = Math.floor(distanciaKm * costoPorKm);
-
-    // PASO 2: Aplicar costo de mantenimiento (%) (sin decimales)
-    const costoMantenimientoMonto = Math.floor((costoBase * costoMantenimiento) / 100);
-
-    // PASO 3: TARIFA MÍNIMA = Costo base + Costo de mantenimiento (sin decimales)
-    tarifaMinima = Math.floor(costoBase + costoMantenimientoMonto);
-
-    // PASO 4: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo permitido %) (sin decimales)
-    tarifaMaxima = Math.floor(tarifaMinima + (tarifaMinima * maximoGanancia / 100));
-
-    // Actualizar la interfaz con formato argentino
-    document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
-    document.getElementById('calc-maximo').textContent = formatearMoneda(tarifaMaxima);
-
-    // Actualizar rangos
-    document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
-    document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
-
-    // Actualizar placeholder con el mínimo permitido
-    inputValorViaje.placeholder = formatearMoneda(tarifaMinima);
-
-    // Actualizar atributos min y max del input (sin decimales)
-    inputValorViaje.setAttribute('min', tarifaMinima);
-    inputValorViaje.setAttribute('max', tarifaMaxima);
-
-    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido (sin decimales)
-    const valorActual = parseFloat(inputValorViaje.value) || 0;
-    if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
-        inputValorViaje.value = tarifaMinima;
-    }
-
-    validarValorViaje();
-
-    // Calcular el precio por pasajero automáticamente
-    calcularPorPasajero();
-
-    console.log('💰 Cálculo automático completado');
-    console.log('- Distancia:', distanciaKm, 'km');
-    console.log('- Costo base: $', costoBase.toFixed(2));
-    console.log('- Costo de mantenimiento (' + costoMantenimiento + '%): $', costoMantenimientoMonto.toFixed(2));
-    console.log('- TARIFA MÍNIMA: $', tarifaMinima.toFixed(2));
-    console.log('- TARIFA MÁXIMA: $', tarifaMaxima.toFixed(2));
 }
 
 // ========================================
 // VALIDACIÓN DEL VALOR DEL VIAJE
 // ========================================
 function validarValorViaje() {
-    const valorIngresado = parseFloat(document.getElementById('valor_viaje_manual').value) || 0;
-    const mensajeDiv = document.getElementById('mensaje-validacion');
     const inputViaje = document.getElementById('valor_viaje_manual');
+    const valorIngresado = desformatearNumero(inputViaje.value);
+    const mensajeDiv = document.getElementById('mensaje-validacion');
 
     if (valorIngresado === 0) {
         mensajeDiv.style.display = 'none';
@@ -1628,26 +1935,28 @@ function validarValorViaje() {
 // ========================================
 function calcularPorPasajero() {
     const puestosDisponibles = parseInt(document.getElementById('puestos_disponibles').value) || 0;
+    const puestosTotales = parseInt(document.getElementById('puestos_totales').value) || 0;
 
     // Usar el valor manual si está ingresado, si no usar la tarifa mínima
-    const valorManual = parseFloat(document.getElementById('valor_viaje_manual').value) || 0;
+    const valorManual = desformatearNumero(document.getElementById('valor_viaje_manual').value);
     const totalViaje = valorManual > 0 ? valorManual : tarifaMinima;
 
-    if (puestosDisponibles === 0 || totalViaje === 0) {
+    if (puestosTotales === 0 || totalViaje === 0) {
         document.getElementById('total-viaje').textContent = formatearMoneda(0);
         document.getElementById('precio-por-pasajero').textContent = formatearMoneda(0);
         return;
     }
 
-    // Dividir entre los puestos disponibles
-    const precioPorPasajero = totalViaje / puestosDisponibles;
+    // IMPORTANTE: Dividir entre los puestos TOTALES, no los disponibles
+    const precioPorPasajero = totalViaje / puestosTotales;
 
     // Actualizar la interfaz con formato argentino
     document.getElementById('total-viaje').textContent = formatearMoneda(totalViaje);
     document.getElementById('precio-por-pasajero').textContent = formatearMoneda(precioPorPasajero);
 
     console.log('👥 Cálculo por pasajero:');
-    console.log('- Puestos disponibles:', puestosDisponibles);
+    console.log('- Puestos totales del vehículo:', puestosTotales);
+    console.log('- Puestos disponibles en este viaje:', puestosDisponibles);
     console.log('- Total del viaje: $', totalViaje.toFixed(2));
     console.log('- Precio por pasajero: $', precioPorPasajero.toFixed(2));
 }
@@ -1664,7 +1973,8 @@ function guardarViaje() {
     const fechaViaje = document.getElementById('fecha_viaje').value;
     const horaSalida = document.getElementById('hora_salida').value;
     const puestosDisponibles = document.getElementById('puestos_disponibles').value;
-    const valorViaje = document.getElementById('valor_viaje_manual').value;
+    const valorViajeFormateado = document.getElementById('valor_viaje_manual').value;
+    const valorViaje = desformatearNumero(valorViajeFormateado);
 
     // Validaciones
     if (!origenCoords || !destinoCoords) {
@@ -1682,14 +1992,13 @@ function guardarViaje() {
         return;
     }
 
-    if (!valorViaje || parseFloat(valorViaje) <= 0) {
+    if (!valorViaje || valorViaje <= 0) {
         alert('⚠️ Por favor, establece el valor del viaje');
         return;
     }
 
     // Validar que el valor esté dentro del rango permitido
-    const valorIngresado = parseFloat(valorViaje);
-    if (valorIngresado < tarifaMinima || valorIngresado > tarifaMaxima) {
+    if (valorViaje < tarifaMinima || valorViaje > tarifaMaxima) {
         alert('⚠️ El valor del viaje debe estar entre ' + formatearMoneda(tarifaMinima) + ' y ' + formatearMoneda(tarifaMaxima));
         return;
     }
@@ -1731,7 +2040,7 @@ function guardarViaje() {
         puestos_disponibles: puestosDisponibles,
         puestos_totales: document.getElementById('puestos_totales').value,
         valor_cobrado: valorViaje,
-        valor_persona: (parseFloat(valorViaje) / parseInt(puestosDisponibles)).toFixed(2),
+        valor_persona: (parseFloat(valorViaje) / parseInt(document.getElementById('puestos_totales').value)).toFixed(2),
 
         // Paradas intermedias
         paradas: JSON.stringify(paradasArray),

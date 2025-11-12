@@ -122,7 +122,7 @@
                 
                 <div class="form-group">
                     <label for="nombre" class="form-label">Tipo de Configuración</label>
-                    <select id="nombre" name="nombre" class="form-control" required>
+                    <select id="nombre" name="nombre" class="form-control" required onchange="updateValorField()">
                         <option value="">Selecciona el tipo de configuración</option>
                         @foreach($tiposConfiguracion as $valor => $etiqueta)
                             <option value="{{ $valor }}">{{ $etiqueta }}</option>
@@ -132,13 +132,14 @@
 
                 <div class="form-group">
                     <label for="valor" class="form-label">Valor</label>
-                    <input type="number" 
-                           id="valor" 
-                           name="valor" 
-                           class="form-control" 
-                           step="0.01" 
-                           placeholder="Ingresa el valor" 
+                    <input type="number"
+                           id="valor"
+                           name="valor"
+                           class="form-control"
+                           step="0.01"
+                           placeholder="Ingresa el valor"
                            required>
+                    <small id="valor-help" style="display: block; margin-top: 0.5rem; color: #6c757d;"></small>
                 </div>
 
                 <div class="form-actions">
@@ -153,4 +154,75 @@
         </div>
     </div>
 </div>
+
+<script>
+function updateValorField() {
+    const tipoSelect = document.getElementById('nombre');
+    const valorInput = document.getElementById('valor');
+    const valorHelp = document.getElementById('valor-help');
+    const selectedTipo = tipoSelect.value;
+
+    // Reset
+    valorInput.removeAttribute('max');
+    valorInput.setAttribute('min', '0');
+    valorInput.setAttribute('step', '0.01');
+    valorHelp.textContent = '';
+
+    // Configuraciones específicas por tipo
+    switch(selectedTipo) {
+        case 'comision':
+            valorInput.setAttribute('max', '100');
+            valorInput.setAttribute('placeholder', 'Ej: 15.5');
+            valorHelp.textContent = '💡 Ingresa el porcentaje de comisión (0-100%)';
+            break;
+
+        case 'maximo':
+            valorInput.setAttribute('max', '100');
+            valorInput.setAttribute('placeholder', 'Ej: 80');
+            valorHelp.textContent = '💡 Ingresa el porcentaje máximo permitido (0-100%)';
+            break;
+
+        case 'costo_km':
+            valorInput.setAttribute('placeholder', 'Ej: 250.50');
+            valorHelp.textContent = '💡 Ingresa el costo por cada kilómetro recorrido';
+            break;
+
+        case 'costo_combustible':
+            valorInput.setAttribute('placeholder', 'Ej: 1500.75');
+            valorHelp.textContent = '💡 Ingresa el costo del combustible por litro o galón';
+            break;
+
+        case 'numero_galones':
+            valorInput.setAttribute('max', '100');
+            valorInput.setAttribute('step', '1');
+            valorInput.setAttribute('placeholder', 'Ej: 50');
+            valorHelp.textContent = '💡 Ingresa el número de galones (máximo 100)';
+            break;
+
+        default:
+            valorInput.setAttribute('placeholder', 'Ingresa el valor');
+            valorHelp.textContent = '';
+    }
+}
+
+// Validación adicional en el formulario
+document.querySelector('form').addEventListener('submit', function(e) {
+    const tipoSelect = document.getElementById('nombre');
+    const valorInput = document.getElementById('valor');
+    const valor = parseFloat(valorInput.value);
+    const tipo = tipoSelect.value;
+
+    if ((tipo === 'comision' || tipo === 'maximo' || tipo === 'numero_galones') && valor > 100) {
+        e.preventDefault();
+        alert('⚠️ El valor no puede ser mayor a 100 para este tipo de configuración');
+        return false;
+    }
+
+    if (valor < 0) {
+        e.preventDefault();
+        alert('⚠️ El valor no puede ser negativo');
+        return false;
+    }
+});
+</script>
 @endsection

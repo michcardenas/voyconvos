@@ -19,22 +19,34 @@ public function gestion()
     $userId = auth()->id();
     $registro = RegistroConductor::where('user_id', $userId)->first();
 
-    // Obtener configuraciones más recientes
-    $configuracionCosto = DB::table('configuracion_admin')
+    // Obtener configuraciones más recientes (nombres en minúsculas como se definen en create())
+    $configuracionComision = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'Costo')
+        ->where('nombre', 'comision')
         ->orderBy('created_at', 'desc')
         ->first();
 
     $configuracionMaximo = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'Maximo')
+        ->where('nombre', 'maximo')
         ->orderBy('created_at', 'desc')
         ->first();
 
     $configuracionCostoKm = DB::table('configuracion_admin')
         ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
-        ->where('nombre', 'Costo_km')
+        ->where('nombre', 'costo_km')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $configuracionCostoCombustible = DB::table('configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'costo_combustible')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $configuracionNumeroGalones = DB::table('configuracion_admin')
+        ->select('id_configuracion', 'nombre', 'valor', 'created_at', 'updated_at')
+        ->where('nombre', 'numero_galones')
         ->orderBy('created_at', 'desc')
         ->first();
 
@@ -45,13 +57,19 @@ public function gestion()
         'patente' => $registro ? $registro->patente : null,
         'registro_completo' => $registro ? true : false,
 
-        // Configuraciones de administrador
-        'costo_mantenimiento' => $configuracionCosto ? $configuracionCosto->valor : null,
-        'maximo_ganancia' => $configuracionMaximo ? $configuracionMaximo->valor : null,
-        'costo_por_km' => $configuracionCostoKm ? $configuracionCostoKm->valor : 10000, // Default 10000 si no existe
-        'config_costo' => $configuracionCosto,
+        // Configuraciones de administrador actualizadas
+        'costo_mantenimiento' => $configuracionComision ? $configuracionComision->valor : 15, // Default 15%
+        'maximo_ganancia' => $configuracionMaximo ? $configuracionMaximo->valor : 30, // Default 30%
+        'costo_por_km' => $configuracionCostoKm ? $configuracionCostoKm->valor : 250, // Default 250 pesos/km
+        'costo_combustible' => $configuracionCostoCombustible ? $configuracionCostoCombustible->valor : 1500, // Default 1500 pesos/litro
+        'numero_galones' => $configuracionNumeroGalones ? $configuracionNumeroGalones->valor : 50, // Default 50 galones
+
+        // Mantener objetos de configuración para referencia
+        'config_comision' => $configuracionComision,
         'config_maximo' => $configuracionMaximo,
         'config_costo_km' => $configuracionCostoKm,
+        'config_costo_combustible' => $configuracionCostoCombustible,
+        'config_numero_galones' => $configuracionNumeroGalones,
     ]);
 }
 public function verificarPasajero(Request $request, Reserva $reserva) 

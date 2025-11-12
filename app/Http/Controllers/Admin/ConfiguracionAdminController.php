@@ -28,9 +28,11 @@ public function index()
 public function create() {
     // Tipos de configuración disponibles (usar minúsculas para consistencia)
     $tiposConfiguracion = [
-        'comision' => '💰 Costo de mantenimiento (%)',
-        'maximo' => '💵 Monto máximo permitido',
+        'comision' => '💰 Comisión de la plataforma (%)',
+        'maximo' => '💵 Monto máximo permitido (%)',
         'costo_km' => '📏 Costo por kilómetro recorrido',
+        'costo_combustible' => '⛽ Costo del combustible por litro/galón',
+        'numero_galones' => '🛢️ Número de galones (máx. 100)',
     ];
 
     return view('admin.create_configuracion', compact('tiposConfiguracion'));
@@ -38,16 +40,32 @@ public function create() {
 
 public function store(Request $request)
 {
-    $request->validate([
-        'nombre' => 'required|in:comision,maximo,costo_km',
+    // Validación base
+    $rules = [
+        'nombre' => 'required|in:comision,maximo,costo_km,costo_combustible,numero_galones',
         'valor' => 'required|numeric|min:0',
-    ], [
+    ];
+
+    $messages = [
         'nombre.required' => 'Debes seleccionar un tipo de configuración',
         'nombre.in' => 'El tipo de configuración seleccionado no es válido',
         'valor.required' => 'El valor es obligatorio',
         'valor.numeric' => 'El valor debe ser un número',
         'valor.min' => 'El valor debe ser mayor o igual a 0',
-    ]);
+    ];
+
+    // Validaciones específicas según el tipo de configuración
+    if ($request->nombre === 'comision' || $request->nombre === 'maximo') {
+        $rules['valor'] = 'required|numeric|min:0|max:100';
+        $messages['valor.max'] = 'El porcentaje no puede ser mayor a 100';
+    }
+
+    if ($request->nombre === 'numero_galones') {
+        $rules['valor'] = 'required|numeric|min:0|max:100';
+        $messages['valor.max'] = 'El número de galones no puede ser mayor a 100';
+    }
+
+    $request->validate($rules, $messages);
 
     ConfiguracionAdmin::create([
         'nombre' => $request->nombre,
