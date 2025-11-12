@@ -118,9 +118,41 @@
                     <div class="viaje-card">
                         <div class="route">
                             <div class="cities">
-                                <span class="from">{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}</span>
+                                <span class="from">
+                                    @php
+                                        $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                                        $count = count($origenParts);
+                                        // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                                        $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                                        // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                                        $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                                        // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                                        $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                                        // Limpiar espacios dobles y comas dobles
+                                        $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                                        $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                                        $origenCorta = trim($origenCorta, ' ,');
+                                    @endphp
+                                    {{ $origenCorta }}
+                                </span>
                                 <i class="fas fa-arrow-right"></i>
-                                <span class="to">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</span>
+                                <span class="to">
+                                    @php
+                                        $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                                        $count = count($destinoParts);
+                                        // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                                        $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                                        // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                                        $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                                        // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                                        $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                                        // Limpiar espacios dobles y comas dobles
+                                        $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                                        $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                                        $destinoCorta = trim($destinoCorta, ' ,');
+                                    @endphp
+                                    {{ $destinoCorta }}
+                                </span>
                             </div>
                             <div class="time">{{ $viaje->hora_salida ?? 'Hora por definir' }}</div>
                         </div>
@@ -144,7 +176,7 @@
                                 <span>{{ $viaje->puestos_disponibles }} {{ $viaje->puestos_disponibles == 1 ? 'lugar' : 'lugares' }}</span>
                             </div>
                             <div class="price">
-                                <span class="amount">${{ number_format($viaje->valor_persona ?? 5200, 0, ',', '.') }}</span>
+                                <span class="amount">${{ number_format(floor($viaje->valor_persona ?? 5200), 0, ',', '.') }}</span>
                                 <small>por persona</small>
                             </div>
                         </div>

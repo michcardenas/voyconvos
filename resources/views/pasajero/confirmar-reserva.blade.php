@@ -1027,10 +1027,10 @@ function updatePrice() {
     
     const total = cantidad * VIAJE_DATA.precio;
     
-    // Actualizar precio en la pantalla principal
-    document.getElementById('totalPrice').textContent = '$' + total.toLocaleString('es-CO');
-    document.getElementById('priceBreakdown').textContent = 
-        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + VIAJE_DATA.precio.toLocaleString('es-CO');
+    // Actualizar precio en la pantalla principal (sin decimales)
+    document.getElementById('totalPrice').textContent = '$' + Math.floor(total).toLocaleString('es-AR');
+    document.getElementById('priceBreakdown').textContent =
+        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + Math.floor(VIAJE_DATA.precio).toLocaleString('es-AR');
 }
 
 // Mostrar resumen
@@ -1042,11 +1042,11 @@ function mostrarResumen() {
     document.getElementById('cantidad_puestos_hidden').value = cantidad;
     document.getElementById('total_hidden').value = total;
     
-    // Actualizar resumen
+    // Actualizar resumen (sin decimales)
     document.getElementById('summaryPasajeros').textContent = cantidad + ' pasajero' + (cantidad > 1 ? 's' : '');
-    document.getElementById('summaryTotal').textContent = '$' + total.toLocaleString('es-CO');
-    document.getElementById('summaryBreakdown').textContent = 
-        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + VIAJE_DATA.precio.toLocaleString('es-CO');
+    document.getElementById('summaryTotal').textContent = '$' + Math.floor(total).toLocaleString('es-AR');
+    document.getElementById('summaryBreakdown').textContent =
+        cantidad + ' persona' + (cantidad > 1 ? 's' : '') + ' × $' + Math.floor(VIAJE_DATA.precio).toLocaleString('es-AR');
     
     // Mostrar sección resumen
     document.getElementById('summarySection').classList.add('show');
@@ -1336,10 +1336,10 @@ function mostrarModalTransferencia() {
                 ">
                     <div style="font-weight: 600; color: #1F4E79; margin-bottom: 0.5rem; text-align: center; font-size: 0.85rem;">📋 Datos bancarios</div>
                     <div style="color: #666; line-height: 1.6;">
-                        <div><strong>Banco:</strong> Banco Ejemplo</div>
-                        <div><strong>Titular:</strong> VoyConvos SRL</div>
-                        <div><strong>CBU:</strong> 0000...456789</div>
-                        <div><strong>Alias:</strong> VOYCONVOS.PAGOS</div>
+                        <div><strong>Banco:</strong> Ualá Bank S.A.U.</div>
+                        <div><strong>Titular:</strong> AYLEN TORRES PACHECO</div>
+                        <div><strong>CBU:</strong> 3840200500000026659288</div>
+                        <div><strong>Alias:</strong> PURO.RESPIRAR.TELAS</div>
                         <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(31, 78, 121, 0.1);">
                             <strong>Monto:</strong> <span style="color: #4CAF50; font-weight: 700;">${document.getElementById('summaryTotal').textContent}</span>
                         </div>

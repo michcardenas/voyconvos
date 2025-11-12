@@ -1133,11 +1133,43 @@
                             <!-- Trip Header -->
                             <div class="trip-header">
                                 <div class="route-display">
-                                    <div class="route-city">{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}</div>
+                                    <div class="route-city">
+                                        @php
+                                            $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                                            $count = count($origenParts);
+                                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                                            $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                                            $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                                            $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                                            // Limpiar espacios dobles y comas dobles
+                                            $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                                            $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                                            $origenCorta = trim($origenCorta, ' ,');
+                                        @endphp
+                                        {{ $origenCorta }}
+                                    </div>
                                     <div class="route-arrow">
                                         <i class="fas fa-arrow-right"></i>
                                     </div>
-                                    <div class="route-city">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</div>
+                                    <div class="route-city">
+                                        @php
+                                            $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                                            $count = count($destinoParts);
+                                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
+                                            $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
+                                            $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
+                                            $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                                            // Limpiar espacios dobles y comas dobles
+                                            $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                                            $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                                            $destinoCorta = trim($destinoCorta, ' ,');
+                                        @endphp
+                                        {{ $destinoCorta }}
+                                    </div>
                                 </div>
                                 <div class="trip-duration">
                                     {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('M d, Y') }}
@@ -1263,7 +1295,7 @@
 
                                 <!-- Price Section -->
                                 <div class="price-section">
-                                    <p class="price-amount">${{ number_format($viaje->valor_persona ?? 5200, 2, ',', '.') }}</p>
+                                    <p class="price-amount">${{ number_format(floor($viaje->valor_persona ?? 5200), 0, ',', '.') }}</p>
                                     <p class="price-label">por persona</p>
                                 </div>
                             </div>
