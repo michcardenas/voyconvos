@@ -11,7 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Excluir callback de Apple de verificación CSRF (Apple envía POST sin token)
+        $middleware->validateCsrfTokens(except: [
+            '/auth/apple/callback',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

@@ -160,7 +160,21 @@ class SocialAuthController extends Controller
             // Limpiar el state de la sesión
             session()->forget('apple_state');
 
-            return redirect()->intended('/dashboard');
+            // Verificar si el usuario está completamente registrado
+            // Campos requeridos: fecha_nacimiento, pais, ciudad, celular
+            $camposIncompletos = !$user->fecha_nacimiento ||
+                                 !$user->pais ||
+                                 !$user->ciudad ||
+                                 !$user->celular;
+
+            if ($camposIncompletos) {
+                // Usuario necesita completar su registro
+                return redirect()->route('register')
+                    ->with('info', 'Por favor completa tu registro para continuar.');
+            }
+
+            // Usuario ya está completamente registrado
+            return redirect()->route('hibrido.dashboard');
             
         } catch (\Exception $e) {
             \Log::error('Apple login error: ' . $e->getMessage());
