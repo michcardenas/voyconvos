@@ -841,24 +841,13 @@ body {
                     <i class="fas fa-map-marker-alt" style="margin-right: 4px; color: var(--vcv-accent);"></i>
                     De
                 </label>
-                <span id="origen-texto" class="field-display">
-                    @if(request('ciudad_origen'))
-                        <span>{{ request('ciudad_origen') }}</span>
-                    @else
-                        <span style="color: #94a3b8; font-weight: 400;">¿Desde dónde sales?</span>
-                    @endif
-                </span>
-                <select name="ciudad_origen"
-                        id="ciudad-origen-select"
-                        class="field-input field-select"
-                        onchange="updateOrigenLabel(this.value)">
-                    <option value="">Todas las ciudades</option>
-                    @foreach($ciudadesOrigen as $ciudad)
-                        <option value="{{ $ciudad }}" {{ request('ciudad_origen') == $ciudad ? 'selected' : '' }}>
-                            {{ $ciudad }}
-                        </option>
-                    @endforeach
-                </select>
+                <input type="text"
+                       name="ciudad_origen"
+                       id="autocomplete-origen"
+                       class="field-input"
+                       placeholder="¿Desde dónde sales?"
+                       value="{{ request('ciudad_origen') }}"
+                       autocomplete="off">
             </div>
 
             <div class="field-separator"></div>
@@ -869,31 +858,13 @@ body {
                     <i class="fas fa-map-marker-alt" style="margin-right: 4px; color: var(--vcv-primary);"></i>
                     A
                 </label>
-                <span id="destino-texto" class="field-display">
-                    @if(request('ciudad_destino'))
-                        <span>{{ request('ciudad_destino') }}</span>
-                    @else
-                        <span style="color: #94a3b8; font-weight: 400;">¿A dónde vas?</span>
-                    @endif
-                </span>
-                <select name="ciudad_destino"
-                        id="ciudad-destino-select"
-                        class="field-input field-select"
-                        onchange="updateDestinoLabel(this.value)"
-                        required>
-                    <option value="">Todas las ciudades</option>
-                    @if(isset($ciudadesDestino) && count($ciudadesDestino) > 0)
-                        @foreach($ciudadesDestino as $ciudad)
-                            @if($ciudad)
-                                <option value="{{ $ciudad }}" {{ request('ciudad_destino') == $ciudad ? 'selected' : '' }}>
-                                    {{ $ciudad }}
-                                </option>
-                            @endif
-                        @endforeach
-                    @else
-                        <option value="" disabled>No hay destinos disponibles</option>
-                    @endif
-                </select>
+                <input type="text"
+                       name="ciudad_destino"
+                       id="autocomplete-destino"
+                       class="field-input"
+                       placeholder="¿A dónde vas?"
+                       value="{{ request('ciudad_destino') }}"
+                       autocomplete="off">
             </div>
 
             <div class="field-separator"></div>
@@ -1242,21 +1213,73 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Asegurar que los selects inicialicen correctamente
-    const selectOrigen = document.getElementById('ciudad-origen-select');
-    const selectDestino = document.getElementById('ciudad-destino-select');
     const selectPasajeros = document.getElementById('pasajeros-select');
-
-    if (selectOrigen && selectOrigen.value) {
-        updateOrigenLabel(selectOrigen.value);
-    }
-
-    if (selectDestino && selectDestino.value) {
-        updateDestinoLabel(selectDestino.value);
-    }
 
     if (selectPasajeros && selectPasajeros.value) {
         updatePasajerosLabel(selectPasajeros.value);
     }
+
+    // Inicializar Google Places Autocomplete
+    initAutocomplete();
 });
+
+// ========================================
+// GOOGLE PLACES AUTOCOMPLETE
+// ========================================
+function initAutocomplete() {
+    // Verificar que Google Maps API esté cargada
+    if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+        console.log('Google Maps API no está cargada aún, esperando...');
+        return;
+    }
+
+    const inputOrigen = document.getElementById('autocomplete-origen');
+    const inputDestino = document.getElementById('autocomplete-destino');
+
+    if (!inputOrigen || !inputDestino) return;
+
+    // Opciones para restringir a Argentina y solo (regions) provincias, localidades y municipios
+    const options = {
+        componentRestrictions: { country: 'ar' }, // Solo Argentina
+        types: ['(regions)'], // Solo provincias, localidades y municipios (no direcciones específicas)
+        fields: ['address_components', 'formatted_address', 'name']
+    };
+
+    // Crear autocomplete para origen
+    const autocompleteOrigen = new google.maps.places.Autocomplete(inputOrigen, options);
+
+    // Listener para origen
+    autocompleteOrigen.addListener('place_changed', function() {
+        const place = autocompleteOrigen.getPlace();
+        if (place && place.name) {
+            inputOrigen.value = place.name;
+        }
+    });
+
+    // Crear autocomplete para destino
+    const autocompleteDestino = new google.maps.places.Autocomplete(inputDestino, options);
+
+    // Listener para destino
+    autocompleteDestino.addListener('place_changed', function() {
+        const place = autocompleteDestino.getPlace();
+        if (place && place.name) {
+            inputDestino.value = place.name;
+        }
+    });
+
+    console.log('✅ Google Places Autocomplete inicializado correctamente');
+}
+
+// Cargar Google Maps API solo si no está cargada
+if (typeof google === 'undefined' || typeof google.maps === 'undefined') {
+    const script = document.createElement('script');
+    script.src = 'https://maps.googleapis.com/maps/api/js?key={{ config("services.google_maps.key") }}&libraries=places&callback=initAutocomplete&language=es&region=AR';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+} else {
+    // Si ya está cargada, inicializar directamente
+    initAutocomplete();
+}
 </script>
 @endsection

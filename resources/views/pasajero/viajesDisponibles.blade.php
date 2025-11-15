@@ -1135,6 +1135,18 @@
                                 <div class="route-display">
                                     <div class="route-city">
                                         @php
+                                            // Función para acortar nombres de provincias
+                                            $acortarProvincia = function($texto) {
+                                                $reemplazos = [
+                                                    'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                                    'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                                    'Autonomous City of Buenos Aires' => 'CABA',
+                                                    'Provincia de Buenos Aires' => 'Bs.As.',
+                                                    'Buenos Aires Province' => 'Bs.As.',
+                                                ];
+                                                return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                                            };
+
                                             $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
                                             $count = count($origenParts);
                                             // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
@@ -1147,6 +1159,7 @@
                                             $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
                                             $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
                                             $origenCorta = trim($origenCorta, ' ,');
+                                            $origenCorta = $acortarProvincia($origenCorta);
                                         @endphp
                                         {{ $origenCorta }}
                                     </div>
@@ -1167,6 +1180,7 @@
                                             $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
                                             $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
                                             $destinoCorta = trim($destinoCorta, ' ,');
+                                            $destinoCorta = $acortarProvincia($destinoCorta);
                                         @endphp
                                         {{ $destinoCorta }}
                                     </div>
