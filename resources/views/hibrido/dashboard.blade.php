@@ -976,64 +976,73 @@ body {
 
     <div class="viajes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
         @foreach($viajesProximosList as $viaje)
-        <div class="viaje-card" style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; border-left: 4px solid var(--vcv-primary);">
-            <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
-                <div>
-                    <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
-                        {{ $viaje->estado == 'pendiente' ? 'background: #fef3c7; color: #92400e;' : '' }}
-                        {{ $viaje->estado == 'en_curso' ? 'background: #dbeafe; color: #1e40af;' : '' }}
-                        {{ $viaje->estado == 'finalizado' ? 'background: #d1fae5; color: #065f46;' : '' }}
-                        {{ $viaje->estado == 'cancelado' ? 'background: #fee2e2; color: #991b1b;' : '' }}">
-                        {{ ucfirst($viaje->estado) }}
-                    </span>
-                </div>
-                <div style="text-align: right;">
-                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--vcv-accent);">
-                        ${{ number_format($viaje->valor_persona, 2, ',', '.') }}
+            @php
+                // Determinar cuántas tarjetas mostrar
+                $viajesTipos = $viaje->ida_vuelta ? ['ida', 'vuelta'] : ['ida'];
+            @endphp
+
+            @foreach($viajesTipos as $tipoViaje)
+            <div class="viaje-card" style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; border-left: 4px solid {{ $tipoViaje == 'ida' ? 'var(--vcv-primary)' : 'var(--vcv-accent)' }};">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600;
+                            {{ $viaje->estado == 'pendiente' ? 'background: #fef3c7; color: #92400e;' : '' }}
+                            {{ $viaje->estado == 'en_curso' ? 'background: #dbeafe; color: #1e40af;' : '' }}
+                            {{ $viaje->estado == 'finalizado' ? 'background: #d1fae5; color: #065f46;' : '' }}
+                            {{ $viaje->estado == 'cancelado' ? 'background: #fee2e2; color: #991b1b;' : '' }}">
+                            {{ ucfirst($viaje->estado) }}
+                        </span>
+                        @if($viaje->ida_vuelta)
+                        <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: {{ $tipoViaje == 'ida' ? '#dbeafe' : '#fef3c7' }}; color: {{ $tipoViaje == 'ida' ? '#1e40af' : '#92400e' }};">
+                            {{ $tipoViaje == 'ida' ? '➡️ Ida' : '⬅️ Vuelta' }}
+                        </span>
+                        @endif
                     </div>
-                    <div style="font-size: 0.75rem; color: #64748b;">por persona</div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: var(--vcv-accent);">
+                            ${{ number_format($viaje->valor_persona, 0, ',', '.') }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #64748b;">por persona</div>
+                    </div>
                 </div>
-            </div>
 
             <div style="margin-bottom: 1rem;">
+                @php
+                    // Procesar origen
+                    $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                    $count = count($origenParts);
+                    $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                    $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                    $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                    $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                    $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                    $origenCorta = trim($origenCorta, ' ,');
+
+                    // Procesar destino
+                    $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                    $count = count($destinoParts);
+                    $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                    $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                    $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                    $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                    $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                    $destinoCorta = trim($destinoCorta, ' ,');
+
+                    // Intercambiar origen/destino si es vuelta
+                    $mostrarOrigen = $tipoViaje == 'ida' ? $origenCorta : $destinoCorta;
+                    $mostrarDestino = $tipoViaje == 'ida' ? $destinoCorta : $origenCorta;
+                @endphp
+
                 <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
                     <i class="fas fa-map-marker-alt" style="color: var(--vcv-accent); width: 16px;"></i>
                     <span style="font-weight: 600; color: var(--vcv-dark);">
-                        @php
-                            $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
-                            $count = count($origenParts);
-                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
-                            $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
-                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
-                            $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
-                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
-                            $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
-                            // Limpiar espacios dobles y comas dobles
-                            $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
-                            $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
-                            $origenCorta = trim($origenCorta, ' ,');
-                        @endphp
-                        {{ $origenCorta }}
+                        {{ $mostrarOrigen }}
                     </span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 0.5rem;">
                     <i class="fas fa-map-marker-alt" style="color: var(--vcv-primary); width: 16px;"></i>
                     <span style="font-weight: 600; color: var(--vcv-dark);">
-                        @php
-                            $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
-                            $count = count($destinoParts);
-                            // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
-                            $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
-                            // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
-                            $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
-                            // Eliminar palabras con más de 2 números consecutivos (como 1704)
-                            $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
-                            // Limpiar espacios dobles y comas dobles
-                            $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
-                            $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
-                            $destinoCorta = trim($destinoCorta, ' ,');
-                        @endphp
-                        {{ $destinoCorta }}
+                        {{ $mostrarDestino }}
                     </span>
                 </div>
             </div>
@@ -1052,7 +1061,11 @@ body {
                         <i class="far fa-clock" style="margin-right: 4px;"></i>Hora
                     </div>
                     <div style="font-weight: 600; color: var(--vcv-dark);">
-                        {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                        @if($tipoViaje == 'ida')
+                            {{ \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                        @else
+                            {{ $viaje->hora_regreso ? \Carbon\Carbon::parse($viaje->hora_regreso)->format('H:i') : \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i') }}
+                        @endif
                     </div>
                 </div>
             </div>
@@ -1078,6 +1091,7 @@ body {
                 </a>
             </div>
         </div>
+        @endforeach
         @endforeach
     </div>
 </div>

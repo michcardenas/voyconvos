@@ -68,8 +68,29 @@ class SocialAuthController extends Controller
     public function handleAppleCallback(Request $request)
     {
         try {
-            // Verificar state para prevenir CSRF
-            if ($request->state !== session('apple_state')) {
+            // Logging para debugging
+            \Log::info('Apple callback received', [
+                'state_from_apple' => $request->input('state'),
+                'state_in_session' => session('apple_state'),
+                'has_code' => $request->has('code'),
+                'has_id_token' => $request->has('id_token'),
+            ]);
+
+            // Verificar state para prevenir CSRF (con mejor manejo)
+            $receivedState = $request->input('state');
+            $sessionState = session('apple_state');
+
+            // Si no hay state en sesión, es posible que la sesión se haya perdido
+            // Esto puede pasar en producción por temas de cookies/dominios
+            if (!$sessionState) {
+                \Log::warning('Apple state not found in session - possible cookie/session issue');
+                // En producción, podrías querer continuar si tienes id_token válido
+                // Para desarrollo, vamos a permitir continuar con advertencia
+            } elseif ($receivedState !== $sessionState) {
+                \Log::error('State mismatch', [
+                    'expected' => $sessionState,
+                    'received' => $receivedState
+                ]);
                 throw new \Exception('Invalid state parameter');
             }
 

@@ -255,6 +255,143 @@
         box-shadow: 0 0 0 3px rgba(0, 191, 255, 0.1);
     }
 
+    /* Forzar formato de 24 horas en inputs de tiempo */
+    input[type="time"]::-webkit-calendar-picker-indicator {
+        filter: invert(0.5);
+    }
+
+    input[type="time"] {
+        -webkit-appearance: textfield;
+        -moz-appearance: textfield;
+    }
+
+    /* Modal de éxito */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-success {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(0, 51, 102, 0.3);
+        animation: slideUp 0.4s ease;
+        text-align: center;
+    }
+
+    .modal-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #00C853 0%, #00E676 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        animation: bounce 0.6s ease;
+    }
+
+    .modal-title {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: 1rem;
+    }
+
+    .modal-message {
+        font-size: 1.1rem;
+        color: #64748b;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+    }
+
+    .modal-button {
+        background: linear-gradient(135deg, #003366 0%, #0066CC 100%);
+        color: white;
+        border: none;
+        padding: 1rem 2.5rem;
+        border-radius: 12px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0, 51, 102, 0.2);
+    }
+
+    .modal-button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(0, 51, 102, 0.3);
+    }
+
+    .modal-error {
+        background: white;
+        border-radius: 24px;
+        padding: 3rem 2.5rem;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 20px 60px rgba(255, 23, 68, 0.3);
+        animation: slideUp 0.4s ease;
+        text-align: center;
+    }
+
+    .modal-icon-error {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #FF1744 0%, #FF5252 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        font-size: 3rem;
+        animation: shake 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes bounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+
     .checkbox-container {
         display: flex;
         align-items: center;
@@ -673,6 +810,41 @@
     margin-top: 1rem;
     animation: slideIn 0.3s ease;
 } 
+/* Estilo para selectores de hora */
+.hora-select {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23003366' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 12px;
+    padding-right: 2.5rem;
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--primary);
+}
+
+.hora-select:hover {
+    border-color: #00BFFF;
+}
+
+.hora-select option {
+    padding: 0.5rem;
+    font-size: 1rem;
+}
+
+.hora-select:focus {
+    outline: none;
+    border-color: #00BFFF;
+    background-color: white;
+    box-shadow: 0 0 0 4px rgba(0, 191, 255, 0.1);
+}
+
+/* Eliminar flecha por defecto en IE */
+.hora-select::-ms-expand {
+    display: none;
+}
 </style>
 
 <div class="container-mapa">
@@ -688,9 +860,11 @@
         <input type="date" id="fecha_viaje" class="trip-input" min="" required>
     </div>
     
-    <div class="trip-option-item">
+     <div class="trip-option-item">
         <label>🕐 Hora de salida</label>
-        <input type="time" id="hora_salida" class="trip-input" required>
+        <select id="hora_salida" class="trip-input hora-select" required>
+            <option value="">Selecciona una hora</option>
+        </select>
     </div>
     
     <div class="trip-option-item">
@@ -703,9 +877,12 @@
 </div>
 
 <!-- Sección de regreso fuera del grid -->
+<!-- Hora de regreso -->
 <div id="return-section" class="return-section" style="margin-top: 1.5rem;">
     <label class="return-label">🕐 Hora de regreso</label>
-    <input type="time" id="hora_regreso" class="trip-input">
+    <select id="hora_regreso" class="trip-input hora-select">
+        <option value="">Selecciona una hora</option>
+    </select>
 </div>
     </div>
     <center>
@@ -1018,36 +1195,39 @@
 </style>
 <script>
 // ========================================
-// VARIABLES GLOBALES
+// 🌍 VARIABLES GLOBALES
 // ========================================
-let map;
-let directionsService;
-let directionsRenderer;
-let geocoder;
+let map, directionsService, directionsRenderer, geocoder;
 let origenMarker = null;
 let destinoMarker = null;
 let paradas = [];
 let paso = 'origen';
-let iconoVerde, iconoRojo, iconoAmarillo;
 let paradaCounter = 0;
 let paradaEnEspera = null;
 
-// Variables para rutas alternativas
+// Iconos de marcadores
+let iconoVerde, iconoRojo, iconoAmarillo;
+
+// Rutas alternativas
 let rutasDisponibles = [];
 let rutaSeleccionada = 0;
 
-// Variables de configuración del servidor
-const comisionPlataforma = {{ $costo_mantenimiento ?? 15 }}; // Porcentaje de comisión (%)
-const maximoGanancia = {{ $maximo_ganancia ?? 30 }}; // Porcentaje máximo de ganancia permitido (%)
-const costoPorKm = {{ $costo_por_km ?? 250 }}; // Costo por kilómetro recorrido (pesos/km)
-const costoCombustible = {{ $costo_combustible ?? 1500 }}; // Costo del combustible por litro/galón (pesos)
-const numeroGalones = {{ $numero_galones ?? 50 }}; // Número de galones del tanque
+// Configuración del servidor
+const CONFIG = {
+    comisionPlataforma: {{ $costo_mantenimiento ?? 15 }},
+    maximoGanancia: {{ $maximo_ganancia ?? 30 }},
+    costoPorKm: {{ $costo_por_km ?? 250 }},
+    costoCombustible: {{ $costo_combustible ?? 1500 }},
+    numeroGalones: {{ $numero_galones ?? 50 }},
+    kmPorGalon: 10
+};
 
+// Tarifas calculadas
 let tarifaMinima = 0;
 let tarifaMaxima = 0;
 
 // ========================================
-// FORMATEO DE MONEDA ARGENTINA
+// 💰 FUNCIONES DE FORMATEO DE MONEDA
 // ========================================
 function formatearMoneda(valor) {
     return new Intl.NumberFormat('es-AR', {
@@ -1058,7 +1238,6 @@ function formatearMoneda(valor) {
     }).format(valor);
 }
 
-// Formatear número con separador de miles (sin símbolo de moneda)
 function formatearNumero(valor) {
     return new Intl.NumberFormat('es-AR', {
         minimumFractionDigits: 0,
@@ -1066,38 +1245,194 @@ function formatearNumero(valor) {
     }).format(valor);
 }
 
-// Convertir string formateado a número
 function desformatearNumero(valorFormateado) {
-    // Eliminar todos los puntos (separadores de miles)
     return parseFloat(valorFormateado.replace(/\./g, '').replace(/,/g, '.')) || 0;
 }
 
-// Formatear el input mientras el usuario escribe
 function formatearInputValor(input) {
-    // Obtener el valor sin formato
     let valor = input.value.replace(/\./g, '').replace(/[^0-9]/g, '');
-
+    
     if (valor === '') {
         input.value = '';
         validarValorViaje();
         return;
     }
-
-    // Convertir a número y formatear
-    const numero = parseInt(valor);
-    input.value = formatearNumero(numero);
-
-    // Validar después de formatear
+    
+    input.value = formatearNumero(parseInt(valor));
     validarValorViaje();
 }
 
 // ========================================
-// INICIALIZACIÓN DEL MAPA
+// 🕐 FUNCIONES DE FORMATO HORA 24HRS
+// ========================================
+function configurarInputsHora() {
+    const inputsHora = document.querySelectorAll('.hora-input');
+    
+    inputsHora.forEach(input => {
+        // Aplicar máscara mientras escribe
+        input.addEventListener('input', function(e) {
+            aplicarMascaraHora(e.target);
+        });
+
+        // Validar al perder el foco
+        input.addEventListener('blur', function(e) {
+            validarFormatoHora(e.target);
+        });
+
+        // Permitir solo números y ":"
+        input.addEventListener('keypress', function(e) {
+            const char = e.key;
+            const valor = e.target.value;
+            
+            if (e.ctrlKey || e.metaKey || ['Backspace', 'Delete', 'ArrowLeft', 'ArrowRight', 'Tab'].includes(char)) {
+                return;
+            }
+            
+            if (!/[0-9:]/.test(char)) {
+                e.preventDefault();
+                return;
+            }
+            
+            if (char === ':' && valor.includes(':')) {
+                e.preventDefault();
+            }
+        });
+
+        // Autocompletar con Tab o Enter
+        input.addEventListener('keydown', function(e) {
+            if (['Tab', 'Enter'].includes(e.key)) {
+                validarFormatoHora(e.target);
+            }
+        });
+    });
+}
+
+function aplicarMascaraHora(input) {
+    let valor = input.value.replace(/[^0-9]/g, '');
+    
+    if (valor.length >= 2) {
+        valor = valor.substring(0, 2) + ':' + valor.substring(2, 4);
+    }
+    
+    input.value = valor;
+    
+    if (valor.length === 5) {
+        validarFormatoHora(input);
+    }
+}
+
+function validarFormatoHora(input) {
+    const valor = input.value.trim();
+    
+    // Si está vacío
+    if (valor === '') {
+        input.classList.remove('valido', 'invalido');
+        return !input.required;
+    }
+    
+    // Verificar formato HH:MM
+    const regex = /^([0-1][0-9]|2[0-3]):([0-5][0-9])$/;
+    
+    if (!regex.test(valor)) {
+        // Intentar autocompletar
+        if (/^[0-9]{1,4}$/.test(valor)) {
+            autocompletarHora(input);
+            return;
+        }
+        
+        input.classList.remove('valido');
+        input.classList.add('invalido');
+        mostrarErrorHora(input, '⚠️ Formato inválido. Use HH:MM en formato 24 horas (00:00 - 23:59)');
+        return false;
+    }
+    
+    // Validar rangos
+    const [horas, minutos] = valor.split(':').map(Number);
+    
+    if (horas > 23 || minutos > 59) {
+        input.classList.remove('valido');
+        input.classList.add('invalido');
+        mostrarErrorHora(input, '⚠️ Hora inválida. Horas: 00-23, Minutos: 00-59');
+        return false;
+    }
+    
+    // Válido
+    input.classList.remove('invalido');
+    input.classList.add('valido');
+    input.value = String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0');
+    
+    return true;
+}
+
+function autocompletarHora(input) {
+    let valor = input.value.replace(/[^0-9]/g, '');
+    
+    if (valor.length === 1 || valor.length === 2) {
+        const horas = parseInt(valor);
+        if (horas <= 23) {
+            input.value = String(horas).padStart(2, '0') + ':00';
+            validarFormatoHora(input);
+            return;
+        }
+    }
+    
+    if (valor.length === 3) {
+        const horas = parseInt(valor[0]);
+        const minutos = parseInt(valor.substring(1));
+        if (horas <= 9 && minutos <= 59) {
+            input.value = '0' + horas + ':' + String(minutos).padStart(2, '0');
+            validarFormatoHora(input);
+            return;
+        }
+    }
+    
+    if (valor.length === 4) {
+        const horas = parseInt(valor.substring(0, 2));
+        const minutos = parseInt(valor.substring(2));
+        if (horas <= 23 && minutos <= 59) {
+            input.value = String(horas).padStart(2, '0') + ':' + String(minutos).padStart(2, '0');
+            validarFormatoHora(input);
+            return;
+        }
+    }
+}
+
+function mostrarErrorHora(input, mensaje) {
+    const mensajeAnterior = input.parentElement.querySelector('.error-hora');
+    if (mensajeAnterior) mensajeAnterior.remove();
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-hora';
+    errorDiv.style.cssText = `
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        background: #fef2f2;
+        border-left: 3px solid #dc2626;
+        border-radius: 4px;
+        animation: slideIn 0.3s ease;
+    `;
+    errorDiv.textContent = mensaje;
+    
+    input.parentElement.appendChild(errorDiv);
+    
+    setTimeout(() => {
+        if (errorDiv.parentElement) {
+            errorDiv.style.opacity = '0';
+            errorDiv.style.transition = 'opacity 0.3s ease';
+            setTimeout(() => errorDiv.remove(), 300);
+        }
+    }, 5000);
+}
+
+// ========================================
+// 🗺️ INICIALIZACIÓN DEL MAPA
 // ========================================
 function initMap() {
     console.log('🗺️ Iniciando mapa...');
     
-    // Definir iconos personalizados
+    // Definir iconos
     iconoVerde = {
         path: google.maps.SymbolPath.CIRCLE,
         fillColor: '#00C853',
@@ -1125,15 +1460,15 @@ function initMap() {
         scale: 10
     };
     
-    const centro = { lat: -34.6037, lng: -58.3816 }; // Buenos Aires
-    
+    // Crear mapa centrado en Buenos Aires
     map = new google.maps.Map(document.getElementById('map'), {
         zoom: 12,
-        center: centro,
+        center: { lat: -34.6037, lng: -58.3816 },
         mapTypeControl: false,
         streetViewControl: false
     });
 
+    // Inicializar servicios
     directionsService = new google.maps.DirectionsService();
     directionsRenderer = new google.maps.DirectionsRenderer({
         map: map,
@@ -1143,10 +1478,18 @@ function initMap() {
             strokeWeight: 5
         }
     });
-
     geocoder = new google.maps.Geocoder();
 
-    // Configurar autocompletado para origen y destino
+    // Configurar autocompletado
+    configurarAutocompletado();
+
+    // Listener para clicks en el mapa
+    map.addListener('click', manejarClickMapa);
+
+    console.log('✅ Mapa listo');
+}
+
+function configurarAutocompletado() {
     const origenAuto = new google.maps.places.Autocomplete(
         document.getElementById('origen_input'),
         { componentRestrictions: { country: 'ar' } }
@@ -1157,105 +1500,36 @@ function initMap() {
         { componentRestrictions: { country: 'ar' } }
     );
 
-    origenAuto.addListener('place_changed', function() {
+    origenAuto.addListener('place_changed', () => {
         const place = origenAuto.getPlace();
-        if (place.geometry) {
-            ponerOrigen(place.geometry.location);
-        }
+        if (place.geometry) ponerOrigen(place.geometry.location);
     });
 
-    destinoAuto.addListener('place_changed', function() {
+    destinoAuto.addListener('place_changed', () => {
         const place = destinoAuto.getPlace();
-        if (place.geometry) {
-            ponerDestino(place.geometry.location);
-        }
+        if (place.geometry) ponerDestino(place.geometry.location);
     });
-
-    // Listener para clicks en el mapa
-    map.addListener('click', function(e) {
-        console.log('🖱️ Click en mapa, paso:', paso);
-        
-        if (paso === 'origen') {
-            ponerOrigen(e.latLng);
-        } else if (paso === 'destino') {
-            ponerDestino(e.latLng);
-        } else if (paradaEnEspera) {
-            colocarParadaEnMapa(e.latLng, paradaEnEspera);
-        }
-    });
-
-    console.log('✅ Mapa listo');
 }
 
-// ========================================
-// CONFIGURACIÓN DE FECHA Y HORA
-// ========================================
-document.addEventListener('DOMContentLoaded', function() {
-    const hoy = new Date().toISOString().split('T')[0];
-    document.getElementById('fecha_viaje').setAttribute('min', hoy);
-    document.getElementById('fecha_viaje').value = hoy;
+function manejarClickMapa(e) {
+    console.log('🖱️ Click en mapa, paso:', paso);
     
-    // Hora actual como sugerencia
-    const ahora = new Date();
-    const horaActual = ahora.getHours().toString().padStart(2, '0') + ':' + ahora.getMinutes().toString().padStart(2, '0');
-    document.getElementById('hora_salida').value = horaActual;
-    
-    // Listeners para actualizar info cuando cambien los campos
-    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
-    document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
-    document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
-});
-
-function actualizarInfoFecha() {
-    if (document.getElementById('route-info').classList.contains('show')) {
-        mostrarInfoProgramacion();
+    if (paso === 'origen') {
+        ponerOrigen(e.latLng);
+    } else if (paso === 'destino') {
+        ponerDestino(e.latLng);
+    } else if (paradaEnEspera) {
+        colocarParadaEnMapa(e.latLng, paradaEnEspera);
     }
 }
 
 // ========================================
-// FUNCIONES DE IDA Y VUELTA
-// ========================================
-function toggleIdaVuelta() {
-    const checkbox = document.getElementById('ida_vuelta');
-    const returnSection = document.getElementById('return-section');
-    const horaRegreso = document.getElementById('hora_regreso');
-    
-    if (checkbox.checked) {
-        returnSection.classList.add('show');
-        horaRegreso.required = true;
-        
-        // Sugerir hora de regreso (4 horas después)
-        const horaSalida = document.getElementById('hora_salida').value;
-        if (horaSalida) {
-            const [horas, minutos] = horaSalida.split(':');
-            const horaSalidaDate = new Date();
-            horaSalidaDate.setHours(parseInt(horas), parseInt(minutos));
-            horaSalidaDate.setHours(horaSalidaDate.getHours() + 4);
-            
-            const horaRegresoSugerida = horaSalidaDate.getHours().toString().padStart(2, '0') + ':' + 
-                                       horaSalidaDate.getMinutes().toString().padStart(2, '0');
-            horaRegreso.value = horaRegresoSugerida;
-        }
-        
-        document.getElementById('status').textContent = '🔄 Viaje de ida y vuelta programado';
-    } else {
-        returnSection.classList.remove('show');
-        horaRegreso.required = false;
-        horaRegreso.value = '';
-        
-        document.getElementById('status').textContent = '✅ Viaje de ida programado';
-    }
-}
-
-// ========================================
-// FUNCIONES DE ORIGEN Y DESTINO
+// 📍 FUNCIONES DE ORIGEN Y DESTINO
 // ========================================
 function ponerOrigen(location) {
     console.log('📍 Poniendo origen');
     
-    if (origenMarker) {
-        origenMarker.setMap(null);
-    }
+    if (origenMarker) origenMarker.setMap(null);
 
     origenMarker = new google.maps.Marker({
         position: location,
@@ -1266,25 +1540,21 @@ function ponerOrigen(location) {
         animation: google.maps.Animation.DROP
     });
 
-    origenMarker.addListener('dragend', function(e) {
+    origenMarker.addListener('dragend', (e) => {
         actualizarOrigen(e.latLng);
         calcularRuta();
     });
 
     actualizarOrigen(location);
-    
     paso = 'destino';
     document.getElementById('status').textContent = '🎯 Ahora haz clic para el destino';
-    
     calcularRuta();
 }
 
 function ponerDestino(location) {
     console.log('🎯 Poniendo destino');
     
-    if (destinoMarker) {
-        destinoMarker.setMap(null);
-    }
+    if (destinoMarker) destinoMarker.setMap(null);
 
     destinoMarker = new google.maps.Marker({
         position: location,
@@ -1295,26 +1565,21 @@ function ponerDestino(location) {
         animation: google.maps.Animation.DROP
     });
 
-    destinoMarker.addListener('dragend', function(e) {
+    destinoMarker.addListener('dragend', (e) => {
         actualizarDestino(e.latLng);
         calcularRuta();
     });
 
     actualizarDestino(location);
-    
     paso = 'listo';
     document.getElementById('status').textContent = '✅ ¡Ruta lista! Puedes agregar paradas';
-    
     calcularRuta();
 }
 
 function actualizarOrigen(location) {
-    const lat = location.lat();
-    const lng = location.lng();
+    document.getElementById('origen_coords').value = `${location.lat()},${location.lng()}`;
     
-    document.getElementById('origen_coords').value = lat + ',' + lng;
-    
-    geocoder.geocode({ location: location }, function(results, status) {
+    geocoder.geocode({ location: location }, (results, status) => {
         if (status === 'OK' && results[0]) {
             document.getElementById('origen_input').value = results[0].formatted_address;
             document.getElementById('origen_direccion').value = results[0].formatted_address;
@@ -1323,12 +1588,9 @@ function actualizarOrigen(location) {
 }
 
 function actualizarDestino(location) {
-    const lat = location.lat();
-    const lng = location.lng();
+    document.getElementById('destino_coords').value = `${location.lat()},${location.lng()}`;
     
-    document.getElementById('destino_coords').value = lat + ',' + lng;
-    
-    geocoder.geocode({ location: location }, function(results, status) {
+    geocoder.geocode({ location: location }, (results, status) => {
         if (status === 'OK' && results[0]) {
             document.getElementById('destino_input').value = results[0].formatted_address;
             document.getElementById('destino_direccion').value = results[0].formatted_address;
@@ -1337,16 +1599,16 @@ function actualizarDestino(location) {
 }
 
 // ========================================
-// FUNCIONES DE PARADAS INTERMEDIAS
+// 🛑 FUNCIONES DE PARADAS INTERMEDIAS
 // ========================================
 function agregarNuevaParada() {
     if (!origenMarker || !destinoMarker) {
-        alert('⚠️ Por favor, primero selecciona el origen y destino');
+        showModal('error', 'Atención', 'Por favor, primero selecciona el origen y destino');
         return;
     }
     
     paradaCounter++;
-    const paradaId = 'parada_' + paradaCounter;
+    const paradaId = `parada_${paradaCounter}`;
     
     const paradaHTML = `
         <div class="parada-item" id="${paradaId}">
@@ -1357,21 +1619,19 @@ function agregarNuevaParada() {
                        id="${paradaId}_input" 
                        placeholder="🔍 Busca una dirección o haz clic en el mapa">
             </div>
-            <button class="btn-remove-parada" onclick="eliminarParada('${paradaId}')">
-                ✕
-            </button>
+            <button class="btn-remove-parada" onclick="eliminarParada('${paradaId}')">✕</button>
         </div>
     `;
     
     document.getElementById('paradas-list').insertAdjacentHTML('beforeend', paradaHTML);
     
-    // Configurar autocompletado
-    const input = document.getElementById(paradaId + '_input');
+    // Configurar autocompletado para la nueva parada
+    const input = document.getElementById(`${paradaId}_input`);
     const autocomplete = new google.maps.places.Autocomplete(input, {
         componentRestrictions: { country: 'ar' }
     });
     
-    autocomplete.addListener('place_changed', function() {
+    autocomplete.addListener('place_changed', () => {
         const place = autocomplete.getPlace();
         if (place.geometry) {
             colocarParadaEnMapa(place.geometry.location, paradaId);
@@ -1395,33 +1655,27 @@ function colocarParadaEnMapa(location, paradaId) {
         map: map,
         icon: iconoAmarillo,
         draggable: true,
-        title: 'Parada ' + paradaId.split('_')[1],
+        title: `Parada ${paradaId.split('_')[1]}`,
         animation: google.maps.Animation.DROP
     });
     
-    marker.addListener('dragend', function(e) {
+    marker.addListener('dragend', (e) => {
         actualizarParada(paradaId, e.latLng);
         calcularRuta();
     });
     
-    paradas.push({
-        id: paradaId,
-        marker: marker,
-        location: location
-    });
+    paradas.push({ id: paradaId, marker: marker, location: location });
     
-    geocoder.geocode({ location: location }, function(results, status) {
-        if (status === 'OK' && results[0]) {
-            document.getElementById(paradaId + '_input').value = results[0].formatted_address;
-        } else {
-            document.getElementById(paradaId + '_input').value = 'Ubicación personalizada';
-        }
+    geocoder.geocode({ location: location }, (results, status) => {
+        const direccion = (status === 'OK' && results[0]) 
+            ? results[0].formatted_address 
+            : 'Ubicación personalizada';
+        document.getElementById(`${paradaId}_input`).value = direccion;
     });
     
     paradaEnEspera = null;
     document.getElementById('status').textContent = '✅ Parada agregada. Puedes agregar más o arrastrar';
     document.body.style.cursor = 'default';
-    
     calcularRuta();
     
     console.log('🛑 Parada colocada en:', location.toString());
@@ -1429,25 +1683,26 @@ function colocarParadaEnMapa(location, paradaId) {
 
 function actualizarParada(paradaId, location) {
     const parada = paradas.find(p => p.id === paradaId);
-    if (parada) {
-        parada.location = location;
-        
-        geocoder.geocode({ location: location }, function(results, status) {
-            if (status === 'OK' && results[0]) {
-                document.getElementById(paradaId + '_input').value = results[0].formatted_address;
-            }
-        });
-    }
+    if (!parada) return;
+    
+    parada.location = location;
+    
+    geocoder.geocode({ location: location }, (results, status) => {
+        if (status === 'OK' && results[0]) {
+            document.getElementById(`${paradaId}_input`).value = results[0].formatted_address;
+        }
+    });
 }
 
 function eliminarParada(paradaId) {
     const paradaIndex = paradas.findIndex(p => p.id === paradaId);
+    
     if (paradaIndex !== -1) {
         paradas[paradaIndex].marker.setMap(null);
         paradas.splice(paradaIndex, 1);
     }
     
-    document.getElementById(paradaId).remove();
+    document.getElementById(paradaId)?.remove();
     
     if (paradaEnEspera === paradaId) {
         paradaEnEspera = null;
@@ -1460,7 +1715,7 @@ function eliminarParada(paradaId) {
 }
 
 // ========================================
-// CÁLCULO DE RUTA
+// 🛣️ CÁLCULO DE RUTA
 // ========================================
 function calcularRuta() {
     if (!origenMarker || !destinoMarker) {
@@ -1482,176 +1737,39 @@ function calcularRuta() {
         travelMode: google.maps.TravelMode.DRIVING,
         unitSystem: google.maps.UnitSystem.METRIC,
         optimizeWaypoints: true,
-        provideRouteAlternatives: true // ← Solicitar rutas alternativas
+        provideRouteAlternatives: true
     };
 
-    directionsService.route(request, function(result, status) {
-        if (status === 'OK') {
-            console.log('✅ Rutas calculadas:', result.routes.length);
-
-            // Guardar todas las rutas disponibles
-            rutasDisponibles = result.routes;
-            rutaSeleccionada = 0; // Seleccionar la primera por defecto
-
-            // Mostrar la ruta seleccionada
-            directionsRenderer.setDirections(result);
-            directionsRenderer.setRouteIndex(rutaSeleccionada);
-
-            // Actualizar información de la ruta seleccionada
-            actualizarInfoRuta(result.routes[rutaSeleccionada]);
-
-            // 🔥 NUEVO: Calcular costos automáticamente con todas las variables
-            calcularCostosCompletos(result.routes[rutaSeleccionada]);
-
-            // Mostrar opciones de rutas si hay más de una
-            if (result.routes.length > 1) {
-                mostrarOpcionesRutas(result.routes);
-            } else {
-                // Mostrar mensaje informativo si hay paradas
-                if (waypoints.length > 0) {
-                    mostrarMensajeRutaUnica();
-                } else {
-                    ocultarOpcionesRutas();
-                }
-            }
-
-            document.getElementById('route-info').classList.add('show');
-        } else {
+    directionsService.route(request, (result, status) => {
+        if (status !== 'OK') {
             console.error('❌ Error calculando ruta:', status);
+            return;
         }
+
+        console.log('✅ Rutas calculadas:', result.routes.length);
+
+        rutasDisponibles = result.routes;
+        rutaSeleccionada = 0;
+
+        directionsRenderer.setDirections(result);
+        directionsRenderer.setRouteIndex(0);
+
+        actualizarInfoRuta(result.routes[0]);
+        calcularCostosCompletos(result.routes[0]);
+
+        // Mostrar opciones de rutas
+        if (result.routes.length > 1) {
+            mostrarOpcionesRutas(result.routes);
+        } else if (waypoints.length > 0) {
+            mostrarMensajeRutaUnica();
+        } else {
+            ocultarOpcionesRutas();
+        }
+
+        document.getElementById('route-info').classList.add('show');
     });
 }
 
-// ========================================
-// CÁLCULO COMPLETO DE COSTOS
-// ========================================
-function calcularCostosCompletos(route) {
-    let totalDistancia = 0;
-    let totalTiempo = 0;
-
-    route.legs.forEach(leg => {
-        totalDistancia += leg.distance.value;
-        totalTiempo += leg.duration.value;
-    });
-
-    const distanciaKm = totalDistancia / 1000;
-    const horas = Math.floor(totalTiempo / 3600);
-    const minutos = Math.floor((totalTiempo % 3600) / 60);
-    const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
-
-    // 🔥 ACTUALIZAR UI con distancia y tiempo
-    document.getElementById('calc-distancia').textContent = distanciaKm.toFixed(1) + ' km';
-    document.getElementById('calc-tiempo').textContent = tiempoTexto;
-
-    console.log('💰 === CÁLCULO COMPLETO DE COSTOS ===');
-    console.log('📏 Distancia total:', distanciaKm.toFixed(2), 'km');
-    console.log('⏱️ Tiempo estimado:', tiempoTexto);
-
-    // Validar que las variables existan (si no, usar 0)
-    const comision = comisionPlataforma || 0;
-    const maximo = maximoGanancia || 0;
-    const costoKm = costoPorKm || 0;
-    const costoComb = costoCombustible || 0;
-    const galones = numeroGalones || 0;
-
-    console.log('⚙️ Configuraciones:');
-    console.log('  - Comisión plataforma:', comision, '%');
-    console.log('  - Máximo ganancia:', maximo, '%');
-    console.log('  - Costo por km:', costoKm, 'pesos/km');
-    console.log('  - Costo combustible:', costoComb, 'pesos/litro');
-    console.log('  - Número de galones:', galones, 'galones');
-
-    // PASO 1: Calcular costo base por kilómetro
-    const costoBaseKm = Math.floor(distanciaKm * costoKm);
-    console.log('📊 Paso 1 - Costo base (distancia × costo/km):', costoBaseKm, 'pesos');
-
-    // PASO 2: Calcular costo de combustible (opcional, si está configurado)
-    let costoCombustibleViaje = 0;
-    if (costoComb > 0 && galones > 0) {
-        // Estimación: 1 galón recorre aproximadamente 10-12 km
-        const kmPorGalon = 10;
-        const galonesNecesarios = distanciaKm / kmPorGalon;
-        costoCombustibleViaje = Math.floor(galonesNecesarios * costoComb);
-        console.log('⛽ Paso 2 - Costo combustible estimado:', costoCombustibleViaje, 'pesos');
-        console.log('  - Galones necesarios:', galonesNecesarios.toFixed(2));
-    } else {
-        console.log('⛽ Paso 2 - Costo combustible: NO CONFIGURADO (usando 0)');
-    }
-
-    // PASO 3: Elegir el mayor entre costo por km y costo de combustible
-    const costoBaseOperativo = Math.max(costoBaseKm, costoCombustibleViaje);
-    console.log('💵 Paso 3 - Costo base operativo (mayor entre km y combustible):', costoBaseOperativo, 'pesos');
-
-    // PASO 4: Aplicar comisión de la plataforma
-    let comisionMonto = 0;
-    if (comision > 0) {
-        comisionMonto = Math.floor((costoBaseOperativo * comision) / 100);
-        console.log('🏦 Paso 4 - Comisión plataforma (' + comision + '%):', comisionMonto, 'pesos');
-    } else {
-        console.log('🏦 Paso 4 - Comisión plataforma: NO CONFIGURADA (usando 0)');
-    }
-
-    // PASO 5: TARIFA MÍNIMA = Costo base + Comisión
-    tarifaMinima = Math.floor(costoBaseOperativo + comisionMonto);
-    console.log('✅ Paso 5 - TARIFA MÍNIMA:', tarifaMinima, 'pesos');
-
-    // PASO 6: TARIFA MÁXIMA = Tarifa mínima + (Tarifa mínima × máximo %)
-    if (maximo > 0) {
-        const gananciaMaxima = Math.floor((tarifaMinima * maximo) / 100);
-        tarifaMaxima = Math.floor(tarifaMinima + gananciaMaxima);
-        console.log('💰 Paso 6 - Ganancia máxima permitida (' + maximo + '%):', gananciaMaxima, 'pesos');
-        console.log('✅ Paso 6 - TARIFA MÁXIMA:', tarifaMaxima, 'pesos');
-    } else {
-        // Si no hay máximo configurado, permitir hasta 50% más
-        tarifaMaxima = Math.floor(tarifaMinima * 1.5);
-        console.log('💰 Paso 6 - Máximo NO CONFIGURADO, usando 50% por defecto');
-        console.log('✅ Paso 6 - TARIFA MÁXIMA:', tarifaMaxima, 'pesos');
-    }
-
-    console.log('🎯 === RESUMEN FINAL ===');
-    console.log('  Rango permitido: $', tarifaMinima, ' - $', tarifaMaxima);
-    console.log('========================');
-
-    // Actualizar interfaz con los valores calculados
-    actualizarInterfazPrecios();
-}
-
-// ========================================
-// ACTUALIZAR INTERFAZ DE PRECIOS
-// ========================================
-function actualizarInterfazPrecios() {
-    const inputValorViaje = document.getElementById('valor_viaje_manual');
-
-    // Actualizar la interfaz con formato argentino
-    document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
-    document.getElementById('calc-maximo').textContent = formatearMoneda(tarifaMaxima);
-
-    // Actualizar rangos
-    document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
-    document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
-
-    // Actualizar placeholder con el mínimo permitido (sin símbolo $)
-    inputValorViaje.placeholder = formatearNumero(tarifaMinima);
-
-    // Guardar min y max en atributos data para validación posterior
-    inputValorViaje.setAttribute('data-min', tarifaMinima);
-    inputValorViaje.setAttribute('data-max', tarifaMaxima);
-
-    // Solo sugerir la tarifa mínima si el input está vacío o tiene un valor inválido
-    const valorActual = desformatearNumero(inputValorViaje.value);
-    if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
-        inputValorViaje.value = formatearNumero(tarifaMinima);
-    }
-
-    validarValorViaje();
-
-    // Calcular el precio por pasajero automáticamente
-    calcularPorPasajero();
-
-    console.log('✅ Interfaz actualizada con los nuevos precios');
-}
-
-// Nueva función para actualizar la información de una ruta
 function actualizarInfoRuta(route) {
     let totalDistancia = 0;
     let totalTiempo = 0;
@@ -1666,7 +1784,7 @@ function actualizarInfoRuta(route) {
     const minutos = Math.floor((totalTiempo % 3600) / 60);
     const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
 
-    document.getElementById('distancia').textContent = km + ' km';
+    document.getElementById('distancia').textContent = `${km} km`;
     document.getElementById('tiempo').textContent = tiempoTexto;
     document.getElementById('num-paradas').textContent = paradas.length;
     document.getElementById('distancia_km').value = km;
@@ -1675,122 +1793,121 @@ function actualizarInfoRuta(route) {
     mostrarInfoProgramacion();
 }
 
-// Función para cambiar entre rutas
 function seleccionarRuta(index) {
     if (index < 0 || index >= rutasDisponibles.length) return;
 
     rutaSeleccionada = index;
 
-    // Crear un nuevo resultado con solo la ruta seleccionada para el renderer
-    const resultado = {
+    directionsRenderer.setDirections({
         routes: rutasDisponibles,
         request: directionsRenderer.getDirections().request
-    };
-
-    directionsRenderer.setDirections(resultado);
+    });
     directionsRenderer.setRouteIndex(index);
 
-    // Actualizar información
     actualizarInfoRuta(rutasDisponibles[index]);
-
-    // 🔥 NUEVO: Recalcular costos para la ruta seleccionada
     calcularCostosCompletos(rutasDisponibles[index]);
 
-    // Actualizar UI de selección con estilos dinámicos
+    // Actualizar UI de selección
     document.querySelectorAll('.ruta-opcion').forEach((btn, i) => {
-        if (i === index) {
-            // Ruta seleccionada - azul con fondo degradado
+        const esSeleccionada = i === index;
+        
+        if (esSeleccionada) {
             btn.classList.add('ruta-seleccionada');
             btn.style.border = '3px solid #00BFFF';
             btn.style.background = 'linear-gradient(135deg, #00BFFF 0%, #0080FF 100%)';
             btn.style.color = 'white';
             btn.style.boxShadow = '0 6px 20px rgba(0,191,255,0.5)';
             btn.style.transform = 'scale(1.02)';
-
-            // Actualizar colores de los textos internos
-            const divs = btn.querySelectorAll('div');
-            divs.forEach(div => {
-                div.style.color = 'white';
-                if (div.style.color.includes('rgba')) {
-                    div.style.color = 'rgba(255,255,255,0.95)';
-                }
-            });
+            
+            btn.querySelectorAll('div').forEach(div => div.style.color = 'white');
         } else {
-            // Ruta no seleccionada - blanco con borde gris
             btn.classList.remove('ruta-seleccionada');
             btn.style.border = '3px solid #e2e8f0';
             btn.style.background = 'white';
             btn.style.color = '#334155';
             btn.style.boxShadow = '0 2px 4px rgba(0,0,0,0.05)';
             btn.style.transform = 'scale(1)';
-
-            // Restaurar colores de los textos internos
+            
             const divs = btn.querySelectorAll('div');
-            divs[0].style.color = 'var(--primary)'; // Título
-            divs[1].style.color = '#64748b'; // Distancia
-            divs[2].style.color = '#64748b'; // Tiempo
-            if (divs[3]) divs[3].style.color = '#94a3b8'; // Summary (si existe)
+            if (divs[0]) divs[0].style.color = 'var(--primary)';
+            if (divs[1]) divs[1].style.color = '#64748b';
+            if (divs[2]) divs[2].style.color = '#64748b';
+            if (divs[3]) divs[3].style.color = '#94a3b8';
         }
     });
 
     console.log('🛣️ Ruta', index + 1, 'seleccionada');
 }
 
-// Función para mostrar las opciones de rutas
 function mostrarOpcionesRutas(routes) {
-    let opcionesHTML = '<div class="rutas-alternativas" style="margin-top: 1rem;">';
-    opcionesHTML += '<div style="font-weight: 600; color: var(--primary); margin-bottom: 0.75rem; font-size: 0.95rem;">🛣️ Rutas disponibles (elige la más conveniente):</div>';
-    opcionesHTML += '<div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">';
+    let opcionesHTML = `
+        <div class="rutas-alternativas" style="margin-top: 1rem;">
+            <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.75rem; font-size: 0.95rem;">
+                🛣️ Rutas disponibles (elige la más conveniente):
+            </div>
+            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+    `;
 
     routes.forEach((route, index) => {
-        let totalDistancia = 0;
-        let totalTiempo = 0;
-
-        route.legs.forEach(leg => {
-            totalDistancia += leg.distance.value;
-            totalTiempo += leg.duration.value;
-        });
-
-        const km = (totalDistancia / 1000).toFixed(1);
-        const minutos = Math.floor(totalTiempo / 60);
+        const { distancia, tiempo } = calcularDistanciaTiempo(route);
         const esSeleccionada = index === rutaSeleccionada;
 
-        opcionesHTML += `
-            <button class="ruta-opcion ${esSeleccionada ? 'ruta-seleccionada' : ''}"
-                    onclick="seleccionarRuta(${index})"
-                    onmouseover="if(!this.classList.contains('ruta-seleccionada')) { this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(0,191,255,0.25)'; this.style.borderColor='#00BFFF'; }"
-                    onmouseout="if(!this.classList.contains('ruta-seleccionada')) { this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; this.style.borderColor='#e2e8f0'; }"
-                    style="
-                        flex: 1;
-                        min-width: 150px;
-                        padding: 0.75rem 1rem;
-                        border: 3px solid ${esSeleccionada ? '#00BFFF' : '#e2e8f0'};
-                        background: ${esSeleccionada ? 'linear-gradient(135deg, #00BFFF 0%, #0080FF 100%)' : 'white'};
-                        color: ${esSeleccionada ? 'white' : '#334155'};
-                        border-radius: 12px;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                        text-align: left;
-                        box-shadow: ${esSeleccionada ? '0 6px 20px rgba(0,191,255,0.5)' : '0 2px 4px rgba(0,0,0,0.05)'};
-                        transform: ${esSeleccionada ? 'scale(1.02)' : 'scale(1)'};
-                    ">
-                <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; color: ${esSeleccionada ? 'white' : 'var(--primary)'};">
-                    ${esSeleccionada ? '✓ ' : ''}Ruta ${index + 1}
-                </div>
-                <div style="font-size: 0.85rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.95)' : '#64748b'};">
-                    📏 ${km} km
-                </div>
-                <div style="font-size: 0.85rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.95)' : '#64748b'};">
-                    ⏱️ ${minutos} min
-                </div>
-                ${route.summary ? `<div style="font-size: 0.75rem; color: ${esSeleccionada ? 'rgba(255,255,255,0.85)' : '#94a3b8'}; margin-top: 0.35rem;">${route.summary}</div>` : ''}
-            </button>
-        `;
+        opcionesHTML += crearBotonRuta(index, distancia, tiempo, route.summary, esSeleccionada);
     });
 
     opcionesHTML += '</div></div>';
 
-    // Insertar o actualizar las opciones
+    actualizarContenedorRutas(opcionesHTML);
+}
+
+function crearBotonRuta(index, km, minutos, summary, seleccionada) {
+    const estilos = seleccionada 
+        ? 'border: 3px solid #00BFFF; background: linear-gradient(135deg, #00BFFF 0%, #0080FF 100%); color: white; box-shadow: 0 6px 20px rgba(0,191,255,0.5); transform: scale(1.02);'
+        : 'border: 3px solid #e2e8f0; background: white; color: #334155; box-shadow: 0 2px 4px rgba(0,0,0,0.05); transform: scale(1);';
+
+    const colorTexto = seleccionada ? 'white' : 'var(--primary)';
+    const colorSecundario = seleccionada ? 'rgba(255,255,255,0.95)' : '#64748b';
+
+    return `
+        <button class="ruta-opcion ${seleccionada ? 'ruta-seleccionada' : ''}"
+                onclick="seleccionarRuta(${index})"
+                onmouseover="if(!this.classList.contains('ruta-seleccionada')) { 
+                    this.style.transform='translateY(-2px)'; 
+                    this.style.boxShadow='0 4px 12px rgba(0,191,255,0.25)'; 
+                    this.style.borderColor='#00BFFF'; 
+                }"
+                onmouseout="if(!this.classList.contains('ruta-seleccionada')) { 
+                    this.style.transform='translateY(0)'; 
+                    this.style.boxShadow='0 2px 4px rgba(0,0,0,0.05)'; 
+                    this.style.borderColor='#e2e8f0'; 
+                }"
+                style="flex: 1; min-width: 150px; padding: 0.75rem 1rem; ${estilos} border-radius: 12px; cursor: pointer; transition: all 0.3s ease; text-align: left;">
+            <div style="font-weight: 700; font-size: 0.95rem; margin-bottom: 0.4rem; color: ${colorTexto};">
+                ${seleccionada ? '✓ ' : ''}Ruta ${index + 1}
+            </div>
+            <div style="font-size: 0.85rem; color: ${colorSecundario};">📏 ${km} km</div>
+            <div style="font-size: 0.85rem; color: ${colorSecundario};">⏱️ ${minutos} min</div>
+            ${summary ? `<div style="font-size: 0.75rem; color: ${seleccionada ? 'rgba(255,255,255,0.85)' : '#94a3b8'}; margin-top: 0.35rem;">${summary}</div>` : ''}
+        </button>
+    `;
+}
+
+function calcularDistanciaTiempo(route) {
+    let totalDistancia = 0;
+    let totalTiempo = 0;
+
+    route.legs.forEach(leg => {
+        totalDistancia += leg.distance.value;
+        totalTiempo += leg.duration.value;
+    });
+
+    return {
+        distancia: (totalDistancia / 1000).toFixed(1),
+        tiempo: Math.floor(totalTiempo / 60)
+    };
+}
+
+function actualizarContenedorRutas(html) {
     const container = document.querySelector('.search-panel');
     let rutasContainer = document.getElementById('rutas-alternativas-container');
 
@@ -1800,30 +1917,17 @@ function mostrarOpcionesRutas(routes) {
         container.appendChild(rutasContainer);
     }
 
-    rutasContainer.innerHTML = opcionesHTML;
+    rutasContainer.innerHTML = html;
 }
 
-// Función para ocultar opciones de rutas
 function ocultarOpcionesRutas() {
     const rutasContainer = document.getElementById('rutas-alternativas-container');
-    if (rutasContainer) {
-        rutasContainer.innerHTML = '';
-    }
+    if (rutasContainer) rutasContainer.innerHTML = '';
 }
 
-// Función para mostrar mensaje cuando no hay rutas alternativas con paradas
 function mostrarMensajeRutaUnica() {
     const mensajeHTML = `
-        <div class="mensaje-ruta-unica" style="
-            margin-top: 1rem;
-            padding: 1rem 1.25rem;
-            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-            border: 2px solid #fcd34d;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        ">
+        <div class="mensaje-ruta-unica" style="margin-top: 1rem; padding: 1rem 1.25rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fcd34d; border-radius: 12px; display: flex; align-items: center; gap: 0.75rem;">
             <span style="font-size: 1.5rem;">ℹ️</span>
             <div>
                 <div style="font-weight: 600; color: #92400e; font-size: 0.95rem; margin-bottom: 0.25rem;">
@@ -1837,21 +1941,210 @@ function mostrarMensajeRutaUnica() {
         </div>
     `;
 
-    const container = document.querySelector('.search-panel');
-    let rutasContainer = document.getElementById('rutas-alternativas-container');
-
-    if (!rutasContainer) {
-        rutasContainer = document.createElement('div');
-        rutasContainer.id = 'rutas-alternativas-container';
-        container.appendChild(rutasContainer);
-    }
-
-    rutasContainer.innerHTML = mensajeHTML;
+    actualizarContenedorRutas(mensajeHTML);
 }
 
 // ========================================
-// CÁLCULO AUTOMÁTICO DE TARIFAS
+// 💵 CÁLCULO DE COSTOS
 // ========================================
+function calcularCostosCompletos(route) {
+    const { distanciaKm, tiempoTexto } = obtenerDatosRuta(route);
+
+    // Actualizar UI
+    document.getElementById('calc-distancia').textContent = `${distanciaKm.toFixed(1)} km`;
+    document.getElementById('calc-tiempo').textContent = tiempoTexto;
+
+    console.log('💰 === CÁLCULO COMPLETO DE COSTOS ===');
+    console.log('📏 Distancia total:', distanciaKm.toFixed(2), 'km');
+    console.log('⏱️ Tiempo estimado:', tiempoTexto);
+    console.log('⚙️ Configuraciones:', CONFIG);
+
+    // Paso 1: Costo base por km
+    const costoBaseKm = Math.floor(distanciaKm * CONFIG.costoPorKm);
+    console.log('📊 Paso 1 - Costo base (distancia × costo/km):', costoBaseKm, 'pesos');
+
+    // Paso 2: Costo de combustible
+    let costoCombustibleViaje = 0;
+    if (CONFIG.costoCombustible > 0 && CONFIG.numeroGalones > 0) {
+        const galonesNecesarios = distanciaKm / CONFIG.kmPorGalon;
+        costoCombustibleViaje = Math.floor(galonesNecesarios * CONFIG.costoCombustible);
+        console.log('⛽ Paso 2 - Costo combustible:', costoCombustibleViaje, 'pesos');
+        console.log('  - Galones necesarios:', galonesNecesarios.toFixed(2));
+    }
+
+    // Paso 3: Mayor entre ambos
+    const costoBaseOperativo = Math.max(costoBaseKm, costoCombustibleViaje);
+    console.log('💵 Paso 3 - Costo base operativo:', costoBaseOperativo, 'pesos');
+
+    // Paso 4: Comisión
+    const comisionMonto = CONFIG.comisionPlataforma > 0 
+        ? Math.floor((costoBaseOperativo * CONFIG.comisionPlataforma) / 100)
+        : 0;
+    console.log('🏦 Paso 4 - Comisión plataforma:', comisionMonto, 'pesos');
+
+    // Paso 5: Tarifa mínima
+    tarifaMinima = Math.floor(costoBaseOperativo + comisionMonto);
+    console.log('✅ Paso 5 - TARIFA MÍNIMA:', tarifaMinima, 'pesos');
+
+    // Paso 6: Tarifa máxima
+    if (CONFIG.maximoGanancia > 0) {
+        const gananciaMaxima = Math.floor((tarifaMinima * CONFIG.maximoGanancia) / 100);
+        tarifaMaxima = Math.floor(tarifaMinima + gananciaMaxima);
+        console.log('💰 Paso 6 - Ganancia máxima:', gananciaMaxima, 'pesos');
+    } else {
+        tarifaMaxima = Math.floor(tarifaMinima * 1.5);
+    }
+    console.log('✅ Paso 6 - TARIFA MÁXIMA:', tarifaMaxima, 'pesos');
+    console.log('🎯 Rango permitido: $', tarifaMinima, ' - $', tarifaMaxima);
+
+    actualizarInterfazPrecios();
+}
+
+function obtenerDatosRuta(route) {
+    let totalDistancia = 0;
+    let totalTiempo = 0;
+
+    route.legs.forEach(leg => {
+        totalDistancia += leg.distance.value;
+        totalTiempo += leg.duration.value;
+    });
+
+    const distanciaKm = totalDistancia / 1000;
+    const horas = Math.floor(totalTiempo / 3600);
+    const minutos = Math.floor((totalTiempo % 3600) / 60);
+    const tiempoTexto = horas > 0 ? `${horas}h ${minutos}min` : `${minutos} min`;
+
+    return { distanciaKm, tiempoTexto };
+}
+
+function actualizarInterfazPrecios() {
+    const inputValorViaje = document.getElementById('valor_viaje_manual');
+
+    document.getElementById('calc-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('calc-maximo').textContent = formatearMoneda(tarifaMaxima);
+    document.getElementById('rango-minimo').textContent = formatearMoneda(tarifaMinima);
+    document.getElementById('rango-maximo').textContent = formatearMoneda(tarifaMaxima);
+
+    inputValorViaje.placeholder = formatearNumero(tarifaMinima);
+    inputValorViaje.setAttribute('data-min', tarifaMinima);
+    inputValorViaje.setAttribute('data-max', tarifaMaxima);
+
+    const valorActual = desformatearNumero(inputValorViaje.value);
+    if (valorActual === 0 || valorActual < tarifaMinima || valorActual > tarifaMaxima) {
+        inputValorViaje.value = formatearNumero(tarifaMinima);
+    }
+
+    validarValorViaje();
+    calcularPorPasajero();
+
+    console.log('✅ Interfaz actualizada con los nuevos precios');
+}
+
+// ========================================
+// ✅ VALIDACIONES
+// ========================================
+function validarValorViaje() {
+    const inputViaje = document.getElementById('valor_viaje_manual');
+    const valorIngresado = desformatearNumero(inputViaje.value);
+    const mensajeDiv = document.getElementById('mensaje-validacion');
+
+    if (valorIngresado === 0) {
+        mensajeDiv.style.display = 'none';
+        inputViaje.style.borderColor = '#fcd34d';
+        calcularPorPasajero();
+        return;
+    }
+
+    if (valorIngresado < tarifaMinima) {
+        mostrarMensajeValidacion(mensajeDiv, inputViaje, 
+            `⚠️ El valor es menor a la tarifa mínima de ${formatearMoneda(tarifaMinima)}`);
+    } else if (valorIngresado > tarifaMaxima) {
+        mostrarMensajeValidacion(mensajeDiv, inputViaje, 
+            `⚠️ El valor excede la tarifa máxima permitida de ${formatearMoneda(tarifaMaxima)}`);
+    } else {
+        mensajeDiv.style.display = 'none';
+        inputViaje.style.borderColor = '#16a34a';
+    }
+
+    calcularPorPasajero();
+}
+
+function mostrarMensajeValidacion(mensajeDiv, inputViaje, mensaje) {
+    mensajeDiv.style.display = 'block';
+    mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
+    mensajeDiv.style.color = '#991b1b';
+    mensajeDiv.style.borderLeft = '4px solid #dc2626';
+    mensajeDiv.innerHTML = mensaje;
+    inputViaje.style.borderColor = '#dc2626';
+}
+
+function calcularPorPasajero() {
+    const puestosDisponibles = parseInt(document.getElementById('puestos_disponibles').value) || 0;
+    const puestosTotales = parseInt(document.getElementById('puestos_totales').value) || 0;
+    const valorManual = desformatearNumero(document.getElementById('valor_viaje_manual').value);
+    const totalViaje = valorManual > 0 ? valorManual : tarifaMinima;
+
+    if (puestosTotales === 0 || totalViaje === 0) {
+        document.getElementById('total-viaje').textContent = formatearMoneda(0);
+        document.getElementById('precio-por-pasajero').textContent = formatearMoneda(0);
+        return;
+    }
+
+    const precioPorPasajero = totalViaje / puestosTotales;
+
+    document.getElementById('total-viaje').textContent = formatearMoneda(totalViaje);
+    document.getElementById('precio-por-pasajero').textContent = formatearMoneda(precioPorPasajero);
+
+    console.log('👥 Cálculo por pasajero:');
+    console.log('- Puestos totales:', puestosTotales);
+    console.log('- Puestos disponibles:', puestosDisponibles);
+    console.log('- Total del viaje: $', totalViaje.toFixed(2));
+    console.log('- Precio por pasajero: $', precioPorPasajero.toFixed(2));
+}
+
+// ========================================
+// 📅 FUNCIONES DE FECHA Y PROGRAMACIÓN
+// ========================================
+function toggleIdaVuelta() {
+    const checkbox = document.getElementById('ida_vuelta');
+    const returnSection = document.getElementById('return-section');
+    const horaRegreso = document.getElementById('hora_regreso');
+    
+    if (checkbox.checked) {
+        returnSection.classList.add('show');
+        horaRegreso.required = true;
+        
+        // Sugerir hora de regreso (4 horas después)
+        const horaSalida = document.getElementById('hora_salida').value;
+        if (horaSalida && /^([0-1][0-9]|2[0-3]):([0-5][0-9])$/.test(horaSalida)) {
+            const [horas, minutos] = horaSalida.split(':').map(Number);
+            const horaSalidaDate = new Date();
+            horaSalidaDate.setHours(horas, minutos);
+            horaSalidaDate.setHours(horaSalidaDate.getHours() + 4);
+            
+            const horaRegresoSugerida = String(horaSalidaDate.getHours()).padStart(2, '0') + ':' + 
+                                       String(horaSalidaDate.getMinutes()).padStart(2, '0');
+            horaRegreso.value = horaRegresoSugerida;
+            validarFormatoHora(horaRegreso);
+        }
+        
+        document.getElementById('status').textContent = '🔄 Viaje de ida y vuelta programado';
+    } else {
+        returnSection.classList.remove('show');
+        horaRegreso.required = false;
+        horaRegreso.value = '';
+        horaRegreso.classList.remove('valido', 'invalido');
+        
+        document.getElementById('status').textContent = '✅ Viaje de ida programado';
+    }
+}
+
+function actualizarInfoFecha() {
+    if (document.getElementById('route-info').classList.contains('show')) {
+        mostrarInfoProgramacion();
+    }
+}
+
 function mostrarInfoProgramacion() {
     const fechaViaje = document.getElementById('fecha_viaje').value;
     const horaSalida = document.getElementById('hora_salida').value;
@@ -1870,11 +2163,9 @@ function mostrarInfoProgramacion() {
         const fechaTexto = document.getElementById('fecha-programada');
         
         const fecha = new Date(fechaViaje + 'T00:00:00');
-        const opciones = { day: 'numeric', month: 'short' };
-        const fechaFormateada = fecha.toLocaleDateString('es-ES', opciones);
+        const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
         
         let textoCompleto = `${fechaFormateada} ${horaSalida}`;
-        
         if (idaVuelta && horaRegreso) {
             textoCompleto += ` 🔄 ${horaRegreso}`;
         }
@@ -1885,178 +2176,113 @@ function mostrarInfoProgramacion() {
     
     // Mostrar sección de cálculos
     const resultadosDiv = document.getElementById('calculation-results');
-    if (resultadosDiv) {
-        resultadosDiv.style.display = 'block';
-    }
+    if (resultadosDiv) resultadosDiv.style.display = 'block';
 }
 
 // ========================================
-// VALIDACIÓN DEL VALOR DEL VIAJE
-// ========================================
-function validarValorViaje() {
-    const inputViaje = document.getElementById('valor_viaje_manual');
-    const valorIngresado = desformatearNumero(inputViaje.value);
-    const mensajeDiv = document.getElementById('mensaje-validacion');
-
-    if (valorIngresado === 0) {
-        mensajeDiv.style.display = 'none';
-        inputViaje.style.borderColor = '#fcd34d';
-        calcularPorPasajero();
-        return;
-    }
-
-    // Validar que esté dentro del rango permitido
-    if (valorIngresado < tarifaMinima) {
-        mensajeDiv.style.display = 'block';
-        mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
-        mensajeDiv.style.color = '#991b1b';
-        mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor es menor a la tarifa mínima de ' + formatearMoneda(tarifaMinima);
-        inputViaje.style.borderColor = '#dc2626';
-    } else if (valorIngresado > tarifaMaxima) {
-        mensajeDiv.style.display = 'block';
-        mensajeDiv.style.background = 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)';
-        mensajeDiv.style.color = '#991b1b';
-        mensajeDiv.style.borderLeft = '4px solid #dc2626';
-        mensajeDiv.innerHTML = '⚠️ El valor excede la tarifa máxima permitida de ' + formatearMoneda(tarifaMaxima);
-        inputViaje.style.borderColor = '#dc2626';
-    } else {
-        // Valor válido - ocultar mensaje y usar borde verde
-        mensajeDiv.style.display = 'none';
-        inputViaje.style.borderColor = '#16a34a';
-    }
-
-    // Recalcular precio por pasajero con el nuevo valor
-    calcularPorPasajero();
-}
-
-// ========================================
-// CÁLCULO POR PASAJERO
-// ========================================
-function calcularPorPasajero() {
-    const puestosDisponibles = parseInt(document.getElementById('puestos_disponibles').value) || 0;
-    const puestosTotales = parseInt(document.getElementById('puestos_totales').value) || 0;
-
-    // Usar el valor manual si está ingresado, si no usar la tarifa mínima
-    const valorManual = desformatearNumero(document.getElementById('valor_viaje_manual').value);
-    const totalViaje = valorManual > 0 ? valorManual : tarifaMinima;
-
-    if (puestosTotales === 0 || totalViaje === 0) {
-        document.getElementById('total-viaje').textContent = formatearMoneda(0);
-        document.getElementById('precio-por-pasajero').textContent = formatearMoneda(0);
-        return;
-    }
-
-    // IMPORTANTE: Dividir entre los puestos TOTALES, no los disponibles
-    const precioPorPasajero = totalViaje / puestosTotales;
-
-    // Actualizar la interfaz con formato argentino
-    document.getElementById('total-viaje').textContent = formatearMoneda(totalViaje);
-    document.getElementById('precio-por-pasajero').textContent = formatearMoneda(precioPorPasajero);
-
-    console.log('👥 Cálculo por pasajero:');
-    console.log('- Puestos totales del vehículo:', puestosTotales);
-    console.log('- Puestos disponibles en este viaje:', puestosDisponibles);
-    console.log('- Total del viaje: $', totalViaje.toFixed(2));
-    console.log('- Precio por pasajero: $', precioPorPasajero.toFixed(2));
-}
-
-
-// ========================================
-// GUARDAR VIAJE
+// 💾 GUARDAR VIAJE
 // ========================================
 function guardarViaje() {
-    // Validar que todos los datos necesarios estén completos
-    const origenCoords = document.getElementById('origen_coords').value;
-    const destinoCoords = document.getElementById('destino_coords').value;
-    const distanciaKm = document.getElementById('distancia_km').value;
-    const fechaViaje = document.getElementById('fecha_viaje').value;
-    const horaSalida = document.getElementById('hora_salida').value;
-    const puestosDisponibles = document.getElementById('puestos_disponibles').value;
+    // Validar formato de hora
+    const horaSalidaInput = document.getElementById('hora_salida');
+    if (!validarFormatoHora(horaSalidaInput)) {
+        showModal('error', 'Hora inválida', 'Por favor, ingresa una hora de salida válida en formato 24 horas (HH:MM)');
+        horaSalidaInput.focus();
+        return;
+    }
+    
+    if (document.getElementById('ida_vuelta').checked) {
+        const horaRegresoInput = document.getElementById('hora_regreso');
+        if (!validarFormatoHora(horaRegresoInput)) {
+            showModal('error', 'Hora inválida', 'Por favor, ingresa una hora de regreso válida en formato 24 horas (HH:MM)');
+            horaRegresoInput.focus();
+            return;
+        }
+    }
+
+    // Obtener datos
+    const datos = obtenerDatosViaje();
+    
+    // Validaciones
+    if (!validarDatosViaje(datos)) return;
+
+    // Enviar al servidor
+    enviarViajeAlServidor(datos);
+}
+
+function obtenerDatosViaje() {
+    const origenCoords = document.getElementById('origen_coords').value.split(',');
+    const destinoCoords = document.getElementById('destino_coords').value.split(',');
     const valorViajeFormateado = document.getElementById('valor_viaje_manual').value;
     const valorViaje = desformatearNumero(valorViajeFormateado);
+    const puestosTotales = document.getElementById('puestos_totales').value;
 
-    // Validaciones
-    if (!origenCoords || !destinoCoords) {
-        alert('⚠️ Por favor, selecciona el origen y el destino del viaje');
-        return;
-    }
+    const paradasArray = paradas.map((parada, index) => ({
+        numero: index + 1,
+        nombre: document.getElementById(`${parada.id}_input`)?.value || '',
+        latitud: parada.location.lat(),
+        longitud: parada.location.lng()
+    }));
 
-    if (!fechaViaje || !horaSalida) {
-        alert('⚠️ Por favor, completa la fecha y hora de salida');
-        return;
-    }
-
-    if (!puestosDisponibles || puestosDisponibles <= 0) {
-        alert('⚠️ Por favor, indica los puestos disponibles para este viaje');
-        return;
-    }
-
-    if (!valorViaje || valorViaje <= 0) {
-        alert('⚠️ Por favor, establece el valor del viaje');
-        return;
-    }
-
-    // Validar que el valor esté dentro del rango permitido
-    if (valorViaje < tarifaMinima || valorViaje > tarifaMaxima) {
-        alert('⚠️ El valor del viaje debe estar entre ' + formatearMoneda(tarifaMinima) + ' y ' + formatearMoneda(tarifaMaxima));
-        return;
-    }
-
-    // Recopilar datos de las paradas
-    const paradasArray = paradas.map((parada, index) => {
-        const inputElement = document.getElementById(parada.id + '_input');
-        return {
-            numero: index + 1,
-            nombre: inputElement ? inputElement.value : '',  // ← Cambio: direccion → nombre
-            latitud: parada.location.lat(),                   // ← Cambio: lat → latitud
-            longitud: parada.location.lng()                   // ← Cambio: lng → longitud
-        };
-    });
-
-    // Construir el objeto de datos
-    const datosViaje = {
-        // Coordenadas
-        origen_lat: origenCoords.split(',')[0],
-        origen_lng: origenCoords.split(',')[1],
-        destino_lat: destinoCoords.split(',')[0],
-        destino_lng: destinoCoords.split(',')[1],
-
-        // Direcciones
+    return {
+        origen_lat: origenCoords[0],
+        origen_lng: origenCoords[1],
+        destino_lat: destinoCoords[0],
+        destino_lng: destinoCoords[1],
         origen: document.getElementById('origen_direccion').value,
         destino: document.getElementById('destino_direccion').value,
-
-        // Datos del viaje
-        distancia_km: distanciaKm,
+        distancia_km: document.getElementById('distancia_km').value,
         tiempo_estimado: document.getElementById('tiempo_estimado').value,
-        fecha_salida: fechaViaje,
-        hora_salida: horaSalida,
-
-        // Ida y vuelta
+        fecha_salida: document.getElementById('fecha_viaje').value,
+        hora_salida: document.getElementById('hora_salida').value,
         ida_vuelta: document.getElementById('ida_vuelta').checked ? 1 : 0,
         hora_regreso: document.getElementById('hora_regreso').value || null,
-
-        // Puestos y precios
-        puestos_disponibles: puestosDisponibles,
-        puestos_totales: document.getElementById('puestos_totales').value,
+        puestos_disponibles: document.getElementById('puestos_disponibles').value,
+        puestos_totales: puestosTotales,
         valor_cobrado: valorViaje,
-        valor_persona: (parseFloat(valorViaje) / parseInt(document.getElementById('puestos_totales').value)).toFixed(2),
-
-        // Paradas intermedias
+        valor_persona: (parseFloat(valorViaje) / parseInt(puestosTotales)).toFixed(2),
         paradas: JSON.stringify(paradasArray),
-
         _token: '{{ csrf_token() }}'
     };
+}
 
-    // Deshabilitar el botón mientras se guarda
+function validarDatosViaje(datos) {
+    if (!datos.origen_lat || !datos.destino_lat) {
+        showModal('error', 'Datos incompletos', 'Por favor, selecciona el origen y el destino del viaje');
+        return false;
+    }
+
+    if (!datos.fecha_salida || !datos.hora_salida) {
+        showModal('error', 'Datos incompletos', 'Por favor, completa la fecha y hora de salida');
+        return false;
+    }
+
+    if (!datos.puestos_disponibles || datos.puestos_disponibles <= 0) {
+        showModal('error', 'Datos incompletos', 'Por favor, indica los puestos disponibles para este viaje');
+        return false;
+    }
+
+    if (!datos.valor_cobrado || datos.valor_cobrado <= 0) {
+        showModal('error', 'Datos incompletos', 'Por favor, establece el valor del viaje');
+        return false;
+    }
+
+    if (datos.valor_cobrado < tarifaMinima || datos.valor_cobrado > tarifaMaxima) {
+        showModal('error', 'Valor inválido', `El valor del viaje debe estar entre ${formatearMoneda(tarifaMinima)} y ${formatearMoneda(tarifaMaxima)}`);
+        return false;
+    }
+
+    return true;
+}
+
+function enviarViajeAlServidor(datos) {
     const btnGuardar = document.getElementById('btn-guardar-viaje');
     const textoOriginal = btnGuardar.innerHTML;
     btnGuardar.disabled = true;
     btnGuardar.innerHTML = '<span style="font-size: 1.5rem;">⏳</span> GUARDANDO...';
 
-    console.log('📤 Enviando datos del viaje:', datosViaje);
+    console.log('📤 Enviando datos del viaje:', datos);
 
-    // Enviar datos al servidor
     fetch('{{ route("conductor.guardar-viaje") }}', {
         method: 'POST',
         headers: {
@@ -2064,36 +2290,260 @@ function guardarViaje() {
             'X-CSRF-TOKEN': '{{ csrf_token() }}',
             'Accept': 'application/json'
         },
-        body: JSON.stringify(datosViaje)
+        body: JSON.stringify(datos)
     })
     .then(response => response.json())
     .then(data => {
         console.log('✅ Respuesta del servidor:', data);
 
         if (data.success) {
-            // Mostrar mensaje de éxito
-            alert('✅ ¡Viaje publicado exitosamente!\n\nLos pasajeros ya pueden ver y reservar tu viaje.');
-
-            // Redirigir a la lista de viajes
-            window.location.href = '{{ route("conductor.gestion") }}';
+            showModal(
+                'success',
+                '¡Viaje publicado exitosamente!',
+                'Los pasajeros ya pueden ver y reservar tu viaje.',
+                '{{ route("conductor.gestion") }}'
+            );
         } else {
-            // Mostrar error
-            alert('❌ Error al guardar el viaje:\n' + (data.message || 'Error desconocido'));
+            showModal(
+                'error',
+                'Error al guardar el viaje',
+                data.message || 'Error desconocido'
+            );
             btnGuardar.disabled = false;
             btnGuardar.innerHTML = textoOriginal;
         }
     })
     .catch(error => {
         console.error('❌ Error al guardar:', error);
-        alert('❌ Error al guardar el viaje. Por favor, intenta nuevamente.');
+        showModal(
+            'error',
+            'Error al guardar el viaje',
+            'Por favor, intenta nuevamente.'
+        );
         btnGuardar.disabled = false;
         btnGuardar.innerHTML = textoOriginal;
     });
 }
 
+// ========================================
+// FUNCIONES DEL MODAL
+// ========================================
+function showModal(type, title, message, redirect = null) {
+    const overlay = document.getElementById('modalOverlay');
+    const content = document.getElementById('modalContent');
+    const icon = document.getElementById('modalIcon');
+    const titleEl = document.getElementById('modalTitle');
+    const messageEl = document.getElementById('modalMessage');
+
+    // Configurar contenido
+    titleEl.textContent = title;
+    messageEl.textContent = message;
+
+    // Configurar estilos según el tipo
+    if (type === 'success') {
+        content.className = 'modal-success';
+        icon.className = 'modal-icon';
+        icon.textContent = '✓';
+    } else if (type === 'error') {
+        content.className = 'modal-error';
+        icon.className = 'modal-icon-error';
+        icon.textContent = '✕';
+    }
+
+    // Mostrar modal
+    overlay.classList.add('show');
+
+    // Si hay redirección, configurarla
+    if (redirect) {
+        setTimeout(() => {
+            window.location.href = redirect;
+        }, 2500);
+    }
+}
+
+function closeModal() {
+    const overlay = document.getElementById('modalOverlay');
+    overlay.classList.remove('show');
+}
+
+// Cerrar modal al hacer clic en el overlay
+document.addEventListener('click', function(e) {
+    if (e.target.id === 'modalOverlay') {
+        closeModal();
+    }
+});
+
+// ========================================
+// 🚀 INICIALIZACIÓN
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar fecha
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha_viaje').setAttribute('min', hoy);
+    document.getElementById('fecha_viaje').value = hoy;
+
+    // Configurar hora actual en formato 24hrs
+    const ahora = new Date();
+    const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' + 
+                       String(ahora.getMinutes()).padStart(2, '0');
+    document.getElementById('hora_salida').value = horaActual;
+
+    // Configurar inputs de hora con formato 24hrs
+    configurarInputsHora();
+
+    // Listeners de eventos
+    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
+
+    console.log('✅ Sistema inicializado correctamente');
+});
+
 console.log('📜 Script cargado correctamente');
+
+// ========================================
+// 🕐 GENERADOR DE OPCIONES DE HORA
+// ========================================
+function generarOpcionesHora(selectId, intervaloMinutos = 15, horaActual = null) {
+    const select = document.getElementById(selectId);
+    select.innerHTML = '<option value="">Selecciona una hora</option>';
+    
+    for (let hora = 0; hora < 24; hora++) {
+        for (let minuto = 0; minuto < 60; minuto += intervaloMinutos) {
+            const horaStr = String(hora).padStart(2, '0');
+            const minutoStr = String(minuto).padStart(2, '0');
+            const valor = `${horaStr}:${minutoStr}`;
+            
+            const option = document.createElement('option');
+            option.value = valor;
+            option.textContent = valor;
+            
+            // Pre-seleccionar hora actual si se proporciona
+            if (horaActual && valor === horaActual) {
+                option.selected = true;
+            }
+            
+            select.appendChild(option);
+        }
+    }
+}
+
+// ========================================
+// 🚀 INICIALIZACIÓN ACTUALIZADA
+// ========================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Configurar fecha
+    const hoy = new Date().toISOString().split('T')[0];
+    document.getElementById('fecha_viaje').setAttribute('min', hoy);
+    document.getElementById('fecha_viaje').value = hoy;
+
+    // Obtener hora actual redondeada al intervalo más cercano
+    const ahora = new Date();
+    const minutos = ahora.getMinutes();
+    const minutosRedondeados = Math.ceil(minutos / 15) * 15; // Redondear a múltiplo de 15
+    
+    ahora.setMinutes(minutosRedondeados);
+    ahora.setSeconds(0);
+    
+    const horaActual = String(ahora.getHours()).padStart(2, '0') + ':' + 
+                       String(ahora.getMinutes()).padStart(2, '0');
+
+    // Generar opciones de hora con intervalos de 15 minutos
+    generarOpcionesHora('hora_salida', 15, horaActual);
+    generarOpcionesHora('hora_regreso', 15);
+
+    // Listeners de eventos
+    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
+
+    console.log('✅ Sistema inicializado correctamente');
+});
+
+// ========================================
+// 🔄 FUNCIÓN ACTUALIZADA DE IDA Y VUELTA
+// ========================================
+function toggleIdaVuelta() {
+    const checkbox = document.getElementById('ida_vuelta');
+    const returnSection = document.getElementById('return-section');
+    const horaRegreso = document.getElementById('hora_regreso');
+    
+    if (checkbox.checked) {
+        returnSection.classList.add('show');
+        horaRegreso.required = true;
+        
+        // Sugerir hora de regreso (4 horas después)
+        const horaSalida = document.getElementById('hora_salida').value;
+        if (horaSalida) {
+            const [horas, minutos] = horaSalida.split(':').map(Number);
+            const horaSalidaDate = new Date();
+            horaSalidaDate.setHours(horas, minutos);
+            horaSalidaDate.setHours(horaSalidaDate.getHours() + 4);
+            
+            const horaRegresoSugerida = String(horaSalidaDate.getHours()).padStart(2, '0') + ':' + 
+                                       String(horaSalidaDate.getMinutes()).padStart(2, '0');
+            
+            // Seleccionar la hora más cercana disponible
+            const opcionesRegreso = horaRegreso.options;
+            for (let i = 0; i < opcionesRegreso.length; i++) {
+                if (opcionesRegreso[i].value >= horaRegresoSugerida) {
+                    horaRegreso.selectedIndex = i;
+                    break;
+                }
+            }
+        }
+        
+        document.getElementById('status').textContent = '🔄 Viaje de ida y vuelta programado';
+    } else {
+        returnSection.classList.remove('show');
+        horaRegreso.required = false;
+        horaRegreso.selectedIndex = 0; // Volver a "Selecciona una hora"
+        
+        document.getElementById('status').textContent = '✅ Viaje de ida programado';
+    }
+}
+
+// ========================================
+// 💾 GUARDAR VIAJE (VALIDACIÓN SIMPLIFICADA)
+// ========================================
+function guardarViaje() {
+    // Validar que se haya seleccionado hora
+    const horaSalida = document.getElementById('hora_salida').value;
+    if (!horaSalida) {
+        showModal('error', 'Datos incompletos', 'Por favor, selecciona una hora de salida');
+        document.getElementById('hora_salida').focus();
+        return;
+    }
+    
+    if (document.getElementById('ida_vuelta').checked) {
+        const horaRegreso = document.getElementById('hora_regreso').value;
+        if (!horaRegreso) {
+            showModal('error', 'Datos incompletos', 'Por favor, selecciona una hora de regreso');
+            document.getElementById('hora_regreso').focus();
+            return;
+        }
+    }
+
+    // Obtener datos
+    const datos = obtenerDatosViaje();
+    
+    // Validaciones
+    if (!validarDatosViaje(datos)) return;
+
+    // Enviar al servidor
+    enviarViajeAlServidor(datos);
+}
 </script>
 
-<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&libraries=places&callback=initMap&language=es&region=AR" async defer></script>
+<!-- Modal de éxito -->
+<div id="modalOverlay" class="modal-overlay">
+    <div id="modalContent" class="modal-success">
+        <div class="modal-icon" id="modalIcon">✓</div>
+        <h3 class="modal-title" id="modalTitle">¡Viaje publicado exitosamente!</h3>
+        <p class="modal-message" id="modalMessage">Los pasajeros ya pueden ver y reservar tu viaje.</p>
+        <button class="modal-button" onclick="closeModal()">Entendido</button>
+    </div>
+</div>
 
+<script src="https://maps.googleapis.com/maps/api/js?key={{ config('services.google_maps.key') }}&libraries=places&callback=initMap&language=es&region=AR" async defer></script>
 @endsection
