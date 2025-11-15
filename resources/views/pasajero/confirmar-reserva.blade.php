@@ -732,11 +732,46 @@
         <div class="trip-summary-card">
             <div class="trip-header">
                 <div class="route-display">
-                    <div class="route-city">{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}</div>
+                    @php
+                        // Función para acortar nombres de provincias
+                        $acortarProvincia = function($texto) {
+                            $reemplazos = [
+                                'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                'Autonomous City of Buenos Aires' => 'CABA',
+                                'Provincia de Buenos Aires' => 'Bs.As.',
+                                'Buenos Aires Province' => 'Bs.As.',
+                            ];
+                            return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                        };
+
+                        // Procesar origen
+                        $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                        $count = count($origenParts);
+                        $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                        $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                        $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                        $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                        $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                        $origenCorta = trim($origenCorta, ' ,');
+                        $origenCorta = $acortarProvincia($origenCorta);
+
+                        // Procesar destino
+                        $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                        $count = count($destinoParts);
+                        $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                        $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                        $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                        $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                        $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                        $destinoCorta = trim($destinoCorta, ' ,');
+                        $destinoCorta = $acortarProvincia($destinoCorta);
+                    @endphp
+                    <div class="route-city">{{ $origenCorta }}</div>
                     <div class="route-arrow">
                         <i class="fas fa-arrow-right"></i>
                     </div>
-                    <div class="route-city">{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}</div>
+                    <div class="route-city">{{ $destinoCorta }}</div>
                 </div>
                 <div class="trip-date-time">
                     <i class="fas fa-calendar me-2"></i>
@@ -933,13 +968,13 @@
                         <span class="summary-item-label">
                             <i class="fas fa-map-marker-alt me-2"></i>Origen
                         </span>
-                        <span class="summary-item-value">{{ explode(',', $viaje->origen_direccion)[0] }}</span>
+                        <span class="summary-item-value">{{ $origenCorta }}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-item-label">
                             <i class="fas fa-flag-checkered me-2"></i>Destino
                         </span>
-                        <span class="summary-item-value">{{ explode(',', $viaje->destino_direccion)[0] }}</span>
+                        <span class="summary-item-value">{{ $destinoCorta }}</span>
                     </div>
                     <div class="summary-item">
                         <span class="summary-item-label">
