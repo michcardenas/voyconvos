@@ -115,47 +115,69 @@
             <div class="viajes-carousel" id="viajesCarousel">
                 @if($viajesDestacados->count() > 0)
                     @foreach($viajesDestacados as $viaje)
-                    <div class="viaje-card">
-                        <div class="route">
-                            <div class="cities">
-                                <span class="from">
-                                    @php
-                                        $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
-                                        $count = count($origenParts);
-                                        // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
-                                        $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
-                                        // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
-                                        $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
-                                        // Eliminar palabras con más de 2 números consecutivos (como 1704)
-                                        $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
-                                        // Limpiar espacios dobles y comas dobles
-                                        $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
-                                        $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
-                                        $origenCorta = trim($origenCorta, ' ,');
-                                    @endphp
-                                    {{ $origenCorta }}
-                                </span>
-                                <i class="fas fa-arrow-right"></i>
-                                <span class="to">
-                                    @php
-                                        $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
-                                        $count = count($destinoParts);
-                                        // Si tiene 3 o más partes, toma las penúltimas 2 (ciudad y provincia)
-                                        $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
-                                        // Eliminar códigos postales alfanuméricos (C1414CMV, B1650, etc)
-                                        $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
-                                        // Eliminar palabras con más de 2 números consecutivos (como 1704)
-                                        $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
-                                        // Limpiar espacios dobles y comas dobles
-                                        $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
-                                        $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
-                                        $destinoCorta = trim($destinoCorta, ' ,');
-                                    @endphp
-                                    {{ $destinoCorta }}
-                                </span>
-                            </div>
-                            <div class="time">{{ $viaje->hora_salida ?? 'Hora por definir' }}</div>
-                        </div>
+                        @php
+                            // Determinar cuántas tarjetas mostrar
+                            $viajesTipos = $viaje->ida_vuelta ? ['ida', 'vuelta'] : ['ida'];
+
+                            // Función para acortar nombres de provincias
+                            $acortarProvincia = function($texto) {
+                                $reemplazos = [
+                                    'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                    'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                    'Autonomous City of Buenos Aires' => 'CABA',
+                                    'Provincia de Buenos Aires' => 'Bs.As.',
+                                    'Buenos Aires Province' => 'Bs.As.',
+                                ];
+                                return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                            };
+
+                            // Procesar origen
+                            $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
+                            $count = count($origenParts);
+                            $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                            $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                            $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                            $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                            $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                            $origenCorta = trim($origenCorta, ' ,');
+                            $origenCorta = $acortarProvincia($origenCorta);
+
+                            // Procesar destino
+                            $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
+                            $count = count($destinoParts);
+                            $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                            $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                            $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                            $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                            $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                            $destinoCorta = trim($destinoCorta, ' ,');
+                            $destinoCorta = $acortarProvincia($destinoCorta);
+                        @endphp
+
+                        @foreach($viajesTipos as $tipoViaje)
+                            @php
+                                // Intercambiar origen/destino si es vuelta
+                                $mostrarOrigen = $tipoViaje == 'ida' ? $origenCorta : $destinoCorta;
+                                $mostrarDestino = $tipoViaje == 'ida' ? $destinoCorta : $origenCorta;
+                                $mostrarHora = $tipoViaje == 'ida' ? $viaje->hora_salida : ($viaje->hora_regreso ?? $viaje->hora_salida);
+                            @endphp
+
+                            <div class="viaje-card" style="{{ $viaje->ida_vuelta ? 'border-top: 4px solid ' . ($tipoViaje == 'ida' ? '#003366' : '#27ae60') : '' }}">
+                                <div class="route">
+                                    <div class="cities">
+                                        <span class="from">{{ $mostrarOrigen }}</span>
+                                        <i class="fas fa-arrow-right"></i>
+                                        <span class="to">{{ $mostrarDestino }}</span>
+                                    </div>
+                                    <div class="time">
+                                        {{ $mostrarHora ?? 'Hora por definir' }}
+                                        @if($viaje->ida_vuelta)
+                                            <span style="margin-left: 8px; font-size: 0.85em; background: {{ $tipoViaje == 'ida' ? '#e3f2fd' : '#e8f5e9' }}; color: {{ $tipoViaje == 'ida' ? '#1565c0' : '#2e7d32' }}; padding: 2px 8px; border-radius: 12px; font-weight: 600;">
+                                                {{ $tipoViaje == 'ida' ? '➡️ Ida' : '⬅️ Vuelta' }}
+                                            </span>
+                                        @endif
+                                    </div>
+                                </div>
                         <div class="driver">
                             <img src="{{ $viaje->conductor && $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" alt="Conductor">
                             <div class="info">
@@ -180,10 +202,11 @@
                                 <small>por persona</small>
                             </div>
                         </div>
-                        <button class="reserve-btn" onclick="goToLogin('{{ explode(',', $viaje->origen_direccion)[0] ?? $viaje->origen_direccion }}', '{{ explode(',', $viaje->destino_direccion)[0] ?? $viaje->destino_direccion }}')">
+                        <button class="reserve-btn" onclick="goToLogin('{{ $mostrarOrigen }}', '{{ $mostrarDestino }}')">
                             {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
                         </button>
                     </div>
+                        @endforeach
                     @endforeach
                 @else
                     {{-- Fallback: Si no hay viajes reales, mostrar los del seeder --}}
