@@ -5,6 +5,33 @@
 @section('content')
 @php
     $acortarProvincia = function($texto) {
+        // Eliminar ", Argentina" del final
+        $texto = str_replace(', Argentina', '', $texto);
+
+        // Extraer solo ciudad y provincia (últimas 2 partes después de las comas)
+        $partes = array_map('trim', explode(',', $texto));
+
+        if (count($partes) >= 2) {
+            // Tomar las últimas 2 partes (ciudad, provincia)
+            $ciudad = $partes[count($partes) - 2];
+            $provincia = $partes[count($partes) - 1];
+
+            // Abreviar provincias
+            $reemplazos = [
+                'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                'Autonomous City of Buenos Aires' => 'CABA',
+                'Provincia de Buenos Aires' => 'Bs.As.',
+                'Buenos Aires Province' => 'Bs.As.',
+                'Bs.As.' => 'Bs.As.', // Ya está abreviado
+            ];
+
+            $provincia = str_replace(array_keys($reemplazos), array_values($reemplazos), $provincia);
+
+            return $ciudad . ', ' . $provincia;
+        }
+
+        // Si no tiene el formato esperado, aplicar solo reemplazos básicos
         $reemplazos = [
             'Cdad. Autónoma de Buenos Aires' => 'CABA',
             'Ciudad Autónoma de Buenos Aires' => 'CABA',
