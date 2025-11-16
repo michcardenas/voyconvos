@@ -1192,11 +1192,11 @@ main {
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Origen</div>
-                    <div class="info-value">{{ $acortarProvincia($reserva->viaje->origen_direccion) }}</div>
+                    <div class="info-value">{{ $origenCorta }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Destino</div>
-                    <div class="info-value">{{ $acortarProvincia($reserva->viaje->destino_direccion) }}</div>
+                    <div class="info-value">{{ $destinoCorta }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Hora</div>
