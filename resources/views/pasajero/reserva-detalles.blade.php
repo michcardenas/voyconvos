@@ -11,10 +11,19 @@
         // Extraer solo ciudad y provincia (últimas 2 partes después de las comas)
         $partes = array_map('trim', explode(',', $texto));
 
-        if (count($partes) >= 2) {
+        // Filtrar partes que contengan códigos postales (3 o más dígitos seguidos)
+        $partesFiltradas = array_filter($partes, function($parte) {
+            // Si la parte contiene 3 o más dígitos seguidos, es probable que sea un código postal
+            return !preg_match('/\d{3,}/', $parte);
+        });
+
+        // Reindexar array
+        $partesFiltradas = array_values($partesFiltradas);
+
+        if (count($partesFiltradas) >= 2) {
             // Tomar las últimas 2 partes (ciudad, provincia)
-            $ciudad = $partes[count($partes) - 2];
-            $provincia = $partes[count($partes) - 1];
+            $ciudad = $partesFiltradas[count($partesFiltradas) - 2];
+            $provincia = $partesFiltradas[count($partesFiltradas) - 1];
 
             // Abreviar provincias
             $reemplazos = [
