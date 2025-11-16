@@ -4,43 +4,8 @@
 
 @section('content')
 @php
+    // Función para acortar nombres de provincias
     $acortarProvincia = function($texto) {
-        // Eliminar ", Argentina" del final
-        $texto = str_replace(', Argentina', '', $texto);
-
-        // Extraer solo ciudad y provincia (últimas 2 partes después de las comas)
-        $partes = array_map('trim', explode(',', $texto));
-
-        // Filtrar partes que contengan códigos postales (3 o más dígitos seguidos)
-        $partesFiltradas = array_filter($partes, function($parte) {
-            // Si la parte contiene 3 o más dígitos seguidos, es probable que sea un código postal
-            return !preg_match('/\d{3,}/', $parte);
-        });
-
-        // Reindexar array
-        $partesFiltradas = array_values($partesFiltradas);
-
-        if (count($partesFiltradas) >= 2) {
-            // Tomar las últimas 2 partes (ciudad, provincia)
-            $ciudad = $partesFiltradas[count($partesFiltradas) - 2];
-            $provincia = $partesFiltradas[count($partesFiltradas) - 1];
-
-            // Abreviar provincias
-            $reemplazos = [
-                'Cdad. Autónoma de Buenos Aires' => 'CABA',
-                'Ciudad Autónoma de Buenos Aires' => 'CABA',
-                'Autonomous City of Buenos Aires' => 'CABA',
-                'Provincia de Buenos Aires' => 'Bs.As.',
-                'Buenos Aires Province' => 'Bs.As.',
-                'Bs.As.' => 'Bs.As.', // Ya está abreviado
-            ];
-
-            $provincia = str_replace(array_keys($reemplazos), array_values($reemplazos), $provincia);
-
-            return $ciudad . ', ' . $provincia;
-        }
-
-        // Si no tiene el formato esperado, aplicar solo reemplazos básicos
         $reemplazos = [
             'Cdad. Autónoma de Buenos Aires' => 'CABA',
             'Ciudad Autónoma de Buenos Aires' => 'CABA',
@@ -50,6 +15,28 @@
         ];
         return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
     };
+
+    // Procesar origen
+    $origenParts = array_map('trim', explode(',', $reserva->viaje->origen_direccion));
+    $count = count($origenParts);
+    $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $reserva->viaje->origen_direccion;
+    $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+    $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+    $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+    $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+    $origenCorta = trim($origenCorta, ' ,');
+    $origenCorta = $acortarProvincia($origenCorta);
+
+    // Procesar destino
+    $destinoParts = array_map('trim', explode(',', $reserva->viaje->destino_direccion));
+    $count = count($destinoParts);
+    $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $reserva->viaje->destino_direccion;
+    $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+    $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+    $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+    $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+    $destinoCorta = trim($destinoCorta, ' ,');
+    $destinoCorta = $acortarProvincia($destinoCorta);
 @endphp
 <style>
 /* ===============================================
@@ -1193,11 +1180,11 @@ main {
             <div class="route-summary">
                 <div class="route-item">
                     <div class="route-marker origin">A</div>
-                    <div class="route-text">{{ $acortarProvincia($reserva->viaje->origen_direccion) }}</div>
+                    <div class="route-text">{{ $origenCorta }}</div>
                 </div>
                 <div class="route-item">
                     <div class="route-marker destination">B</div>
-                    <div class="route-text">{{ $acortarProvincia($reserva->viaje->destino_direccion) }}</div>
+                    <div class="route-text">{{ $destinoCorta }}</div>
                 </div>
             </div>
 
