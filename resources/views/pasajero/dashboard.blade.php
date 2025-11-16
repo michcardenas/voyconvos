@@ -612,45 +612,61 @@
         <!-- Reservas Section -->
         <div class="section-header">
             <h4><i class="fas fa-list-alt me-2"></i>Tus reservas</h4>
-            
-            <!-- Filtros -->
+
+            <!-- Selector de Vista: Próximos / Historial -->
+            <div class="filters-container mb-3" style="border-bottom: 2px solid #e2e8f0; padding-bottom: 1rem;">
+                <a href="{{ route('pasajero.dashboard', ['vista' => 'proximos', 'estado' => request('estado', 'todos')]) }}"
+                   class="filter-btn {{ ($tipoVista ?? 'proximos') === 'proximos' ? 'active' : '' }}"
+                   style="font-size: 1rem; font-weight: 700;">
+                    <i class="fas fa-calendar-check"></i>
+                    Próximos viajes
+                </a>
+                <a href="{{ route('pasajero.dashboard', ['vista' => 'historial', 'estado' => request('estado', 'todos')]) }}"
+                   class="filter-btn {{ ($tipoVista ?? 'proximos') === 'historial' ? 'active' : '' }}"
+                   style="font-size: 1rem; font-weight: 700;">
+                    <i class="fas fa-history"></i>
+                    Historial completo
+                </a>
+            </div>
+
+            <!-- Filtros por Estado -->
             <div class="filters-container">
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'todos']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'todos']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? 'todos') === 'todos' ? 'active' : '' }}">
                     Todos
                     @if(isset($estadisticas))
                         <span class="badge bg-light text-dark">{{ $reservas->total() ?? $reservas->count() }}</span>
                     @endif
                 </a>
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'activos']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'activos']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? '') === 'activos' ? 'active' : '' }}">
                     Activos
                     @if(isset($estadisticas))
                         <span class="badge bg-light text-dark">{{ $estadisticas['activos'] }}</span>
                     @endif
                 </a>
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_confirmacion']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'pendiente_confirmacion']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? '') === 'pendiente_confirmacion' ? 'active' : '' }}">
                     Esperando
                     @if(isset($estadisticas))
                         <span class="badge bg-light text-dark">{{ $estadisticas['pendiente_confirmacion'] }}</span>
                     @endif
                 </a>
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'pendiente_pago']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'pendiente_pago']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? '') === 'pendiente_pago' ? 'active' : '' }}">
                     Por Pagar
                     @if(isset($estadisticas))
                         <span class="badge bg-light text-dark">{{ $estadisticas['pendiente_pago'] }}</span>
                     @endif
                 </a>
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'confirmada']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'confirmada']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? '') === 'confirmada' ? 'active' : '' }}">
                     Confirmadas
                     @if(isset($estadisticas))
                         <span class="badge bg-light text-dark">{{ $estadisticas['confirmada'] }}</span>
                     @endif
                 </a>
-                <a href="{{ route('pasajero.dashboard', ['estado' => 'cancelados']) }}" 
+                <a href="{{ route('pasajero.dashboard', ['vista' => $tipoVista ?? 'proximos', 'estado' => 'cancelados']) }}"
                    class="filter-btn {{ ($estadoFiltro ?? '') === 'cancelados' ? 'active' : '' }}">
                     Cancelados
                     @if(isset($estadisticas))
@@ -680,20 +696,59 @@
                                 <tr>
                                     <!-- RUTA -->
                                     <td>
+                                        @php
+                                            // Función para acortar nombres de provincias
+                                            $acortarProvincia = function($texto) {
+                                                $reemplazos = [
+                                                    'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                                    'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                                    'Autonomous City of Buenos Aires' => 'CABA',
+                                                    'Provincia de Buenos Aires' => 'Bs.As.',
+                                                    'Buenos Aires Province' => 'Bs.As.',
+                                                ];
+                                                return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                                            };
+
+                                            // Procesar origen
+                                            $origenParts = array_map('trim', explode(',', $reserva->viaje->origen_direccion ?? 'Origen'));
+                                            $count = count($origenParts);
+                                            $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : ($reserva->viaje->origen_direccion ?? 'Origen');
+                                            $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                                            $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
+                                            $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
+                                            $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
+                                            $origenCorta = trim($origenCorta, ' ,');
+                                            $origenCorta = $acortarProvincia($origenCorta);
+
+                                            // Procesar destino
+                                            $destinoParts = array_map('trim', explode(',', $reserva->viaje->destino_direccion ?? 'Destino'));
+                                            $count = count($destinoParts);
+                                            $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : ($reserva->viaje->destino_direccion ?? 'Destino');
+                                            $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                                            $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
+                                            $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
+                                            $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);
+                                            $destinoCorta = trim($destinoCorta, ' ,');
+                                            $destinoCorta = $acortarProvincia($destinoCorta);
+                                        @endphp
                                         <div style="max-width: 200px;">
-                                            <strong class="d-block">{{ Str::limit($reserva->viaje->origen_direccion ?? 'Origen', 20) }}</strong>
+                                            <strong class="d-block">{{ Str::limit($origenCorta, 25) }}</strong>
                                             <small class="text-muted">
                                                 <i class="fas fa-arrow-right" style="font-size: 0.7rem;"></i>
-                                                {{ Str::limit($reserva->viaje->destino_direccion ?? 'Destino', 20) }}
+                                                {{ Str::limit($destinoCorta, 25) }}
                                             </small>
                                         </div>
                                     </td>
-                                    
+
                                     <!-- FECHA -->
                                     <td class="d-none d-md-table-cell">
                                         @if($reserva->viaje->fecha_salida)
                                             <strong class="d-block">{{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('d/m/Y') }}</strong>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('H:i') }}</small>
+                                            @if($reserva->viaje->hora_salida)
+                                                <small class="text-muted">{{ \Carbon\Carbon::parse($reserva->viaje->hora_salida)->format('H:i') }}</small>
+                                            @else
+                                                <small class="text-muted">Hora no definida</small>
+                                            @endif
                                         @else
                                             <span class="text-muted">No definida</span>
                                         @endif
@@ -902,9 +957,44 @@
                                 @endif
                                 
                                 @if($comentario->origen_direccion && $comentario->destino_direccion)
+                                    @php
+                                        // Función para acortar nombres de provincias
+                                        $acortarProvinciaCalif = function($texto) {
+                                            $reemplazos = [
+                                                'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                                'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                                'Autonomous City of Buenos Aires' => 'CABA',
+                                                'Provincia de Buenos Aires' => 'Bs.As.',
+                                                'Buenos Aires Province' => 'Bs.As.',
+                                            ];
+                                            return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                                        };
+
+                                        // Procesar origen del comentario
+                                        $origenCalifParts = array_map('trim', explode(',', $comentario->origen_direccion));
+                                        $countCalif = count($origenCalifParts);
+                                        $origenCalifCorta = $countCalif >= 3 ? $origenCalifParts[$countCalif - 3] . ', ' . $origenCalifParts[$countCalif - 2] : $comentario->origen_direccion;
+                                        $origenCalifCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCalifCorta);
+                                        $origenCalifCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCalifCorta);
+                                        $origenCalifCorta = preg_replace('/\s+/', ' ', $origenCalifCorta);
+                                        $origenCalifCorta = preg_replace('/,\s*,/', ',', $origenCalifCorta);
+                                        $origenCalifCorta = trim($origenCalifCorta, ' ,');
+                                        $origenCalifCorta = $acortarProvinciaCalif($origenCalifCorta);
+
+                                        // Procesar destino del comentario
+                                        $destinoCalifParts = array_map('trim', explode(',', $comentario->destino_direccion));
+                                        $countCalif = count($destinoCalifParts);
+                                        $destinoCalifCorta = $countCalif >= 3 ? $destinoCalifParts[$countCalif - 3] . ', ' . $destinoCalifParts[$countCalif - 2] : $comentario->destino_direccion;
+                                        $destinoCalifCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCalifCorta);
+                                        $destinoCalifCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCalifCorta);
+                                        $destinoCalifCorta = preg_replace('/\s+/', ' ', $destinoCalifCorta);
+                                        $destinoCalifCorta = preg_replace('/,\s*,/', ',', $destinoCalifCorta);
+                                        $destinoCalifCorta = trim($destinoCalifCorta, ' ,');
+                                        $destinoCalifCorta = $acortarProvinciaCalif($destinoCalifCorta);
+                                    @endphp
                                     <small class="text-muted">
                                         <i class="fas fa-route me-1"></i>
-                                        Viaje: {{ Str::limit($comentario->origen_direccion, 30) }} → {{ Str::limit($comentario->destino_direccion, 30) }}
+                                        Viaje: {{ Str::limit($origenCalifCorta, 20) }} → {{ Str::limit($destinoCalifCorta, 20) }}
                                     </small>
                                 @endif
                             </div>
@@ -947,9 +1037,44 @@
                                         @endif
                                         
                                         @if($comentario->origen_direccion && $comentario->destino_direccion)
+                                            @php
+                                                // Función para acortar nombres de provincias
+                                                $acortarProvinciaCalif2 = function($texto) {
+                                                    $reemplazos = [
+                                                        'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                                        'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                                        'Autonomous City of Buenos Aires' => 'CABA',
+                                                        'Provincia de Buenos Aires' => 'Bs.As.',
+                                                        'Buenos Aires Province' => 'Bs.As.',
+                                                    ];
+                                                    return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                                                };
+
+                                                // Procesar origen del comentario
+                                                $origenCalif2Parts = array_map('trim', explode(',', $comentario->origen_direccion));
+                                                $countCalif2 = count($origenCalif2Parts);
+                                                $origenCalif2Corta = $countCalif2 >= 3 ? $origenCalif2Parts[$countCalif2 - 3] . ', ' . $origenCalif2Parts[$countCalif2 - 2] : $comentario->origen_direccion;
+                                                $origenCalif2Corta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCalif2Corta);
+                                                $origenCalif2Corta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCalif2Corta);
+                                                $origenCalif2Corta = preg_replace('/\s+/', ' ', $origenCalif2Corta);
+                                                $origenCalif2Corta = preg_replace('/,\s*,/', ',', $origenCalif2Corta);
+                                                $origenCalif2Corta = trim($origenCalif2Corta, ' ,');
+                                                $origenCalif2Corta = $acortarProvinciaCalif2($origenCalif2Corta);
+
+                                                // Procesar destino del comentario
+                                                $destinoCalif2Parts = array_map('trim', explode(',', $comentario->destino_direccion));
+                                                $countCalif2 = count($destinoCalif2Parts);
+                                                $destinoCalif2Corta = $countCalif2 >= 3 ? $destinoCalif2Parts[$countCalif2 - 3] . ', ' . $destinoCalif2Parts[$countCalif2 - 2] : $comentario->destino_direccion;
+                                                $destinoCalif2Corta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCalif2Corta);
+                                                $destinoCalif2Corta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCalif2Corta);
+                                                $destinoCalif2Corta = preg_replace('/\s+/', ' ', $destinoCalif2Corta);
+                                                $destinoCalif2Corta = preg_replace('/,\s*,/', ',', $destinoCalif2Corta);
+                                                $destinoCalif2Corta = trim($destinoCalif2Corta, ' ,');
+                                                $destinoCalif2Corta = $acortarProvinciaCalif2($destinoCalif2Corta);
+                                            @endphp
                                             <small class="text-muted">
                                                 <i class="fas fa-route me-1"></i>
-                                                Viaje: {{ Str::limit($comentario->origen_direccion, 30) }} → {{ Str::limit($comentario->destino_direccion, 30) }}
+                                                Viaje: {{ Str::limit($origenCalif2Corta, 20) }} → {{ Str::limit($destinoCalif2Corta, 20) }}
                                             </small>
                                         @endif
                                     </div>

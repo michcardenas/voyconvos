@@ -26,14 +26,31 @@ public function misReservas(Request $request)
         return redirect()->route('login')->with('error', 'Debes iniciar sesión para ver tus reservas.');
     }
     
-    // 🔥 CAMBIO: Default a 'todos' en lugar de 'activos'
+    // 🔥 NUEVO FILTRO: Distinguir entre próximos viajes e historial
+    $tipoVista = $request->get('vista', 'proximos'); // 'proximos' o 'historial'
     $estadoFiltro = $request->get('estado', 'todos');
-    
+
     // Query básico con relaciones
     $query = Reserva::with(['viaje.conductor'])
-        ->where('user_id', $usuario->id)
-        ->orderBy('created_at', 'desc');
-    
+        ->where('user_id', $usuario->id);
+
+    // Aplicar filtro de fecha según el tipo de vista
+    if ($tipoVista === 'proximos') {
+        // Solo viajes futuros (posteriores a fecha y hora actual)
+        $query->whereHas('viaje', function($q) {
+            $q->where(function($query) {
+                $query->where('fecha_salida', '>', now()->toDateString())
+                      ->orWhere(function($q) {
+                          $q->where('fecha_salida', '=', now()->toDateString())
+                            ->where('hora_salida', '>', now()->toTimeString());
+                      });
+            });
+        });
+    }
+    // Si es 'historial', no aplicar filtro de fecha (mostrar todos)
+
+    $query->orderBy('created_at', 'desc');
+
     // Aplicar filtros con los nuevos estados
     switch ($estadoFiltro) {
         case 'activos':
@@ -212,10 +229,11 @@ public function misReservas(Request $request)
     
     return view('pasajero.dashboard', compact(
         'reservas',           // ← Ahora es paginado
-        'totalViajes', 
-        'viajesProximos', 
+        'totalViajes',
+        'viajesProximos',
         'viajesRealizados',
         'estadoFiltro',
+        'tipoVista',          // ← NUEVO: tipo de vista (proximos/historial)
         'estadisticas',
         'calificacionesUsuarios',
         'calificacionesDetalle',

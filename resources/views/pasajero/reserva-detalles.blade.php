@@ -3,6 +3,18 @@
 @section('title', 'Detalle de tu reserva')
 
 @section('content')
+@php
+    $acortarProvincia = function($texto) {
+        $reemplazos = [
+            'Cdad. Autónoma de Buenos Aires' => 'CABA',
+            'Ciudad Autónoma de Buenos Aires' => 'CABA',
+            'Autonomous City of Buenos Aires' => 'CABA',
+            'Provincia de Buenos Aires' => 'Bs.As.',
+            'Buenos Aires Province' => 'Bs.As.',
+        ];
+        return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+    };
+@endphp
 <style>
 /* ===============================================
    🎨 VARIABLES CSS
@@ -1145,11 +1157,11 @@ main {
             <div class="route-summary">
                 <div class="route-item">
                     <div class="route-marker origin">A</div>
-                    <div class="route-text">{{ $reserva->viaje->origen_direccion }}</div>
+                    <div class="route-text">{{ $acortarProvincia($reserva->viaje->origen_direccion) }}</div>
                 </div>
                 <div class="route-item">
                     <div class="route-marker destination">B</div>
-                    <div class="route-text">{{ $reserva->viaje->destino_direccion }}</div>
+                    <div class="route-text">{{ $acortarProvincia($reserva->viaje->destino_direccion) }}</div>
                 </div>
             </div>
 
@@ -1157,11 +1169,11 @@ main {
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-label">Origen</div>
-                    <div class="info-value">{{ $reserva->viaje->origen_direccion }}</div>
+                    <div class="info-value">{{ $acortarProvincia($reserva->viaje->origen_direccion) }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Destino</div>
-                    <div class="info-value">{{ $reserva->viaje->destino_direccion }}</div>
+                    <div class="info-value">{{ $acortarProvincia($reserva->viaje->destino_direccion) }}</div>
                 </div>
                 <div class="info-item">
                     <div class="info-label">Hora</div>
