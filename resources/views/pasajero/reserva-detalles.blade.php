@@ -1256,7 +1256,7 @@ main {
                     <div class="conductor-details">
                         <div class="row g-3">
                             <!-- Nombre - siempre visible -->
-                            <div class="col-12 {{ $reserva->estado === 'confirmada' ? 'col-md-4' : '' }}">
+                            <div class="col-12 col-md-6">
                                 <div class="conductor-info-item">
                                     <div class="conductor-info-label">
                                         <i class="fas fa-user"></i> Nombre
@@ -1266,10 +1266,38 @@ main {
                                     </div>
                                 </div>
                             </div>
-                            
+
+                            <!-- Datos del vehículo - siempre visibles -->
+                            @if($reserva->viaje->conductor->registroConductor)
+                                <!-- Marca y Modelo -->
+                                <div class="col-12 col-md-6">
+                                    <div class="conductor-info-item">
+                                        <div class="conductor-info-label">
+                                            <i class="fas fa-car"></i> Vehículo
+                                        </div>
+                                        <div class="conductor-info-value">
+                                            {{ $reserva->viaje->conductor->registroConductor->marca_vehiculo ?? 'N/D' }}
+                                            {{ $reserva->viaje->conductor->registroConductor->modelo_vehiculo ?? '' }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Patente/Placa -->
+                                <div class="col-12 col-md-6">
+                                    <div class="conductor-info-item">
+                                        <div class="conductor-info-label">
+                                            <i class="fas fa-id-card"></i> Patente
+                                        </div>
+                                        <div class="conductor-info-value">
+                                            {{ $reserva->viaje->conductor->registroConductor->patente ?? 'N/D' }}
+                                        </div>
+                                    </div>
+                                </div>
+                            @endif
+
                             @if($reserva->estado === 'confirmada')
                                 <!-- Email - solo si está confirmada -->
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-6">
                                     <div class="conductor-info-item">
                                         <div class="conductor-info-label">
                                             <i class="fas fa-envelope"></i> Email
@@ -1279,16 +1307,16 @@ main {
                                         </div>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Teléfono - solo si está confirmada -->
-                                <div class="col-12 col-md-4">
+                                <div class="col-12 col-md-6">
                                     <div class="conductor-info-item">
                                         <div class="conductor-info-label">
                                             <i class="fas fa-phone"></i> Contacto
                                         </div>
                                         <div class="conductor-info-value">
                                             @if($reserva->viaje->conductor->celular)
-                                                <a href="tel:{{ $reserva->viaje->conductor->celular }}" 
+                                                <a href="tel:{{ $reserva->viaje->conductor->celular }}"
                                                    class="conductor-phone-link">
                                                     <i class="fas fa-phone-alt"></i>
                                                     {{ $reserva->viaje->conductor->celular }}
@@ -1300,8 +1328,18 @@ main {
                                     </div>
                                 </div>
                             @else
-                                <!-- Mensaje informativo -->
-                             
+                                <!-- Mensaje informativo cuando no está confirmada -->
+                                <div class="col-12">
+                                    <div class="conductor-pending-info">
+                                        <i class="fas fa-info-circle"></i>
+                                        <div class="pending-info-content">
+                                            <div class="pending-info-title">Información de contacto pendiente</div>
+                                            <div class="pending-info-text">
+                                                Los datos de contacto del conductor estarán disponibles una vez que tu reserva sea confirmada.
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         </div>
                     </div>
