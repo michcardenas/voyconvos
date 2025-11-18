@@ -304,8 +304,8 @@ public function reservar(Request $request, Viaje $viaje)
             'estado' => $reservaExistente->estado
         ]);
 
-        // Si está pendiente de pago o cancelada, procesar según el método de pago
-        if ($reservaExistente->estado === 'pendiente_pago' || $reservaExistente->estado === 'cancelada') {
+        // Si está pendiente de pago, cancelada o pendiente, procesar según el método de pago
+        if (in_array($reservaExistente->estado, ['pendiente_pago', 'cancelada', 'pendiente'])) {
             \Log::info('=== PROCESANDO PAGO PARA RESERVA EXISTENTE ===', [
                 'estado_original' => $reservaExistente->estado,
                 'metodo_pago' => $request->metodo_pago ?? 'no_especificado',
@@ -395,16 +395,13 @@ public function reservar(Request $request, Viaje $viaje)
             }
         }
         
-        // Si ya está confirmada o en otro estado, informar
+        // Si ya está confirmada, informar
         if ($reservaExistente->estado === 'confirmada') {
             return redirect()->route('pasajero.dashboard')
                 ->with('info', 'Ya tienes una reserva confirmada para este viaje');
         }
-        
-        if ($reservaExistente->estado === 'pendiente') {
-            return redirect()->route('pasajero.dashboard')
-                ->with('info', 'Tu reserva está pendiente de confirmación por el conductor');
-        }
+
+        // Ya no bloqueamos el estado 'pendiente' aquí, ahora se maneja arriba
     }
 
     // Validar datos básicos (solo para reservas nuevas)
