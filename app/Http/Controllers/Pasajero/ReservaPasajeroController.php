@@ -598,11 +598,25 @@ public function reservar(Request $request, Viaje $viaje)
 
         // Configurar Uala
         $ualaService = new \App\Services\UalaService();
-        
+
         \Log::info('=== INICIANDO PROCESO UALA ===', [
             'reserva_id' => $reserva->id,
-            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA'
+            'tipo' => isset($reservaExistente) ? 'EXISTENTE' : 'NUEVA',
+            'ya_tiene_checkout' => !empty($reserva->uala_checkout_id),
+            'ya_tiene_url' => !empty($reserva->uala_payment_url)
         ]);
+
+        // Si ya existe un checkout válido, redirigir directamente
+        if (!empty($reserva->uala_checkout_id) && !empty($reserva->uala_payment_url)) {
+            \Log::info('=== REUTILIZANDO CHECKOUT EXISTENTE ===', [
+                'reserva_id' => $reserva->id,
+                'checkout_id' => $reserva->uala_checkout_id,
+                'payment_url' => $reserva->uala_payment_url
+            ]);
+
+            \DB::commit();
+            return redirect()->away($reserva->uala_payment_url);
+        }
 
         // Preparar datos del checkout para Uala
         $checkoutData = $ualaService->prepareCheckoutData($reserva, $viaje);
@@ -636,12 +650,14 @@ public function reservar(Request $request, Viaje $viaje)
         // Validar que tengamos la URL de pago
         $paymentUrl = $reserva->uala_payment_url;
         if (!$paymentUrl) {
-            // Limpiar la reserva creada si falla
-            if (isset($reserva) && $reserva->id) {
+            // Limpiar la reserva creada si falla Y solo si es nueva (no existente)
+            if (isset($reserva) && $reserva->id && !isset($reservaExistente)) {
                 $reserva->delete();
-                // Restaurar puestos
-                $viaje->puestos_disponibles += $validated['cantidad_puestos'];
-                $viaje->save();
+                // Restaurar puestos solo si $validated existe
+                if (isset($validated)) {
+                    $viaje->puestos_disponibles += $validated['cantidad_puestos'];
+                    $viaje->save();
+                }
             }
 
             \DB::rollBack();
