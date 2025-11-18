@@ -1431,25 +1431,124 @@ main {
                     <div class="info-label">Fecha de Reserva</div>
                     <div class="info-value">{{ $reserva->created_at->format('d/m/Y H:i') }}</div>
                 </div>
+                <div class="info-item">
+                    <div class="info-label">Cantidad de Puestos</div>
+                    <div class="info-value">{{ $reserva->cantidad_puestos }} puesto(s)</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Total a Pagar</div>
+                    <div class="info-value" style="color: #4CAF50; font-weight: 700; font-size: 1.1rem;">
+                        ${{ number_format($reserva->total, 0, ',', '.') }}
+                    </div>
+                </div>
             </div>
-            
-            <!-- Botón de pago -->
+
+            <!-- Botón de pago integrado -->
             @if($reserva->estado == 'pendiente_pago' || $reserva->estado == 'cancelada' || $reserva->estado == 'pendiente')
-                <div class="payment-button-container">
-                    <button type="button" class="btn btn-primary btn-pay" onclick="mostrarOpcionesPago()">
-                        <i class="fas fa-credit-card"></i>
-                        @if($reserva->estado == 'cancelada')
-                            REINTENTAR PAGO
-                        @else
-                            PAGAR AHORA
-                        @endif
+                <div style="
+                    margin-top: 1.5rem;
+                    padding-top: 1.5rem;
+                    border-top: 2px dashed rgba(31, 78, 121, 0.1);
+                ">
+                    <!-- Alerta de pago pendiente -->
+                    <div style="
+                        background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 152, 0, 0.05));
+                        border-left: 4px solid #FFC107;
+                        border-radius: 8px;
+                        padding: 1rem;
+                        margin-bottom: 1rem;
+                        display: flex;
+                        align-items: start;
+                        gap: 0.8rem;
+                    ">
+                        <div style="
+                            background: #FFC107;
+                            color: white;
+                            width: 32px;
+                            height: 32px;
+                            border-radius: 50%;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            flex-shrink: 0;
+                            font-size: 1.1rem;
+                        ">
+                            <i class="fas fa-exclamation"></i>
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #F57C00; margin-bottom: 0.3rem; font-size: 0.95rem;">
+                                @if($reserva->estado == 'cancelada')
+                                    Pago cancelado
+                                @else
+                                    Pago pendiente
+                                @endif
+                            </div>
+                            <div style="color: #856404; font-size: 0.85rem; line-height: 1.4;">
+                                @if($reserva->estado == 'cancelada')
+                                    El pago anterior fue cancelado. Puedes intentar nuevamente con otro método de pago.
+                                @else
+                                    Para confirmar tu reserva, debes completar el pago. Elige tu método preferido.
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón de pago grande y destacado -->
+                    <button type="button" onclick="mostrarOpcionesPago()" style="
+                        width: 100%;
+                        background: linear-gradient(135deg, #4CAF50 0%, #45a049 100%);
+                        color: white;
+                        border: none;
+                        border-radius: 12px;
+                        padding: 1rem 1.5rem;
+                        font-weight: 700;
+                        font-size: 1rem;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        gap: 0.8rem;
+                        position: relative;
+                        overflow: hidden;
+                    " onmouseover="
+                        this.style.transform='translateY(-2px)';
+                        this.style.boxShadow='0 6px 20px rgba(76, 175, 80, 0.4)';
+                    " onmouseout="
+                        this.style.transform='translateY(0)';
+                        this.style.boxShadow='0 4px 15px rgba(76, 175, 80, 0.3)';
+                    ">
+                        <i class="fas fa-credit-card" style="font-size: 1.2rem;"></i>
+                        <span>
+                            @if($reserva->estado == 'cancelada')
+                                REINTENTAR PAGO
+                            @else
+                                PAGAR AHORA
+                            @endif
+                        </span>
+                        <i class="fas fa-arrow-right" style="font-size: 0.9rem;"></i>
                     </button>
 
-                    @if($reserva->estado == 'cancelada')
-                        <p class="payment-note">
-                            <i class="fas fa-info-circle"></i> El pago anterior fue cancelado. Puedes intentar nuevamente.
-                        </p>
-                    @endif
+                    <!-- Métodos de pago disponibles -->
+                    <div style="
+                        margin-top: 1rem;
+                        text-align: center;
+                        color: #999;
+                        font-size: 0.8rem;
+                    ">
+                        <div style="margin-bottom: 0.3rem;">Métodos de pago disponibles:</div>
+                        <div style="display: flex; align-items: center; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+                            <span style="display: flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-university" style="color: #4CAF50;"></i>
+                                Transferencia
+                            </span>
+                            <span style="display: flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-credit-card" style="color: #1F4E79;"></i>
+                                UalaBis
+                            </span>
+                        </div>
+                    </div>
                 </div>
             @endif
         </div>
