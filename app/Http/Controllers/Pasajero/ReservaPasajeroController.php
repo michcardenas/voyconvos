@@ -561,7 +561,19 @@ public function reservar(Request $request, Viaje $viaje)
         // Validar que tengamos la URL de pago
         $paymentUrl = $reserva->uala_payment_url;
         if (!$paymentUrl) {
-            throw new \Exception('No se recibió URL de pago de Uala. Respuesta: ' . json_encode($checkoutResponse));
+            // Limpiar la reserva creada si falla
+            if (isset($reserva) && $reserva->id) {
+                $reserva->delete();
+                // Restaurar puestos
+                $viaje->puestos_disponibles += $validated['cantidad_puestos'];
+                $viaje->save();
+            }
+
+            \DB::rollBack();
+
+            return back()->withErrors([
+                'error' => 'UalaBis no está disponible en este momento. Por favor, intenta con otro método de pago o contacta a soporte. Error: El servicio de pago no respondió correctamente.'
+            ])->with('metodo_pago_fallido', 'ualabis');
         }
 
         // Redirigir a Uala
@@ -569,7 +581,7 @@ public function reservar(Request $request, Viaje $viaje)
 
     } catch (\Exception $e) {
         \DB::rollBack();
-        
+
         \Log::error('=== ERROR PROCESANDO PAGO CON UALA ===', [
             'message' => $e->getMessage(),
             'trace' => $e->getTraceAsString(),
@@ -577,10 +589,18 @@ public function reservar(Request $request, Viaje $viaje)
             'file' => $e->getFile(),
             'line' => $e->getLine()
         ]);
-        
+
+        // Mensaje más amigable para el usuario
+        $mensajeUsuario = 'UalaBis no está disponible en este momento. Por favor, intenta con:';
+        $opciones = '
+• Transferencia bancaria (recomendado)
+• Intenta nuevamente en unos minutos
+
+Si el problema persiste, contacta a soporte.';
+
         return back()->withErrors([
-            'error' => 'Error al procesar el pago con Uala: ' . $e->getMessage()
-        ]);
+            'error' => $mensajeUsuario . $opciones
+        ])->with('metodo_pago_fallido', 'ualabis');
     }
 }
 
