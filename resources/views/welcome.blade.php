@@ -731,7 +731,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Función para ir al login
+// Función para ir al dashboard híbrido
 function goToLogin(origen = '', destino = '') {
     if (origen && destino) {
         sessionStorage.setItem('selectedTrip', JSON.stringify({
@@ -739,8 +739,8 @@ function goToLogin(origen = '', destino = '') {
             destino: destino
         }));
     }
-    
-    window.location.href = '/login?message=login_required';
+
+    window.location.href = '/dashboard-hibrido';
 }
 </script>
 
