@@ -336,7 +336,7 @@ public function reservar(Request $request, Viaje $viaje)
         'total' => 'required|numeric|min:0.01',
         'viaje_id' => 'required|integer',
         'comprobante_pago' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120', // 5MB max
-        'metodo_pago' => 'nullable|in:mercadopago,uala,transferencia'
+        'metodo_pago' => 'nullable|in:mercadopago,uala,ualabis,transferencia'
     ]);
 
     // Verificar disponibilidad de puestos
