@@ -202,14 +202,34 @@ public function store(Request $request)
             return back()->with('error', 'Esta reserva no tiene comprobante de pago');
         }
 
+        // Verificar si el conductor está verificado
+        $conductor = $reserva->viaje->conductor;
+        $conductorVerificado = $conductor->registroConductor &&
+                              $conductor->registroConductor->estado_verificacion === 'aprobado';
+
         $reserva->comprobante_verificado = true;
         $reserva->comprobante_rechazado = false;
         $reserva->fecha_verificacion_comprobante = now();
-        $reserva->estado = 'confirmada'; // Cambiar a confirmada
         $reserva->fecha_pago = now();
+
+        // Determinar el estado según verificación del conductor
+        if ($conductorVerificado) {
+            $reserva->estado = 'confirmada';
+            $estadoMensaje = 'CONFIRMADA';
+            $tituloEmail = '✅ Pago Aprobado - Reserva Confirmada';
+            $mensajeAdicional = "\n\n✅ Tu reserva está CONFIRMADA.\n\nTe esperamos en el viaje. ¡Buen viaje!";
+            $mensajeSuccess = '✅ Comprobante aprobado. Reserva confirmada.';
+        } else {
+            $reserva->estado = 'pendiente_confirmacion_conductor';
+            $estadoMensaje = 'PENDIENTE DE CONFIRMACIÓN';
+            $tituloEmail = '✅ Pago Aprobado - Pendiente de Confirmación';
+            $mensajeAdicional = "\n\n⏳ Tu reserva está PENDIENTE DE CONFIRMACIÓN.\n\nEstamos verificando los documentos del conductor. Te notificaremos cuando tu reserva sea confirmada.";
+            $mensajeSuccess = '✅ Comprobante aprobado. Reserva pendiente de verificación del conductor.';
+        }
+
         $reserva->save();
 
-        // Enviar email de confirmación al pasajero
+        // Enviar email al pasajero
         try {
             $usuario = $reserva->user;
             $viaje = $reserva->viaje;
@@ -218,15 +238,15 @@ public function store(Request $request)
 
             \Mail::to($usuario->email)->send(new \App\Mail\UniversalMail(
                 $usuario,
-                '✅ Pago Aprobado - Reserva Confirmada',
-                "¡Buenas noticias! Tu comprobante de pago ha sido verificado y aprobado.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n\n✅ Tu reserva está CONFIRMADA.\n\nTe esperamos en el viaje. ¡Buen viaje!",
+                $tituloEmail,
+                "¡Buenas noticias! Tu comprobante de pago ha sido verificado y aprobado.\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . $mensajeAdicional,
                 'notificacion'
             ));
         } catch (\Exception $e) {
             \Log::error('Error enviando email de aprobación: ' . $e->getMessage());
         }
 
-        return back()->with('success', '✅ Comprobante aprobado. Reserva confirmada.');
+        return back()->with('success', $mensajeSuccess);
     }
 
     // Rechazar comprobante de transferencia

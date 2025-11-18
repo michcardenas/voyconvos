@@ -1178,23 +1178,23 @@ function confirmarReserva() {
 
                 <!-- Opciones -->
                 <div style="display: grid; gap: 0.6rem; margin-bottom: 1rem;">
-                    <!-- UalaBis DESHABILITADO -->
-                    <button disabled style="
-                        background: #f5f5f5;
-                        border: 2px solid #ccc;
+                    <!-- UalaBis HABILITADO -->
+                    <button onclick="seleccionarUalaBis()" style="
+                        background: white;
+                        border: 2px solid #1F4E79;
                         border-radius: 8px;
                         padding: 0.8rem;
-                        cursor: not-allowed;
+                        cursor: pointer;
                         display: flex;
                         align-items: center;
                         gap: 0.7rem;
                         text-align: left;
-                        opacity: 0.6;
-                    ">
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(31, 78, 121, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
                         <div style="
                             width: 40px;
                             height: 40px;
-                            background: #ccc;
+                            background: linear-gradient(135deg, #1F4E79, #2A5A8A);
                             border-radius: 8px;
                             display: flex;
                             align-items: center;
@@ -1203,8 +1203,8 @@ function confirmarReserva() {
                             flex-shrink: 0;
                         ">💳</div>
                         <div style="flex: 1;">
-                            <div style="font-weight: 600; color: #999; font-size: 0.95rem;">UalaBis</div>
-                            <div style="font-size: 0.7rem; color: #aaa;">No disponible</div>
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">UalaBis</div>
+                            <div style="font-size: 0.7rem; color: #999;">Pago rápido y seguro</div>
                         </div>
                     </button>
 
@@ -1287,8 +1287,13 @@ function seleccionarUalaBis() {
     // Cerrar modal
     cerrarModalPago();
 
-    // Mostrar confirmación y enviar
+    // Mostrar confirmación y enviar directamente
     mostrarConfirmacionFinal('UalaBis');
+
+    // Enviar el formulario después de un breve delay para que el usuario vea el mensaje
+    setTimeout(() => {
+        form.submit();
+    }, 1500);
 }
 
 // Seleccionar Transferencia Manual

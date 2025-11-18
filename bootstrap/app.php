@@ -11,9 +11,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Excluir callback de Apple de verificación CSRF (Apple envía POST sin token)
+        // Excluir callbacks de verificación CSRF
         $middleware->validateCsrfTokens(except: [
-            '/auth/apple/callback',
+            '/auth/apple/callback', // Apple envía POST sin token
+            '/webhook/uala-bis',    // Webhook de UalaBis
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

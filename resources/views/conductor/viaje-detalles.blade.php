@@ -1003,6 +1003,11 @@
         <p>Información completa sobre tu viaje y pasajeros</p>
     </div>
 
+    <!-- Hora actual -->
+    <div class="current-time" id="currentTime">
+        <i class="fas fa-clock"></i> Cargando hora...
+    </div>
+
     <!-- Card principal con detalles del viaje -->
     <div class="modern-card">
         <div class="card-header-custom">
@@ -1132,93 +1137,144 @@
 
     <!-- Sección de pasajeros -->
     <div class="passengers-section">
-        <h4 class="section-header">👥 Pasajeros</h4>
-        
+        <h4 class="section-header">👥 Pasajeros Registrados ({{ $viaje->reservas->count() }})</h4>
+
         @if($viaje->reservas->count())
-            @foreach($viaje->reservas as $reserva)
-            <div class="passenger-card">
-                <div class="passenger-details">
-                    <h6 class="passenger-name-clickable"
-                        onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})">
-                        {{ $reserva->user->name }}
-                    </h6>
-                    
-                    @if($reserva->user->verificado == 1)
-                        <span class="badge verification-mini verified">
-                            <i class="fas fa-shield-check"></i> Verificado
-                        </span>
-                    @else
-                        <span class="badge verification-mini not-verified">
-                            <i class="fas fa-shield-exclamation"></i> No Verificado
-                        </span>
-                    @endif
-                    
-                    <div class="passenger-meta">Reservó {{ $reserva->cantidad_puestos }} puesto(s)</div>
-                    @if($reserva->user->calificacion)
-                        <div class="rating-display">⭐ Calificación: {{ $reserva->user->calificacion }}/5</div>
-                    @endif
-                </div>
-                
-                <div class="passenger-actions">
-                    <a href="{{ route('chat.ver', $viaje->id) }}" class="btn btn-sm btn-outline-primary btn-modern">💬 Chat</a>
-                    
-                    @if($requiereVerificacion && $reserva->estado == 'pendiente_confirmacion')
-                        <button type="button"
-                                class="btn btn-sm btn-success btn-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#aprobarModal"
-                                onclick="setApprovalData({{ $reserva->id }}, '{{ $reserva->user->name }}', 'verificar')">
-                            ✅ Aprobar
-                        </button>
-                        <button type="button"
-                                class="btn btn-sm btn-danger btn-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#rechazarModal"
-                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
-                            ❌ Rechazar
-                        </button>
-                    @elseif($requiereVerificacion && $reserva->estado == 'pendiente_pago')
-                        <span class="badge bg-success">✅ Aprobado</span>
-                        <button type="button"
-                                class="btn btn-sm btn-warning btn-modern"
-                                data-bs-toggle="modal"
-                                data-bs-target="#rechazarModal"
-                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
-                            🚫 Cancelar
-                        </button>
-                    @elseif($reserva->estado == 'cancelar_por_conductor')
-                        <span class="badge bg-danger">❌ Cancelado por conductor</span>
-                    @endif
-                </div>
-                
-                <div class="ratings-section">
-                    <h5 class="ratings-title">🗣️ Calificaciones</h5>
-                    
-                    @if($reserva->calificacionPasajero)
-                        <div class="rating-item">
-                            <div class="rating-header">Pasajero comentó:</div>
-                            <div class="rating-comment">{{ $reserva->calificacionPasajero->comentario }}</div>
-                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionPasajero->calificacion }}/5</div>
-                        </div>
-                    @else
-                        <div class="no-rating">Este pasajero no ha calificado aún al conductor.</div>
-                    @endif
-                    
-                    @if($reserva->calificacionConductor)
-                        <div class="rating-item">
-                            <div class="rating-header">Conductor comentó:</div>
-                            <div class="rating-comment">{{ $reserva->calificacionConductor->comentario }}</div>
-                            <div class="rating-stars">⭐ Calificación: {{ $reserva->calificacionConductor->calificacion }}/5</div>
-                        </div>
-                    @else
-                        <div class="no-rating">Aún no has calificado a este pasajero.</div>
-                    @endif
-                </div>
+            <div class="table-responsive" style="margin-top: 1.5rem;">
+                <table class="table table-hover align-middle" style="background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+                    <thead style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                        <tr>
+                            <th style="padding: 1rem; border: none; font-weight: 600;">Pasajero</th>
+                            <th style="padding: 1rem; border: none; text-align: center; font-weight: 600;">Puestos</th>
+                            <th style="padding: 1rem; border: none; text-align: center; font-weight: 600;">Estado</th>
+                            <th style="padding: 1rem; border: none; text-align: center; font-weight: 600;">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($viaje->reservas as $reserva)
+                        <tr style="border-bottom: 1px solid #e5e7eb; cursor: pointer; transition: background 0.2s;"
+                            onclick="showPassengerModal({{ $reserva->user->id }}, '{{ $reserva->user->name }}', '{{ $reserva->user->foto ? asset('storage/' . $reserva->user->foto) : '' }}', '{{ $reserva->user->email }}', '{{ $reserva->user->celular ?? 'No especificado' }}', '{{ $reserva->user->ciudad ?? 'No especificado' }}', {{ $reserva->user->calificacion ?? 0 }}, {{ $reserva->cantidad_puestos }}, {{ $reserva->user->verificado }})"
+                            onmouseover="this.style.background='#f8fafc'"
+                            onmouseout="this.style.background='white'">
+                            <td style="padding: 1rem;">
+                                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                    @if($reserva->user->foto)
+                                        <img src="{{ asset('storage/' . $reserva->user->foto) }}"
+                                             alt="{{ $reserva->user->name }}"
+                                             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb;">
+                                    @else
+                                        <div style="width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                            {{ strtoupper(substr($reserva->user->name, 0, 1)) }}
+                                        </div>
+                                    @endif
+                                    <div>
+                                        <div style="font-weight: 600; color: #1f2937;">{{ $reserva->user->name }}</div>
+                                        <div style="font-size: 0.8rem; color: #6b7280;">
+                                            @if($reserva->user->verificado == 1)
+                                                <i class="fas fa-shield-check" style="color: #10b981;"></i> Verificado
+                                            @else
+                                                <i class="fas fa-shield" style="color: #f59e0b;"></i> No verificado
+                                            @endif
+                                            @if($reserva->user->calificacion)
+                                                • ⭐ {{ $reserva->user->calificacion }}/5
+                                            @endif
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <td style="padding: 1rem; text-align: center;">
+                                <div style="font-weight: 600; color: #1f2937;">
+                                    <i class="fas fa-chair" style="color: #667eea;"></i> {{ $reserva->cantidad_puestos }}
+                                </div>
+                                @if($reserva->total)
+                                    <div style="font-size: 0.8rem; color: #6b7280;">
+                                        ${{ number_format($reserva->total, 0, ',', '.') }}
+                                    </div>
+                                @endif
+                            </td>
+
+                            <td style="padding: 1rem; text-align: center;" onclick="event.stopPropagation()">
+                                @if($reserva->estado == 'pendiente_confirmacion')
+                                    <span class="badge" style="background: #fef3c7; color: #92400e; padding: 0.5rem 0.75rem; font-weight: 600; border-radius: 8px;">
+                                        ⏳ Pendiente
+                                    </span>
+                                @elseif($reserva->estado == 'pendiente_pago')
+                                    <span class="badge" style="background: #dbeafe; color: #1e40af; padding: 0.5rem 0.75rem; font-weight: 600; border-radius: 8px;">
+                                        💳 Esperando pago
+                                    </span>
+                                    @if($reserva->verificado_por_conductor)
+                                        <div style="font-size: 0.7rem; color: #059669; margin-top: 0.25rem;">
+                                            ✓ {{ \Carbon\Carbon::parse($reserva->updated_at)->format('d/m H:i') }}
+                                        </div>
+                                    @endif
+                                @elseif($reserva->estado == 'confirmada')
+                                    <span class="badge" style="background: #d1fae5; color: #065f46; padding: 0.5rem 0.75rem; font-weight: 600; border-radius: 8px;">
+                                        ✅ Confirmada
+                                    </span>
+                                    @if($reserva->verificado_por_conductor)
+                                        <div style="font-size: 0.7rem; color: #059669; margin-top: 0.25rem;">
+                                            ✓ {{ \Carbon\Carbon::parse($reserva->updated_at)->format('d/m H:i') }}
+                                        </div>
+                                    @endif
+                                @elseif($reserva->estado == 'cancelada_por_conductor')
+                                    <span class="badge" style="background: #fee2e2; color: #991b1b; padding: 0.5rem 0.75rem; font-weight: 600; border-radius: 8px;">
+                                        ❌ Cancelada
+                                    </span>
+                                @else
+                                    <span class="badge" style="background: #f1f5f9; color: #475569; padding: 0.5rem 0.75rem; font-weight: 600; border-radius: 8px;">
+                                        {{ ucfirst(str_replace('_', ' ', $reserva->estado)) }}
+                                    </span>
+                                @endif
+                            </td>
+
+                            <td style="padding: 1rem; text-align: center;" onclick="event.stopPropagation()">
+                                <div style="display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;">
+                                    @if($requiereVerificacion && $reserva->estado == 'pendiente_confirmacion')
+                                        <button type="button"
+                                                class="btn btn-sm btn-success"
+                                                style="padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#aprobarModal"
+                                                onclick="setApprovalData({{ $reserva->id }}, '{{ $reserva->user->name }}', 'verificar')">
+                                            <i class="fas fa-check"></i> Aprobar
+                                        </button>
+                                        <button type="button"
+                                                class="btn btn-sm btn-danger"
+                                                style="padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#rechazarModal"
+                                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                                            <i class="fas fa-times"></i> Rechazar
+                                        </button>
+                                    @elseif($requiereVerificacion && ($reserva->estado == 'pendiente_pago' || $reserva->estado == 'confirmada'))
+                                        <button type="button"
+                                                class="btn btn-sm btn-warning"
+                                                style="padding: 0.4rem 1rem; border-radius: 8px; font-weight: 600;"
+                                                data-bs-toggle="modal"
+                                                data-bs-target="#rechazarModal"
+                                                onclick="setRejectionData({{ $reserva->id }}, '{{ $reserva->user->name }}')">
+                                            <i class="fas fa-ban"></i> Cancelar
+                                        </button>
+                                    @elseif($reserva->estado == 'cancelada_por_conductor')
+                                        <span style="color: #6b7280; font-size: 0.85rem;">
+                                            -
+                                        </span>
+                                    @else
+                                        <span style="color: #059669; font-size: 0.85rem; font-weight: 600;">
+                                            <i class="fas fa-check-circle"></i>
+                                        </span>
+                                    @endif
+                                </div>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
             </div>
-            @endforeach
         @else
-            <div class="alert alert-secondary alert-modern">
-                Aún no hay pasajeros en este viaje.
+            <div class="alert alert-secondary alert-modern" style="margin-top: 1.5rem;">
+                <i class="fas fa-info-circle"></i> Aún no hay pasajeros en este viaje.
             </div>
         @endif
     </div>
@@ -1241,15 +1297,32 @@
                 <div class="mb-3">
                     <i class="fas fa-check-circle text-success" style="font-size: 3rem;"></i>
                 </div>
-                <h6 id="modalMessage">¿Estás seguro de aprobar a este pasajero?</h6>
-                <p class="text-muted">El pasajero pasará a estado "pendiente de pago"</p>
+                <h6 id="modalMessage" class="mb-3" style="font-size: 1.1rem; font-weight: 600;">¿Aprobar a este pasajero?</h6>
+                <div style="background: #f0f9ff; padding: 1rem; border-radius: 12px; border-left: 4px solid #0ea5e9; margin-bottom: 1rem; text-align: left;">
+                    <p class="mb-2" style="color: #0369a1; font-weight: 600; font-size: 0.95rem;">
+                        <i class="fas fa-info-circle"></i> ¿Qué sucederá al aprobar?
+                    </p>
+                    <ul style="color: #0c4a6e; font-size: 0.9rem; margin: 0; padding-left: 1.5rem;">
+                        <li>El pasajero recibirá una notificación de aprobación</li>
+                        <li>Se le enviará un enlace para realizar el pago</li>
+                        <li>La reserva pasará a estado <strong>"Pendiente de pago"</strong></li>
+                        <li>Una vez que pague, se confirmará automáticamente</li>
+                    </ul>
+                </div>
+                <p class="text-muted" style="font-size: 0.85rem; margin: 0;">
+                    <i class="fas fa-shield-check"></i> Al aprobar, confirmas que revisaste el perfil del pasajero
+                </p>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
                 <form id="approvalForm" method="POST" style="display: inline;">
                     @csrf
                     <input type="hidden" name="accion" value="verificar">
-                    <button type="submit" class="btn btn-success">Sí, Aprobar</button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-check"></i> Sí, Aprobar Pasajero
+                    </button>
                 </form>
             </div>
         </div>
@@ -1698,66 +1771,112 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ========================================
+    // RELOJ EN TIEMPO REAL
+    // ========================================
+    function actualizarReloj() {
+        const ahora = new Date();
+        const opciones = {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+            hour12: false
+        };
+        const horaActual = ahora.toLocaleString('es-AR', opciones);
+        document.getElementById('currentTime').innerHTML = `<i class="fas fa-clock"></i> ${horaActual}`;
+    }
+
+    actualizarReloj();
+    setInterval(actualizarReloj, 1000);
+
+    // ========================================
     // SISTEMA DE BOTÓN INICIAR VIAJE
     // ========================================
     const fechaSalida = '{{ $viaje->fecha_salida }}';
     const horaSalida = '{{ $viaje->hora_salida }}';
     const estadoViaje = '{{ $viaje->estado }}';
-    
+
     if (!fechaSalida || !horaSalida) {
         return;
     }
-    
+
     function verificarBotonIniciar() {
         const ahora = new Date();
         const fechaFormateada = fechaSalida.split(' ')[0];
         const horaFormateada = horaSalida.substring(0, 8);
         const fechaHoraSalida = new Date(fechaFormateada + 'T' + horaFormateada);
-        const tiempoActivacion = new Date(fechaHoraSalida.getTime() - (15 * 60 * 1000));
-        const fechaAhora = ahora.toISOString().split('T')[0];
-        const fechaViaje = fechaFormateada;
-        const esMismoDia = fechaAhora === fechaViaje;
-        const tiempoMaximo = new Date(fechaHoraSalida.getTime() + (3 * 60 * 60 * 1000));
+
+        // Botón aparece 90 minutos antes de la salida
+        const tiempoActivacion = new Date(fechaHoraSalida.getTime() - (90 * 60 * 1000)); // 90 minutos
+        const tiempoMaximo = new Date(fechaHoraSalida.getTime() + (3 * 60 * 60 * 1000)); // 3 horas después
+
         const enRangoTiempo = ahora >= tiempoActivacion && ahora <= tiempoMaximo;
-        
-        const modoTesting = true;
-        const deberiaVisible = modoTesting ? 
-            (esMismoDia && estadoViaje !== 'iniciado') : 
-            (esMismoDia && enRangoTiempo && estadoViaje !== 'iniciado');
-        
+        const deberiaVisible = enRangoTiempo && estadoViaje !== 'iniciado';
+
         const container = document.getElementById('iniciarViajeContainer');
         const countdown = document.getElementById('countdown');
-        
+        const btnIniciar = document.getElementById('btnIniciarViaje');
+
         if (deberiaVisible) {
             container.style.display = 'block';
-            
+
             const diff = fechaHoraSalida.getTime() - ahora.getTime();
+
             if (diff > 0) {
+                // Aún no es la hora de salida - mostrar contador
+                btnIniciar.style.display = 'none';
                 const horas = Math.floor(diff / (1000 * 60 * 60));
                 const minutos = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
                 const segundos = Math.floor((diff % (1000 * 60)) / 1000);
-                
-                if (horas > 0) {
-                    countdown.textContent = `⏱️ Salida en ${horas}h ${minutos}m ${segundos}s`;
-                } else {
-                    countdown.textContent = `⏱️ Salida en ${minutos}:${segundos.toString().padStart(2, '0')}`;
-                }
+
+                countdown.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #fff8e1 0%, #ffecb3 100%);
+                                padding: 1.5rem;
+                                border-radius: 16px;
+                                border: 2px solid #ffe082;
+                                box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);">
+                        <div style="font-size: 0.9rem; color: #92400e; margin-bottom: 0.5rem; font-weight: 600;">
+                            ⏳ El viaje podrá iniciarse en:
+                        </div>
+                        <div style="font-size: 2rem; font-weight: 700; color: #f57c00; font-family: 'Courier New', monospace;">
+                            ${horas.toString().padStart(2, '0')}:${minutos.toString().padStart(2, '0')}:${segundos.toString().padStart(2, '0')}
+                        </div>
+                        <div style="font-size: 0.85rem; color: #92400e; margin-top: 0.5rem;">
+                            Hora de salida programada: ${horaFormateada}
+                        </div>
+                    </div>
+                `;
             } else {
+                // Ya pasó la hora de salida - mostrar botón
+                btnIniciar.style.display = 'inline-flex';
                 const tiempoPasado = Math.abs(diff);
                 const minutosPasados = Math.floor(tiempoPasado / (1000 * 60));
+
                 if (minutosPasados < 180) {
-                    countdown.textContent = `🚀 ¡Viaje disponible! (${minutosPasados} min desde la hora programada)`;
+                    countdown.innerHTML = `
+                        <div style="color: #15803d; font-weight: 600; margin-top: 0.75rem; font-size: 0.95rem;">
+                            <i class="fas fa-check-circle"></i> ¡Listo para iniciar!
+                            ${minutosPasados > 0 ? `(${minutosPasados} min desde la hora programada)` : ''}
+                        </div>
+                    `;
                 } else {
-                    countdown.textContent = '⏰ Tiempo de salida expirado';
+                    countdown.innerHTML = `
+                        <div style="color: #991b1b; font-weight: 600; margin-top: 0.75rem; font-size: 0.95rem;">
+                            <i class="fas fa-exclamation-triangle"></i> Tiempo de salida expirado (más de 3 horas)
+                        </div>
+                    `;
                 }
             }
         } else {
             container.style.display = 'none';
         }
     }
-    
+
     verificarBotonIniciar();
-    setInterval(verificarBotonIniciar, 10000);
+    setInterval(verificarBotonIniciar, 1000); // Actualizar cada segundo para contador más preciso
 });
 </script>
 

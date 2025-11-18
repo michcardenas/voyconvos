@@ -370,6 +370,11 @@ public function reservar(Request $request, Viaje $viaje)
             $reserva->metodo_pago = 'transferencia';
         }
 
+        // Si se seleccionó UalaBis como método de pago
+        if ($request->has('metodo_pago') && $request->metodo_pago === 'ualabis') {
+            $reserva->metodo_pago = 'ualabis';
+        }
+
         $reserva->save();
 
         // 🔥 MANEJAR SUBIDA DE COMPROBANTE SI EXISTE
@@ -471,7 +476,13 @@ public function reservar(Request $request, Viaje $viaje)
             return redirect()->route('pasajero.dashboard')->with('success', '✅ Tu comprobante ha sido recibido. Nuestro equipo verificará el pago pronto.');
         }
 
-        // Si el viaje requiere verificación de pasajeros, no crear checkout aún
+        // 🔥 SI SE SELECCIONÓ UALABIS, SALTAR DIRECTO A LA INTEGRACIÓN
+        if ($request->has('metodo_pago') && $request->metodo_pago === 'ualabis') {
+            \Log::info('Método de pago UalaBis seleccionado, saltando a integración');
+            goto uala_setup;
+        }
+
+        // Si el viaje requiere verificación de pasajeros, no crear checkout aún (SOLO SI NO ES UALABIS)
         $registroConductor = \App\Models\RegistroConductor::where('user_id', $viaje->conductor_id)->first();
         if ($registroConductor && $registroConductor->verificar_pasajeros === 1) {
             $reserva->estado = 'pendiente_confirmacion';
@@ -1182,6 +1193,138 @@ private function calcularDistancia($lat1, $lng1, $lat2, $lng2)
     $distancia = $radioTierra * $c;
 
     return round($distancia, 2); // Redondear a 2 decimales
+}
+
+/**
+ * Webhook para notificaciones de pago de UalaBis
+ * Esta ruta debe estar excluida de CSRF en VerifyCsrfToken middleware
+ */
+public function handleUalaWebhook(Request $request)
+{
+    \Log::info('=== WEBHOOK UALABIS RECIBIDO ===', [
+        'headers' => $request->headers->all(),
+        'body' => $request->all(),
+        'raw_body' => $request->getContent()
+    ]);
+
+    try {
+        // Obtener datos del webhook
+        $data = $request->all();
+
+        // Validar que tengamos los datos necesarios
+        if (!isset($data['uuid']) && !isset($data['id'])) {
+            \Log::error('Webhook UalaBis: No se recibió UUID o ID');
+            return response()->json(['error' => 'UUID o ID requerido'], 400);
+        }
+
+        // Buscar la reserva por el UUID de UalaBis
+        $uuid = $data['uuid'] ?? $data['id'] ?? null;
+        $reserva = Reserva::where('uala_checkout_id', $uuid)
+                         ->orWhere('uala_bis_uuid', $uuid)
+                         ->first();
+
+        if (!$reserva) {
+            \Log::error('Webhook UalaBis: Reserva no encontrada', ['uuid' => $uuid]);
+            return response()->json(['error' => 'Reserva no encontrada'], 404);
+        }
+
+        // Obtener el estado del pago desde el webhook
+        $estado = $data['status'] ?? $data['payment_status'] ?? 'unknown';
+
+        \Log::info('Procesando webhook UalaBis', [
+            'reserva_id' => $reserva->id,
+            'estado_recibido' => $estado,
+            'estado_anterior' => $reserva->estado
+        ]);
+
+        // Procesar según el estado
+        switch (strtolower($estado)) {
+            case 'approved':
+            case 'paid':
+            case 'success':
+                $reserva->estado = 'confirmada';
+                $reserva->uala_payment_status = 'approved';
+                $reserva->uala_payment_date = now();
+                $reserva->save();
+
+                // Enviar emails de confirmación
+                $this->enviarEmailsPagoExitoso($reserva);
+
+                // Verificar si el viaje está completo
+                $this->verificarViajeCompleto($reserva->viaje);
+
+                \Log::info('Pago UalaBis aprobado', ['reserva_id' => $reserva->id]);
+                break;
+
+            case 'rejected':
+            case 'cancelled':
+            case 'failed':
+                $reserva->estado = 'cancelada';
+                $reserva->uala_payment_status = 'rejected';
+                $reserva->save();
+
+                \Log::info('Pago UalaBis rechazado', ['reserva_id' => $reserva->id]);
+                break;
+
+            case 'pending':
+            case 'in_process':
+                $reserva->estado = 'pendiente_pago';
+                $reserva->uala_payment_status = 'pending';
+                $reserva->save();
+
+                \Log::info('Pago UalaBis pendiente', ['reserva_id' => $reserva->id]);
+                break;
+
+            default:
+                \Log::warning('Estado de pago UalaBis desconocido', [
+                    'estado' => $estado,
+                    'reserva_id' => $reserva->id
+                ]);
+        }
+
+        return response()->json(['success' => true], 200);
+
+    } catch (\Exception $e) {
+        \Log::error('Error procesando webhook UalaBis', [
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
+        ]);
+
+        return response()->json(['error' => 'Error interno'], 500);
+    }
+}
+
+/**
+ * Enviar emails de pago exitoso (extraído para reutilización)
+ */
+private function enviarEmailsPagoExitoso($reserva)
+{
+    try {
+        $viaje = $reserva->viaje;
+        $pasajero = $reserva->user;
+        $conductor = \App\Models\User::find($viaje->conductor_id);
+        $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+        $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+
+        // EMAIL AL PASAJERO
+        Mail::to($pasajero->email)->send(new UniversalMail(
+            $pasajero,
+            '¡Pago confirmado! - Reserva asegurada',
+            "¡Excelente! Tu pago ha sido procesado exitosamente.\n\n📍 Detalles de tu viaje confirmado:\n• Origen: {$viaje->origen}\n• Destino: {$viaje->destino}\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total pagado: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nTu reserva está 100% confirmada. Te contactaremos pronto con más detalles del viaje.\n\n¡Buen viaje!",
+            'notificacion'
+        ));
+
+        // EMAIL AL CONDUCTOR
+        Mail::to($conductor->email)->send(new UniversalMail(
+            $conductor,
+            'Pago recibido - Reserva confirmada',
+            "¡Buenas noticias! Se ha confirmado el pago de una reserva.\n\n📍 Detalles:\n• Viaje: {$viaje->origen} → {$viaje->destino}\n• Fecha: {$fechaViaje} a las {$horaViaje}\n• Pasajero: {$pasajero->name}\n• Puestos: {$reserva->cantidad_puestos}\n• Monto: $" . number_format($reserva->total, 0, ',', '.') . "\n\nLa reserva está completamente confirmada. Te contactaremos pronto para coordinar detalles del viaje.",
+            'notificacion'
+        ));
+
+    } catch (\Exception $e) {
+        \Log::error('Error enviando emails de pago exitoso: ' . $e->getMessage());
+    }
 }
 
 }
