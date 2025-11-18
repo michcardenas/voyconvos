@@ -303,18 +303,96 @@ public function reservar(Request $request, Viaje $viaje)
             'reserva_id' => $reservaExistente->id,
             'estado' => $reservaExistente->estado
         ]);
-        
-        // Si está pendiente de pago o cancelada, saltar directo al pago
+
+        // Si está pendiente de pago o cancelada, procesar según el método de pago
         if ($reservaExistente->estado === 'pendiente_pago' || $reservaExistente->estado === 'cancelada') {
             \Log::info('=== PROCESANDO PAGO PARA RESERVA EXISTENTE ===', [
-                'estado_original' => $reservaExistente->estado
+                'estado_original' => $reservaExistente->estado,
+                'metodo_pago' => $request->metodo_pago ?? 'no_especificado',
+                'tiene_comprobante' => $request->hasFile('comprobante_pago'),
+                'subir_ahora' => $request->has('subir_ahora')
             ]);
-            
+
             // Usar la reserva existente en lugar de crear una nueva
             $reserva = $reservaExistente;
-            
-            // Saltar directo a la configuración de Uala
-            goto uala_setup;
+
+            // 🔥 VERIFICAR SI SE SUBIÓ UN COMPROBANTE (TRANSFERENCIA)
+            if ($request->hasFile('comprobante_pago')) {
+                \Log::info('=== COMPROBANTE DETECTADO EN RESERVA EXISTENTE ===');
+
+                try {
+                    \DB::beginTransaction();
+
+                    $file = $request->file('comprobante_pago');
+
+                    // Crear nombre único para el archivo
+                    $fileName = 'comprobante_' . $reserva->id . '_' . time() . '.' . $file->getClientOriginalExtension();
+
+                    // Guardar en storage/app/public/comprobantes
+                    $path = $file->storeAs('comprobantes', $fileName, 'public');
+
+                    // Actualizar la reserva con la ruta del comprobante
+                    $reserva->comprobante_pago = $path;
+                    $reserva->fecha_subida_comprobante = now();
+                    $reserva->fecha_limite_comprobante = now()->addHour();
+                    $reserva->metodo_pago = 'transferencia';
+                    $reserva->estado = 'pendiente'; // Cambiar a pendiente hasta que admin verifique
+                    $reserva->save();
+
+                    \DB::commit();
+
+                    \Log::info('=== COMPROBANTE ACTUALIZADO EN RESERVA EXISTENTE ===', [
+                        'reserva_id' => $reserva->id,
+                        'file_path' => $path,
+                        'nuevo_estado' => 'pendiente'
+                    ]);
+
+                    // Enviar correo de confirmación al pasajero
+                    try {
+                        $viaje = $reserva->viaje;
+                        $pasajero = $reserva->user;
+                        $fechaViaje = \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y');
+                        $horaViaje = \Carbon\Carbon::parse($viaje->hora_salida)->format('H:i');
+                        $conductor = \App\Models\User::find($viaje->conductor_id);
+
+                        Mail::to($pasajero->email)->send(new UniversalMail(
+                            $pasajero,
+                            'Comprobante recibido - En verificación',
+                            "¡Gracias por subir tu comprobante de pago!\n\n📍 Detalles del viaje:\n• Fecha: {$fechaViaje}\n• Hora: {$horaViaje}\n• Puestos: {$reserva->cantidad_puestos}\n• Total: $" . number_format($reserva->total, 0, ',', '.') . "\n• Conductor: {$conductor->name}\n\nNuestro equipo verificará tu pago pronto y te notificaremos cuando tu reserva sea confirmada.\n\n¡Gracias por tu paciencia!",
+                            'notificacion'
+                        ));
+                    } catch (\Exception $e) {
+                        \Log::error('Error enviando email de comprobante: ' . $e->getMessage());
+                    }
+
+                    // Si es AJAX, devolver JSON
+                    if ($request->ajax() || $request->wantsJson()) {
+                        return response()->json([
+                            'success' => true,
+                            'message' => 'Comprobante recibido exitosamente',
+                            'redirect' => route('pasajero.dashboard')
+                        ]);
+                    }
+
+                    return redirect()->route('pasajero.dashboard')->with('success', '✅ Tu comprobante ha sido recibido. Nuestro equipo verificará el pago pronto.');
+
+                } catch (\Exception $e) {
+                    \DB::rollBack();
+                    \Log::error('Error subiendo comprobante en reserva existente: ' . $e->getMessage());
+                    return back()->withErrors(['error' => 'Error al subir el comprobante: ' . $e->getMessage()]);
+                }
+            }
+
+            // Si NO hay comprobante y el método es UalaBis, ir a Uala
+            if ($request->has('metodo_pago') && $request->metodo_pago === 'ualabis') {
+                \Log::info('=== RESERVA EXISTENTE: Procesando con UalaBis ===');
+                goto uala_setup;
+            }
+
+            // Si llegó aquí sin comprobante ni método definido, mostrar error
+            if (!$request->has('metodo_pago')) {
+                return back()->withErrors(['error' => 'Por favor selecciona un método de pago válido.']);
+            }
         }
         
         // Si ya está confirmada o en otro estado, informar
