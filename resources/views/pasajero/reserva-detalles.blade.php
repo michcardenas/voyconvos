@@ -1154,6 +1154,27 @@ body.modal-open {
 main {
        min-height: 5px;
 }
+
+/* Animaciones para modales de pago */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
 </style>
 
 <div class="details-wrapper">
@@ -1415,15 +1436,15 @@ main {
             <!-- Botón de pago -->
             @if($reserva->estado == 'pendiente_pago' || $reserva->estado == 'cancelada' || $reserva->estado == 'pendiente')
                 <div class="payment-button-container">
-                    <button type="button" class="btn btn-primary btn-pay" onclick="procesarPago({{ $reserva->id }})">
-                        <i class="fas fa-credit-card"></i> 
+                    <button type="button" class="btn btn-primary btn-pay" onclick="mostrarOpcionesPago()">
+                        <i class="fas fa-credit-card"></i>
                         @if($reserva->estado == 'cancelada')
                             REINTENTAR PAGO
                         @else
-                            PAGAR
+                            PAGAR AHORA
                         @endif
                     </button>
-                    
+
                     @if($reserva->estado == 'cancelada')
                         <p class="payment-note">
                             <i class="fas fa-info-circle"></i> El pago anterior fue cancelado. Puedes intentar nuevamente.
@@ -1565,23 +1586,188 @@ let calificacionSeleccionadaConductor = 0;
 // =========================================
 // 💳 FUNCIONES DE PAGO
 // =========================================
+
+// Mostrar modal de opciones de pago
+function mostrarOpcionesPago() {
+    const modal = document.createElement('div');
+    modal.id = 'modalMetodoPago';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 0;
+            border-radius: 16px;
+            max-width: 380px;
+            width: 90%;
+            margin: 1rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+        ">
+            <!-- Header -->
+            <div style="
+                background: linear-gradient(135deg, #1F4E79 0%, rgba(31, 78, 121, 0.9) 100%);
+                padding: 1.2rem;
+                text-align: center;
+                color: white;
+            ">
+                <div style="font-size: 2rem; margin-bottom: 0.3rem;">💳</div>
+                <h3 style="margin: 0; font-size: 1.1rem; font-weight: 600;">Método de pago</h3>
+            </div>
+
+            <!-- Body -->
+            <div style="padding: 1.2rem;">
+                <!-- Total -->
+                <div style="
+                    background: rgba(76, 175, 80, 0.08);
+                    border: 1px solid rgba(76, 175, 80, 0.2);
+                    border-radius: 8px;
+                    padding: 0.8rem;
+                    text-align: center;
+                    margin-bottom: 1rem;
+                ">
+                    <div style="color: #666; font-size: 0.75rem; margin-bottom: 0.2rem;">Total</div>
+                    <div style="font-size: 1.3rem; font-weight: 700; color: #4CAF50;">
+                        ${{ number_format($reserva->total, 0, ',', '.') }}
+                    </div>
+                </div>
+
+                <!-- Opciones -->
+                <div style="display: grid; gap: 0.6rem; margin-bottom: 1rem;">
+                    <!-- UalaBis -->
+                    <button onclick="seleccionarUalaBisDetalles()" style="
+                        background: white;
+                        border: 2px solid #1F4E79;
+                        border-radius: 8px;
+                        padding: 0.8rem;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.7rem;
+                        text-align: left;
+                        transition: all 0.2s ease;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(31, 78, 121, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #1F4E79, #2A5A8A);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.2rem;
+                            flex-shrink: 0;
+                        ">💳</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">UalaBis</div>
+                            <div style="font-size: 0.7rem; color: #999;">Pago rápido y seguro</div>
+                        </div>
+                    </button>
+
+                    <!-- Transferencia -->
+                    <button onclick="seleccionarTransferenciaDetalles()" style="
+                        background: white;
+                        border: 2px solid #4CAF50;
+                        border-radius: 8px;
+                        padding: 0.8rem;
+                        cursor: pointer;
+                        transition: all 0.2s ease;
+                        display: flex;
+                        align-items: center;
+                        gap: 0.7rem;
+                        text-align: left;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(76, 175, 80, 0.2)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none';">
+                        <div style="
+                            width: 40px;
+                            height: 40px;
+                            background: linear-gradient(135deg, #4CAF50, #66BB6A);
+                            border-radius: 8px;
+                            display: flex;
+                            align-items: center;
+                            justify-content: center;
+                            font-size: 1.2rem;
+                            flex-shrink: 0;
+                        ">🏦</div>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79; font-size: 0.95rem;">Transferencia</div>
+                            <div style="font-size: 0.7rem; color: #999;">Subir comprobante</div>
+                        </div>
+                    </button>
+                </div>
+
+                <!-- Cancelar -->
+                <button onclick="cerrarModalMetodoPago()" style="
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    padding: 0.6rem;
+                    color: #999;
+                    font-size: 0.85rem;
+                    cursor: pointer;
+                    transition: color 0.2s;
+                " onmouseover="this.style.color='#666';" onmouseout="this.style.color='#999';">
+                    Cancelar
+                </button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Cerrar modal de método de pago
+function cerrarModalMetodoPago() {
+    const modal = document.getElementById('modalMetodoPago');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Seleccionar UalaBis
+function seleccionarUalaBisDetalles() {
+    cerrarModalMetodoPago();
+    procesarPago({{ $reserva->id }});
+}
+
+// Seleccionar Transferencia
+function seleccionarTransferenciaDetalles() {
+    cerrarModalMetodoPago();
+    mostrarModalTransferenciaDetalles();
+}
+
+// Procesar pago (redirige a UalaBis u otro método)
 function procesarPago(reservaId) {
     console.log('🚀 Procesando pago para reserva:', reservaId);
-    
+
     // Crear formulario
     const form = document.createElement('form');
     form.method = 'POST';
-    form.action = '/pasajero/reservar/{{ $reserva->viaje_id }}'; // URL directa
-    
+    form.action = '/pasajero/reservar/{{ $reserva->viaje_id }}';
+
     // Campos requeridos
     const campos = {
         'cantidad_puestos': {{ $reserva->cantidad_puestos }},
         'valor_cobrado': {{ $reserva->precio_por_persona }},
         'total': {{ $reserva->total }},
         'viaje_id': {{ $reserva->viaje_id }},
+        'metodo_pago': 'ualabis',
         '_token': '{{ csrf_token() }}'
     };
-    
+
     // Crear inputs
     Object.entries(campos).forEach(([name, value]) => {
         const input = document.createElement('input');
@@ -1590,17 +1776,300 @@ function procesarPago(reservaId) {
         input.value = value;
         form.appendChild(input);
     });
-    
+
     // Deshabilitar botón
     const btn = document.querySelector('.btn-pay');
     if (btn) {
         btn.disabled = true;
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
     }
-    
+
     // Enviar
     document.body.appendChild(form);
     form.submit();
+}
+
+// Modal de transferencia para detalles
+function mostrarModalTransferenciaDetalles() {
+    const modal = document.createElement('div');
+    modal.id = 'modalTransferenciaDetalles';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+        backdrop-filter: blur(5px);
+        animation: fadeIn 0.3s ease;
+        overflow-y: auto;
+        padding: 1rem 0;
+    `;
+
+    modal.innerHTML = `
+        <div style="
+            background: white;
+            padding: 0;
+            border-radius: 12px;
+            max-width: 380px;
+            width: 90%;
+            margin: auto;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.3s ease;
+            overflow: hidden;
+            max-height: 95vh;
+            display: flex;
+            flex-direction: column;
+        ">
+            <!-- Header -->
+            <div style="
+                background: linear-gradient(135deg, #4CAF50 0%, rgba(76, 175, 80, 0.9) 100%);
+                padding: 1rem;
+                text-align: center;
+                color: white;
+                flex-shrink: 0;
+            ">
+                <div style="font-size: 1.8rem; margin-bottom: 0.2rem;">🏦</div>
+                <h3 style="margin: 0; font-size: 1rem; font-weight: 600;">Transferencia</h3>
+            </div>
+
+            <!-- Body Scrollable -->
+            <div style="padding: 1rem; overflow-y: auto; flex: 1;">
+                <!-- Alerta -->
+                <div style="
+                    background: #FFF3CD;
+                    border-left: 3px solid #FFC107;
+                    border-radius: 6px;
+                    padding: 0.6rem;
+                    margin-bottom: 0.8rem;
+                    font-size: 0.75rem;
+                ">
+                    <div style="font-weight: 600; color: #F57C00; margin-bottom: 0.2rem;">⏰ 1 hora para subir</div>
+                    <div style="color: #856404; line-height: 1.3;">Si no subes el comprobante, tu reserva quedará disponible.</div>
+                </div>
+
+                <!-- Datos bancarios -->
+                <div style="
+                    background: rgba(31, 78, 121, 0.05);
+                    border: 1px solid rgba(31, 78, 121, 0.15);
+                    border-radius: 8px;
+                    padding: 0.8rem;
+                    margin-bottom: 0.8rem;
+                    font-size: 0.8rem;
+                ">
+                    <div style="font-weight: 600; color: #1F4E79; margin-bottom: 0.5rem; text-align: center; font-size: 0.85rem;">📋 Datos bancarios</div>
+                    <div style="color: #666; line-height: 1.6;">
+                        <div><strong>Banco:</strong> Ualá Bank S.A.U.</div>
+                        <div><strong>Titular:</strong> AYLEN TORRES PACHECO</div>
+                        <div><strong>CBU:</strong> 3840200500000026659288</div>
+                        <div><strong>Alias:</strong> PURO.RESPIRAR.TELAS</div>
+                        <div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(31, 78, 121, 0.1);">
+                            <strong>Monto:</strong> <span style="color: #4CAF50; font-weight: 700;">${{ number_format($reserva->total, 0, ',', '.') }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Upload -->
+                <div style="margin-bottom: 0.8rem;">
+                    <label style="
+                        display: block;
+                        font-weight: 600;
+                        color: #1F4E79;
+                        margin-bottom: 0.4rem;
+                        font-size: 0.85rem;
+                    ">
+                        📎 Subir comprobante
+                    </label>
+                    <input type="file"
+                           id="comprobanteInputDetalles"
+                           accept="image/*,.pdf"
+                           style="
+                               width: 100%;
+                               padding: 0.6rem;
+                               border: 2px dashed rgba(76, 175, 80, 0.3);
+                               border-radius: 6px;
+                               background: rgba(76, 175, 80, 0.05);
+                               cursor: pointer;
+                               font-size: 0.75rem;
+                           "
+                           onchange="previsualizarComprobanteDetalles(this)">
+                    <div style="font-size: 0.7rem; color: #999; margin-top: 0.3rem;">
+                        JPG, PNG, PDF (máx 5MB)
+                    </div>
+                    <div id="previewComprobanteDetalles" style="margin-top: 0.5rem; display: none;"></div>
+                </div>
+
+                <!-- Botones -->
+                <div style="display: grid; gap: 0.5rem;">
+                    <!-- Subir ahora -->
+                    <button onclick="subirComprobanteAhoraDetalles()" id="btnSubirAhoraDetalles" disabled style="
+                        background: linear-gradient(135deg, #4CAF50, rgba(76, 175, 80, 0.9));
+                        color: white;
+                        border: none;
+                        border-radius: 6px;
+                        padding: 0.7rem;
+                        font-weight: 600;
+                        cursor: not-allowed;
+                        transition: all 0.2s ease;
+                        opacity: 0.5;
+                        font-size: 0.85rem;
+                    ">
+                        📤 Subir ahora
+                    </button>
+
+                    <!-- Volver -->
+                    <button onclick="cerrarModalTransferenciaDetalles()" style="
+                        background: transparent;
+                        border: none;
+                        padding: 0.5rem;
+                        color: #999;
+                        font-size: 0.8rem;
+                        cursor: pointer;
+                        transition: color 0.2s;
+                    " onmouseover="this.style.color='#666';" onmouseout="this.style.color='#999';">
+                        ← Volver
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(modal);
+}
+
+// Cerrar modal de transferencia
+function cerrarModalTransferenciaDetalles() {
+    const modal = document.getElementById('modalTransferenciaDetalles');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+// Previsualizar comprobante
+function previsualizarComprobanteDetalles(input) {
+    const preview = document.getElementById('previewComprobanteDetalles');
+    const btnSubir = document.getElementById('btnSubirAhoraDetalles');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        const reader = new FileReader();
+
+        // Validar tamaño (5MB)
+        if (file.size > 5 * 1024 * 1024) {
+            alert('El archivo es muy grande. Máximo 5MB.');
+            input.value = '';
+            return;
+        }
+
+        reader.onload = function(e) {
+            preview.style.display = 'block';
+            if (file.type.includes('pdf')) {
+                preview.innerHTML = `
+                    <div style="
+                        background: rgba(31, 78, 121, 0.05);
+                        border: 1px solid rgba(31, 78, 121, 0.2);
+                        border-radius: 8px;
+                        padding: 1rem;
+                        display: flex;
+                        align-items: center;
+                        gap: 1rem;
+                    ">
+                        <i class="fas fa-file-pdf" style="font-size: 2rem; color: #F44336;"></i>
+                        <div style="flex: 1;">
+                            <div style="font-weight: 600; color: #1F4E79;">${file.name}</div>
+                            <div style="font-size: 0.8rem; color: #666;">${(file.size / 1024).toFixed(2)} KB</div>
+                        </div>
+                        <i class="fas fa-check-circle" style="color: #4CAF50; font-size: 1.5rem;"></i>
+                    </div>
+                `;
+            } else {
+                preview.innerHTML = `
+                    <img src="${e.target.result}" style="
+                        width: 100%;
+                        max-height: 200px;
+                        object-fit: contain;
+                        border-radius: 8px;
+                        border: 2px solid rgba(76, 175, 80, 0.3);
+                    ">
+                `;
+            }
+
+            // Habilitar botón
+            btnSubir.disabled = false;
+            btnSubir.style.cursor = 'pointer';
+            btnSubir.style.opacity = '1';
+            btnSubir.onmouseover = function() {
+                this.style.transform = 'translateY(-2px)';
+                this.style.boxShadow = '0 6px 20px rgba(76, 175, 80, 0.3)';
+            };
+            btnSubir.onmouseout = function() {
+                this.style.transform = 'translateY(0)';
+                this.style.boxShadow = 'none';
+            };
+        };
+
+        reader.readAsDataURL(file);
+    }
+}
+
+// Subir comprobante ahora
+async function subirComprobanteAhoraDetalles() {
+    const fileInput = document.getElementById('comprobanteInputDetalles');
+    if (!fileInput.files || !fileInput.files[0]) {
+        alert('Por favor selecciona un comprobante');
+        return;
+    }
+
+    // Deshabilitar botón para evitar múltiples envíos
+    const btnSubir = document.getElementById('btnSubirAhoraDetalles');
+    btnSubir.disabled = true;
+    btnSubir.textContent = '⏳ Subiendo...';
+
+    try {
+        // Crear FormData
+        const formData = new FormData();
+        formData.append('comprobante_pago', fileInput.files[0]);
+        formData.append('cantidad_puestos', {{ $reserva->cantidad_puestos }});
+        formData.append('valor_cobrado', {{ $reserva->precio_por_persona }});
+        formData.append('total', {{ $reserva->total }});
+        formData.append('viaje_id', {{ $reserva->viaje_id }});
+        formData.append('metodo_pago', 'transferencia');
+        formData.append('subir_ahora', '1');
+        formData.append('_token', '{{ csrf_token() }}');
+
+        // Enviar con AJAX
+        const response = await fetch('/pasajero/reservar/{{ $reserva->viaje_id }}', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+
+        if (response.ok) {
+            cerrarModalTransferenciaDetalles();
+
+            // Mostrar mensaje de éxito
+            alert('✅ ¡Comprobante subido exitosamente! Nuestro equipo verificará el pago pronto.');
+
+            // Recargar página
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        } else {
+            throw new Error('Error al procesar la solicitud');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Hubo un error al subir el comprobante. Por favor, intenta nuevamente.');
+        btnSubir.disabled = false;
+        btnSubir.textContent = '📤 Subir ahora';
+    }
 }
 
 // =========================================
