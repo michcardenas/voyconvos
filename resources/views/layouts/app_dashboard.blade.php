@@ -150,20 +150,30 @@
             <nav>
                 <ul>
                     <!-- <li><a href="#">Coche compartido</a></li> -->
+                    <li>
+                        <a href="{{ route('pasajero.viajes.disponibles') }}" class="text-gray-700 hover:text-indigo-600">
+                            Viajes Disponibles
+                        </a>
+                    </li>
+                    <li>
+                        <a href="{{ route('pasajero.dashboard') }}" class="text-gray-700 hover:text-indigo-600">
+                            Mis Viajes
+                        </a>
+                    </li>
                     @role('admin')
-                        <li>  
+                        <li>
                         <a href="{{ route('admin.users.index') }}" class="text-gray-700 hover:text-indigo-600">
                             Gestión de Usuarios
                         </a>
                     </li>
-                    <li>  
+                    <li>
                         <a href="{{ route('configuracion.index') }}" class="text-gray-700 hover:text-indigo-600">
                             Configuración
                         </a>
                     </li>
                     @endrole
                 </ul>
-            
+
             </nav>
  <div class="user-profile">
     <div class="dropdown">

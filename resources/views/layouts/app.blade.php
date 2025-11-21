@@ -267,6 +267,9 @@
                     <li><a href="{{ url('/') }}">Inicio</a></li>
                     <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
                     <li><a href="{{ route('pasajero.viajes.disponibles') }}">Viajes Disponibles</a></li>
+                    @auth
+                        <li><a href="{{ route('pasajero.dashboard') }}">Mis Viajes</a></li>
+                    @endauth
                     <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
                     <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                 </ul>
@@ -393,6 +396,14 @@
                         <span>Viajes Disponibles</span>
                     </a>
                 </li>
+                @auth
+                    <li class="mobile-nav-item">
+                        <a href="{{ route('pasajero.dashboard') }}" class="mobile-nav-link">
+                            <i class="fas fa-suitcase-rolling"></i>
+                            <span>Mis Viajes</span>
+                        </a>
+                    </li>
+                @endauth
                 <li class="mobile-nav-item">
                     <a href="{{ url('/contacto') }}" class="mobile-nav-link">
                         <i class="fas fa-envelope"></i>
