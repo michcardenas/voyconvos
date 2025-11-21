@@ -202,7 +202,7 @@
                                 <small>por persona</small>
                             </div>
                         </div>
-                        <button class="reserve-btn" onclick="goToLogin('{{ $mostrarOrigen }}', '{{ $mostrarDestino }}')">
+                        <button class="reserve-btn" onclick="goToLogin('{{ $mostrarOrigen }}', '{{ $mostrarDestino }}', {{ $viaje->id }})">
                             {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
                         </button>
                     </div>
@@ -731,8 +731,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Función para ir al dashboard híbrido
-function goToLogin(origen = '', destino = '') {
+// Función para ir al dashboard híbrido o confirmar reserva
+function goToLogin(origen = '', destino = '', viajeId = null) {
+    // Si el usuario está logueado y hay un viajeId, ir directo a confirmar reserva
+    @auth
+        if (viajeId) {
+            window.location.href = '/pasajero/reservar/' + viajeId;
+            return;
+        }
+    @endauth
+
+    // Si no está logueado o no hay viajeId específico, ir al dashboard híbrido
     if (origen && destino) {
         sessionStorage.setItem('selectedTrip', JSON.stringify({
             origen: origen,

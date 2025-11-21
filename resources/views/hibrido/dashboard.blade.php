@@ -1219,6 +1219,34 @@ document.addEventListener('DOMContentLoaded', function() {
         updatePasajerosLabel(selectPasajeros.value);
     }
 
+    // Cargar datos del viaje seleccionado desde welcome.blade.php
+    const selectedTrip = sessionStorage.getItem('selectedTrip');
+    if (selectedTrip) {
+        try {
+            const tripData = JSON.parse(selectedTrip);
+
+            // Pre-llenar origen
+            const inputOrigen = document.getElementById('autocomplete-origen');
+            if (inputOrigen && tripData.origen) {
+                inputOrigen.value = tripData.origen;
+                console.log('✅ Origen pre-llenado:', tripData.origen);
+            }
+
+            // Pre-llenar destino
+            const inputDestino = document.getElementById('autocomplete-destino');
+            if (inputDestino && tripData.destino) {
+                inputDestino.value = tripData.destino;
+                console.log('✅ Destino pre-llenado:', tripData.destino);
+            }
+
+            // Limpiar sessionStorage después de usar
+            sessionStorage.removeItem('selectedTrip');
+
+        } catch (error) {
+            console.error('Error al cargar datos del viaje:', error);
+        }
+    }
+
     // Inicializar Google Places Autocomplete
     initAutocomplete();
 });
