@@ -1106,6 +1106,174 @@ body {
 </div>
 @endif
 
+<!-- Mis Reservas Section -->
+@if(isset($reservas) && $reservas->count() > 0)
+<div class="features-section">
+    <h2 class="section-title">Mis Reservas</h2>
+
+    <div class="viajes-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 2rem;">
+        @foreach($reservas->take(6) as $reserva)
+            @if($reserva->viaje)
+            <div class="viaje-card" style="background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; border-left: 4px solid #00a8e1;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        @switch($reserva->estado)
+                            @case('pendiente')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #fef3c7; color: #92400e;">⏰ Pendiente</span>
+                                @break
+                            @case('pendiente_pago')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #dbeafe; color: #1e40af;">💳 Por Pagar</span>
+                                @break
+                            @case('pendiente_confirmacion')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #fef3c7; color: #92400e;">🕐 Esperando</span>
+                                @break
+                            @case('confirmada')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #d1fae5; color: #065f46;">✅ Confirmado</span>
+                                @break
+                            @case('cancelada')
+                            @case('cancelada_por_conductor')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #fee2e2; color: #991b1b;">❌ Cancelado</span>
+                                @break
+                            @case('completada')
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #d1fae5; color: #065f46;">🎉 Completado</span>
+                                @break
+                            @default
+                                <span class="badge" style="display: inline-block; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #e2e8f0; color: #475569;">{{ ucfirst($reserva->estado) }}</span>
+                        @endswitch
+                    </div>
+                    <div style="text-align: right;">
+                        <div style="font-size: 1.5rem; font-weight: 700; color: #00a8e1;">
+                            ${{ number_format($reserva->total ?? 0, 0, ',', '.') }}
+                        </div>
+                        <div style="font-size: 0.75rem; color: #64748b;">total</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1rem;">
+                    @php
+                        // Función para acortar nombres de provincias
+                        $acortarProvinciaReserva = function($texto) {
+                            $reemplazos = [
+                                'Cdad. Autónoma de Buenos Aires' => 'CABA',
+                                'Ciudad Autónoma de Buenos Aires' => 'CABA',
+                                'Autonomous City of Buenos Aires' => 'CABA',
+                                'Provincia de Buenos Aires' => 'Bs.As.',
+                                'Buenos Aires Province' => 'Bs.As.',
+                            ];
+                            return str_replace(array_keys($reemplazos), array_values($reemplazos), $texto);
+                        };
+
+                        // Procesar origen
+                        $origenReservaParts = array_map('trim', explode(',', $reserva->viaje->origen_direccion ?? 'Origen'));
+                        $countReserva = count($origenReservaParts);
+                        $origenReservaCorta = $countReserva >= 3 ? $origenReservaParts[$countReserva - 3] . ', ' . $origenReservaParts[$countReserva - 2] : ($reserva->viaje->origen_direccion ?? 'Origen');
+                        $origenReservaCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenReservaCorta);
+                        $origenReservaCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenReservaCorta);
+                        $origenReservaCorta = preg_replace('/\s+/', ' ', $origenReservaCorta);
+                        $origenReservaCorta = preg_replace('/,\s*,/', ',', $origenReservaCorta);
+                        $origenReservaCorta = trim($origenReservaCorta, ' ,');
+                        $origenReservaCorta = $acortarProvinciaReserva($origenReservaCorta);
+
+                        // Procesar destino
+                        $destinoReservaParts = array_map('trim', explode(',', $reserva->viaje->destino_direccion ?? 'Destino'));
+                        $countReserva = count($destinoReservaParts);
+                        $destinoReservaCorta = $countReserva >= 3 ? $destinoReservaParts[$countReserva - 3] . ', ' . $destinoReservaParts[$countReserva - 2] : ($reserva->viaje->destino_direccion ?? 'Destino');
+                        $destinoReservaCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoReservaCorta);
+                        $destinoReservaCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoReservaCorta);
+                        $destinoReservaCorta = preg_replace('/\s+/', ' ', $destinoReservaCorta);
+                        $destinoReservaCorta = preg_replace('/,\s*,/', ',', $destinoReservaCorta);
+                        $destinoReservaCorta = trim($destinoReservaCorta, ' ,');
+                        $destinoReservaCorta = $acortarProvinciaReserva($destinoReservaCorta);
+                    @endphp
+
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+                        <i class="fas fa-map-marker-alt" style="color: var(--vcv-accent); width: 16px;"></i>
+                        <span style="font-weight: 600; color: var(--vcv-dark);">
+                            {{ Str::limit($origenReservaCorta, 30) }}
+                        </span>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="fas fa-map-marker-alt" style="color: var(--vcv-primary); width: 16px;"></i>
+                        <span style="font-weight: 600; color: var(--vcv-dark);">
+                            {{ Str::limit($destinoReservaCorta, 30) }}
+                        </span>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; padding: 1rem 0; border-top: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0;">
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">
+                            <i class="far fa-calendar" style="margin-right: 4px;"></i>Fecha
+                        </div>
+                        <div style="font-weight: 600; color: var(--vcv-dark);">
+                            @if($reserva->viaje->fecha_salida)
+                                {{ \Carbon\Carbon::parse($reserva->viaje->fecha_salida)->format('d/m/Y') }}
+                            @else
+                                No definida
+                            @endif
+                        </div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.25rem;">
+                            <i class="far fa-clock" style="margin-right: 4px;"></i>Hora
+                        </div>
+                        <div style="font-weight: 600; color: var(--vcv-dark);">
+                            @if($reserva->viaje->hora_salida)
+                                {{ \Carbon\Carbon::parse($reserva->viaje->hora_salida)->format('H:i') }}
+                            @else
+                                No definida
+                            @endif
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1rem;">
+                    <div>
+                        <div style="font-size: 0.875rem; color: #64748b;">
+                            <i class="fas fa-users" style="margin-right: 4px;"></i>
+                            <span style="font-weight: 600; color: var(--vcv-primary);">{{ $reserva->cantidad_puestos ?? 1 }}</span> puesto(s)
+                        </div>
+                    </div>
+                    <a href="{{ route('pasajero.reserva.detalles', $reserva->id) }}"
+                       class="btn-ver-viaje"
+                       style="padding: 0.5rem 1.25rem; background: #00a8e1; color: white; border-radius: 8px; text-decoration: none; font-size: 0.875rem; font-weight: 600; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem;">
+                        Ver detalles
+                        <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+            @endif
+        @endforeach
+    </div>
+
+    <!-- Botón para ver todas las reservas -->
+    <div style="text-align: center; margin-top: 2rem;">
+        <a href="{{ route('pasajero.dashboard') }}" class="btn-publish" style="background: #00a8e1;">
+            <i class="fas fa-list"></i>
+            Ver todas mis reservas
+        </a>
+    </div>
+</div>
+@elseif(!$esConductor)
+<div class="features-section">
+    <div style="text-align: center; padding: 3rem 2rem; background: white; border-radius: 16px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);">
+        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, rgba(0, 168, 225, 0.1) 0%, rgba(0, 168, 225, 0.05) 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 2rem; margin: 0 auto 1.5rem; color: #00a8e1;">
+            <i class="fas fa-suitcase-rolling"></i>
+        </div>
+        <h3 style="font-size: 1.5rem; font-weight: 600; color: var(--vcv-primary); margin-bottom: 1rem;">
+            No tienes reservas aún
+        </h3>
+        <p style="color: #64748b; margin-bottom: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+            Busca viajes disponibles y comienza a ahorrar dinero mientras conoces gente nueva.
+        </p>
+        <a href="{{ route('pasajero.viajes.disponibles') }}" class="btn-publish" style="background: #00a8e1;">
+            <i class="fas fa-search"></i>
+            Buscar viajes disponibles
+        </a>
+    </div>
+</div>
+@endif
+
 <!-- How it Works -->
 <div class="how-it-works">
     <div class="features-section">

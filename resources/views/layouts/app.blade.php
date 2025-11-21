@@ -266,6 +266,7 @@
                 <ul>
                     <li><a href="{{ url('/') }}">Inicio</a></li>
                     <li><a href="{{ route('sobre-nosotros') }}">Nosotros</a></li>
+                    <li><a href="{{ route('pasajero.viajes.disponibles') }}">Viajes Disponibles</a></li>
                     <li><a href="{{ url('/contacto') }}">Contáctanos</a></li>
                     <li><a href="{{ route('como-funciona') }}">Cómo funciona</a></li>
                 </ul>
@@ -384,6 +385,12 @@
                     <a href="{{ route('sobre-nosotros') }}" class="mobile-nav-link">
                         <i class="fas fa-users"></i>
                         <span>Nosotros</span>
+                    </a>
+                </li>
+                <li class="mobile-nav-item">
+                    <a href="{{ route('pasajero.viajes.disponibles') }}" class="mobile-nav-link">
+                        <i class="fas fa-route"></i>
+                        <span>Viajes Disponibles</span>
                     </a>
                 </li>
                 <li class="mobile-nav-item">
