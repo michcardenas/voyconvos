@@ -249,7 +249,9 @@
     </style>
 </head>
 <body>
-
+ <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('img/logo.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('img/logo.png') }}">
     {{-- HEADER --}}
     <header id="navbar" class="navbar">
         <div class="container header-container">
