@@ -317,8 +317,12 @@
                                     <i class="fas fa-th-large"></i>
                                     Mi Dashboard
                                 </a>
+                                <a href="{{ route('pasajero.dashboard') }}" class="dropdown-item">
+                                    <i class="fas fa-suitcase-rolling"></i>
+                                    Mis Viajes
+                                </a>
                             @endif
-                            
+
                             <a href="" class="dropdown-item">
                                 <i class="fas fa-user-edit"></i>
                                 Mi Perfil

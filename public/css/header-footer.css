@@ -37,8 +37,9 @@ COLORES DEL NAVBAR:
     justify-content: space-between;
     padding: 0 20px;
     height: 70px;
-    max-width: 1200px;
+    max-width: 1400px; /* Ampliado de 1200px a 1400px */
     margin: 0 auto;
+    gap: 40px; /* Espaciado entre logo, nav y usuario */
 } 
 
 
@@ -70,6 +71,8 @@ COLORES DEL NAVBAR:
 /* Navegación Desktop - HORIZONTAL */
 .desktop-nav {
     display: flex;
+    flex: 1; /* Permite que el nav ocupe el espacio disponible */
+    justify-content: center; /* Centra los elementos del nav */
 }
 
 .desktop-nav ul {
@@ -78,16 +81,18 @@ COLORES DEL NAVBAR:
     list-style: none;
     margin: 0;
     padding: 0;
-    gap: 30px;
+    gap: 35px; /* Incrementado de 30px a 35px para más espacio */
+    align-items: center;
 }
 
 .desktop-nav a {
     text-decoration: none;
     color: #3498db; /* Azul simple */
     font-weight: 500;
-    font-size: 1rem;
+    font-size: 0.95rem; /* Ligeramente reducido para que quepa mejor */
     transition: color 0.3s ease;
     position: relative;
+    white-space: nowrap; /* Evita que los textos se rompan en múltiples líneas */
 }
 
 .desktop-nav a:hover {
@@ -422,7 +427,7 @@ footer::before {
 }
 
 .container {
-    max-width: 1200px;
+    max-width: 1250px;
     padding: 0 20px;
 }
 
@@ -562,29 +567,46 @@ footer::before {
 @media (max-width: 992px) and (min-width: 769px) {
     .header-container {
         padding: 0 15px;
+        gap: 20px; /* Reduce gap en tablets */
     }
-    
+
     .desktop-nav ul {
-        gap: 20px;
+        gap: 18px; /* Reduce spacing entre items */
     }
-    
+
     .desktop-nav a {
-        font-size: 0.9rem;
+        font-size: 0.85rem; /* Reduce tamaño de fuente */
     }
-    
+
     .footer-columns {
         grid-template-columns: repeat(2, 1fr);
         gap: 30px;
     }
-    
+
     .footer-contact {
         flex-direction: column;
         text-align: center;
         padding: 30px 0;
     }
-    
+
     main {
         margin-top: 70px;
+    }
+}
+
+/* PANTALLAS GRANDES (993px - 1200px) - AJUSTE INTERMEDIO */
+@media (min-width: 993px) and (max-width: 1200px) {
+    .header-container {
+        padding: 0 25px;
+        gap: 30px;
+    }
+
+    .desktop-nav ul {
+        gap: 25px;
+    }
+
+    .desktop-nav a {
+        font-size: 0.9rem;
     }
 }
 
