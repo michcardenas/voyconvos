@@ -908,37 +908,70 @@ public function mostrarViajesDisponibles(Request $request) {
     // Obtener TODOS los viajes que cumplen los criterios básicos
     $viajesDisponibles = $query->get();
 
+    // 🔥 NUEVA LÓGICA: Búsqueda flexible con alternativas
+    $busquedaExacta = true;
+    $mostrandoAlternativas = false;
+
     // ✅ FILTRADO FLEXIBLE POR CIUDADES (después de obtener los viajes)
     if ($request->filled('ciudad_origen')) {
         $ciudadOrigenBuscada = $this->normalizarCiudad($request->ciudad_origen);
-        
-        $viajesDisponibles = $viajesDisponibles->filter(function($viaje) use ($ciudadOrigenBuscada) {
+
+        // Primero intentar búsqueda exacta
+        $viajesExactos = $viajesDisponibles->filter(function($viaje) use ($ciudadOrigenBuscada) {
             $ciudadViaje = $this->normalizarCiudad($this->extraerCiudad($viaje->origen_direccion));
-            
+
             // Coincidencia flexible: contiene o es similar
-            return stripos($ciudadViaje, $ciudadOrigenBuscada) !== false 
+            return stripos($ciudadViaje, $ciudadOrigenBuscada) !== false
                    || stripos($ciudadOrigenBuscada, $ciudadViaje) !== false
                    || $this->esSimilar($ciudadViaje, $ciudadOrigenBuscada);
         });
+
+        // Si no hay resultados exactos, buscar alternativas cercanas
+        if ($viajesExactos->isEmpty()) {
+            $busquedaExacta = false;
+            $mostrandoAlternativas = true;
+            \Log::info('No se encontraron viajes exactos para origen, mostrando alternativas');
+        } else {
+            $viajesDisponibles = $viajesExactos;
+        }
     }
 
     if ($request->filled('ciudad_destino')) {
         $ciudadDestinoBuscada = $this->normalizarCiudad($request->ciudad_destino);
-        
-        $viajesDisponibles = $viajesDisponibles->filter(function($viaje) use ($ciudadDestinoBuscada) {
+
+        // Primero intentar búsqueda exacta
+        $viajesExactos = $viajesDisponibles->filter(function($viaje) use ($ciudadDestinoBuscada) {
             $ciudadViaje = $this->normalizarCiudad($this->extraerCiudad($viaje->destino_direccion));
-            
+
             // Coincidencia flexible: contiene o es similar
-            return stripos($ciudadViaje, $ciudadDestinoBuscada) !== false 
+            return stripos($ciudadViaje, $ciudadDestinoBuscada) !== false
                    || stripos($ciudadDestinoBuscada, $ciudadViaje) !== false
                    || $this->esSimilar($ciudadViaje, $ciudadDestinoBuscada);
         });
+
+        // Si no hay resultados exactos, buscar alternativas cercanas
+        if ($viajesExactos->isEmpty()) {
+            $busquedaExacta = false;
+            $mostrandoAlternativas = true;
+            \Log::info('No se encontraron viajes exactos para destino, mostrando alternativas');
+        } else {
+            $viajesDisponibles = $viajesExactos;
+        }
+    }
+
+    // 🔥 Si no hay resultados después de aplicar filtros, mostrar todos los disponibles
+    if ($viajesDisponibles->isEmpty() && ($request->filled('ciudad_origen') || $request->filled('ciudad_destino'))) {
+        \Log::info('Mostrando todos los viajes disponibles como alternativas');
+        $viajesDisponibles = $query->get();
+        $mostrandoAlternativas = true;
+        $busquedaExacta = false;
     }
 
     // Determinar ordenamiento
     $ordenamiento = $request->get('ordenar', 'fecha');
 
-    if ($ordenamiento === 'cercania') {
+    if ($ordenamiento === 'cercania' || $mostrandoAlternativas) {
+        // Si está mostrando alternativas, ordenar por cercanía automáticamente
         $viajesDisponibles = $viajesDisponibles->map(function($viaje) {
             $viaje->distancia_km = $this->calcularDistanciaDesdeReferencia($viaje);
             return $viaje;
@@ -994,11 +1027,13 @@ public function mostrarViajesDisponibles(Request $request) {
     $estadoVerificacion = $this->verificarEstadoPerfil($usuario);
 
     return view('pasajero.viajesDisponibles', compact(
-        'viajesDisponibles', 
-        'ciudadesOrigen', 
-        'ciudadesDestino', 
+        'viajesDisponibles',
+        'ciudadesOrigen',
+        'ciudadesDestino',
         'calificacionesUsuario',
-        'estadoVerificacion'
+        'estadoVerificacion',
+        'mostrandoAlternativas',
+        'busquedaExacta'
     ));
 }
 /**

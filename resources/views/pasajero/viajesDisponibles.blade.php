@@ -1098,13 +1098,29 @@
             </div>
         @endif
 
+        <!-- Mensaje de alternativas -->
+        @if(isset($mostrandoAlternativas) && $mostrandoAlternativas)
+            <div class="results-summary" role="status" aria-live="polite" style="background: rgba(255, 193, 7, 0.05); border-left-color: #ffc107;">
+                <div class="results-content">
+                    <p class="results-text">
+                        <span class="results-icon">💡</span>
+                        No se encontraron viajes exactos para tu búsqueda.
+                        <span class="filter-indicator">Mostrando viajes alternativos cercanos</span>
+                    </p>
+                    <p class="no-results-suggestion">
+                        <small>📍 Estos viajes están ordenados por cercanía. También puedes <a href="{{ route('pasajero.viajes.disponibles') }}">ver todos los viajes disponibles</a></small>
+                    </p>
+                </div>
+            </div>
+        @endif
+
         <!-- Resumen de Resultados -->
         <div class="results-summary" role="status" aria-live="polite">
             <div class="results-content">
                 <p class="results-text">
                     <span class="results-icon">🔍</span>
-                    Se encontraron 
-                    <span class="results-count">{{ $viajesDisponibles->count() }}</span> 
+                    Se encontraron
+                    <span class="results-count">{{ $viajesDisponibles->count() }}</span>
                     {{ $viajesDisponibles->count() == 1 ? 'viaje disponible' : 'viajes disponibles' }}
                     @if(request()->hasAny(['puestos_minimos', 'ciudad_origen', 'ciudad_destino', 'fecha_salida']))
                         <span class="filter-indicator">con los filtros aplicados</span>
