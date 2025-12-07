@@ -572,6 +572,8 @@
   .viaje-card {
     min-width: 320px;
     max-width: 320px;
+    min-height: 480px;
+    max-height: 480px;
     flex-shrink: 0;
     background: white;
     border-radius: 15px;
@@ -580,7 +582,6 @@
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
-    height: 100%;
   }
 
   .viaje-card:hover {
@@ -598,7 +599,8 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
-    min-height: 50px;
+    min-height: 60px;
+    max-height: 60px;
   }
 
   .cities .from,
@@ -714,6 +716,7 @@
     font-weight: bold;
     font-size: 0.95rem;
     transition: all 0.3s ease;
+    margin-top: auto;
   }
 
   .reserve-btn:hover {
@@ -1175,9 +1178,10 @@
   .viaje-card {
     min-width: 300px;
     max-width: 300px;
+    min-height: 480px;
+    max-height: 480px;
     display: flex;
     flex-direction: column;
-    height: 100%;
   }
 
   .carousel-controls {
