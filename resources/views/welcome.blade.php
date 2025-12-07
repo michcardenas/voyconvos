@@ -135,7 +135,11 @@
                             $origenParts = array_map('trim', explode(',', $viaje->origen_direccion));
                             $count = count($origenParts);
                             $origenCorta = $count >= 3 ? $origenParts[$count - 3] . ', ' . $origenParts[$count - 2] : $viaje->origen_direccion;
+                            // Limpiar códigos Plus Code (ej: 8M9H+7P)
+                            $origenCorta = preg_replace('/\b[A-Z0-9]{4,}\+[A-Z0-9]{2,}\b\s*/i', '', $origenCorta);
+                            // Limpiar códigos postales (ej: B1650, C1405)
                             $origenCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $origenCorta);
+                            // Limpiar números largos
                             $origenCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $origenCorta);
                             $origenCorta = preg_replace('/\s+/', ' ', $origenCorta);
                             $origenCorta = preg_replace('/,\s*,/', ',', $origenCorta);
@@ -146,7 +150,11 @@
                             $destinoParts = array_map('trim', explode(',', $viaje->destino_direccion));
                             $count = count($destinoParts);
                             $destinoCorta = $count >= 3 ? $destinoParts[$count - 3] . ', ' . $destinoParts[$count - 2] : $viaje->destino_direccion;
+                            // Limpiar códigos Plus Code (ej: 8M9H+7P)
+                            $destinoCorta = preg_replace('/\b[A-Z0-9]{4,}\+[A-Z0-9]{2,}\b\s*/i', '', $destinoCorta);
+                            // Limpiar códigos postales (ej: B1650, C1405)
                             $destinoCorta = preg_replace('/\b[A-Z]?\d{4}[A-Z]{0,3}\b\s*/i', '', $destinoCorta);
+                            // Limpiar números largos
                             $destinoCorta = preg_replace('/\b\w*\d{3,}\w*\b\s*/i', '', $destinoCorta);
                             $destinoCorta = preg_replace('/\s+/', ' ', $destinoCorta);
                             $destinoCorta = preg_replace('/,\s*,/', ',', $destinoCorta);

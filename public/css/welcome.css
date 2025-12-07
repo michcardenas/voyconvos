@@ -570,8 +570,8 @@
   }
 
   .viaje-card {
-    min-width: 280px;
-    max-width: 280px;
+    min-width: 320px;
+    max-width: 320px;
     flex-shrink: 0;
     background: white;
     border-radius: 15px;
@@ -602,6 +602,10 @@
     font-weight: bold;
     font-size: 0.95rem;
     color: #2c3e50;
+    max-width: 45%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .cities i {
@@ -1156,8 +1160,8 @@
   }
 
   .viaje-card {
-    min-width: 260px;
-    max-width: 260px;
+    min-width: 300px;
+    max-width: 300px;
   }
 
   .carousel-controls {
