@@ -573,7 +573,6 @@
     min-width: 320px;
     max-width: 320px;
     min-height: 480px;
-    max-height: 480px;
     flex-shrink: 0;
     background: white;
     border-radius: 15px;
@@ -582,6 +581,8 @@
     transition: all 0.3s ease;
     display: flex;
     flex-direction: column;
+    position: relative;
+    padding-bottom: 110px;
   }
 
   .viaje-card:hover {
@@ -667,7 +668,7 @@
   }
 
   .details {
-    padding: 0 15px 15px;
+    padding: 0 15px 0px;
     flex: 1;
     display: flex;
     flex-direction: column;
@@ -690,8 +691,12 @@
 
   .price {
     text-align: center;
-    margin: auto 0 10px;
-    padding-top: 15px;
+    position: absolute;
+    bottom: 55px;
+    left: 0;
+    right: 0;
+    padding: 10px 15px;
+    background: white;
   }
 
   .price .amount {
@@ -707,6 +712,10 @@
   }
 
   .reserve-btn {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
     width: 100%;
     padding: 12px;
     background: #3498db;
@@ -716,7 +725,6 @@
     font-weight: bold;
     font-size: 0.95rem;
     transition: all 0.3s ease;
-    margin-top: auto;
   }
 
   .reserve-btn:hover {
@@ -1179,9 +1187,10 @@
     min-width: 300px;
     max-width: 300px;
     min-height: 480px;
-    max-height: 480px;
     display: flex;
     flex-direction: column;
+    position: relative;
+    padding-bottom: 110px;
   }
 
   .carousel-controls {
