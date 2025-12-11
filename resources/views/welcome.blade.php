@@ -170,47 +170,50 @@
                                 $mostrarHora = $tipoViaje == 'ida' ? $viaje->hora_salida : ($viaje->hora_regreso ?? $viaje->hora_salida);
                             @endphp
 
-                            <div style="min-width: 320px; max-width: 320px; flex-shrink: 0; background: white; border-radius: 16px; padding: 0; border: 1px solid rgba(31, 78, 121, 0.1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; overflow: hidden; height: 100%; display: flex; flex-direction: column; {{ $viaje->ida_vuelta ? 'border-top: 4px solid ' . ($tipoViaje == 'ida' ? '#003366' : '#27ae60') . ';' : '' }}">
-                                <div style="background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%); color: white; padding: 1.5rem; position: relative; overflow: hidden;">
-                                    <div style="display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 600; font-size: 1.1rem; position: relative; z-index: 2; color: white;">
-                                        <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 1rem;">{{ $mostrarOrigen }}</span>
-                                        <i class="fas fa-arrow-right" style="margin: 0 1rem; font-size: 1.3rem; color: rgba(255, 255, 255, 0.9);"></i>
-                                        <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 1rem;">{{ $mostrarDestino }}</span>
+                            <div class="viaje-card" style="min-width: 280px; max-width: 280px; {{ $viaje->ida_vuelta ? 'border-top: 4px solid ' . ($tipoViaje == 'ida' ? '#003366' : '#27ae60') . ';' : '' }}">
+                                <div style="background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%); color: white; padding: 1rem; position: relative; overflow: hidden;">
+                                    <div style="display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 600; font-size: 0.95rem; position: relative; z-index: 2; color: white;">
+                                        <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ $mostrarOrigen }}</span>
+                                        <i class="fas fa-arrow-right" style="margin: 0 0.75rem; font-size: 1.1rem; color: rgba(255, 255, 255, 0.9);"></i>
+                                        <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ $mostrarDestino }}</span>
                                     </div>
-                                    <div style="text-align: center; font-size: 0.85rem; opacity: 0.95; margin-top: 0.5rem; position: relative; z-index: 2; color: white;">
-                                        {{ $mostrarHora ?? 'Hora por definir' }}
-                                        @if($viaje->ida_vuelta)
-                                            <span style="margin-left: 8px; font-size: 0.85em; background: {{ $tipoViaje == 'ida' ? '#e3f2fd' : '#e8f5e9' }}; color: {{ $tipoViaje == 'ida' ? '#1565c0' : '#2e7d32' }}; padding: 2px 8px; border-radius: 12px; font-weight: 600;">
+                                    @if($viaje->ida_vuelta)
+                                        <div style="text-align: center; margin-top: 0.5rem;">
+                                            <span style="font-size: 0.8em; background: {{ $tipoViaje == 'ida' ? '#e3f2fd' : '#e8f5e9' }}; color: {{ $tipoViaje == 'ida' ? '#1565c0' : '#2e7d32' }}; padding: 3px 10px; border-radius: 12px; font-weight: 600;">
                                                 {{ $tipoViaje == 'ida' ? '➡️ Ida' : '⬅️ Vuelta' }}
                                             </span>
-                                        @endif
-                                    </div>
+                                        </div>
+                                    @endif
                                 </div>
-                        <div style="display: flex; align-items: center; padding: 1rem; gap: 1rem; background: rgba(31, 78, 121, 0.03); border-radius: 12px; margin: 1.5rem 1.5rem 1rem; border: 1px solid rgba(31, 78, 121, 0.08);">
-                            <img src="{{ $viaje->conductor && $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" alt="Conductor" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);">
+                        <div style="display: flex; align-items: center; padding: 0.75rem; gap: 0.75rem; background: rgba(31, 78, 121, 0.03); border-radius: 10px; margin: 1rem 1rem 0.75rem; border: 1px solid rgba(31, 78, 121, 0.08);">
+                            <img src="{{ $viaje->conductor && $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" alt="Conductor" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);">
                             <div style="flex: 1;">
-                                <h4 style="font-size: 0.95rem; margin: 0 0 0.5rem 0; color: #3A3A3A; font-weight: 600;">{{ $viaje->conductor?->name ?? 'Conductor' }}</h4>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                    <i class="fas fa-star" style="font-size: 0.85rem; color: #ffc107;"></i>
-                                    <span style="font-size: 0.875rem; font-weight: 600; color: #1F4E79;">{{ $viaje->conductor && $viaje->conductor->calificacion_promedio ? number_format($viaje->conductor->calificacion_promedio, 1) : 'Nuevo' }}</span>
+                                <h4 style="font-size: 0.85rem; margin: 0 0 0.25rem 0; color: #3A3A3A; font-weight: 600;">{{ $viaje->conductor?->name ?? 'Conductor' }}</h4>
+                                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                    <i class="fas fa-star" style="font-size: 0.75rem; color: #ffc107;"></i>
+                                    <span style="font-size: 0.75rem; font-weight: 600; color: #1F4E79;">{{ $viaje->conductor && $viaje->conductor->calificacion_promedio ? number_format($viaje->conductor->calificacion_promedio, 1) : 'Nuevo' }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div style="padding: 0 1.5rem; flex: 1; display: flex; flex-direction: column;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0;">
-                                <i class="fas fa-calendar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.1) 100%); color: #1F4E79;"></i>
-                                <span>{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</span>
+                        <div style="padding: 0 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-calendar" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.1) 100%); color: #1F4E79;"></i>
+                                <span style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</span>
                             </div>
-                            <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0;">
-                                <i class="fas fa-users" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1rem; flex-shrink: 0; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); color: #f57c00;"></i>
-                                <span>{{ $viaje->puestos_disponibles }} {{ $viaje->puestos_disponibles == 1 ? 'lugar' : 'lugares' }}</span>
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-clock" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #e8f5e9 0%, rgba(76, 175, 80, 0.1) 100%); color: #27ae60;"></i>
+                                <span style="font-size: 0.85rem;">{{ $mostrarHora ?? 'Hora por definir' }}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-users" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); color: #f57c00;"></i>
+                                <span style="font-size: 0.85rem;">{{ $viaje->puestos_disponibles }} {{ $viaje->puestos_disponibles == 1 ? 'lugar' : 'lugares' }}</span>
                             </div>
                         </div>
-                        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%); border-radius: 12px; padding: 1.25rem; margin: 1.25rem 1.5rem; text-align: center; border: 2px solid rgba(76, 175, 80, 0.2);">
-                            <span style="font-size: 2rem; font-weight: 700; color: #4CAF50; margin: 0; display: block;">${{ number_format(floor($viaje->valor_persona ?? 5200), 0, ',', '.') }}</span>
-                            <small style="font-size: 0.85rem; color: rgba(58, 58, 58, 0.7); margin: 0.25rem 0 0 0; font-weight: 500; display: block;">por persona</small>
+                        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%); border-radius: 10px; padding: 1rem; margin: 0.75rem 1rem; text-align: center; border: 2px solid rgba(76, 175, 80, 0.2);">
+                            <span style="font-size: 1.75rem; font-weight: 700; color: #4CAF50; margin: 0; display: block;">${{ number_format(floor($viaje->valor_persona ?? 5200), 0, ',', '.') }}</span>
+                            <small style="font-size: 0.75rem; color: rgba(58, 58, 58, 0.7); margin: 0.2rem 0 0 0; font-weight: 500; display: block;">por persona</small>
                         </div>
-                        <button onclick="goToLogin('{{ $mostrarOrigen }}', '{{ $mostrarDestino }}', {{ $viaje->id }})" style="border: none; border-radius: 10px; padding: 0.875rem 1.5rem; font-weight: 600; transition: all 0.3s ease; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: #1F4E79; color: white; margin: 0 1.5rem 1.5rem;">
+                        <button onclick="goToLogin('{{ $mostrarOrigen }}', '{{ $mostrarDestino }}', {{ $viaje->id }})" style="border: none; border-radius: 10px; padding: 0.75rem 1.25rem; font-weight: 600; transition: all 0.3s ease; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: #1F4E79; color: white; margin: 0 1rem 1rem;">
                             {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
                         </button>
                     </div>
@@ -219,40 +222,43 @@
                 @else
                     {{-- Fallback: Si no hay viajes reales, mostrar los del seeder --}}
                     @for ($i = 1; $i <= 4; $i++)
-                    <div style="min-width: 320px; max-width: 320px; flex-shrink: 0; background: white; border-radius: 16px; padding: 0; border: 1px solid rgba(31, 78, 121, 0.1); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06); transition: all 0.3s ease; overflow: hidden; height: 100%; display: flex; flex-direction: column;">
-                        <div style="background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%); color: white; padding: 1.5rem; position: relative; overflow: hidden;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 600; font-size: 1.1rem; position: relative; z-index: 2; color: white;">
-                                <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 1rem;">{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}</span>
-                                <i class="fas fa-arrow-right" style="margin: 0 1rem; font-size: 1.3rem; color: rgba(255, 255, 255, 0.9);"></i>
-                                <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 1rem;">{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}</span>
+                    <div class="viaje-card" style="min-width: 280px; max-width: 280px;">
+                        <div style="background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%); color: white; padding: 1rem; position: relative; overflow: hidden;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 600; font-size: 0.95rem; position: relative; z-index: 2; color: white;">
+                                <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}</span>
+                                <i class="fas fa-arrow-right" style="margin: 0 0.75rem; font-size: 1.1rem; color: rgba(255, 255, 255, 0.9);"></i>
+                                <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}</span>
                             </div>
-                            <div style="text-align: center; font-size: 0.85rem; opacity: 0.95; margin-top: 0.5rem; position: relative; z-index: 2; color: white;">{{ \App\Models\Contenido::getValor('viajes', 'tiempo_' . $i) }}</div>
                         </div>
-                        <div style="display: flex; align-items: center; padding: 1rem; gap: 1rem; background: rgba(31, 78, 121, 0.03); border-radius: 12px; margin: 1.5rem 1.5rem 1rem; border: 1px solid rgba(31, 78, 121, 0.08);">
-                            <img src="{{ \App\Models\Contenido::getValor('viajes', 'img_' . $i) }}" alt="Viaje" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 3px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);">
+                        <div style="display: flex; align-items: center; padding: 0.75rem; gap: 0.75rem; background: rgba(31, 78, 121, 0.03); border-radius: 10px; margin: 1rem 1rem 0.75rem; border: 1px solid rgba(31, 78, 121, 0.08);">
+                            <img src="{{ \App\Models\Contenido::getValor('viajes', 'img_' . $i) }}" alt="Viaje" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);">
                             <div style="flex: 1;">
-                                <h4 style="font-size: 0.95rem; margin: 0 0 0.5rem 0; color: #3A3A3A; font-weight: 600;">{{ \App\Models\Contenido::getValor('viajes', 'conductor_' . $i) }}</h4>
-                                <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
-                                    <i class="fas fa-star" style="font-size: 0.85rem; color: #ffc107;"></i>
-                                    <span style="font-size: 0.875rem; font-weight: 600; color: #1F4E79;">{{ \App\Models\Contenido::getValor('viajes', 'rating_' . $i) }}</span>
+                                <h4 style="font-size: 0.85rem; margin: 0 0 0.25rem 0; color: #3A3A3A; font-weight: 600;">{{ \App\Models\Contenido::getValor('viajes', 'conductor_' . $i) }}</h4>
+                                <div style="display: flex; align-items: center; gap: 0.35rem;">
+                                    <i class="fas fa-star" style="font-size: 0.75rem; color: #ffc107;"></i>
+                                    <span style="font-size: 0.75rem; font-weight: 600; color: #1F4E79;">{{ \App\Models\Contenido::getValor('viajes', 'rating_' . $i) }}</span>
                                 </div>
                             </div>
                         </div>
-                        <div style="padding: 0 1.5rem; flex: 1; display: flex; flex-direction: column;">
-                            <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0;">
-                                <i class="fas fa-calendar" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.1) 100%); color: #1F4E79;"></i>
-                                <span>{{ \App\Models\Contenido::getValor('viajes', 'fecha_' . $i) }}</span>
+                        <div style="padding: 0 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-calendar" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.1) 100%); color: #1F4E79;"></i>
+                                <span style="font-size: 0.85rem;">{{ \App\Models\Contenido::getValor('viajes', 'fecha_' . $i) }}</span>
                             </div>
-                            <div style="display: flex; align-items: center; margin-bottom: 1rem; padding: 0.5rem 0;">
-                                <i class="fas fa-users" style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 1rem; flex-shrink: 0; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); color: #f57c00;"></i>
-                                <span>{{ \App\Models\Contenido::getValor('viajes', 'lugares_' . $i) }}</span>
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-clock" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #e8f5e9 0%, rgba(76, 175, 80, 0.1) 100%); color: #27ae60;"></i>
+                                <span style="font-size: 0.85rem;">{{ \App\Models\Contenido::getValor('viajes', 'tiempo_' . $i) }}</span>
+                            </div>
+                            <div style="display: flex; align-items: center; padding: 0.4rem 0;">
+                                <i class="fas fa-users" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, rgba(255, 193, 7, 0.1) 0%, rgba(255, 193, 7, 0.05) 100%); color: #f57c00;"></i>
+                                <span style="font-size: 0.85rem;">{{ \App\Models\Contenido::getValor('viajes', 'lugares_' . $i) }}</span>
                             </div>
                         </div>
-                        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%); border-radius: 12px; padding: 1.25rem; margin: 1.25rem 1.5rem; text-align: center; border: 2px solid rgba(76, 175, 80, 0.2);">
-                            <span style="font-size: 2rem; font-weight: 700; color: #4CAF50; margin: 0; display: block;">{{ \App\Models\Contenido::getValor('viajes', 'precio_' . $i) }}</span>
-                            <small style="font-size: 0.85rem; color: rgba(58, 58, 58, 0.7); margin: 0.25rem 0 0 0; font-weight: 500; display: block;">por persona</small>
+                        <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.08) 0%, rgba(76, 175, 80, 0.03) 100%); border-radius: 10px; padding: 1rem; margin: 0.75rem 1rem; text-align: center; border: 2px solid rgba(76, 175, 80, 0.2);">
+                            <span style="font-size: 1.75rem; font-weight: 700; color: #4CAF50; margin: 0; display: block;">{{ \App\Models\Contenido::getValor('viajes', 'precio_' . $i) }}</span>
+                            <small style="font-size: 0.75rem; color: rgba(58, 58, 58, 0.7); margin: 0.2rem 0 0 0; font-weight: 500; display: block;">por persona</small>
                         </div>
-                        <button onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}')" style="border: none; border-radius: 10px; padding: 0.875rem 1.5rem; font-weight: 600; transition: all 0.3s ease; text-decoration: none; font-size: 0.875rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: #1F4E79; color: white; margin: 0 1.5rem 1.5rem;">
+                        <button onclick="goToLogin('{{ \App\Models\Contenido::getValor('viajes', 'origen_' . $i) }}', '{{ \App\Models\Contenido::getValor('viajes', 'destino_' . $i) }}')" style="border: none; border-radius: 10px; padding: 0.75rem 1.25rem; font-weight: 600; transition: all 0.3s ease; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; cursor: pointer; background: #1F4E79; color: white; margin: 0 1rem 1rem;">
                             {{ \App\Models\Contenido::getValor('viajes', 'btn_reservar') }}
                         </button>
                     </div>
@@ -695,6 +701,40 @@ document.addEventListener('DOMContentLoaded', function() {
             startAutoPlay();
         }
         
+        // Touch Swipe Support para móviles
+        let touchStartX = 0;
+        let touchEndX = 0;
+        let touchStartTime = 0;
+
+        carousel.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+            touchStartTime = Date.now();
+            isUserInteracting = true;
+            stopAutoPlay();
+        }, { passive: true });
+
+        carousel.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            const touchDuration = Date.now() - touchStartTime;
+            const swipeDistance = touchStartX - touchEndX;
+
+            // Solo detectar swipe si fue rápido (<300ms) y con distancia mínima (>50px)
+            if (touchDuration < 300 && Math.abs(swipeDistance) > 50) {
+                if (swipeDistance > 0) {
+                    // Swipe izquierda - siguiente
+                    nextSlide();
+                } else {
+                    // Swipe derecha - anterior
+                    prevSlide();
+                }
+            }
+
+            setTimeout(() => {
+                isUserInteracting = false;
+                startAutoPlay();
+            }, 100);
+        }, { passive: true });
+
         // Pausar al hover (sin mover el carrusel)
         carousel.addEventListener('mouseenter', function() {
             isUserInteracting = true;

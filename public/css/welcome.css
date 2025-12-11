@@ -560,6 +560,7 @@
   .carousel-container {
     overflow: hidden;
     padding: 0 10px;
+    position: relative;
   }
 
   .viajes-carousel {
@@ -567,6 +568,13 @@
     gap: 15px;
     transition: transform 0.3s ease;
     padding: 10px 0;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .viajes-carousel .viaje-card {
+    scroll-snap-align: start;
   }
 
   /* ============================================
@@ -581,17 +589,17 @@
   }
 
   .viaje-card {
-    min-width: 320px;
-    max-width: 320px;
+    min-width: 280px;
+    max-width: 280px;
     flex-shrink: 0;
     background: white;
-    border-radius: 16px;
+    border-radius: 14px;
     padding: 0;
     border: 1px solid rgba(31, 78, 121, 0.1);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     transition: all 0.3s ease;
     overflow: hidden;
-    height: 100%;
+    height: auto;
     display: flex;
     flex-direction: column;
   }
@@ -1271,15 +1279,42 @@
     padding: 15px 10px;
   }
 
+  /* TARJETAS MÁS COMPACTAS EN MÓVIL */
   .viaje-card {
-    min-width: 300px;
-    max-width: 300px;
+    min-width: 260px !important;
+    max-width: 260px !important;
     display: flex;
     flex-direction: column;
   }
 
+  /* CARRUSEL MÓVIL - TOUCH ENABLED */
+  .carousel-container {
+    position: relative;
+    touch-action: pan-y pinch-zoom;
+  }
+
+  .viajes-carousel {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+    padding-bottom: 10px;
+  }
+
+  .viajes-carousel::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+
+  .viaje-card {
+    scroll-snap-align: center;
+  }
+
   .carousel-controls {
     gap: 15px;
+    margin-top: 20px;
   }
 
   .carousel-btn {
