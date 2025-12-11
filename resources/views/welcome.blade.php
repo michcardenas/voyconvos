@@ -170,20 +170,13 @@
                                 $mostrarHora = $tipoViaje == 'ida' ? $viaje->hora_salida : ($viaje->hora_regreso ?? $viaje->hora_salida);
                             @endphp
 
-                            <div class="viaje-card" style="min-width: 280px; max-width: 280px; {{ $viaje->ida_vuelta ? 'border-top: 4px solid ' . ($tipoViaje == 'ida' ? '#003366' : '#27ae60') . ';' : '' }}">
+                            <div class="viaje-card" style="min-width: 280px; max-width: 280px;">
                                 <div style="background: linear-gradient(135deg, rgba(31, 78, 121, 0.95) 0%, rgba(76, 175, 80, 0.85) 100%); color: white; padding: 1rem; position: relative; overflow: hidden;">
                                     <div style="display: flex; align-items: center; justify-content: space-between; margin: 0; font-weight: 600; font-size: 0.95rem; position: relative; z-index: 2; color: white;">
                                         <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ $mostrarOrigen }}</span>
                                         <i class="fas fa-arrow-right" style="margin: 0 0.75rem; font-size: 1.1rem; color: rgba(255, 255, 255, 0.9);"></i>
                                         <span style="flex: 1; text-align: center; color: white; font-weight: 600; font-size: 0.9rem;">{{ $mostrarDestino }}</span>
                                     </div>
-                                    @if($viaje->ida_vuelta)
-                                        <div style="text-align: center; margin-top: 0.5rem;">
-                                            <span style="font-size: 0.8em; background: {{ $tipoViaje == 'ida' ? '#e3f2fd' : '#e8f5e9' }}; color: {{ $tipoViaje == 'ida' ? '#1565c0' : '#2e7d32' }}; padding: 3px 10px; border-radius: 12px; font-weight: 600;">
-                                                {{ $tipoViaje == 'ida' ? '➡️ Ida' : '⬅️ Vuelta' }}
-                                            </span>
-                                        </div>
-                                    @endif
                                 </div>
                         <div style="display: flex; align-items: center; padding: 0.75rem; gap: 0.75rem; background: rgba(31, 78, 121, 0.03); border-radius: 10px; margin: 1rem 1rem 0.75rem; border: 1px solid rgba(31, 78, 121, 0.08);">
                             <img src="{{ $viaje->conductor && $viaje->conductor->foto ? asset('storage/' . $viaje->conductor->foto) : asset('img/usuario.png') }}" alt="Conductor" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);">
