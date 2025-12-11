@@ -115,9 +115,9 @@ public function dashboard()
         ->take(10)
         ->get();
 
-    // Lista de viajes con paginación para la tabla
+    // Lista de viajes con paginación para la tabla (ordenados por fecha de creación)
     $viajes = Viaje::with(['conductor', 'reservas'])
-        ->orderBy('fecha_salida', 'desc')
+        ->orderBy('created_at', 'desc')
         ->paginate(10);
     
     // Reservas (mantener igual)

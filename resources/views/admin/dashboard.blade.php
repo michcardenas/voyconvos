@@ -2,119 +2,262 @@
 
 @section('content')
 <style>
+    /* Variables de color */
+    :root {
+        --primary-color: #00304b;
+        --primary-light: #1a4d70;
+        --primary-dark: #001d2e;
+        --success-color: #10b981;
+        --info-color: #3b82f6;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --gray-50: #f9fafb;
+        --gray-100: #f3f4f6;
+        --gray-200: #e5e7eb;
+        --gray-600: #4b5563;
+        --gray-700: #374151;
+        --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+
     .dashboard-container {
-        max-width: 1140px;
+        max-width: 100%;
+        width: 100%;
         margin: 0 auto;
         padding-top: 100px;
-        padding-bottom: 40px;
+        padding-bottom: 60px;
+        padding-left: 40px;
+        padding-right: 40px;
+    }
+
+    @media (min-width: 1400px) {
+        .dashboard-container {
+            padding-left: 80px;
+            padding-right: 80px;
+        }
     }
 
     .dashboard-title {
-        font-size: 2rem;
-        font-weight: 600;
-        color: #00304b;
-        margin-bottom: 30px;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 40px;
         text-align: center;
+        letter-spacing: -0.5px;
     }
 
     .card-stats {
-        width: 250px;
-        border-left-width: 5px;
-        border-radius: 1rem;
-        transition: transform 0.2s ease;
+        min-width: 280px;
+        flex: 1;
+        max-width: 320px;
+        border: none;
+        border-radius: 16px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        background: white;
+        box-shadow: var(--shadow-md);
+        overflow: hidden;
+        position: relative;
+    }
+
+    .card-stats::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 4px;
+        height: 100%;
+        transition: width 0.3s ease;
+    }
+
+    .card-stats.border-left-primary::before {
+        background: linear-gradient(180deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    }
+
+    .card-stats.border-left-success::before {
+        background: linear-gradient(180deg, var(--success-color) 0%, #059669 100%);
+    }
+
+    .card-stats.border-left-info::before {
+        background: linear-gradient(180deg, var(--info-color) 0%, #2563eb 100%);
+    }
+
+    .card-stats.border-left-warning::before {
+        background: linear-gradient(180deg, var(--warning-color) 0%, #d97706 100%);
+    }
+
+    .card-stats.border-left-danger::before {
+        background: linear-gradient(180deg, var(--danger-color) 0%, #dc2626 100%);
     }
 
     .card-stats:hover {
-        transform: scale(1.02);
+        transform: translateY(-8px);
+        box-shadow: var(--shadow-xl);
+    }
+
+    .card-stats:hover::before {
+        width: 100%;
+        opacity: 0.05;
     }
 
     .stat-label {
-        font-size: 0.75rem;
+        font-size: 0.8rem;
         font-weight: 700;
         text-transform: uppercase;
-        margin-bottom: 4px;
+        margin-bottom: 8px;
+        letter-spacing: 0.5px;
+        opacity: 0.9;
     }
 
     .stat-value {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #2e2e2e;
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--gray-700);
+        line-height: 1;
+        margin-bottom: 4px;
     }
 
     .stat-subtext {
-        font-size: 0.75rem;
-        color: #6c757d;
+        font-size: 0.8rem;
+        color: var(--gray-600);
+        font-weight: 500;
     }
 
     .stat-icon {
-        opacity: 0.2;
+        opacity: 0.15;
+        transition: all 0.3s ease;
+    }
+
+    .card-stats:hover .stat-icon {
+        opacity: 0.25;
+        transform: scale(1.1);
     }
 
     .cards-row {
         display: flex;
         flex-wrap: wrap;
-        justify-content: space-around;
-        gap: 20px;
-    }
-
-    /* Colores personalizados */
-    .border-left-primary {
-        border-left-color: #4e73df !important;
-    }
-
-    .border-left-success {
-        border-left-color: #1cc88a !important;
-    }
-
-    .border-left-info {
-        border-left-color: #36b9cc !important;
-    }
-
-    .border-left-warning {
-        border-left-color: #f6c23e !important;
+        justify-content: center;
+        gap: 24px;
+        margin-bottom: 48px;
     }
 
     .center-button {
         display: flex;
         justify-content: center;
-        margin-top: 40px;
+        margin-top: 48px;
+        margin-bottom: 48px;
     }
 
     .btn-view-users {
-        background-color: #00304b;
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
         color: white;
         font-weight: 600;
-        padding: 10px 24px;
-        border-radius: 8px;
+        padding: 14px 32px;
+        border-radius: 12px;
         border: none;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
         text-decoration: none;
+        box-shadow: var(--shadow-md);
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
     }
 
     .btn-view-users:hover {
-        background-color: #005471;
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-lg);
         color: #fff;
     }
     .table th, .table td {
-    vertical-align: middle;
-}
+        vertical-align: middle;
+    }
 
-.table thead th {
-    background-color: #f8f9fc;
-    font-weight: 600;
-    text-transform: uppercase;
-    font-size: 0.85rem;
-}
+    /* Mejoras de tabla */
+    .table {
+        border-collapse: separate;
+        border-spacing: 0;
+    }
 
-.table-hover tbody tr:hover {
-    background-color: #f1f5f9;
-}
+    .table thead th {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+        padding: 16px 12px;
+        border: none;
+    }
 
-.badge {
-    padding: 0.5em 0.75em;
-    font-size: 0.75rem;
-    border-radius: 0.5rem;
-}
+    .table-hover tbody tr {
+        transition: all 0.2s ease;
+    }
+
+    .table-hover tbody tr:hover {
+        background-color: var(--gray-50);
+        transform: scale(1.01);
+        box-shadow: var(--shadow-sm);
+    }
+
+    /* Badges mejorados */
+    .badge {
+        padding: 6px 14px;
+        font-size: 0.75rem;
+        border-radius: 20px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .badge:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--shadow-sm);
+    }
+
+    .badge-warning {
+        background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+        color: white;
+    }
+
+    .badge-success {
+        background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+        color: white;
+    }
+
+    .badge-primary {
+        background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+        color: white;
+    }
+
+    .badge-info {
+        background: linear-gradient(135deg, var(--info-color) 0%, #2563eb 100%);
+        color: white;
+    }
+
+    .badge-danger {
+        background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .badge-secondary {
+        background: linear-gradient(135deg, var(--gray-600) 0%, var(--gray-700) 100%);
+        color: white;
+    }
+
+    .badge-outline-primary {
+        background: transparent;
+        border: 2px solid var(--primary-color);
+        color: var(--primary-color);
+        font-weight: 700;
+    }
 
 /* 🔥 ESTILOS CORREGIDOS PARA PAGINACIÓN */
 .pagination {
@@ -241,13 +384,31 @@
 /* Cursor y hover effects */
 .cursor-pointer {
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    position: relative;
 }
 
 .cursor-pointer:hover {
-    background-color: var(--color-azul-claro) !important;
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(31, 78, 121, 0.15);
+    background-color: var(--gray-50) !important;
+    transform: scale(1.005);
+    box-shadow: var(--shadow-md);
+}
+
+.cursor-pointer::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent 0%, var(--primary-color) 50%, transparent 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+}
+
+.cursor-pointer:hover::after {
+    opacity: 0.03;
 }
 
 /* Bordes izquierdos personalizados */
@@ -275,25 +436,40 @@
     border-left: 0.25rem solid var(--color-neutro-oscuro) !important;
 }
 
-/* Mejoras para las tarjetas de estadísticas */
+/* Mejoras para las tarjetas principales */
 .card {
-    border-radius: 12px;
+    border-radius: 16px;
     border: none;
     transition: all 0.3s ease;
-    background-color: var(--color-fondo-base);
+    background-color: white;
+    box-shadow: var(--shadow-md);
+    overflow: hidden;
 }
 
-.card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(31, 78, 121, 0.15);
+.card.shadow {
+    box-shadow: var(--shadow-lg);
 }
 
 .card-header {
-    background-color: var(--color-azul-claro) !important;
-    border-bottom: 2px solid var(--color-principal);
-    border-radius: 12px 12px 0 0 !important;
-    color: var(--color-principal);
-    font-weight: 600;
+    background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
+    border-bottom: 3px solid var(--primary-color);
+    border-radius: 16px 16px 0 0 !important;
+    color: var(--primary-color);
+    font-weight: 700;
+    padding: 20px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.card-header h6 {
+    margin: 0;
+    font-size: 1.1rem;
+    letter-spacing: 0.3px;
+}
+
+.card-body {
+    padding: 24px;
 }
 
 /* Badges personalizados */
@@ -356,41 +532,92 @@
     color: var(--color-google-red) !important;
 }
 
-/* Botones mejorados */
+/* Botones mejorados con gradientes */
 .btn-primary {
-    background-color: var(--color-principal);
-    border-color: var(--color-principal);
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border: none;
+    border-radius: 10px;
     font-weight: 600;
     transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    padding: 10px 20px;
 }
 
 .btn-primary:hover {
-    background-color: #1a4268;
-    border-color: #1a4268;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(31, 78, 121, 0.3);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-success {
-    background-color: var(--color-complementario);
-    border-color: var(--color-complementario);
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+    border: none;
+    border-radius: 10px;
     font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    padding: 10px 20px;
+}
+
+.btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-info {
-    background-color: var(--color-google-blue);
-    border-color: var(--color-google-blue);
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--info-color) 0%, #2563eb 100%);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    padding: 10px 20px;
+}
+
+.btn-info:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
 }
 
 .btn-warning {
-    background-color: var(--color-google-yellow);
-    border-color: var(--color-google-yellow);
-    color: var(--color-neutro-oscuro);
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--warning-color) 0%, #d97706 100%);
+    border: none;
+    color: white;
+    border-radius: 10px;
     font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    padding: 10px 20px;
+}
+
+.btn-warning:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger-color) 0%, #dc2626 100%);
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: var(--shadow-md);
+    padding: 10px 20px;
+}
+
+.btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-sm {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+}
+
+.btn-group .btn {
+    margin: 0 2px;
 }
 
 /* Tabla mejorada */
@@ -414,10 +641,30 @@
 }
 
 /* Títulos mejorados */
-h4 {
-    color: var(--color-principal) !important;
+h2, h4 {
+    color: var(--primary-color) !important;
     font-weight: 700;
-    text-shadow: 1px 1px 2px rgba(31, 78, 121, 0.1);
+    letter-spacing: -0.5px;
+    position: relative;
+    padding-bottom: 12px;
+}
+
+h2::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary-color) 0%, var(--primary-light) 100%);
+    border-radius: 2px;
+}
+
+.section-title {
+    font-size: 1.75rem;
+    margin-top: 60px;
+    margin-bottom: 32px;
 }
 
 /* Estadísticas cards mejoradas */
@@ -434,12 +681,14 @@ h4 {
     font-size: 0.85rem;
 }
 .badge-puestos {
-    background-color: var(--color-complementario) !important;
-    color: var(--color-complementario) !important;
-    font-weight: 600;
-    padding: 8px 12px;
-    border-radius: 8px;
+    background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+    color: white !important;
+    font-weight: 700;
+    padding: 10px 16px;
+    border-radius: 20px;
     font-size: 0.9rem;
+    box-shadow: var(--shadow-sm);
+    letter-spacing: 0.3px;
 }
 /* Efectos de animación */
 @keyframes fadeInUp {
@@ -458,13 +707,108 @@ h4 {
 }
 
 /* Responsive mejoras */
+@media (max-width: 1024px) {
+    .dashboard-container {
+        padding-left: 25px;
+        padding-right: 25px;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 @media (max-width: 768px) {
+    .dashboard-container {
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+    .dashboard-title {
+        font-size: 1.75rem;
+    }
+
+    .stat-value {
+        font-size: 1.5rem;
+    }
+
+    .card-stats {
+        min-width: 100%;
+        max-width: 100%;
+    }
+
+    .cards-row {
+        gap: 16px;
+    }
+
     .cursor-pointer:hover {
         transform: none;
     }
-    
+
     .card:hover {
         transform: none;
+    }
+
+    .card-stats:hover {
+        transform: translateY(-4px);
+    }
+
+    .btn-view-users {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+    }
+
+    h2::after {
+        width: 60px;
+    }
+
+    .table-responsive {
+        border-radius: 8px;
+        box-shadow: var(--shadow-sm);
+    }
+
+    .table thead th {
+        font-size: 0.7rem;
+        padding: 12px 8px;
+    }
+
+    .table tbody td {
+        font-size: 0.8rem;
+        padding: 10px 8px;
+    }
+}
+
+@media (max-width: 576px) {
+    .dashboard-container {
+        padding-top: 80px;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+    .table-responsive {
+        font-size: 0.75rem;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .table {
+        min-width: 800px;
+    }
+
+    .table th, .table td {
+        padding: 8px 6px;
+        white-space: nowrap;
+    }
+
+    .badge {
+        font-size: 0.65rem;
+        padding: 4px 8px;
+    }
+
+    .btn-sm {
+        padding: 4px 8px;
+        font-size: 0.75rem;
     }
 }
 
@@ -484,21 +828,66 @@ h4 {
 
 /* Texto muted mejorado */
 .text-muted {
-    color: #6c757d !important;
+    color: var(--gray-600) !important;
     font-size: 0.9rem;
 }
 
-/* Badge mejorado con animación */
-.badge {
-    border-radius: 6px;
-    padding: 6px 12px;
-    font-weight: 600;
-    font-size: 0.85rem;
+/* Background general */
+body {
+    background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+}
+
+/* Mejora de iconos */
+.fa, .fas, .far {
     transition: all 0.3s ease;
 }
 
-.badge:hover {
-    transform: scale(1.05);
+/* Efecto de pulso sutil en iconos de estadísticas */
+@keyframes pulse-subtle {
+    0%, 100% {
+        opacity: 0.15;
+    }
+    50% {
+        opacity: 0.25;
+    }
+}
+
+.stat-icon {
+    animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+/* Divider decorativo */
+.divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, var(--primary-color) 50%, transparent 100%);
+    margin: 40px 0;
+    opacity: 0.2;
+}
+
+/* Tabla responsive mejorada */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin: 0;
+}
+
+.table-responsive::-webkit-scrollbar {
+    height: 8px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+    background: var(--gray-100);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+    background: var(--primary-color);
+    border-radius: 4px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
 }
 </style>
 
@@ -568,7 +957,7 @@ h4 {
 </div>
 
 <!-- Tarjetas de viajes ACTUALIZADAS -->
-<h2 class="text-center mt-5 mb-4" style="color: #00304b;">🚌 Estadísticas de Viajes</h2>
+<h2 class="text-center section-title">🚌 Estadísticas de Viajes</h2>
 <div class="cards-row">
     <div class="card card-stats border-left-primary shadow p-3">
         <div class="d-flex justify-content-between align-items-center">
@@ -635,11 +1024,8 @@ h4 {
 {{-- Continúa con el resto de la vista... --}}
 <!-- Tabla de Viajes -->
 <div class="card shadow">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Lista de Viajes Recientes</h6>
-        <a href="{{ route('admin.viajes.todos') }}" class="btn btn-primary btn-sm">
-            <i class="fas fa-list"></i> Ver Todos los Viajes
-        </a>
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">🚀 Viajes Creados Recientemente</h6>
     </div>
     <div class="card-body">
         <div class="table-responsive">
@@ -759,6 +1145,20 @@ h4 {
                                     <a href="{{ route('admin.viajes.detalle', $viaje->id) }}" class="btn btn-sm btn-info" title="Ver Detalle">
                                         <i class="fas fa-eye"></i>
                                     </a>
+
+                                    @if($viaje->reservas->count() == 0)
+                                        <form action="{{ route('admin.viajes.eliminar', $viaje->id) }}" method="POST" style="display: inline;" onsubmit="return confirm('¿Estás seguro de eliminar este viaje? Esta acción no se puede deshacer.');">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger" title="Eliminar Viaje">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                        </form>
+                                    @else
+                                        <button type="button" class="btn btn-sm btn-secondary" disabled title="No se puede eliminar: tiene reservas">
+                                            <i class="fas fa-ban"></i>
+                                        </button>
+                                    @endif
                                 </div>
                             </td>
                         </tr>
@@ -804,7 +1204,7 @@ h4 {
 
 
 <div class="mt-5">
-    <h4 class="text-center mb-4" style="color: #00304b;">🧾 Últimas Reservas Realizadas</h4>
+    <h2 class="text-center section-title">🧾 Últimas Reservas Realizadas</h2>
     
     <div class="table-responsive">
         <table class="table table-hover shadow-sm rounded">

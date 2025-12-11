@@ -305,18 +305,41 @@ public function editarViaje(Viaje $viaje)
 public function todosLosViajes(Request $request)
 {
     $query = Viaje::with(['conductor', 'reservas']);
-    
+
     // Filtros opcionales
     if ($request->filled('estado')) {
         $query->where('estado', $request->estado);
     }
-    
+
     if ($request->filled('fecha_desde')) {
         $query->whereDate('fecha_salida', '>=', $request->fecha_desde);
     }
-    
+
     $viajes = $query->orderBy('fecha_salida', 'desc')->paginate(20);
-    
+
     return view('admin.todos-viajes', compact('viajes'));
+}
+
+public function eliminarViaje(Viaje $viaje)
+{
+    // Verificar que el viaje no tenga reservas
+    if ($viaje->reservas()->count() > 0) {
+        return redirect()->back()->with('error', '❌ No se puede eliminar el viaje porque tiene reservas asociadas.');
+    }
+
+    try {
+        // Guardar información para el mensaje
+        $conductor = $viaje->conductor->name ?? 'Conductor desconocido';
+        $origen = $viaje->origen_direccion ?? 'N/A';
+        $destino = $viaje->destino_direccion ?? 'N/A';
+
+        // Eliminar el viaje
+        $viaje->delete();
+
+        return redirect()->back()->with('success', "✅ Viaje eliminado exitosamente. Conductor: {$conductor}, Ruta: {$origen} → {$destino}");
+    } catch (\Exception $e) {
+        \Log::error('Error al eliminar viaje: ' . $e->getMessage());
+        return redirect()->back()->with('error', '❌ Ocurrió un error al eliminar el viaje. Por favor, inténtalo de nuevo.');
+    }
 }
 }
