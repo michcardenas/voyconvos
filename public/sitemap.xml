@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+
+    <!-- Página principal -->
+    <url>
+        <loc>https://voyconvos.com/</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>daily</changefreq>
+        <priority>1.0</priority>
+    </url>
+
+    <!-- Sobre Nosotros -->
+    <url>
+        <loc>https://voyconvos.com/sobre-nosotros</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Contacto -->
+    <url>
+        <loc>https://voyconvos.com/contacto</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+
+    <!-- Cómo Funciona -->
+    <url>
+        <loc>https://voyconvos.com/como-funciona</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Preguntas Frecuentes -->
+    <url>
+        <loc>https://voyconvos.com/preguntas-frecuentes</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+
+    <!-- Términos y Condiciones -->
+    <url>
+        <loc>https://voyconvos.com/terminos-y-condiciones</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- Política de Privacidad -->
+    <url>
+        <loc>https://voyconvos.com/politica-de-privacidad</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>yearly</changefreq>
+        <priority>0.5</priority>
+    </url>
+
+    <!-- Registro (página pública de registro) -->
+    <url>
+        <loc>https://voyconvos.com/register</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.9</priority>
+    </url>
+
+    <!-- Login (página pública de login) -->
+    <url>
+        <loc>https://voyconvos.com/login</loc>
+        <lastmod>2024-12-23</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.6</priority>
+    </url>
+
+    <!--
+    NOTA: Las áreas privadas NO se incluyen en el sitemap:
+    - /admin
+    - /conductor
+    - /pasajero
+    - /dashboard
+
+    Estas están bloqueadas en robots.txt y tienen noindex en sus layouts
+    -->
+
+</urlset>
