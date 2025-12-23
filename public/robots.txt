@@ -1,2 +1,271 @@
-User-agent: *
-Disallow:
+# robots.txt para VoyConvos
+# Generado para proteger áreas privadas y bloquear bots maliciosos
+
+# Bots legítimos permitidos
+User-agent: Googlebot
+User-agent: Bingbot
+User-agent: Slurp
+User-agent: DuckDuckBot
+User-agent: Baiduspider
+User-agent: YandexBot
+User-agent: facebot
+User-agent: ia_archiver
+
+# Bloquear acceso a áreas de administración y dashboards
+Disallow: /admin
+Disallow: /admin/
+Disallow: /conductor
+Disallow: /conductor/
+Disallow: /pasajero
+Disallow: /pasajero/
+Disallow: /dashboard
+Disallow: /dashboard/
+
+# Bloquear archivos y directorios del sistema
+Disallow: /storage/
+Disallow: /vendor/
+Disallow: /config/
+Disallow: /bootstrap/
+Disallow: /database/
+Disallow: /routes/
+Disallow: /resources/
+Disallow: /app/
+Disallow: /tests/
+
+# Bloquear rutas de autenticación
+Disallow: /login
+Disallow: /register
+Disallow: /password/
+Disallow: /auth/
+
+# Bloquear APIs y webhooks
+Disallow: /api/
+Disallow: /webhook/
+
+# Bloquear procesamiento de pagos
+Disallow: /pago/
+Disallow: /reserva/*/pagar
+
+# Permitir páginas públicas importantes
+Allow: /
+Allow: /sobre-nosotros
+Allow: /contacto
+Allow: /como-funciona
+Allow: /preguntas-frecuentes
+Allow: /terminos-y-condiciones
+Allow: /politica-de-privacidad
+
+# Permitir assets públicos
+Allow: /css/
+Allow: /js/
+Allow: /img/
+Allow: /images/
+Allow: /favicon.ico
+Allow: /build/
+
+# ============================================
+# BLOQUEAR BOTS MALICIOSOS Y SCRAPERS
+# ============================================
+
+# Scrapers agresivos
+User-agent: HTTrack
+User-agent: HTTrack*
+Disallow: /
+
+User-agent: Teleport
+User-agent: TeleportPro
+Disallow: /
+
+User-agent: WebCopier
+User-agent: WebReaper
+User-agent: WebStripper
+User-agent: WebSauger
+Disallow: /
+
+User-agent: Offline Explorer
+User-agent: WebZIP
+Disallow: /
+
+# Bots de email harvesting
+User-agent: EmailCollector
+User-agent: EmailSiphon
+User-agent: EmailWolf
+User-agent: ExtractorPro
+User-agent: CherryPicker
+Disallow: /
+
+# Bots maliciosos conocidos
+User-agent: SemrushBot
+User-agent: AhrefsBot
+User-agent: DotBot
+User-agent: MJ12bot
+User-agent: BLEXBot
+Disallow: /
+
+User-agent: PetalBot
+User-agent: DataForSeoBot
+User-agent: Seekport
+User-agent: Screaming Frog
+Disallow: /
+
+# Bots de contenido duplicado
+User-agent: SiteSnagger
+User-agent: ProWebWalker
+User-agent: CheeseBot
+User-agent: Telesoft
+User-agent: TeleportProWebWalker
+Disallow: /
+
+# Bots de spam y scraping
+User-agent: SpiderBot
+User-agent: User-Agent
+User-agent: Crescent
+User-agent: Wget
+User-agent: pavuk
+User-agent: webzip
+User-agent: larbin
+User-agent: b2w/0.1
+User-agent: psbot
+User-agent: Python-urllib
+User-agent: NetMechanic
+User-agent: URL_Spider_Pro
+User-agent: CherryPicker
+User-agent: EmailCollector
+User-agent: EmailSiphon
+User-agent: WebBandit
+User-agent: EmailWolf
+User-agent: ExtractorPro
+User-agent: CopyRightCheck
+User-agent: Crescent
+User-agent: SiteSnagger
+User-agent: ProWebWalker
+User-agent: CheeseBot
+User-agent: ia_archiver
+User-agent: ia_archiver/1.6
+User-agent: Teleport
+User-agent: TeleportPro
+User-agent: MIIxpc
+User-agent: Telesoft
+User-agent: Website Quester
+User-agent: moget/2.1
+User-agent: WebZip/4.0
+User-agent: WebStripper
+User-agent: WebSauger
+User-agent: WebCopier
+User-agent: NetAnts
+User-agent: Mister PiX
+User-agent: WebAuto
+User-agent: TheNomad
+User-agent: WWW-Collector-E
+User-agent: RMA
+User-agent: libWeb/clsHTTP
+User-agent: asterias
+User-agent: httplib
+User-agent: turingos
+User-agent: spanner
+User-agent: InfoNaviRobot
+User-agent: Harvest/1.5
+User-agent: Bullseye/1.0
+User-agent: Mozilla/4.0 (compatible; BullsEye; Windows 95)
+User-agent: Crescent Internet ToolPak HTTP OLE Control v.1.0
+User-agent: CherryPickerSE/1.0
+User-agent: CherryPickerElite/1.0
+User-agent: WebBandit/3.50
+User-agent: NICErsPRO
+User-agent: Microsoft URL Control - 5.01.4511
+User-agent: DittoSpyder
+User-agent: Foobot
+User-agent: WebmasterWorldForumBot
+User-agent: SpankBot
+User-agent: BotALot
+User-agent: lwp-trivial/1.34
+User-agent: lwp-trivial
+User-agent: BunnySlippers
+User-agent: Microsoft URL Control - 6.00.8169
+User-agent: URLy Warning
+User-agent: Wget/1.6
+User-agent: Wget/1.5.3
+User-agent: Wget
+User-agent: LinkWalker
+User-agent: cosmos
+User-agent: moget
+User-agent: hloader
+User-agent: humanlinks
+User-agent: LinkextractorPro
+User-agent: Offline Explorer
+User-agent: Mata Hari
+User-agent: LexiBot
+User-agent: Web Image Collector
+User-agent: The Intraformant
+User-agent: True_Robot/1.0
+User-agent: True_Robot
+User-agent: BlowFish/1.0
+User-agent: JennyBot
+User-agent: MIIxpc/4.2
+User-agent: BuiltBotTough
+User-agent: ProPowerBot/2.14
+User-agent: BackDoorBot/1.0
+User-agent: toCrawl/UrlDispatcher
+User-agent: WebEnhancer
+User-agent: suzuran
+User-agent: VCI WebViewer VCI WebViewer Win32
+User-agent: VCI
+User-agent: Szukacz/1.4
+User-agent: QueryN Metasearch
+User-agent: Openfind data gathere
+User-agent: Openfind
+User-agent: Xenu's Link Sleuth 1.1c
+User-agent: Xenu's
+User-agent: Zeus
+User-agent: RepoMonkey Bait & Tackle/v1.01
+User-agent: RepoMonkey
+User-agent: Microsoft URL Control
+User-agent: Openbot
+User-agent: URL Control
+User-agent: Zeus Link Scout
+User-agent: Zeus 32791 Webster Pro V2.9 Win32
+User-agent: Webster Pro
+User-agent: EroCrawler
+User-agent: LinkScan/8.1a Unix
+User-agent: Keyword Density/0.9
+User-agent: Kenjin Spider
+User-agent: Iron33/1.0.2
+User-agent: Bookmark search tool
+User-agent: GetRight/4.2
+User-agent: FairAd Client
+User-agent: Gaisbot
+User-agent: Aqua_Products
+User-agent: Radiation Retriever 1.1
+User-agent: Flaming AttackBot
+User-agent: Oracle Ultra Search
+User-agent: MSIECrawler
+User-agent: PerMan
+User-agent: searchpreview
+Disallow: /
+
+# Bots de IA que consumen recursos
+User-agent: CCBot
+User-agent: GPTBot
+User-agent: ChatGPT-User
+User-agent: Google-Extended
+User-agent: anthropic-ai
+User-agent: Claude-Web
+User-agent: cohere-ai
+Disallow: /
+
+# Bots de redes sociales agresivos (permitir solo los básicos necesarios)
+User-agent: Twitterbot
+Allow: /
+
+User-agent: LinkedInBot
+Allow: /
+
+# ============================================
+# CONFIGURACIÓN GENERAL
+# ============================================
+
+# Crawl-delay para bots permitidos (segundos entre peticiones)
+Crawl-delay: 1
+
+# Sitemap
+Sitemap: https://voyconvos.com/sitemap.xml
