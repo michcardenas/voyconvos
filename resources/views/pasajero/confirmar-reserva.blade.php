@@ -198,142 +198,7 @@
     .detail-grid {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .detail-item {
-        display: flex;
-        align-items: center;
-        padding: 1rem;
-        background: rgba(221, 242, 254, 0.3);
-        border-radius: 12px;
-        border-left: 4px solid var(--vcv-primary);
-        transition: all 0.3s ease;
-    }
-
-    .detail-item:hover {
-        background: rgba(221, 242, 254, 0.5);
-        border-left-color: var(--vcv-accent);
-        transform: translateX(3px);
-    }
-
-    .detail-icon {
-        width: 50px;
-        height: 50px;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-right: 1.5rem;
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-
-    .detail-icon.time { background: rgba(76, 175, 80, 0.1); color: var(--vcv-accent); }
-    .detail-icon.driver { background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary); }
-    .detail-icon.seats { background: rgba(255, 193, 7, 0.1); color: #f57c00; }
-    .detail-icon.price { background: rgba(76, 175, 80, 0.15); color: var(--vcv-accent); }
-
-    .detail-content h6 {
-        margin: 0 0 0.3rem 0;
-        color: var(--vcv-dark);
-        font-weight: 600;
-        font-size: 1rem;
-    }
-
-    .detail-content p {
-        margin: 0;
-        color: rgba(58, 58, 58, 0.8);
-        font-size: 0.9rem;
-    }
-
-    /* Driver Section */
-    .driver-section {
-        background: rgba(31, 78, 121, 0.02);
-        border-radius: 12px;
-        padding: 1.5rem;
-        border: 1px solid rgba(31, 78, 121, 0.08);
-    }
-
-    .driver-info {
-        display: flex;
-        align-items: center;
-    }
-
-    .driver-avatar {
-        width: 60px;
-        height: 60px;
-        margin-right: 1.5rem;
-        flex-shrink: 0;
-    }
-
-    .driver-photo {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 3px solid var(--vcv-primary);
-        box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);
-    }
-
-    .driver-photo-placeholder {
-        width: 60px;
-        height: 60px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, var(--vcv-primary), rgba(31, 78, 121, 0.8));
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.5rem;
-        border: 3px solid var(--vcv-primary);
-        box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2);
-    }
-
-    .driver-details h6 {
-        margin: 0 0 0.5rem 0;
-        color: var(--vcv-dark);
-        font-weight: 600;
-        font-size: 1.1rem;
-    }
-
-    .driver-rating {
-        display: flex;
-        align-items: center;
-        gap: 0.5rem;
-        margin-bottom: 0.3rem;
-    }
-
-    .stars {
-        display: flex;
-        gap: 0.1rem;
-    }
-
-    .stars i {
-        font-size: 0.9rem;
-        color: #ffc107;
-    }
-
-    .stars .far {
-        color: rgba(255, 193, 7, 0.3);
-    }
-
-    .rating-value {
-        font-weight: 600;
-        color: var(--vcv-primary);
-        font-size: 0.9rem;
-    }
-
-    .rating-count {
-        color: rgba(58, 58, 58, 0.6);
-        font-size: 0.8rem;
-    }
-
-    .verified-badge {
-        display: inline-block;
-        margin-left: 0.5rem;
-        color: var(--vcv-accent);
-        font-size: 1rem;
+        gap: 1rem;
     }
 
     /* Booking Form */
@@ -666,27 +531,6 @@
             padding: 1.5rem;
         }
         
-        .detail-item {
-            flex-direction: column;
-            text-align: center;
-            padding: 1.5rem 1rem;
-        }
-        
-        .detail-icon {
-            margin-right: 0;
-            margin-bottom: 1rem;
-        }
-        
-        .driver-info {
-            flex-direction: column;
-            text-align: center;
-        }
-        
-        .driver-avatar {
-            margin-right: 0;
-            margin-bottom: 1rem;
-        }
-        
         .form-actions {
             flex-direction: column;
         }
@@ -785,101 +629,79 @@
             <div class="trip-details">
                 <div class="detail-grid">
                     <!-- Conductor -->
-                    <div class="driver-section">
-                        <div class="driver-info">
-                            <div class="driver-avatar">
-                                @if($viaje->conductor?->foto)
-                                    <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
-                                @elseif($viaje->conductor?->avatar)
-                                    <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" class="driver-photo">
+                    <div style="display: flex; align-items: center; padding: 1.25rem; gap: 1rem; background: rgba(31, 78, 121, 0.03); border-radius: 12px; border: 1px solid rgba(31, 78, 121, 0.08);">
+                        @if($viaje->conductor?->foto)
+                            <img src="{{ asset('storage/' . $viaje->conductor->foto) }}" alt="{{ $viaje->conductor->name }}" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2); flex-shrink: 0;">
+                        @elseif($viaje->conductor?->avatar)
+                            <img src="{{ $viaje->conductor->avatar }}" alt="{{ $viaje->conductor->name }}" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2); flex-shrink: 0;">
+                        @else
+                            <div style="width: 55px; height: 55px; border-radius: 50%; background: linear-gradient(135deg, var(--vcv-primary), rgba(31, 78, 121, 0.8)); display: flex; align-items: center; justify-content: center; color: white; font-size: 1.3rem; border: 2px solid #1F4E79; box-shadow: 0 2px 8px rgba(31, 78, 121, 0.2); flex-shrink: 0;">
+                                <i class="fas fa-user"></i>
+                            </div>
+                        @endif
+                        <div style="flex: 1; min-width: 0;">
+                            <h4 style="font-size: 0.95rem; margin: 0 0 0.35rem 0; color: #3A3A3A; font-weight: 600; display: flex; align-items: center; gap: 0.4rem;">
+                                <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">{{ $viaje->conductor->name ?? 'No disponible' }}</span>
+                                @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
+                                    <i class="fas fa-check-circle" style="color: var(--vcv-accent); font-size: 0.9rem; flex-shrink: 0;"></i>
+                                @endif
+                            </h4>
+                            @if($viaje->conductor)
+                                @php
+                                    $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
+                                    $rating = $viaje->conductor->calificacion_promedio ?? 0;
+                                @endphp
+
+                                @if($tieneCalificaciones && $rating > 0)
+                                    <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                                        <i class="fas fa-star" style="font-size: 0.8rem; color: #ffc107;"></i>
+                                        <span style="font-size: 0.8rem; font-weight: 600; color: #1F4E79;">{{ number_format($rating, 1) }}</span>
+                                        <span style="font-size: 0.75rem; color: rgba(58, 58, 58, 0.6);">({{ $viaje->conductor->total_calificaciones }})</span>
+                                    </div>
                                 @else
-                                    <div class="driver-photo-placeholder">
-                                        <i class="fas fa-user"></i>
+                                    <div style="display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.3rem;">
+                                        <i class="fas fa-star" style="font-size: 0.8rem; color: #ffc107;"></i>
+                                        <span style="font-size: 0.8rem; font-weight: 600; color: #1F4E79;">Nuevo</span>
                                     </div>
                                 @endif
-                            </div>
-                            <div class="driver-details">
-                                <h6>
-                                    {{ $viaje->conductor->name ?? 'No disponible' }}
-                                    @if($viaje->conductor && ($viaje->conductor->verificado ?? ($viaje->conductor->calificacion_promedio ?? 0) >= 4.5))
-                                        <span class="verified-badge">
-                                            <i class="fas fa-check-circle"></i>
-                                        </span>
-                                    @endif
-                                </h6>
-                                
-                                @if($viaje->conductor)
-                                    @php
-                                        $tieneCalificaciones = ($viaje->conductor->total_calificaciones ?? 0) > 0;
-                                        $rating = $viaje->conductor->calificacion_promedio ?? 0;
-                                    @endphp
-                                    
-                                    @if($tieneCalificaciones && $rating > 0)
-                                        <div class="driver-rating">
-                                            @php
-                                                $fullStars = floor($rating);
-                                                $hasHalfStar = ($rating - $fullStars) >= 0.5;
-                                                $emptyStars = 5 - $fullStars - ($hasHalfStar ? 1 : 0);
-                                            @endphp
-                                            <div class="stars">
-                                                @for($i = 1; $i <= $fullStars; $i++)
-                                                    <i class="fas fa-star"></i>
-                                                @endfor
-                                                @if($hasHalfStar)
-                                                    <i class="fas fa-star-half-alt"></i>
-                                                @endif
-                                                @for($i = 1; $i <= $emptyStars; $i++)
-                                                    <i class="far fa-star"></i>
-                                                @endfor
-                                            </div>
-                                            <span class="rating-value">{{ number_format($rating, 1) }}</span>
-                                            <span class="rating-count">({{ $viaje->conductor->total_calificaciones }})</span>
-                                        </div>
-                                    @endif
-                                @endif
-                                
-                                <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.9rem;">
-                                    <i class="fas fa-steering-wheel me-1"></i>Tu conductor
-                                </p>
-                            </div>
+                            @endif
+                            <p style="margin: 0; color: rgba(58, 58, 58, 0.7); font-size: 0.8rem; display: flex; align-items: center; gap: 0.3rem;">
+                                <i class="fas fa-steering-wheel"></i>
+                                <span>Tu conductor</span>
+                            </p>
                         </div>
                     </div>
 
                     <!-- Vehículo -->
-                    <div class="detail-item">
-                        <div class="detail-icon" style="background: rgba(31, 78, 121, 0.1); color: var(--vcv-primary);">
+                    <div style="display: flex; align-items: center; padding: 1rem; background: rgba(221, 242, 254, 0.3); border-radius: 12px; border-left: 3px solid #1F4E79;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 0.95rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.15) 100%); color: #1F4E79;">
                             <i class="fas fa-car"></i>
                         </div>
-                        <div class="detail-content">
-                            <h6>Vehículo</h6>
+                        <div style="flex: 1;">
+                            <h6 style="font-size: 0.75rem; margin: 0 0 0.3rem 0; color: rgba(58, 58, 58, 0.65); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Vehículo</h6>
                             @if($viaje->vehiculo_info)
-                                <p>{{ ucfirst($viaje->vehiculo_info->marca_vehiculo) }} {{ ucfirst($viaje->vehiculo_info->modelo_vehiculo) }}</p>
+                                <p style="font-size: 0.95rem; margin: 0; color: #3A3A3A; font-weight: 600;">{{ ucfirst($viaje->vehiculo_info->marca_vehiculo) }} {{ ucfirst($viaje->vehiculo_info->modelo_vehiculo) }}</p>
                             @else
-                                <p>{{ ucfirst($viaje->vehiculo ?? 'No especificado') }}</p>
+                                <p style="font-size: 0.95rem; margin: 0; color: #3A3A3A; font-weight: 600;">{{ ucfirst($viaje->vehiculo ?? 'No especificado') }}</p>
                             @endif
                         </div>
                     </div>
 
                     <!-- Puestos Disponibles -->
-                    <div class="detail-item">
-                        <div class="detail-icon seats">
-                            <i class="fas fa-chair"></i>
+                    <div style="display: flex; align-items: center; padding: 1rem; background: rgba(255, 193, 7, 0.08); border-radius: 12px; border-left: 3px solid #f57c00;">
+                        <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 1rem; font-size: 0.95rem; flex-shrink: 0; background: linear-gradient(135deg, rgba(255, 193, 7, 0.15) 0%, rgba(255, 193, 7, 0.08) 100%); color: #f57c00;">
+                            <i class="fas fa-users"></i>
                         </div>
-                        <div class="detail-content">
-                            <h6>Puestos Disponibles</h6>
-                            <p>{{ $viaje->puestos_disponibles }} asientos libres</p>
+                        <div style="flex: 1;">
+                            <h6 style="font-size: 0.75rem; margin: 0 0 0.3rem 0; color: rgba(58, 58, 58, 0.65); font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;">Puestos Disponibles</h6>
+                            <p style="font-size: 0.95rem; margin: 0; color: #3A3A3A; font-weight: 600;">{{ $viaje->puestos_disponibles }} {{ $viaje->puestos_disponibles == 1 ? 'asiento libre' : 'asientos libres' }}</p>
                         </div>
                     </div>
 
                     <!-- Precio -->
-                    <div class="detail-item">
-                        <div class="detail-icon price">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="detail-content">
-                            <h6>Precio por persona</h6>
-                            <p>${{ number_format($viaje->valor_persona, 2, ',', '.') }}</p>
-                        </div>
+                    <div style="background: linear-gradient(135deg, rgba(76, 175, 80, 0.1) 0%, rgba(76, 175, 80, 0.05) 100%); border-radius: 12px; padding: 1.25rem; text-align: center; border: 2px solid rgba(76, 175, 80, 0.25);">
+                        <small style="font-size: 0.75rem; color: rgba(58, 58, 58, 0.65); margin: 0 0 0.5rem 0; font-weight: 500; display: block; text-transform: uppercase; letter-spacing: 0.5px;">Precio por persona</small>
+                        <span style="font-size: 2rem; font-weight: 700; color: #4CAF50; margin: 0; display: block; line-height: 1;">${{ number_format(floor($viaje->valor_persona), 0, ',', '.') }}</span>
                     </div>
                 </div>
             </div>
@@ -1684,7 +1506,7 @@ function mostrarConfirmacionFinal(metodoPago, subirAhora = false) {
             animation: slideUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         ">
             <div style="font-size: 4rem; margin-bottom: 1rem;">${icono}</div>
-            <h3 style="color: #1F4E79; margin-bottom: 1rem; font-size: 1.4rem;">¡Reserva Confirmada!</h3>
+            <h3 style="color: #1F4E79; margin-bottom: 1rem; font-size: 1.4rem;">¡Reserva En proceso!</h3>
             <p style="color: #666; margin-bottom: 2rem; line-height: 1.6;">${mensaje}</p>
             <button onclick="this.parentElement.parentElement.remove(); document.getElementById('form-confirmar-reserva').submit();"
                     style="

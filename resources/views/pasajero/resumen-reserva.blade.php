@@ -777,7 +777,7 @@ function mostrarAlertaYEnviar() {
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
         ">
             <div style="font-size: 3rem; color: #4CAF50; margin-bottom: 1rem;">✅</div>
-            <h3 style="color: #1F4E79; margin-bottom: 1rem;">¡Reserva Confirmada!</h3>
+            <h3 style="color: #1F4E79; margin-bottom: 1rem;">¡Reserva en proceso!</h3>
             <p style="color: #666; margin-bottom: 2rem;">Tu reserva está en espera para configurar el pago</p>
             <button onclick="this.parentElement.parentElement.remove(); document.getElementById('form-confirmar-reserva').submit();" 
                     style="

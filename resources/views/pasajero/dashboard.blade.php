@@ -57,9 +57,9 @@
     .hero-elegant {
         background: var(--vcv-gradient-hero),
                     url('https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1600') center/cover;
-        border-radius: 20px;
-        padding: 3.5rem 3rem;
-        margin-bottom: 2.5rem;
+        border-radius: 16px;
+        padding: 2rem 2rem;
+        margin-bottom: 1.5rem;
         box-shadow: 0 10px 40px rgba(31, 78, 121, 0.15);
         position: relative;
         overflow: hidden;
@@ -102,16 +102,16 @@
 
     .hero-elegant h2 {
         color: white;
-        font-size: 2.8rem;
+        font-size: 1.75rem;
         font-weight: 800;
-        margin: 0 0 0.75rem 0;
+        margin: 0 0 0.5rem 0;
         text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.2);
         letter-spacing: -0.5px;
     }
 
     .hero-elegant p {
         color: rgba(255, 255, 255, 0.95);
-        font-size: 1.15rem;
+        font-size: 0.95rem;
         margin: 0;
         font-weight: 500;
         opacity: 0.95;
@@ -120,16 +120,16 @@
     /* Quick Actions - Cards Elegantes */
     .actions-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 1.5rem;
-        margin-bottom: 2.5rem;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
         animation: fadeInUp 0.6s ease-out 0.1s both;
     }
 
     .action-elegant {
         background: white;
-        border-radius: 16px;
-        padding: 2rem;
+        border-radius: 12px;
+        padding: 1.25rem;
         border: 1px solid rgba(31, 78, 121, 0.08);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
@@ -163,14 +163,14 @@
     }
 
     .action-icon {
-        width: 60px;
-        height: 60px;
-        border-radius: 14px;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
         background: linear-gradient(135deg, rgba(31, 78, 121, 0.1) 0%, rgba(31, 78, 121, 0.05) 100%);
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.25rem;
+        margin-bottom: 0.85rem;
         transition: all 0.3s ease;
     }
 
@@ -180,7 +180,7 @@
     }
 
     .action-icon i {
-        font-size: 1.75rem;
+        font-size: 1.3rem;
         color: var(--vcv-primary);
         transition: color 0.3s ease;
     }
@@ -192,30 +192,30 @@
     .action-elegant h5 {
         color: var(--vcv-dark);
         font-weight: 700;
-        margin-bottom: 0.5rem;
-        font-size: 1.1rem;
+        margin-bottom: 0.35rem;
+        font-size: 0.95rem;
     }
 
     .action-elegant p {
         color: #64748b;
         margin: 0;
-        font-size: 0.95rem;
-        line-height: 1.5;
+        font-size: 0.8rem;
+        line-height: 1.4;
     }
 
     /* Stats Cards - Estilo Profesional */
     .stats-professional {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
-        margin-bottom: 3rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-bottom: 1.5rem;
         animation: fadeInUp 0.6s ease-out 0.2s both;
     }
 
     .stat-elegant {
         background: white;
-        border-radius: 18px;
-        padding: 2.25rem;
+        border-radius: 12px;
+        padding: 1.25rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         border: 1px solid rgba(31, 78, 121, 0.08);
         transition: all 0.3s ease;
@@ -251,13 +251,13 @@
     }
 
     .stat-icon-elegant {
-        width: 75px;
-        height: 75px;
-        border-radius: 16px;
+        width: 45px;
+        height: 45px;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        margin-bottom: 1.5rem;
+        margin-bottom: 0.85rem;
         transition: transform 0.3s ease;
     }
 
@@ -278,7 +278,7 @@
     }
 
     .stat-icon-elegant i {
-        font-size: 2rem;
+        font-size: 1.3rem;
     }
 
     .stat-icon-elegant.primary i {
@@ -294,26 +294,26 @@
     }
 
     .stat-number-elegant {
-        font-size: 3rem;
+        font-size: 2rem;
         font-weight: 800;
         line-height: 1;
-        margin-bottom: 0.5rem;
+        margin-bottom: 0.4rem;
         color: var(--vcv-primary);
     }
 
     .stat-label-elegant {
         color: #64748b;
         font-weight: 600;
-        font-size: 1rem;
+        font-size: 0.85rem;
         margin: 0;
     }
 
     /* Section Header - Elegante */
     .section-elegant {
         background: white;
-        border-radius: 18px;
-        padding: 2rem;
-        margin-bottom: 2rem;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 1rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         border: 1px solid rgba(31, 78, 121, 0.08);
         animation: fadeInUp 0.6s ease-out 0.3s both;
@@ -322,40 +322,41 @@
     .section-elegant h4 {
         color: var(--vcv-primary);
         font-weight: 800;
-        font-size: 1.5rem;
-        margin: 0 0 1.5rem 0;
+        font-size: 1.1rem;
+        margin: 0 0 1rem 0;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
 
     .section-elegant h4 i {
         color: var(--vcv-primary);
+        font-size: 1rem;
     }
 
     /* Filters - Estilo Profesional */
     .filters-elegant {
         display: flex;
-        gap: 0.75rem;
+        gap: 0.5rem;
         flex-wrap: wrap;
-        padding-bottom: 1rem;
+        padding-bottom: 0.75rem;
         border-bottom: 2px solid rgba(31, 78, 121, 0.1);
-        margin-bottom: 1.5rem;
+        margin-bottom: 1rem;
     }
 
     .filter-elegant {
-        padding: 0.75rem 1.5rem;
-        border-radius: 12px;
+        padding: 0.6rem 1rem;
+        border-radius: 10px;
         border: 2px solid transparent;
         background: rgba(31, 78, 121, 0.04);
         color: var(--vcv-primary);
         font-weight: 600;
-        font-size: 0.95rem;
+        font-size: 0.8rem;
         transition: all 0.3s ease;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.4rem;
         position: relative;
     }
 
@@ -376,9 +377,9 @@
     .filter-elegant .badge {
         background: rgba(255, 255, 255, 0.2);
         backdrop-filter: blur(10px);
-        padding: 0.25rem 0.6rem;
+        padding: 0.15rem 0.5rem;
         border-radius: 20px;
-        font-size: 0.8rem;
+        font-size: 0.7rem;
         font-weight: 700;
     }
 
@@ -389,10 +390,10 @@
     /* Table - Elegante y Moderna */
     .table-elegant-wrapper {
         background: white;
-        border-radius: 18px;
+        border-radius: 12px;
         overflow: hidden;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         border: 1px solid rgba(31, 78, 121, 0.08);
         animation: fadeInUp 0.6s ease-out 0.4s both;
         width: 100%;
@@ -408,9 +409,9 @@
     .table-elegant thead th {
         background: var(--vcv-gradient-primary);
         color: white;
-        padding: 1.5rem 1.25rem;
+        padding: 1rem 0.85rem;
         font-weight: 700;
-        font-size: 0.9rem;
+        font-size: 0.75rem;
         text-transform: uppercase;
         letter-spacing: 0.5px;
         border: none;
@@ -427,21 +428,22 @@
     }
 
     .table-elegant tbody td {
-        padding: 1.5rem 1.25rem;
+        padding: 1rem 0.85rem;
         border: none;
         color: var(--vcv-dark);
         font-weight: 500;
+        font-size: 0.85rem;
     }
 
     /* Badges - Elegantes con gradientes sutiles */
     .badge-elegant {
-        padding: 0.5rem 1rem;
+        padding: 0.4rem 0.75rem;
         border-radius: 20px;
         font-weight: 700;
-        font-size: 0.85rem;
+        font-size: 0.7rem;
         display: inline-flex;
         align-items: center;
-        gap: 0.4rem;
+        gap: 0.3rem;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
@@ -467,9 +469,9 @@
 
     /* Action Buttons - Profesionales */
     .btn-elegant {
-        width: 42px;
-        height: 42px;
-        border-radius: 12px;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
         border: 2px solid;
         background: white;
         display: inline-flex;
@@ -495,7 +497,7 @@
     .btn-elegant i {
         position: relative;
         z-index: 1;
-        font-size: 1rem;
+        font-size: 0.85rem;
         transition: all 0.3s ease;
     }
 
@@ -551,18 +553,18 @@
     /* Empty State - Elegante */
     .empty-elegant {
         text-align: center;
-        padding: 5rem 2rem;
+        padding: 3rem 1.5rem;
         background: white;
-        border-radius: 18px;
+        border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         border: 1px solid rgba(31, 78, 121, 0.08);
         animation: fadeInUp 0.6s ease-out;
     }
 
     .empty-icon-elegant {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 2rem;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1.25rem;
         border-radius: 50%;
         background: linear-gradient(135deg, rgba(31, 78, 121, 0.1) 0%, rgba(31, 78, 121, 0.05) 100%);
         display: flex;
@@ -573,11 +575,11 @@
 
     @keyframes gentleFloat {
         0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-15px); }
+        50% { transform: translateY(-10px); }
     }
 
     .empty-icon-elegant i {
-        font-size: 3.5rem;
+        font-size: 2.5rem;
         color: var(--vcv-primary);
         opacity: 0.7;
     }
@@ -585,20 +587,20 @@
     .empty-elegant h5 {
         color: var(--vcv-dark);
         font-weight: 800;
-        font-size: 1.5rem;
-        margin-bottom: 1rem;
+        font-size: 1.1rem;
+        margin-bottom: 0.75rem;
     }
 
     .empty-elegant p {
         color: #64748b;
-        margin-bottom: 2rem;
-        font-size: 1.05rem;
-        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        font-size: 0.9rem;
+        line-height: 1.5;
     }
 
     .btn-primary-elegant {
-        padding: 1rem 2.5rem;
-        border-radius: 12px;
+        padding: 0.75rem 1.75rem;
+        border-radius: 10px;
         background: var(--vcv-gradient-primary);
         color: white;
         border: none;
@@ -606,10 +608,10 @@
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.5rem;
         transition: all 0.3s ease;
         box-shadow: 0 6px 20px rgba(31, 78, 121, 0.25);
-        font-size: 1rem;
+        font-size: 0.9rem;
     }
 
     .btn-primary-elegant:hover {
@@ -621,21 +623,21 @@
     /* Ratings Section - Elegante */
     .ratings-elegant {
         background: white;
-        border-radius: 18px;
-        padding: 2.5rem;
+        border-radius: 12px;
+        padding: 1.5rem;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         border: 1px solid rgba(31, 78, 121, 0.08);
         animation: fadeInUp 0.6s ease-out 0.5s both;
     }
 
     .rating-summary-elegant {
         background: var(--vcv-gradient-accent);
-        border-radius: 16px;
-        padding: 3rem;
+        border-radius: 12px;
+        padding: 2rem;
         text-align: center;
         color: white;
-        margin-bottom: 2rem;
+        margin-bottom: 1.25rem;
         position: relative;
         overflow: hidden;
     }
@@ -653,23 +655,23 @@
     }
 
     .rating-score-elegant {
-        font-size: 4rem;
+        font-size: 2.5rem;
         font-weight: 900;
-        margin-bottom: 1rem;
+        margin-bottom: 0.75rem;
         position: relative;
         z-index: 1;
     }
 
     .rating-stars-elegant {
-        font-size: 2rem;
-        margin: 1rem 0;
+        font-size: 1.5rem;
+        margin: 0.75rem 0;
         position: relative;
         z-index: 1;
     }
 
     .rating-count-elegant {
         opacity: 0.95;
-        font-size: 1.1rem;
+        font-size: 0.9rem;
         position: relative;
         z-index: 1;
         font-weight: 600;
@@ -677,9 +679,9 @@
 
     .rating-card-elegant {
         background: var(--vcv-bg);
-        border-radius: 14px;
-        padding: 1.75rem;
-        margin-bottom: 1rem;
+        border-radius: 12px;
+        padding: 1.25rem;
+        margin-bottom: 0.85rem;
         border-left: 4px solid var(--vcv-accent);
         transition: all 0.3s ease;
         border: 1px solid rgba(31, 78, 121, 0.06);
@@ -719,34 +721,292 @@
         box-shadow: 0 4px 12px rgba(31, 78, 121, 0.25);
     }
 
+    /* Tablet optimizations */
+    @media (max-width: 992px) and (min-width: 769px) {
+        .filters-elegant {
+            gap: 0.4rem;
+        }
+
+        .filter-elegant {
+            padding: 0.55rem 0.9rem;
+            font-size: 0.75rem;
+        }
+
+        .filter-elegant .badge {
+            font-size: 0.65rem;
+            padding: 0.12rem 0.45rem;
+        }
+    }
+
     /* Responsive */
     @media (max-width: 768px) {
+        .dashboard-wrapper {
+            padding: 1rem 0 2rem 0;
+        }
+
         .hero-elegant {
-            padding: 2.5rem 2rem;
+            padding: 1.5rem 1.25rem;
+            margin-bottom: 1rem;
+            border-radius: 12px;
         }
 
         .hero-elegant h2 {
-            font-size: 2rem;
+            font-size: 1.4rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .hero-elegant p {
+            font-size: 0.85rem;
         }
 
         .stat-number-elegant {
-            font-size: 2.5rem;
+            font-size: 1.75rem;
+        }
+
+        .stat-icon-elegant {
+            width: 38px;
+            height: 38px;
+            margin-bottom: 0.65rem;
+        }
+
+        .stat-icon-elegant i {
+            font-size: 1.1rem;
+        }
+
+        .stat-label-elegant {
+            font-size: 0.75rem;
         }
 
         .actions-grid {
             grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .action-elegant {
+            padding: 1rem;
+        }
+
+        .action-icon {
+            width: 38px;
+            height: 38px;
+            margin-bottom: 0.65rem;
+        }
+
+        .action-icon i {
+            font-size: 1.1rem;
+        }
+
+        .action-elegant h5 {
+            font-size: 0.9rem;
+        }
+
+        .action-elegant p {
+            font-size: 0.75rem;
         }
 
         .stats-professional {
             grid-template-columns: 1fr;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
         }
 
-        .filters-elegant {
+        .stat-elegant {
+            padding: 1rem;
+        }
+
+        .section-elegant {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .section-elegant h4 {
+            font-size: 1rem;
+            margin-bottom: 0.85rem;
+        }
+
+        /* Vista Principal Filters - Grid 2 columnas */
+        .filters-elegant[style*="border-bottom: 3px"] {
+            display: grid !important;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+            padding-bottom: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .filters-elegant[style*="border-bottom: 3px"] .filter-elegant {
+            padding: 0.65rem 0.5rem !important;
+            font-size: 0.7rem !important;
             justify-content: center;
+            text-align: center;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .filters-elegant[style*="border-bottom: 3px"] .filter-elegant i {
+            font-size: 1rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .filters-elegant[style*="border-bottom: 3px"] .filter-elegant span {
+            font-size: 0.7rem !important;
+            font-weight: 700 !important;
+        }
+
+        /* Estado Filters - Grid 3 columnas compacto */
+        .filters-elegant:not([style*="border-bottom: 3px"]) {
+            display: grid !important;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.35rem;
+            padding-bottom: 0.65rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .filters-elegant:not([style*="border-bottom: 3px"]) .filter-elegant {
+            padding: 0.5rem 0.25rem !important;
+            font-size: 0.65rem !important;
+            border-radius: 8px;
+            flex-direction: column;
+            gap: 0.2rem;
+            text-align: center;
+            justify-content: center;
+            min-height: 60px;
+        }
+
+        .filters-elegant:not([style*="border-bottom: 3px"]) .filter-elegant i {
+            font-size: 1.1rem;
+            margin-bottom: 0.15rem;
+        }
+
+        .filters-elegant:not([style*="border-bottom: 3px"]) .filter-elegant .badge {
+            font-size: 0.6rem !important;
+            padding: 0.1rem 0.35rem !important;
+            margin-top: 0.15rem;
         }
 
         .table-elegant-wrapper {
             overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+
+        .table-elegant thead th {
+            padding: 0.85rem 0.65rem;
+            font-size: 0.7rem;
+        }
+
+        .table-elegant tbody td {
+            padding: 0.85rem 0.65rem;
+            font-size: 0.8rem;
+        }
+
+        .badge-elegant {
+            font-size: 0.65rem;
+            padding: 0.35rem 0.65rem;
+        }
+
+        .btn-elegant {
+            width: 32px;
+            height: 32px;
+        }
+
+        .btn-elegant i {
+            font-size: 0.75rem;
+        }
+
+        .empty-elegant {
+            padding: 2.5rem 1.25rem;
+        }
+
+        .empty-icon-elegant {
+            width: 65px;
+            height: 65px;
+            margin-bottom: 1rem;
+        }
+
+        .empty-icon-elegant i {
+            font-size: 2rem;
+        }
+
+        .empty-elegant h5 {
+            font-size: 1rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .empty-elegant p {
+            font-size: 0.85rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .btn-primary-elegant {
+            padding: 0.65rem 1.5rem;
+            font-size: 0.85rem;
+        }
+
+        .ratings-elegant {
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-summary-elegant {
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .rating-score-elegant {
+            font-size: 2rem;
+            margin-bottom: 0.65rem;
+        }
+
+        .rating-stars-elegant {
+            font-size: 1.25rem;
+            margin: 0.65rem 0;
+        }
+
+        .rating-count-elegant {
+            font-size: 0.85rem;
+        }
+
+        .rating-card-elegant {
+            padding: 1rem;
+            margin-bottom: 0.75rem;
+        }
+    }
+
+    /* Móviles muy pequeños (< 400px) */
+    @media (max-width: 400px) {
+        /* Vista Principal Filters - Stack vertical */
+        .filters-elegant[style*="border-bottom: 3px"] {
+            grid-template-columns: 1fr !important;
+            gap: 0.4rem;
+        }
+
+        .filters-elegant[style*="border-bottom: 3px"] .filter-elegant {
+            padding: 0.75rem 0.5rem !important;
+            flex-direction: row !important;
+            justify-content: flex-start !important;
+            text-align: left !important;
+            gap: 0.5rem !important;
+        }
+
+        .filters-elegant[style*="border-bottom: 3px"] .filter-elegant i {
+            font-size: 1.1rem !important;
+            margin-bottom: 0 !important;
+        }
+
+        /* Estado Filters - 2 columnas en lugar de 3 */
+        .filters-elegant:not([style*="border-bottom: 3px"]) {
+            grid-template-columns: repeat(2, 1fr) !important;
+            gap: 0.4rem;
+        }
+
+        .filters-elegant:not([style*="border-bottom: 3px"]) .filter-elegant {
+            padding: 0.6rem 0.3rem !important;
+            font-size: 0.6rem !important;
+            min-height: 65px !important;
+        }
+
+        .filters-elegant:not([style*="border-bottom: 3px"]) .filter-elegant i {
+            font-size: 1.2rem !important;
         }
     }
 </style>

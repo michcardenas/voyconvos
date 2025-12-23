@@ -43,7 +43,7 @@
 
         .logo img {
             height: 51px;
-            margin-right: 10px;
+            margin-right: -5px;
         }
 
         nav ul {

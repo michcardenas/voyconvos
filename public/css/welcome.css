@@ -1281,8 +1281,8 @@
 
   /* TARJETAS MÁS COMPACTAS EN MÓVIL */
   .viaje-card {
-    min-width: 260px !important;
-    max-width: 260px !important;
+    min-width: 290px !important;
+    max-width: 300px !important;
     display: flex;
     flex-direction: column;
   }
