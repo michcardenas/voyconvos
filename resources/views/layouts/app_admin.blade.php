@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
+
+    <!-- Meta tags para evitar indexación en buscadores -->
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+    <meta name="googlebot" content="noindex, nofollow, noarchive">
+    <meta name="bingbot" content="noindex, nofollow, noarchive">
+    <meta name="yandex" content="noindex, nofollow, noarchive">
+
     <link rel="icon" type="image/png" href="{{ asset('img/logo.png') }}">
 
     <link rel="stylesheet" href="{{ asset('css/voyconvos_admin.css') }}">
