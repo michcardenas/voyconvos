@@ -430,12 +430,7 @@
                         <span>FAQ</span>
                     </a>
                 </li>
-            </ul>
-        </div>
-
-        <!-- Usuario móvil con BORDE DE COLOR -->
-       <!-- Usuario móvil con BORDE DE COLOR - COMPACTO -->
-<div class="mobile-user-section">
+       
     <div class="mobile-user-avatar">
         @auth
             <div class="mobile-avatar-wrapper {{ Auth::user()->verificado ? 'verified' : 'unverified' }}">

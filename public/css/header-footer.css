@@ -865,6 +865,7 @@ footer::before {
 
     .mobile-user-avatar {
         margin-bottom: 8px;
+        margin-top: 5rem;
     }
 
     .mobile-user-avatar img {
@@ -958,6 +959,7 @@ footer::before {
 
     .mobile-user-avatar {
         margin-bottom: 6px;
+        margin-top: 3rem;
     }
 
     .mobile-user-avatar img {
