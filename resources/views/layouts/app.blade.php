@@ -434,75 +434,80 @@
         </div>
 
         <!-- Usuario móvil con BORDE DE COLOR -->
-        <div class="mobile-user-section">
-            <div class="mobile-user-avatar">
-                @auth
-                    <div class="mobile-avatar-wrapper {{ Auth::user()->verificado ? 'verified' : 'unverified' }}">
-                        @if(Auth::user()->foto)
-                            <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="{{ Auth::user()->name }}">
-                        @else
-                            <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-                        @endif
-                    </div>
-                    
-                    <p class="mobile-user-name">{{ Auth::user()->name }}</p>
-                    
-                    @if(Auth::user()->verificado)
-                        <span class="mobile-user-status verified">
-                            <i class="fas fa-check-circle"></i> Verificado
-                        </span>
-                    @else
-                        <span class="mobile-user-status unverified">
-                            <i class="fas fa-exclamation-circle"></i> Sin verificar
-                        </span>
-                    @endif
+       <!-- Usuario móvil con BORDE DE COLOR - COMPACTO -->
+<div class="mobile-user-section">
+    <div class="mobile-user-avatar">
+        @auth
+            <div class="mobile-avatar-wrapper {{ Auth::user()->verificado ? 'verified' : 'unverified' }}">
+                @if(Auth::user()->foto)
+                    <img src="{{ asset('storage/' . Auth::user()->foto) }}" alt="{{ Auth::user()->name }}">
                 @else
-                    <div class="mobile-avatar-wrapper" style="background: #e2e8f0;">
-                        <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
-                    </div>
-                @endauth
+                    <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+                @endif
             </div>
             
-            <div class="mobile-user-actions">
-                @auth
-                    @if(Auth::user()->hasRole('admin'))
-                        <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn login-btn">
-                            <i class="fas fa-tachometer-alt"></i>
-                            <span>Dashboard Admin</span>
-                        </a>
-                    @else
-                        <a href="{{ route('hibrido.dashboard') }}" class="mobile-auth-btn login-btn">
-                            <i class="fas fa-th-large"></i>
-                            <span>Mi Dashboard</span>
-                        </a>
-                    @endif
-                    
-                    @if(!Auth::user()->verificado)
-                        <a href="{{ route('verificacion.create') }}" class="mobile-auth-btn" style="background: #f59e0b; color: white; border: none;">
-                            <i class="fas fa-shield-alt"></i>
-                            <span>Verificar Cuenta</span>
-                        </a>
-                    @endif
-                    
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit" class="mobile-auth-btn register-btn" style="background: #ef4444; border: none;">
-                            <i class="fas fa-sign-out-alt"></i>
-                            <span>Cerrar Sesión</span>
-                        </button>
-                    </form>
+            <div class="mobile-user-info">
+                <p class="mobile-user-name">{{ Auth::user()->name }}</p>
+                @if(Auth::user()->verificado)
+                    <span class="mobile-user-status verified">
+                        <i class="fas fa-check-circle"></i> Verificado
+                    </span>
                 @else
-                    <a href="{{ route('login') }}" class="mobile-auth-btn login-btn">
-                        <i class="fas fa-sign-in-alt"></i>
-                        <span>Iniciar sesión</span>
-                    </a>
-                    <a href="{{ route('register') }}" class="mobile-auth-btn register-btn">
-                        <i class="fas fa-user-plus"></i>
-                        <span>Registrarse</span>
-                    </a>
-                @endauth
+                    <span class="mobile-user-status unverified">
+                        <i class="fas fa-exclamation-circle"></i> Sin verificar
+                    </span>
+                @endif
             </div>
-        </div>
+        @else
+            <div class="mobile-avatar-wrapper" style="background: #e2e8f0;">
+                <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
+            </div>
+            <div class="mobile-user-info">
+                <p class="mobile-user-name">Bienvenido</p>
+            </div>
+        @endauth
+    </div>
+    
+    <div class="mobile-user-actions">
+        @auth
+            @if(Auth::user()->hasRole('admin'))
+                <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn login-btn">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard Admin</span>
+                </a>
+            @else
+                <a href="{{ route('hibrido.dashboard') }}" class="mobile-auth-btn login-btn">
+                    <i class="fas fa-th-large"></i>
+                    <span>Mi Dashboard</span>
+                </a>
+            @endif
+            
+            @if(!Auth::user()->verificado)
+                <a href="{{ route('verificacion.create') }}" class="mobile-auth-btn" style="background: #f59e0b; color: white; border: none;">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Verificar Cuenta</span>
+                </a>
+            @endif
+            
+            <form method="POST" action="{{ route('logout') }}" style="width: 100%;">
+                @csrf
+                <button type="submit" class="mobile-auth-btn register-btn" style="background: #ef4444; border: none;">
+                    <i class="fas fa-sign-out-alt"></i>
+                    <span>Cerrar Sesión</span>
+                </button>
+            </form>
+        @else
+            <a href="{{ route('login') }}" class="mobile-auth-btn login-btn">
+                <i class="fas fa-sign-in-alt"></i>
+                <span>Iniciar sesión</span>
+            </a>
+            <a href="{{ route('register') }}" class="mobile-auth-btn register-btn">
+                <i class="fas fa-user-plus"></i>
+                <span>Registrarse</span>
+            </a>
+        @endauth
+    </div>
+</div>
     </nav>
 
     {{-- CONTENIDO PRINCIPAL --}}
