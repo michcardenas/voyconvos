@@ -445,55 +445,62 @@ COLORES DEL NAVBAR:
     color: #d97706;
 }
 
-/* Botones de acción - más compactos */
+/* Botones de acción - EN FILA Y CENTRADOS */
 .mobile-user-actions {
     display: flex;
-    flex-direction: column;
-    gap: 6px;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    padding: 0 10px;
+    margin-top: 15px;
 }
 
 .mobile-auth-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
-    padding: 10px 16px;
+    gap: 6px;
+    padding: 10px 20px;
     text-decoration: none;
-    border-radius: 10px;
+    border-radius: 25px;
     font-weight: 600;
     font-size: 0.85rem;
     transition: all 0.3s ease;
-    width: 100%;
     border: none;
     cursor: pointer;
+    white-space: nowrap;
+    min-width: 130px;
 }
 
 .login-btn {
-    background: #1f4e79;
+    background: transparent;
     color: white;
-    border: 2px solid #1f4e79;
+    border: 2px solid rgba(255, 255, 255, 0.5);
 }
 
 .login-btn:hover {
-    background: #2980b9;
-    border-color: #2980b9;
+    background: rgba(255, 255, 255, 0.1);
+    border-color: white;
+    color: white;
 }
 
 .register-btn {
-    background: #3498db;
+    background: linear-gradient(135deg, #3498db, #2980b9);
     color: white;
-    border: 2px solid #3498db;
+    border: none;
+    box-shadow: 0 4px 15px rgba(52, 152, 219, 0.4);
 }
 
 .register-btn:hover {
-    background: white;
-    color: #3498db;
+    background: linear-gradient(135deg, #2980b9, #1f6aa5);
     transform: translateY(-2px);
-    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+    box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+    color: white;
 }
 
 .mobile-auth-btn:active {
-    transform: scale(0.98);
+    transform: scale(0.97);
 }
 
 /* ====================================
