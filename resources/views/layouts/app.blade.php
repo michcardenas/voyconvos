@@ -458,7 +458,7 @@
                 <img src="{{ asset('img/usuario.png') }}" alt="Usuario">
             </div>
             <div class="mobile-user-info">
-                <p class="mobile-user-name">Bienvenido</p>
+                <p class="mobile-user-name"></p>
             </div>
         @endauth
     </div>
@@ -468,27 +468,27 @@
             @if(Auth::user()->hasRole('admin'))
                 <a href="{{ route('admin.dashboard') }}" class="mobile-auth-btn login-btn">
                     <i class="fas fa-tachometer-alt"></i>
-                    <span>Dashboard Admin</span>
+                    <span>Admin</span>
                 </a>
             @else
                 <a href="{{ route('hibrido.dashboard') }}" class="mobile-auth-btn login-btn">
                     <i class="fas fa-th-large"></i>
-                    <span>Mi Dashboard</span>
+                    <span>Dashboard</span>
                 </a>
             @endif
             
             @if(!Auth::user()->verificado)
-                <a href="{{ route('verificacion.create') }}" class="mobile-auth-btn" style="background: #f59e0b; color: white; border: none;">
+                <a href="{{ route('verificacion.create') }}" class="mobile-auth-btn verify-btn">
                     <i class="fas fa-shield-alt"></i>
-                    <span>Verificar Cuenta</span>
+                    <span>Verificar</span>
                 </a>
             @endif
             
-            <form method="POST" action="{{ route('logout') }}" style="width: 100%;">
+            <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit" class="mobile-auth-btn register-btn" style="background: #ef4444; border: none;">
+                <button type="submit" class="mobile-auth-btn logout-btn">
                     <i class="fas fa-sign-out-alt"></i>
-                    <span>Cerrar Sesión</span>
+                    <span>Salir</span>
                 </button>
             </form>
         @else

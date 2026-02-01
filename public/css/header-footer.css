@@ -449,6 +449,7 @@ COLORES DEL NAVBAR:
 .mobile-user-actions {
     display: flex;
     flex-direction: row;
+    flex-wrap: wrap;
     gap: 10px;
     justify-content: center;
     align-items: center;
@@ -456,21 +457,26 @@ COLORES DEL NAVBAR:
     margin-top: 15px;
 }
 
+/* Formulario de logout no debe romper el layout */
+.mobile-user-actions form {
+    display: flex;
+    margin: 0;
+}
+
 .mobile-auth-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 10px 20px;
+    padding: 10px 16px;
     text-decoration: none;
     border-radius: 25px;
     font-weight: 600;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     transition: all 0.3s ease;
     border: none;
     cursor: pointer;
     white-space: nowrap;
-    min-width: 130px;
 }
 
 .login-btn {
@@ -496,6 +502,34 @@ COLORES DEL NAVBAR:
     background: linear-gradient(135deg, #2980b9, #1f6aa5);
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(52, 152, 219, 0.5);
+    color: white;
+}
+
+.verify-btn {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4);
+}
+
+.verify-btn:hover {
+    background: linear-gradient(135deg, #d97706, #b45309);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(245, 158, 11, 0.5);
+    color: white;
+}
+
+.logout-btn {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+    border: none;
+    box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+}
+
+.logout-btn:hover {
+    background: linear-gradient(135deg, #dc2626, #b91c1c);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(239, 68, 68, 0.5);
     color: white;
 }
 
