@@ -53,17 +53,16 @@
                     </div>
                 </div>
 
-                <!-- Filtro de Rol -->
+                <!-- Filtro de Perfil -->
                 <div class="col-md-2">
                     <label class="form-label small fw-semibold text-muted">
-                        <i class="fas fa-shield-alt me-1"></i>Rol
+                        <i class="fas fa-user-tag me-1"></i>Perfil
                     </label>
-                    <select id="filtro-rol" class="form-select">
+                    <select id="filtro-perfil" class="form-select">
                         <option value="">Todos</option>
-                        <option value="admin" {{ request('rol') == 'admin' ? 'selected' : '' }}>Administrador</option>
-                        <option value="conductor" {{ request('rol') == 'conductor' ? 'selected' : '' }}>Conductor</option>
-                        <option value="pasajero" {{ request('rol') == 'pasajero' ? 'selected' : '' }}>Pasajero</option>
-                        <option value="soporte" {{ request('rol') == 'soporte' ? 'selected' : '' }}>Soporte</option>
+                        <option value="0" {{ request('perfil') === '0' ? 'selected' : '' }}>Pasajero</option>
+                        <option value="1" {{ request('perfil') === '1' ? 'selected' : '' }}>Conductor</option>
+                        <option value="2" {{ request('perfil') === '2' ? 'selected' : '' }}>Ambos</option>
                     </select>
                 </div>
 
@@ -92,7 +91,7 @@
                 </div>
             </div>
 
-            @if(request()->hasAny(['buscar', 'rol', 'verificado', 'ordenar']))
+            @if(request()->hasAny(['buscar', 'perfil', 'verificado', 'ordenar']))
             <div class="mt-3 d-flex align-items-center justify-content-between">
                 <div class="d-flex flex-wrap gap-2">
                     @if(request('buscar'))
@@ -100,24 +99,19 @@
                         <i class="fas fa-search me-1"></i>Búsqueda: "{{ request('buscar') }}"
                     </span>
                     @endif
-                    @if(request('rol'))
-                    <span class="badge bg-warning text-dark">
-                        <i class="fas fa-shield-alt me-1"></i>
-                        @switch(request('rol'))
-                            @case('admin')
-                                Administrador
-                                @break
-                            @case('conductor')
-                                Conductor
-                                @break
-                            @case('pasajero')
+                    @if(request('perfil') !== null && request('perfil') !== '')
+                    <span class="badge bg-info text-dark">
+                        <i class="fas fa-user-tag me-1"></i>
+                        @switch(request('perfil'))
+                            @case('0')
                                 Pasajero
                                 @break
-                            @case('soporte')
-                                Soporte
+                            @case('1')
+                                Conductor
                                 @break
-                            @default
-                                {{ ucfirst(request('rol')) }}
+                            @case('2')
+                                Ambos
+                                @break
                         @endswitch
                     </span>
                     @endif
@@ -144,7 +138,7 @@
                         <tr>
                             <th class="px-4 py-3">Usuario</th>
                             <th class="py-3">Documentos</th>
-                            <th class="py-3">Rol</th>
+                            <th class="py-3">Perfil</th>
                             <th class="py-3">Estado</th>
                             <th class="py-3">Registrado</th>
                             <th class="py-3 text-end pe-4">Acciones</th>
@@ -218,35 +212,27 @@
                                 </div>
                             </td>
 
-                            <!-- Rol -->
+                            <!-- Perfil -->
                             <td>
-                                @php
-                                    $rol = $user->getRoleNames()->first();
-                                @endphp
-                                @switch($rol)
-                                    @case('admin')
-                                        <span class="badge badge-admin">
-                                            <i class="fas fa-shield-alt me-1"></i>Administrador
-                                        </span>
-                                        @break
-                                    @case('conductor')
-                                        <span class="badge badge-conductor-rol">
-                                            <i class="fas fa-steering-wheel me-1"></i>Conductor
-                                        </span>
-                                        @break
-                                    @case('pasajero')
+                                @switch($user->perfil)
+                                    @case(0)
                                         <span class="badge badge-pasajero-rol">
                                             <i class="fas fa-user me-1"></i>Pasajero
                                         </span>
                                         @break
-                                    @case('soporte')
-                                        <span class="badge badge-soporte">
-                                            <i class="fas fa-headset me-1"></i>Soporte
+                                    @case(1)
+                                        <span class="badge badge-conductor-rol">
+                                            <i class="fas fa-car me-1"></i>Conductor
+                                        </span>
+                                        @break
+                                    @case(2)
+                                        <span class="badge badge-ambos">
+                                            <i class="fas fa-users me-1"></i>Ambos
                                         </span>
                                         @break
                                     @default
-                                        <span class="badge badge-user">
-                                            <i class="fas fa-user me-1"></i>{{ ucfirst($rol) }}
+                                        <span class="badge badge-pasajero-rol">
+                                            <i class="fas fa-user me-1"></i>Pasajero
                                         </span>
                                 @endswitch
                             </td>
@@ -383,6 +369,11 @@
     color: #000;
 }
 
+.badge-ambos {
+    background: linear-gradient(135deg, #667eea 0%, #4CAF50 100%);
+    color: white;
+}
+
 .badge-soporte {
     background: linear-gradient(135deg, #fa8bff 0%, #2bd2ff 100%);
     color: #fff;
@@ -505,7 +496,7 @@ document.addEventListener('DOMContentLoaded', function() {
         return new bootstrap.Tooltip(tooltipTriggerEl);
     });
 
-    const filtroRol = document.getElementById('filtro-rol');
+    const filtroPerfil = document.getElementById('filtro-perfil');
     const filtroVerificado = document.getElementById('filtro-verificado');
     const filtroOrdenar = document.getElementById('filtro-ordenar');
     const limpiarFiltros = document.getElementById('limpiar-filtros');
@@ -516,7 +507,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function aplicarFiltros() {
         const url = new URL(window.location);
 
-        url.searchParams.delete('rol');
+        url.searchParams.delete('perfil');
         url.searchParams.delete('verificado');
         url.searchParams.delete('buscar');
         url.searchParams.delete('page');
@@ -533,9 +524,9 @@ document.addEventListener('DOMContentLoaded', function() {
             url.searchParams.set('buscar', terminoBusqueda);
         }
 
-        const valorRol = filtroRol.value;
-        if (valorRol) {
-            url.searchParams.set('rol', valorRol);
+        const valorPerfil = filtroPerfil.value;
+        if (valorPerfil !== '') {
+            url.searchParams.set('perfil', valorPerfil);
         }
 
         const valorVerificado = filtroVerificado.value;
@@ -555,7 +546,7 @@ document.addEventListener('DOMContentLoaded', function() {
         aplicarFiltros();
     }
 
-    filtroRol.addEventListener('change', aplicarFiltros);
+    filtroPerfil.addEventListener('change', aplicarFiltros);
     filtroVerificado.addEventListener('change', aplicarFiltros);
     filtroOrdenar.addEventListener('change', aplicarFiltros);
     btnBuscar.addEventListener('click', aplicarFiltros);

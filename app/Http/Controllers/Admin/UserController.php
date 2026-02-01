@@ -19,7 +19,7 @@ public function index(Request $request)
 {
     // Obtener parámetros de filtro
     $ordenar = $request->get('ordenar', 'created_at');
-    $rol = $request->get('rol');
+    $perfil = $request->get('perfil');
     $verificado = $request->get('verificado');
     $buscar = $request->get('buscar');
 
@@ -35,11 +35,9 @@ public function index(Request $request)
         });
     }
 
-    // Filtro por rol
-    if ($rol) {
-        $query->whereHas('roles', function($q) use ($rol) {
-            $q->where('name', $rol);
-        });
+    // Filtro por perfil (0=pasajero, 1=conductor, 2=ambos)
+    if ($perfil !== null && $perfil !== '') {
+        $query->where('perfil', $perfil);
     }
 
     // Filtro por estado de verificación

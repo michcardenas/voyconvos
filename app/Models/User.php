@@ -23,6 +23,7 @@ class User extends Authenticatable
         'email',
         'password',
         'fecha_nacimiento',
+        'perfil',         // 0=pasajero, 1=conductor, 2=ambos
         'pais',
         'ciudad',
         'dni',

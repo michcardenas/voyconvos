@@ -57,6 +57,55 @@
                             <span class="error-message" id="error-fecha_nacimiento"></span>
                             <small class="form-hint">Debes ser mayor de 18 años (Campo obligatorio)</small>
                         </div>
+
+                        <div class="form-group">
+                            <x-input-label :value="__('¿Cómo deseas usar nuestra plataforma?')" class="form-label" />
+                            <div class="profile-type-selector">
+                                <label class="profile-option" for="perfil_pasajero">
+                                    <input type="radio" id="perfil_pasajero" name="perfil" value="0" {{ old('perfil', '0') == '0' ? 'checked' : '' }}>
+                                    <div class="profile-option-content">
+                                        <div class="profile-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="12" cy="7" r="4"></circle>
+                                            </svg>
+                                        </div>
+                                        <span class="profile-label">Pasajero</span>
+                                        <span class="profile-desc">Quiero buscar viajes</span>
+                                    </div>
+                                </label>
+                                <label class="profile-option" for="perfil_conductor">
+                                    <input type="radio" id="perfil_conductor" name="perfil" value="1" {{ old('perfil') == '1' ? 'checked' : '' }}>
+                                    <div class="profile-option-content">
+                                        <div class="profile-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <circle cx="12" cy="12" r="10"></circle>
+                                                <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+                                            </svg>
+                                        </div>
+                                        <span class="profile-label">Conductor</span>
+                                        <span class="profile-desc">Quiero ofrecer viajes</span>
+                                    </div>
+                                </label>
+                                <label class="profile-option" for="perfil_ambos">
+                                    <input type="radio" id="perfil_ambos" name="perfil" value="2" {{ old('perfil') == '2' ? 'checked' : '' }}>
+                                    <div class="profile-option-content">
+                                        <div class="profile-icon ambos-icon">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                                                <circle cx="9" cy="7" r="4"></circle>
+                                                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                                                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                            </svg>
+                                        </div>
+                                        <span class="profile-label">Ambos</span>
+                                        <span class="profile-desc">Conductor y pasajero</span>
+                                    </div>
+                                </label>
+                            </div>
+                            <x-input-error :messages="$errors->get('perfil')" class="mt-2" />
+                            <span class="error-message" id="error-perfil"></span>
+                        </div>
                     </div>
                     
                     <!-- PASO 2: Ubicación y Contacto -->
@@ -169,6 +218,10 @@
                                 <div class="summary-item">
                                     <span class="summary-label">Celular:</span>
                                     <span class="summary-value" id="summary-celular"></span>
+                                </div>
+                                <div class="summary-item">
+                                    <span class="summary-label">Perfil:</span>
+                                    <span class="summary-value" id="summary-perfil"></span>
                                 </div>
                             </div>
                         </div>
@@ -435,6 +488,79 @@
             font-weight: 500;
         }
         
+        /* Selector de tipo de perfil */
+        .profile-type-selector {
+            display: flex;
+            gap: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .profile-option {
+            flex: 1;
+            cursor: pointer;
+        }
+
+        .profile-option input[type="radio"] {
+            display: none;
+        }
+
+        .profile-option-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            border: 2px solid #E2E8F0;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            background-color: #F8FAFC;
+        }
+
+        .profile-option input[type="radio"]:checked + .profile-option-content {
+            border-color: var(--color-principal);
+            background-color: var(--color-azul-claro);
+            box-shadow: 0 4px 12px rgba(31, 78, 121, 0.15);
+        }
+
+        .profile-option:hover .profile-option-content {
+            border-color: var(--color-principal);
+            transform: translateY(-2px);
+        }
+
+        .profile-icon {
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: var(--color-principal);
+            color: white;
+            border-radius: 50%;
+            margin-bottom: 0.75rem;
+        }
+
+        .profile-icon.ambos-icon {
+            background: linear-gradient(135deg, var(--color-principal), var(--color-complementario));
+        }
+
+        .profile-label {
+            font-weight: 600;
+            color: var(--color-neutro-oscuro);
+            font-size: 0.95rem;
+        }
+
+        .profile-desc {
+            font-size: 0.75rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            .profile-type-selector {
+                flex-direction: column;
+            }
+        }
+
         /* Upload de foto */
         .photo-upload-container {
             display: flex;
@@ -721,6 +847,7 @@
                 @if($errors->has('email')) 'email': 1, @endif
                 @if($errors->has('name')) 'name': 1, @endif
                 @if($errors->has('fecha_nacimiento')) 'fecha_nacimiento': 1, @endif
+                @if($errors->has('perfil')) 'perfil': 1, @endif
                 @if($errors->has('pais')) 'pais': 2, @endif
                 @if($errors->has('ciudad')) 'ciudad': 2, @endif
                 @if($errors->has('celular')) 'celular': 2, @endif
@@ -809,6 +936,17 @@
                     document.getElementById('summary-pais').textContent = document.getElementById('pais').value;
                     document.getElementById('summary-ciudad').textContent = document.getElementById('ciudad').value;
                     document.getElementById('summary-celular').textContent = document.getElementById('celular').value;
+
+                    // Mostrar tipo de perfil
+                    const perfilRadio = document.querySelector('input[name="perfil"]:checked');
+                    if (perfilRadio) {
+                        const perfilTexto = {
+                            '0': 'Pasajero',
+                            '1': 'Conductor',
+                            '2': 'Ambos (Conductor y Pasajero)'
+                        };
+                        document.getElementById('summary-perfil').textContent = perfilTexto[perfilRadio.value] || 'Pasajero';
+                    }
                 }
             }
             
