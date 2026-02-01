@@ -877,12 +877,24 @@
 </div>
 
 <!-- Sección de regreso fuera del grid -->
-<!-- Hora de regreso -->
+<!-- Fecha y Hora de regreso -->
 <div id="return-section" class="return-section" style="margin-top: 1.5rem;">
-    <label class="return-label">🕐 Hora de regreso</label>
-    <select id="hora_regreso" class="trip-input hora-select">
-        <option value="">Selecciona una hora</option>
-    </select>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+        <div>
+            <label class="return-label">📅 Fecha de regreso</label>
+            <input type="date" id="fecha_regreso" class="trip-input" onchange="validarFechaRegreso()">
+            <small id="error-fecha-regreso" style="color: #dc2626; font-size: 0.8rem; display: none;"></small>
+        </div>
+        <div>
+            <label class="return-label">🕐 Hora de regreso</label>
+            <select id="hora_regreso" class="trip-input hora-select">
+                <option value="">Selecciona una hora</option>
+            </select>
+        </div>
+    </div>
+    <small style="display: block; margin-top: 0.5rem; color: #78350f; font-size: 0.85rem;">
+        ⚠️ La fecha de regreso debe ser igual o posterior a la fecha de ida
+    </small>
 </div>
     </div>
     <center>
@@ -959,6 +971,7 @@
     <input type="hidden" id="fecha_programada">
     <input type="hidden" id="hora_salida_programada">
     <input type="hidden" id="hora_regreso_programada">
+    <input type="hidden" id="fecha_regreso_programada">
 </div>
 <!-- Sección de Resultados del Cálculo -->
 <!-- Sección de Resultados del Cálculo -->
@@ -2109,11 +2122,20 @@ function toggleIdaVuelta() {
     const checkbox = document.getElementById('ida_vuelta');
     const returnSection = document.getElementById('return-section');
     const horaRegreso = document.getElementById('hora_regreso');
-    
+    const fechaRegreso = document.getElementById('fecha_regreso');
+    const fechaViaje = document.getElementById('fecha_viaje').value;
+
     if (checkbox.checked) {
         returnSection.classList.add('show');
         horaRegreso.required = true;
-        
+        fechaRegreso.required = true;
+
+        // Establecer fecha mínima de regreso = fecha de ida
+        if (fechaViaje) {
+            fechaRegreso.min = fechaViaje;
+            fechaRegreso.value = fechaViaje; // Sugerir misma fecha por defecto
+        }
+
         // Sugerir hora de regreso (4 horas después)
         const horaSalida = document.getElementById('hora_salida').value;
         if (horaSalida && /^([0-1][0-9]|2[0-3]):([0-5][0-9])$/.test(horaSalida)) {
@@ -2121,21 +2143,74 @@ function toggleIdaVuelta() {
             const horaSalidaDate = new Date();
             horaSalidaDate.setHours(horas, minutos);
             horaSalidaDate.setHours(horaSalidaDate.getHours() + 4);
-            
-            const horaRegresoSugerida = String(horaSalidaDate.getHours()).padStart(2, '0') + ':' + 
+
+            const horaRegresoSugerida = String(horaSalidaDate.getHours()).padStart(2, '0') + ':' +
                                        String(horaSalidaDate.getMinutes()).padStart(2, '0');
             horaRegreso.value = horaRegresoSugerida;
-            validarFormatoHora(horaRegreso);
         }
-        
+
         document.getElementById('status').textContent = '🔄 Viaje de ida y vuelta programado';
     } else {
         returnSection.classList.remove('show');
         horaRegreso.required = false;
+        fechaRegreso.required = false;
         horaRegreso.value = '';
+        fechaRegreso.value = '';
         horaRegreso.classList.remove('valido', 'invalido');
-        
+
+        // Limpiar error de fecha regreso
+        const errorFechaRegreso = document.getElementById('error-fecha-regreso');
+        if (errorFechaRegreso) {
+            errorFechaRegreso.style.display = 'none';
+        }
+
         document.getElementById('status').textContent = '✅ Viaje de ida programado';
+    }
+}
+
+function validarFechaRegreso() {
+    const fechaViaje = document.getElementById('fecha_viaje').value;
+    const fechaRegreso = document.getElementById('fecha_regreso');
+    const errorElement = document.getElementById('error-fecha-regreso');
+
+    if (!fechaViaje || !fechaRegreso.value) {
+        errorElement.style.display = 'none';
+        return true;
+    }
+
+    const fechaIda = new Date(fechaViaje + 'T00:00:00');
+    const fechaVuelta = new Date(fechaRegreso.value + 'T00:00:00');
+
+    if (fechaVuelta < fechaIda) {
+        errorElement.textContent = '⚠️ La fecha de regreso no puede ser anterior a la fecha de ida';
+        errorElement.style.display = 'block';
+        fechaRegreso.style.borderColor = '#dc2626';
+        return false;
+    }
+
+    errorElement.style.display = 'none';
+    fechaRegreso.style.borderColor = '#00C853';
+
+    // Actualizar la visualización
+    mostrarInfoProgramacion();
+
+    return true;
+}
+
+function actualizarFechaRegresoMin() {
+    const fechaViaje = document.getElementById('fecha_viaje').value;
+    const fechaRegreso = document.getElementById('fecha_regreso');
+    const idaVuelta = document.getElementById('ida_vuelta').checked;
+
+    if (fechaViaje && idaVuelta) {
+        fechaRegreso.min = fechaViaje;
+
+        // Si la fecha de regreso actual es menor que la nueva fecha de ida, actualizarla
+        if (fechaRegreso.value && fechaRegreso.value < fechaViaje) {
+            fechaRegreso.value = fechaViaje;
+        }
+
+        validarFechaRegreso();
     }
 }
 
@@ -2150,26 +2225,30 @@ function mostrarInfoProgramacion() {
     const horaSalida = document.getElementById('hora_salida').value;
     const idaVuelta = document.getElementById('ida_vuelta').checked;
     const horaRegreso = document.getElementById('hora_regreso').value;
-    
+    const fechaRegreso = document.getElementById('fecha_regreso').value;
+
     // Guardar en campos hidden
     document.getElementById('es_ida_vuelta').value = idaVuelta ? '1' : '0';
     document.getElementById('fecha_programada').value = fechaViaje;
     document.getElementById('hora_salida_programada').value = horaSalida;
     document.getElementById('hora_regreso_programada').value = horaRegreso;
-    
+    document.getElementById('fecha_regreso_programada').value = fechaRegreso;
+
     // Mostrar tarjeta de fecha programada
     if (fechaViaje && horaSalida) {
         const fechaCard = document.getElementById('fecha-programada-card');
         const fechaTexto = document.getElementById('fecha-programada');
-        
+
         const fecha = new Date(fechaViaje + 'T00:00:00');
         const fechaFormateada = fecha.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
-        
+
         let textoCompleto = `${fechaFormateada} ${horaSalida}`;
-        if (idaVuelta && horaRegreso) {
-            textoCompleto += ` 🔄 ${horaRegreso}`;
+        if (idaVuelta && horaRegreso && fechaRegreso) {
+            const fechaReg = new Date(fechaRegreso + 'T00:00:00');
+            const fechaRegresoFormateada = fechaReg.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' });
+            textoCompleto += ` 🔄 ${fechaRegresoFormateada} ${horaRegreso}`;
         }
-        
+
         fechaTexto.textContent = textoCompleto;
         fechaCard.style.display = 'block';
     }
@@ -2193,8 +2272,22 @@ function guardarViaje() {
     
     if (document.getElementById('ida_vuelta').checked) {
         const horaRegresoInput = document.getElementById('hora_regreso');
-        if (!validarFormatoHora(horaRegresoInput)) {
-            showModal('error', 'Hora inválida', 'Por favor, ingresa una hora de regreso válida en formato 24 horas (HH:MM)');
+        const fechaRegresoInput = document.getElementById('fecha_regreso');
+
+        if (!fechaRegresoInput.value) {
+            showModal('error', 'Fecha requerida', 'Por favor, selecciona la fecha de regreso');
+            fechaRegresoInput.focus();
+            return;
+        }
+
+        if (!validarFechaRegreso()) {
+            showModal('error', 'Fecha inválida', 'La fecha de regreso debe ser igual o posterior a la fecha de ida');
+            fechaRegresoInput.focus();
+            return;
+        }
+
+        if (!horaRegresoInput.value) {
+            showModal('error', 'Hora requerida', 'Por favor, selecciona la hora de regreso');
             horaRegresoInput.focus();
             return;
         }
@@ -2237,6 +2330,7 @@ function obtenerDatosViaje() {
         hora_salida: document.getElementById('hora_salida').value,
         ida_vuelta: document.getElementById('ida_vuelta').checked ? 1 : 0,
         hora_regreso: document.getElementById('hora_regreso').value || null,
+        fecha_regreso: document.getElementById('fecha_regreso').value || null,
         puestos_disponibles: document.getElementById('puestos_disponibles').value,
         puestos_totales: puestosTotales,
         valor_cobrado: valorViaje,
@@ -2392,9 +2486,16 @@ document.addEventListener('DOMContentLoaded', function() {
     configurarInputsHora();
 
     // Listeners de eventos
-    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('fecha_viaje').addEventListener('change', function() {
+        actualizarInfoFecha();
+        actualizarFechaRegresoMin();
+    });
     document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
     document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('fecha_regreso').addEventListener('change', function() {
+        validarFechaRegreso();
+        actualizarInfoFecha();
+    });
 
     console.log('✅ Sistema inicializado correctamente');
 });
@@ -2453,9 +2554,16 @@ document.addEventListener('DOMContentLoaded', function() {
     generarOpcionesHora('hora_regreso', 15);
 
     // Listeners de eventos
-    document.getElementById('fecha_viaje').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('fecha_viaje').addEventListener('change', function() {
+        actualizarInfoFecha();
+        actualizarFechaRegresoMin();
+    });
     document.getElementById('hora_salida').addEventListener('change', actualizarInfoFecha);
     document.getElementById('hora_regreso').addEventListener('change', actualizarInfoFecha);
+    document.getElementById('fecha_regreso').addEventListener('change', function() {
+        validarFechaRegreso();
+        actualizarInfoFecha();
+    });
 
     console.log('✅ Sistema inicializado correctamente');
 });
@@ -2463,76 +2571,9 @@ document.addEventListener('DOMContentLoaded', function() {
 // ========================================
 // 🔄 FUNCIÓN ACTUALIZADA DE IDA Y VUELTA
 // ========================================
-function toggleIdaVuelta() {
-    const checkbox = document.getElementById('ida_vuelta');
-    const returnSection = document.getElementById('return-section');
-    const horaRegreso = document.getElementById('hora_regreso');
-    
-    if (checkbox.checked) {
-        returnSection.classList.add('show');
-        horaRegreso.required = true;
-        
-        // Sugerir hora de regreso (4 horas después)
-        const horaSalida = document.getElementById('hora_salida').value;
-        if (horaSalida) {
-            const [horas, minutos] = horaSalida.split(':').map(Number);
-            const horaSalidaDate = new Date();
-            horaSalidaDate.setHours(horas, minutos);
-            horaSalidaDate.setHours(horaSalidaDate.getHours() + 4);
-            
-            const horaRegresoSugerida = String(horaSalidaDate.getHours()).padStart(2, '0') + ':' + 
-                                       String(horaSalidaDate.getMinutes()).padStart(2, '0');
-            
-            // Seleccionar la hora más cercana disponible
-            const opcionesRegreso = horaRegreso.options;
-            for (let i = 0; i < opcionesRegreso.length; i++) {
-                if (opcionesRegreso[i].value >= horaRegresoSugerida) {
-                    horaRegreso.selectedIndex = i;
-                    break;
-                }
-            }
-        }
-        
-        document.getElementById('status').textContent = '🔄 Viaje de ida y vuelta programado';
-    } else {
-        returnSection.classList.remove('show');
-        horaRegreso.required = false;
-        horaRegreso.selectedIndex = 0; // Volver a "Selecciona una hora"
-        
-        document.getElementById('status').textContent = '✅ Viaje de ida programado';
-    }
-}
-
-// ========================================
-// 💾 GUARDAR VIAJE (VALIDACIÓN SIMPLIFICADA)
-// ========================================
-function guardarViaje() {
-    // Validar que se haya seleccionado hora
-    const horaSalida = document.getElementById('hora_salida').value;
-    if (!horaSalida) {
-        showModal('error', 'Datos incompletos', 'Por favor, selecciona una hora de salida');
-        document.getElementById('hora_salida').focus();
-        return;
-    }
-    
-    if (document.getElementById('ida_vuelta').checked) {
-        const horaRegreso = document.getElementById('hora_regreso').value;
-        if (!horaRegreso) {
-            showModal('error', 'Datos incompletos', 'Por favor, selecciona una hora de regreso');
-            document.getElementById('hora_regreso').focus();
-            return;
-        }
-    }
-
-    // Obtener datos
-    const datos = obtenerDatosViaje();
-    
-    // Validaciones
-    if (!validarDatosViaje(datos)) return;
-
-    // Enviar al servidor
-    enviarViajeAlServidor(datos);
-}
+// NOTA: Esta función está duplicada, se usa la primera definición (línea ~2156)
+// La función principal ya incluye la lógica de fecha_regreso
+// Código duplicado removido - usar funciones principales definidas arriba
 </script>
 
 <!-- Modal de éxito -->

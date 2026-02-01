@@ -31,6 +31,7 @@ class Viaje extends Model
         'pasajeros_ausentes',
         'ida_vuelta',
         'hora_regreso',
+        'fecha_regreso',
         'fecha_inicio_proceso',
         'fecha_inicio_real',
         'fecha_finalizacion',

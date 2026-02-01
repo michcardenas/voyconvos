@@ -1038,7 +1038,11 @@ body {
                         <i class="far fa-calendar" style="margin-right: 4px;"></i>Fecha
                     </div>
                     <div style="font-weight: 600; color: var(--vcv-dark);">
-                        {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}
+                        @if($tipoViaje == 'ida')
+                            {{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}
+                        @else
+                            {{ $viaje->fecha_regreso ? \Carbon\Carbon::parse($viaje->fecha_regreso)->format('d/m/Y') : \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}
+                        @endif
                     </div>
                 </div>
                 <div>

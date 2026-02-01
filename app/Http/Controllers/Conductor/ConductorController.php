@@ -994,6 +994,7 @@ public function guardarViaje(Request $request)
             'valor_persona' => 'required|numeric|min:0',
             'ida_vuelta' => 'nullable|boolean',
             'hora_regreso' => 'nullable',
+            'fecha_regreso' => 'nullable|date|after_or_equal:fecha_salida',
             'paradas' => 'nullable|array',
             'paradas.*.nombre' => 'required_with:paradas|string',
             'paradas.*.latitud' => 'required_with:paradas|numeric',
@@ -1031,6 +1032,7 @@ public function guardarViaje(Request $request)
             'valor_persona' => $request->valor_persona,
             'ida_vuelta' => $request->ida_vuelta ? 1 : 0,
             'hora_regreso' => $request->hora_regreso,
+            'fecha_regreso' => $request->fecha_regreso,
             'estado' => 'pendiente',
             'activo' => true,
             'vehiculo' => $this->obtenerInfoVehiculo()

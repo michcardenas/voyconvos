@@ -168,6 +168,7 @@
                                 $mostrarOrigen = $tipoViaje == 'ida' ? $origenCorta : $destinoCorta;
                                 $mostrarDestino = $tipoViaje == 'ida' ? $destinoCorta : $origenCorta;
                                 $mostrarHora = $tipoViaje == 'ida' ? $viaje->hora_salida : ($viaje->hora_regreso ?? $viaje->hora_salida);
+                                $mostrarFecha = $tipoViaje == 'ida' ? $viaje->fecha_salida : ($viaje->fecha_regreso ?? $viaje->fecha_salida);
                             @endphp
 
                             <div class="viaje-card" style="min-width: 280px; max-width: 280px;">
@@ -191,7 +192,7 @@
                         <div style="padding: 0 1rem; flex: 1; display: flex; flex-direction: column; gap: 0.5rem;">
                             <div style="display: flex; align-items: center; padding: 0.4rem 0;">
                                 <i class="fas fa-calendar" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #DDF2FE 0%, rgba(31, 78, 121, 0.1) 100%); color: #1F4E79;"></i>
-                                <span style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($viaje->fecha_salida)->format('d/m/Y') }}</span>
+                                <span style="font-size: 0.85rem;">{{ \Carbon\Carbon::parse($mostrarFecha)->format('d/m/Y') }}</span>
                             </div>
                             <div style="display: flex; align-items: center; padding: 0.4rem 0;">
                                 <i class="fas fa-clock" style="width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin-right: 0.75rem; font-size: 0.85rem; flex-shrink: 0; background: linear-gradient(135deg, #e8f5e9 0%, rgba(76, 175, 80, 0.1) 100%); color: #27ae60;"></i>
