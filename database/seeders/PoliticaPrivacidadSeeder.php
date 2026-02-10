@@ -80,7 +80,6 @@ foreach ($headerContenidos as $clave => $valor) {
 
         // Contenido general del documento
         $politicaTexto = <<<TEXT
-Última actualización: Junio 2025
 
 1. ¿QUÉ INFORMACIÓN RECOPILAMOS?
 - Datos personales como nombre, email, teléfono, DNI.

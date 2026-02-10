@@ -560,7 +560,7 @@
             </div>
 
             <div class="footer-bottom">
-                <p>&copy; 2025 VoyConVos. Todos los derechos reservados.</p>
+                <p>&copy; 2026 VoyConVos. Todos los derechos reservados.</p>
             </div>
         </div>
     </footer>
